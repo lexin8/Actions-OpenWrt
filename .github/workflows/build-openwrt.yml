@@ -73,6 +73,17 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
+    - name: 自定义插件
+      run: |
+        cd openwrt/package/
+        git clone https://github.com/kenzok8/openwrt-packages.git
+        
+    - name: 添加主题
+      run: |
+        cd openwrt/package/lean  
+        rm -rf luci-theme-argon  
+        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
@@ -87,17 +98,6 @@ jobs:
         chmod +x $DIY_P3_SH
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
-
-    - name: 自定义插件
-      run: |
-        cd openwrt/package/
-        git clone https://github.com/kenzok8/openwrt-packages.git
-        
-    - name: 添加主题
-      run: |
-        cd openwrt/package/lean  
-        rm -rf luci-theme-argon  
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
