@@ -29,7 +29,7 @@ sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_genera
 # 修改插件名字（修改名字后不知道会不会对插件功能有影响，自己多测试）
 sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }' package/openwrt-packages/luci-app-ssr-plus/po/zh-cn/ssr-plus.po
 sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g' package/openwrt-packages/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
-sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g' package/openwrt-packages/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
+sed -i "s#ShadowsocksR Plus+ #科学上网#g" package/openwrt-packages/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
 # sed -i 's/cbi("qbittorrent"),_("qBittorrent")/cbi("qbittorrent"),_("BT下载")/g' package/lean/luci-app-qbittorrent/luasrc/controller/qbittorrent.lua
 # sed -i 's/"aMule设置"/"电驴下载"/g' package/lean/luci-app-amule/po/zh-cn/amule.po
