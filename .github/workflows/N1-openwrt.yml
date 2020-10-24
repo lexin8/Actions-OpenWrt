@@ -108,6 +108,11 @@ jobs:
         rm -rf luci-theme-argon  
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
+    - name: 删除主题
+      run: |
+        cd openwrt/package/openwrt-packages  
+        rm -rf luci-theme-argon_new  
+        
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
       if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
