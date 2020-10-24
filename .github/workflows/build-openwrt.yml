@@ -83,6 +83,11 @@ jobs:
         cd openwrt/package/lean  
         rm -rf luci-theme-argon  
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+        
+    - name: 删除主题
+      run: |
+        cd openwrt/package/openwrt-packages  
+        rm -rf luci-theme-argon_new  
 
     - name: Load custom configuration
       run: |
