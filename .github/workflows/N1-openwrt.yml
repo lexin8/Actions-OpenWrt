@@ -111,7 +111,7 @@ jobs:
     - name: 删除主题
       run: |
         cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme-argon_new  
+        rm -rf luci-theme*  
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
