@@ -1,3 +1,10 @@
+#!/bin/bash
+# https://github.com/Hyy2001X/AutoBuild-Actions
+# AutoBuild Module by Hyy2001
+# AutoBuild Actions
+
+
+
 mv2() {
 if [ -f $GITHUB_WORKSPACE/Customize/$1 ];then
 	echo "[$(date "+%H:%M:%S")] File [$1] is detected!"
@@ -24,5 +31,18 @@ Diy-Part1() {
 
 # mv2 feeds.conf.default
 # mv2 AutoUpdate.sh package/base-files/files/bin
+mv2 banner package/base-files/files/etc
+mv2 luci.mk feeds/luci
 mv2 Makefile feeds/luci/collections/luci
 mv2 target.mk include
+# mv2 hostname etc/
+
+# ExtraPackages git openwrt-upx https://github.com/Hyy2001X master
+# ExtraPackages svn luci-app-mentohust https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw
+# ExtraPackages svn mentohust https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw
+# ExtraPackages svn luci-theme-opentomato https://github.com/kenzok8/openwrt-packages/trunk
+# ExtraPackages svn luci-theme-opentomcat https://github.com/kenzok8/openwrt-packages/trunk
+# ExtraPackages svn luci-app-adguardhome https://github.com/Lienol/openwrt/trunk/package/diy
+# ExtraPackages git luci-app-adguardhome https://github.com/rufengsuixing master
+# ExtraPackages git openwrt-OpenAppFilter https://github.com/Lienol master
+}
