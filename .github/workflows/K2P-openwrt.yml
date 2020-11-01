@@ -30,6 +30,7 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
+  DIY_P4_SH: diy-part4.sh:  
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -103,6 +104,12 @@ jobs:
         chmod +x $DIY_P3_SH
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
+        
+    - name: 脚本4
+      run: |
+        chmod +x $DIY_P4_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P4_SH && Diy-Part1
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
