@@ -77,6 +77,7 @@ jobs:
       run: |
         cd openwrt/package/
         git clone https://github.com/kenzok8/openwrt-packages.git
+        git clone https://github.com/MeIsReallyBa/k2p-openwrt-mt7615_5.0.2.0
         
     - name: 添加主题
       run: |
