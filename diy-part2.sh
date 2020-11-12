@@ -27,10 +27,10 @@ sed -i "s/19.07-SNAPSHOT/19.07 build $(TZ=UTC-8 date "+%Y.%m.%d") /g" package/de
 #sed -i 's/KERNEL_PATCHVER:=4.14/KERNEL_PATCHVER:=4.19/g' target/linux/x86/Makefile
 
 # 修改插件名字（修改名字后不知道会不会对插件功能有影响，自己多测试）
-sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }' package/openwrt-packages/luci-app-ssr-plus/po/zh-cn/ssr-plus.po
-sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g' package/openwrt-packages/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
+sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网Plus+/g; }' package/openwrt-packages/luci-app-ssr-plus/po/zh-cn/ssr-plus.po
+sed -i 's/"ShadowSocksR Plus+"/"科学上网Plus+"/g' package/openwrt-packages/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
 sed -i "s#ShadowsocksR Plus+ #科学上网程序#g" package/openwrt-packages/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
-# sed -i 's/"PassWall"/"正确姿势翻墙✔"/g' package/openwrt-packages/luci-app-passwall/po/zh-cn/passwall.po
+sed -i 's/"PassWall"/"正确姿势翻墙✔"/g' feeds/diy1/lienol/luci-app-passwall/po/zh-cn/passwall.po
 # sed -i 's/PassWall/正确姿势翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
 # sed -i 's/cbi("qbittorrent"),_("qBittorrent")/cbi("qbittorrent"),_("BT下载")/g' package/lean/luci-app-qbittorrent/luasrc/controller/qbittorrent.lua
