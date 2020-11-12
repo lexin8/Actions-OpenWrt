@@ -87,7 +87,7 @@ jobs:
     - name: 删除主题
       run: |
         cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme*  
+        rm -rf luci-theme* && rm -rf luci-app-passwall
 
     - name: Load custom configuration
       run: |
