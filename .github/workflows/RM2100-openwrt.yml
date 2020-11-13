@@ -85,12 +85,12 @@ jobs:
         rm -rf luci-theme-argon  
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
-    - name: 删除主题
+    - name: 删除重复插件
       run: |
         cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme*  
+        rm -rf luci-theme* && rm -rf luci-app-passwall 
 
-    - name: Load custom configuration
+    - name: .config运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
