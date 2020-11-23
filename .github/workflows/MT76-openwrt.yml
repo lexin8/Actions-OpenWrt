@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: RM2100 OpenWrt
+name: MT76 OpenWrt
 
 on:
   repository_dispatch:
@@ -16,7 +16,7 @@ on:
     branches:
       - master
     paths:
-      - 'RM2100.config'
+      - 'MT76.config'
   schedule:
     - cron: 0 21 * * 2,4,6
   watch:
@@ -26,7 +26,7 @@ env:
   REPO_URL: https://github.com/Lienol/openwrt
   REPO_BRANCH: 19.07
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: RM2100.config
+  CONFIG_FILE: MT76.config
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P4_SH: diy-part4.sh
