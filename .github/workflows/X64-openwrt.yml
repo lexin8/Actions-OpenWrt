@@ -86,8 +86,15 @@ jobs:
         
     - name: 删除重复插件
       run: |
-        cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme* && rm -rf luci-app-passwall
+        cd openwrt/package/openwrt-packages
+        rm -rf luci-theme* 
+#        rm -rf luci-theme* && rm -rf luci-app-passwall
+
+    - name: 删除重复插件2
+      run: |
+        cd openwrt/
+        rm -rf feeds/diy1/luci-app-passwall
+  
 
     - name: .config运行脚本2
       run: |
