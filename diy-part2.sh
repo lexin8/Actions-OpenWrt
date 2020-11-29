@@ -30,7 +30,7 @@ sed -i "s/19.07-SNAPSHOT/19.07 build $(TZ=UTC-8 date "+%Y.%m.%d") /g" package/de
 sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }' package/openwrt-packages/luci-app-ssr-plus/po/zh-cn/ssr-plus.po
 sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g' package/openwrt-packages/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua
 sed -i "s#ShadowsocksR Plus+ #科学上网程序#g" package/openwrt-packages/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
-#sed -i 's/"PassWall"/"正确翻墙姿势✔"/g' package/openwrt-packages/luci-app-passwall/po/zh-cn/passwall.po
+sed -i 's/"PassWall"/"正确翻墙姿势✔"/g' package/openwrt-packages/luci-app-passwall/po/zh-cn/passwall.po
 # sed -i 's/"PassWall"/"正确翻墙姿势✔"/g' feeds/diy1/luci-app-passwall/po/zh-cn/passwall.po
 # sed -i 's/PassWall/正确翻墙翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
