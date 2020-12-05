@@ -73,21 +73,16 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: 自定义插件
+    - name: DIY插件
       run: |
-        cd openwrt/package/
-        git clone https://github.com/kenzok8/openwrt-packages.git
-
-    - name: 删除重复插件
+        cd openwrt/package && git clone https://github.com/fw876/helloworld.git
+#        cd openwrt-packages && rm -rf luci-theme*
+        
+    - name: 添加主题
       run: |
-        cd openwrt/package/openwrt-packages
-        rm -rf luci-theme* && rm -rf luci-app-passwall
-        rm -rf naiveproxy
-
-#    - name: 删除重复插件2
-#      run: |
-#        cd openwrt/
-#        rm -rf feeds/diy1/luci-app-passwall
+        cd openwrt/package/lean
+        rm -rf luci-theme-argon
+        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 
     - name: .config运行脚本2
       run: |
@@ -112,17 +107,6 @@ jobs:
     - name: mknop
       run: |
         git clone https://github.com/tuanqing/mknop
-        
-    - name: 添加主题
-      run: |
-        cd openwrt/package/lean  
-        rm -rf luci-theme-argon  
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-        
-    - name: 删除主题
-      run: |
-        cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme* && rm -rf luci-app-passwall  
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
