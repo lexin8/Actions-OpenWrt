@@ -30,7 +30,7 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
-  SSH_ACTIONS: false
+  SSH_ACTIONS: true
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
@@ -73,25 +73,22 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
         
-    - name: 添加主题
-      run: |
-        cd openwrt/package/lean  
-        rm -rf luci-theme-argon  
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-        
     - name: DIY插件
       run: |
-        cd openwrt/package
-        mkdir openwrt-packages
-        cd openwrt-packages
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/tcping
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-smartdns
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/redsocks2
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
-        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-clash
+        cd openwrt/package && git clone https://github.com/kenzok8/openwrt-packages.git
+        cd openwrt-packages && rm -rf luci-theme*
         
+    - name: 添加主题
+      run: |
+        cd openwrt/package/lean
+        rm -rf luci-theme-argon
+        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+        
+    - name: 删除重复插件
+      run: |
+        cd openwrt/package/diy
+        rm -rf luci-app-adguardhome && rm -rf adguardhome
+              
     - name: .config运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
