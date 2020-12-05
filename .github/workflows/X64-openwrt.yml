@@ -72,11 +72,6 @@ jobs:
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
-
-    - name: 自定义插件
-      run: |
-        cd openwrt/package/
-        git clone https://github.com/kenzok8/openwrt-packages.git
         
     - name: 添加主题
       run: |
@@ -84,18 +79,19 @@ jobs:
         rm -rf luci-theme-argon  
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
-    - name: 删除重复插件
+    - name: DIY插件
       run: |
-        cd openwrt/package/openwrt-packages
-        rm -rf luci-theme* && rm -rf luci-app-passwall
-        rm -rf naiveproxy
-
-#    - name: 删除重复插件2
-#      run: |
-#        cd openwrt/
-#        rm -rf feeds/diy1/luci-app-passwall
-  
-
+        cd openwrt/package
+        mkdir openwrt-packages
+        cd openwrt-packages
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/tcping
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-smartdns
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/redsocks2
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
+        svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-clash
+        
     - name: .config运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
