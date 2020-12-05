@@ -76,7 +76,6 @@ jobs:
     - name: DIY插件
       run: |
         cd openwrt/package && git clone https://github.com/fw876/helloworld.git
-#        cd openwrt-packages && rm -rf luci-theme*
         
     - name: 添加主题
       run: |
@@ -84,10 +83,6 @@ jobs:
         rm -rf luci-theme-argon
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
         
-    - name: 删除重复插件
-      run: |
-        cd openwrt/package/diy
-        rm -rf luci-app-adguardhome && rm -rf adguardhome
               
     - name: .config运行脚本2
       run: |
