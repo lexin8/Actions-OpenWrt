@@ -75,8 +75,8 @@ jobs:
         
     - name: DIY插件
       run: |
-        cd openwrt/package && git clone https://github.com/kenzok8/openwrt-packages.git
-        cd openwrt-packages && rm -rf luci-theme*
+        cd openwrt/package && git clone https://github.com/fw876/helloworld.git
+#        cd openwrt-packages && rm -rf luci-theme*
         
     - name: 添加主题
       run: |
