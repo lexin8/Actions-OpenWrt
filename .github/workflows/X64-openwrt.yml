@@ -30,7 +30,8 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
-  SSH_ACTIONS: false
+  DIY_P5_SH: diy-part5.sh
+  SSH_ACTIONS: true
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
@@ -70,20 +71,6 @@ jobs:
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
-        
-    - name: DIY插件
-      run: |
-        cd openwrt/package && git clone https://github.com/fw876/helloworld.git
-        
-    - name: 添加主题
-      run: |
-        cd openwrt/package/lean
-        rm -rf luci-theme-argon
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
-        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
-        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
-        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/xray
                       
     - name: .config运行脚本2
       run: |
@@ -99,6 +86,12 @@ jobs:
         chmod +x $DIY_P3_SH
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
+        
+    - name: 脚本5
+      run: |
+        chmod +x $DIY_P5_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P5_SH
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
