@@ -70,32 +70,20 @@ jobs:
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
-
-    - name: 自定义插件
+        
+    - name: DIY插件
       run: |
-        cd openwrt/package/
-        git clone https://github.com/kenzok8/openwrt-packages.git
-        cd openwrt-packages/
-        git checkout 6131771c98c290d74c0ee0220f47946cb855bda1
+        cd openwrt/package && git clone https://github.com/fw876/helloworld.git
         
     - name: 添加主题
       run: |
-        cd openwrt/package/lean  
-        rm -rf luci-theme-argon  
+        cd openwrt/package/lean
+        rm -rf luci-theme-argon
         git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-        
-    - name: 删除重复插件
-      run: |
-        cd openwrt/package/openwrt-packages
-        rm -rf luci-theme* 
-#        rm -rf luci-theme* && rm -rf luci-app-passwall
-
-    - name: 删除重复插件2
-      run: |
-        cd openwrt/
-        rm -rf feeds/diy1/luci-app-passwall
-  
-
+        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
+        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
+        svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
+                      
     - name: .config运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
@@ -123,7 +111,7 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-    - name: Compile the firmware
+    - name: 开始编译固件
       id: compile
       run: |
         cd openwrt
