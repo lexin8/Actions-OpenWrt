@@ -71,6 +71,12 @@ jobs:
 
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
+
+    - name: 脚本5
+      run: |
+        chmod +x $DIY_P5_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P5_SH
                       
     - name: .config运行脚本2
       run: |
@@ -86,12 +92,6 @@ jobs:
         chmod +x $DIY_P3_SH
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
-        
-    - name: 脚本5
-      run: |
-        chmod +x $DIY_P5_SH
-        cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P5_SH
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
