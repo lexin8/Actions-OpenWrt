@@ -30,6 +30,7 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
+  DIY_P5_SH: diy-part5.sh 
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -73,16 +74,11 @@ jobs:
     - name: Install feeds
       run: cd openwrt && ./scripts/feeds install -a
 
-    - name: DIY插件
+    - name: 脚本5
       run: |
-        cd openwrt/package && git clone https://github.com/fw876/helloworld.git
-#        cd openwrt-packages && rm -rf luci-theme*
-        
-    - name: 添加主题
-      run: |
-        cd openwrt/package/lean
-        rm -rf luci-theme-argon
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+        chmod +x $DIY_P5_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P5_SH
 
     - name: .config运行脚本2
       run: |
