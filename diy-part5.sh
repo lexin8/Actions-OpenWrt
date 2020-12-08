@@ -2,6 +2,8 @@
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 cd package/lean/
 rm -rf luci-theme-argon && git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
+git clone https://github.com/Aslin-Ameng/luci-theme-Light
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
