@@ -87,11 +87,11 @@ jobs:
         ../$DIY_P2_SH
         
         
-    - name: 定制_脚本3
+    - name: 定制_脚本4
       run: |
-        chmod +x $DIY_P3_SH
+        chmod +x $DIY_P4_SH
         cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
+        source $GITHUB_WORKSPACE/$DIY_P4_SH && Diy-Part1
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
