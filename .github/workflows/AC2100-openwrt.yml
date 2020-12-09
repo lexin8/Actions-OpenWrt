@@ -58,7 +58,7 @@ jobs:
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
 
-     - name: 下载源码
+    - name: 下载源码
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Load custom feeds
