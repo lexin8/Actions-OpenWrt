@@ -30,6 +30,7 @@ env:
   DIY_P1_SH: diy-part1.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P4_SH: diy-part4.sh
+  DIY_P5_SH: diy-part5.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -57,7 +58,7 @@ jobs:
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
 
-    - name: Clone source code
+     - name: 下载源码
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
     - name: Load custom feeds
@@ -66,30 +67,18 @@ jobs:
         chmod +x $DIY_P1_SH
         cd openwrt
         ../$DIY_P1_SH
-
-    - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
-
-    - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
-
-    - name: 自定义插件
-      run: |
-        cd openwrt/package/
-        git clone https://github.com/kenzok8/openwrt-packages.git
         
-    - name: 添加主题
+    - name: 更新 feeds
       run: |
-        cd openwrt/package/lean  
-        rm -rf luci-theme-argon  
-        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-        
-    - name: 删除重复插件
+        cd openwrt
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+    - name: DIY插件_脚本5
       run: |
-        cd openwrt/package/openwrt-packages  
-        rm -rf luci-theme*
-        
-    - name: .config运行脚本2
+        chmod +x $DIY_P5_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P5_SH
+                      
+    - name: 配置_运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -97,11 +86,12 @@ jobs:
         cd openwrt
         ../$DIY_P2_SH
         
-    - name: 脚本4
+        
+    - name: 定制_脚本3
       run: |
-        chmod +x $DIY_P4_SH
+        chmod +x $DIY_P3_SH
         cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P4_SH && Diy-Part1
+        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
         
     - name: SSH connection to Actions
       uses: P3TERX/debugger-action@main
@@ -115,14 +105,15 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
-    - name: 开始编译
+        
+    - name: 开始编译固件
       id: compile
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+        
     - name: Upload bin directory
       uses: actions/upload-artifact@main
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
@@ -138,6 +129,7 @@ jobs:
         rm -rf packages
         echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
+        
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -145,13 +137,14 @@ jobs:
         name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
         path: ${{ steps.organize.outputs.FIRMWARE }}
 
-    - name: Upload firmware to cowtransfer
+    - name: 上传至 cowtransfer
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
       run: |
         curl -fsSL git.io/file-transfer | sh
         ./transfer cow --block 2621440 -s -p 64 --no-progress ${{ steps.organize.outputs.FIRMWARE }} | tee cowtransfer.log
         echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-    - name: Upload firmware to WeTransfer
+        
+    - name: 上传至 WeTransfer
       if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
       run: |
         curl -fsSL git.io/file-transfer | sh
