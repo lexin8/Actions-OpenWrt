@@ -2,7 +2,7 @@
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 cd package/lean/
 # 添加主题
-rm -rf luci-theme-argon
+rm -rf luci-theme*
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
 git clone https://github.com/Aslin-Ameng/luci-theme-Light
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-opentopd
