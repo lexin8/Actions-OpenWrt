@@ -1,42 +1,36 @@
-#=================================================
-# https://github.com/P3TERX/Actions-OpenWrt
+#=======================================================
 # Description: Build OpenWrt using GitHub Actions
+# https://github.com/Hyy2001X/AutoBuild-Actions
 # Lisence: MIT
 # Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
+# Modify: Hyy2001X
+#=======================================================
 
-name: X64 OpenWrt
+name: AutoBuild-NEWIFI_D2-NIGHTLY
 
-on:
-  repository_dispatch:
+on: 
   release:
-    types: published
+    types: [published]
+
   push:
     branches:
       - master
-    paths:
-      - 'x86.config'
+
   schedule:
-    - cron: 0 0 * * 1,3,5,0
+    - cron: 0 11 * * *
+  
   watch:
-    types: started
+    types: [started]
 
 env:
-  REPO_URL: https://github.com/Lienol/openwrt
-  REPO_BRANCH: 19.07
-  FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: x86.config
-  DIY_P1_SH: diy-part1.sh
-  DIY_P2_SH: diy-part2.sh
-  DIY_P3_SH: diy-part3.sh
-  DIY_P5_SH: diy-part5.sh
-  SSH_ACTIONS: false
-  UPLOAD_BIN_DIR: false
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  CONFIG_FILE: Configs/NEWIFI_D2-NIGHTLY.config
+  DIY_SCRIPT: Scripts/diy-script.sh
+  UPLOAD_RELEASE: true
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_WETRANSFER: true
-  TZ: Asia/Shanghai
+  UPLOAD_BIN_DIR: true
+  REMOVE_OLD_RELEASE: false
+  DELETE_WORKFLOW_RUNS: true
 
 jobs:
   build:
@@ -46,107 +40,96 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: 安装依赖包
+    - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf
-        sudo -E apt-get -qq autoremove --purge
-        sudo -E apt-get -qq clean
-        sudo timedatectl set-timezone "$TZ"
-        
-    - name: 下载源码
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-1804)
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
 
-    - name: Load custom feeds
+    - name: Clone Openwrt source code
       run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        ../$DIY_P1_SH
-        
-    - name: 更新 feeds
-      run: |
-        cd openwrt
-        ./scripts/feeds update -a && ./scripts/feeds install -a
+        git clone $REPO_URL openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: DIY插件_脚本5
+    - name: Run Diy-Part1 Scripts
       run: |
-        chmod +x $DIY_P5_SH
+        chmod +x $DIY_SCRIPT
         cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P5_SH
-                      
-    - name: 配置_运行脚本2
-      run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        ../$DIY_P2_SH
-        
-        
-    - name: 定制_脚本3
-      run: |
-        chmod +x $DIY_P3_SH
-        cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
-        
-    - name: SSH connection to Actions
-      uses: P3TERX/debugger-action@main
-      if: env.SSH_ACTIONS == 'true' || contains(github.event.action, 'ssh')
+        source $GITHUB_WORKSPACE/$DIY_SCRIPT && Diy-Part1
+        echo "Compile_Date=$(date +%Y%m%d)" > $GITHUB_WORKSPACE/Openwrt.info
+        echo "Display_Date=$(date +'%Y/%m/%d')" >> $GITHUB_WORKSPACE/Openwrt.info
 
-    - name: Download package
-      id: package
+    - name: Update & Install Feeds
+      run: |
+        cd openwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: Run Diy-Part2 Scripts
+      run: |
+        [ -f $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_SCRIPT && Diy-Part2
+
+    - name: Download Packages
       run: |
         cd openwrt
         make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
+        make download -j$(nproc) V=s
         find dl -size -1024c -exec rm -f {} \;
-        
-    - name: 开始编译固件
-      id: compile
+
+    - name: Compile the Openwrt
       run: |
         cd openwrt
-        echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
-        echo "::set-output name=status::success"
-        
-    - name: Upload bin directory
+
+    - name: Run Diy-Part3 Scripts
+      run: |
+        echo "## $(date +"%Y%m%d")-NEWIFI_D2-NIGHTLY" > update_log.txt
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_SCRIPT && Diy-Part3
+        echo "Artifacts_DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+    - name: Upload Firmware to Artifacts
       uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       with:
-        name: OpenWrt_bin_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
+        name: OpenWrt_Firmware_${{ env.Artifacts_DATE }}
+        path: openwrt/bin/Firmware
+        
+    - name: Upload Firmware directory to Artifacts
+      uses: actions/upload-artifact@main
+      if: env.UPLOAD_BIN_DIR == 'true' && !cancelled()
+      with:
+        name: OpenWrt_bin_${{ env.Artifacts_DATE }}
         path: openwrt/bin
 
-    - name: Organize files
-      id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-      run: |
-        cd openwrt/bin/targets/*/*
-        rm -rf packages
-        echo "::set-output name=FIRMWARE::$PWD"
-        echo "::set-output name=status::success"
-        
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+    - name: Upload Firmware to Releases
+      uses: softprops/action-gh-release@v1
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
-        name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
-        path: ${{ steps.organize.outputs.FIRMWARE }}
-
-    - name: 上传至 cowtransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
-      run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer cow --block 2621440 -s -p 64 --no-progress ${{ steps.organize.outputs.FIRMWARE }} | tee cowtransfer.log
-        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        tag_name: AutoUpdate
+        body_path: update_log.txt
+        files: openwrt/bin/Firmware/*
         
-    - name: 上传至 WeTransfer
-      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
-      run: |
-        curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress ${{ steps.organize.outputs.FIRMWARE }} | tee wetransfer.log
-        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+    - name: Delete workflow runs
+      if: env.DELETE_WORKFLOW_RUNS == 'true' && !cancelled()
+      uses: ActionsRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
+        
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@v0.1.0
+      if: env.REMOVE_OLD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 3
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
