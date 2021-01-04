@@ -40,11 +40,11 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Setup Debug Session
-      uses: P3TERX/debugger-action@main
+    - name: Checkout
+      uses: actions/checkout@main
 
     - name: 安装依赖包
       env:
