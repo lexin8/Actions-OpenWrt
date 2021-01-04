@@ -1,41 +1,48 @@
-#=======================================================
+#=================================================
+# https://github.com/P3TERX/Actions-OpenWrt
 # Description: Build OpenWrt using GitHub Actions
-# https://github.com/Hyy2001X/AutoBuild-Actions
 # Lisence: MIT
 # Author: P3TERX
-# Modify: Hyy2001X
-#=======================================================
+# Blog: https://p3terx.com
+#=================================================
 
-name: AutoBuild-NEWIFI_D2-NIGHTLY
+name: X64 OpenWrt
 
-on: 
+on:
+  repository_dispatch:
   release:
-    types: [published]
-
+    types: published
   push:
     branches:
       - master
-
+    paths:
+      - 'x86.config'
   schedule:
-    - cron: 0 11 * * *
-  
+    - cron: 0 0 * * 1,3,5,0
   watch:
-    types: [started]
+    types: started
 
 env:
-  REPO_URL: https://github.com/coolsnowwolf/lede
-  CONFIG_FILE: Configs/NEWIFI_D2-NIGHTLY.config
-  DIY_SCRIPT: Scripts/diy-script.sh
-  UPLOAD_RELEASE: true
+  REPO_URL: https://github.com/Lienol/openwrt
+  REPO_BRANCH: main
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: x86.config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+  DIY_P3_SH: diy-part3.sh
+  DIY_P5_SH: diy-part5.sh
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_BIN_DIR: true
-  REMOVE_OLD_RELEASE: false
-  DELETE_WORKFLOW_RUNS: true
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_WETRANSFER: true
+  TZ: Asia/Shanghai
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
     - name: Checkout
-      uses: actions/checkout@main
+      uses: actions/checkout@master
