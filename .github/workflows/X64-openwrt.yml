@@ -43,8 +43,8 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@main
+    - name: Setup Debug Session
+      uses: P3TERX/debugger-action@main
 
     - name: 安装依赖包
       env:
