@@ -32,10 +32,10 @@
 # sed -i "s#ShadowsocksR Plus+ #科学上网程序#g" package/helloworld/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
 # sed -i 's/"PassWall"/"正确翻墙姿势✔"/g' feeds/diy1/luci-app-passwall/po/zh-cn/passwall.po
 
-find . -name ssr-plus.po | xargs sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }'
-find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g'
-find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
-find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
+#find . -name ssr-plus.po | xargs sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }'
+#find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g'
+#find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
+#find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
 
 # sed -i 's/PassWall/正确翻墙翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
