@@ -18,5 +18,5 @@ grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 # 添加插件
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
-cd ../ && git clone https://github.com/fw876/helloworld.git
+cd ../ && git clone https://github.com/xiaorouji/openwrt-passwall.git
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
