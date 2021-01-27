@@ -79,6 +79,13 @@ jobs:
       run: |
         cd openwrt
         ./scripts/feeds update -a && ./scripts/feeds install -a
+        
+    - name: 定制_脚本1和3
+      run: |
+        chmod +x $DIY_P3_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
+        
     - name: DIY插件_脚本5
       run: |
         chmod +x $DIY_P5_SH
@@ -93,12 +100,6 @@ jobs:
         cd openwrt
         ../$DIY_P2_SH
         
-        
-    - name: 定制_脚本3
-      run: |
-        chmod +x $DIY_P3_SH
-        cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
