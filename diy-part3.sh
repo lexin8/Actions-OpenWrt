@@ -33,6 +33,7 @@ Diy-Part1() {
 # mv2 AutoUpdate.sh package/base-files/files/bin
 mv2 banner package/base-files/files/etc
 mv2 luci.mk feeds/luci
+mv2 adbyby package/lean/luci-app-adbyby-plus/root/etc/config/adbyby
 # mv2 hostname etc/
 
 # ExtraPackages git openwrt-upx https://github.com/Hyy2001X master
