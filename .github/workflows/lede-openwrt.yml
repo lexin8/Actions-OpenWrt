@@ -67,6 +67,13 @@ jobs:
 
     - name: 下载源码
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+      
+    - name: 运行1脚本
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        ../$DIY_P1_SH
         
     - name: 更新 feeds
       run: |
@@ -77,14 +84,7 @@ jobs:
       run: |
         chmod +x $DIY_P5_SH
         cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P5_SH
-        
-    - name: 运行1脚本
-      run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        ../$DIY_P1_SH    
+        source $GITHUB_WORKSPACE/$DIY_P5_SH    
                           
     - name: 配置_运行脚本2
       run: |
