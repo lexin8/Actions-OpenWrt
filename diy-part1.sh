@@ -15,3 +15,5 @@
 # sed -i '$a src-git lienol https://github.com/Lancenas/lienol-openwrt-package.git' feeds.conf.default
 # sed -i '$a src-git lienol https://github.com/xiaorouji/openwrt-package' feeds.conf.default
 sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
+sed -i '$a ysso.cn' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_host
+sed -i '$a 47.56.251.187' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_ip
