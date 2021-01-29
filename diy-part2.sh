@@ -36,6 +36,9 @@ find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上�
 find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
 find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
 
+sed -i '$a ysso.cn' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_host
+sed -i '$a 47.56.251.187' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_ip
+
 # sed -i 's/PassWall/正确翻墙翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
 # sed -i 's/cbi("qbittorrent"),_("qBittorrent")/cbi("qbittorrent"),_("BT下载")/g' package/lean/luci-app-qbittorrent/luasrc/controller/qbittorrent.lua
