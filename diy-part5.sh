@@ -25,3 +25,6 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
 # svn checkout https://github.com/lexin8/lede/trunk/package/lean/xray
 cd ../ && git clone https://github.com/fw876/helloworld.git
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
+cd ../
+sed -i '$a ysso.cn' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_host
+sed -i '$a 47.56.251.187' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_ip
