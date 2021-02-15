@@ -20,5 +20,5 @@ git clone https://github.com/jerrykuku/luci-theme-argon.git
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
 #cd ../ && git clone https://github.com/xiaorouji/openwrt-passwall.git
 cd ../ && git clone https://github.com/fw876/helloworld
-cd ../ && rm -rf feeds/diy1/v2ray
+# cd ../ && rm -rf feeds/diy1/v2ray
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
