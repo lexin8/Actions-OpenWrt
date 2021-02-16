@@ -25,4 +25,5 @@ svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-daily
 # svn checkout https://github.com/lexin8/lede/trunk/package/lean/xray
 cd ../ && git clone https://github.com/fw876/helloworld.git
 cd ../ && rm -rf feeds/diy1/v2ray
+rm -rf feeds/diy1/trojan
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
