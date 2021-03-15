@@ -18,6 +18,7 @@ grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 # 添加插件
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-uugamebooster
 # 添加依赖
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
