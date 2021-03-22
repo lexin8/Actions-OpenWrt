@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 cd package/lean/
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean
 # 添加主题
 rm -rf luci-theme*
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
@@ -23,7 +24,6 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/uugameboost
 # 添加依赖
 #svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
 #svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
-svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean
 # svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
 # svn checkout https://github.com/lexin8/lede/trunk/package/lean/xray
 cd ../ && git clone https://github.com/fw876/helloworld.git
