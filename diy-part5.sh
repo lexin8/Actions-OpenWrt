@@ -1,8 +1,8 @@
 #!/bin/bash
 echo "\n----------- 开始进入指定文件夹 --------------\n";
-cd /package
+cd package/
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean
-cd /lean
+cd lean/
 # 添加主题
 rm -rf luci-theme*
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
