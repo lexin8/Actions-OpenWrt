@@ -22,10 +22,15 @@ svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-daily
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-uugamebooster
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/uugamebooster
 # 添加依赖
-#svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
-#svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
-# svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray
-# svn checkout https://github.com/lexin8/lede/trunk/package/lean/xray
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/pdnsd-alt
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/dns2socks
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray-plugin
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
+svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
 cd ../ && git clone https://github.com/fw876/helloworld.git
 cd ../ && rm -rf feeds/diy1/v2ray
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
