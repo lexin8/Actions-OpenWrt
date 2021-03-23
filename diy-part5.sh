@@ -31,6 +31,20 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
+# 添加依赖garypang13
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/smartdns-le
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/tcping
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/chinadns-ng
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/lua-maxminddb
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/simple-obfs
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/v2ray-plugin
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/trojan-plus
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/trojan-go
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/naiveproxy
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/redsocks2
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/microsocks
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/shadowsocksr-libev
+#svn checkout https://github.com/garypang13/openwrt-packages/trunk/pdnsd-alt
 cd ../ && git clone https://github.com/fw876/helloworld.git
 cd ../ && rm -rf feeds/diy1/v2ray
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
