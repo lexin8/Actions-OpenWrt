@@ -31,15 +31,15 @@ sed -i "s/19.07-SNAPSHOT/19.07 build $(TZ=UTC-8 date "+%Y.%m.%d") /g" package/de
 # sed -i "s#ShadowsocksR Plus+ #科学上网程序#g" package/helloworld/luci-app-ssr-plus/luasrc/view/shadowsocksr/status.htm
 # sed -i 's/"PassWall"/"正确翻墙姿势✔"/g' feeds/diy1/luci-app-passwall/po/zh-cn/passwall.po
 
-#find . -name ssr-plus.po | xargs sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }'
-#find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g'
-#find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
-#find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
+find . -name ssr-plus.po | xargs sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }'
+find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g'
+find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
+find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
 
 #sed -i '$a ysso.cn' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_host
-#sed -i '$a 47.56.251.187' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_ip
-#sed -i '$a github.com' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/proxy_host
-#sed -i '$a openwrt.org' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/proxy_host
+sed -i '$a 47.56.251.187' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/direct_ip
+sed -i '$a github.com' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/proxy_host
+sed -i '$a openwrt.org' feeds/diy1/luci-app-passwall/root/usr/share/passwall/rules/proxy_host
 
 
 # sed -i 's/PassWall/正确翻墙翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
