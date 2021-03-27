@@ -33,11 +33,8 @@ Diy-Part1() {
 # mv2 AutoUpdate.sh package/base-files/files/bin
 mv2 banner package/base-files/files/etc
 mv2 luci.mk feeds/luci
-mv2 adbyby package/lean/luci-app-adbyby-plus/root/etc/config
-#mv2 passwall feeds/diy1/luci-app-passwall/root/etc/config
-mv2 white.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
-mv2 black.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
-mv2 shadowsocksr package/helloworld/luci-app-ssr-plus/root/etc/config
+mv2 Makefile feeds/luci/collections/luci
+mv2 target.mk include
 # mv2 hostname etc/
 
 # ExtraPackages git openwrt-upx https://github.com/Hyy2001X master
@@ -48,4 +45,3 @@ mv2 shadowsocksr package/helloworld/luci-app-ssr-plus/root/etc/config
 # ExtraPackages svn luci-app-adguardhome https://github.com/Lienol/openwrt/trunk/package/diy
 # ExtraPackages git luci-app-adguardhome https://github.com/rufengsuixing master
 # ExtraPackages git openwrt-OpenAppFilter https://github.com/Lienol master
-}
