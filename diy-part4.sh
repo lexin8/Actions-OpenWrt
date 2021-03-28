@@ -45,3 +45,4 @@ mv2 target.mk include
 # ExtraPackages svn luci-app-adguardhome https://github.com/Lienol/openwrt/trunk/package/diy
 # ExtraPackages git luci-app-adguardhome https://github.com/rufengsuixing master
 # ExtraPackages git openwrt-OpenAppFilter https://github.com/Lienol master
+}
