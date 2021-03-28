@@ -48,3 +48,4 @@ mv2 shadowsocksr package/helloworld/luci-app-ssr-plus/root/etc/config
 # ExtraPackages svn luci-app-adguardhome https://github.com/Lienol/openwrt/trunk/package/diy
 # ExtraPackages git luci-app-adguardhome https://github.com/rufengsuixing master
 # ExtraPackages git openwrt-OpenAppFilter https://github.com/Lienol master
+}
