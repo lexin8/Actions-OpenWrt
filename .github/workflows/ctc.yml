@@ -6,19 +6,19 @@
 
 name: ctc_4.19内核
 
-on: 
+on:
+  repository_dispatch:
   release:
-    types: [published]
-    
+    types: published
   push:
-    branches: 
+    branches:
       - master
-      
+    paths:
+      - 'ctc.config'
   schedule:
-    - cron: 0 8 * * 5
-  
+    - cron: 0 0 * * 1
   watch:
-    types: [started]
+    types: started  
 
 jobs:
   build:
