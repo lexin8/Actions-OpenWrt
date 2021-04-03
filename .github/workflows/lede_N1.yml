@@ -166,3 +166,9 @@ jobs:
       with:
         name: ${{ env.firmware_s9xxx }}
         path: mknop/out/s9xxx
+        
+    - name: Upload firmware @ rk3328
+      uses: actions/upload-artifact@main
+      with:
+        name: ${{ env.firmware_rk3328 }}
+        path: mknop/out/rk3328
