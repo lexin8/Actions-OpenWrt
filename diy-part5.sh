@@ -21,6 +21,8 @@ git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-jd-dailybonus
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/luci-app-uugamebooster
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/uugamebooster
+git clone https://github.com/jerrykuku/lua-maxminddb.git
+git clone https://github.com/jerrykuku/luci-app-vssr.git
 # 添加依赖
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/pdnsd-alt
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
