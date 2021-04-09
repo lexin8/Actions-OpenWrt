@@ -16,6 +16,7 @@ grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 # sed -i '/luci.main.mediaurlbase/d' luci-theme-opentomcat/files/30_luci-theme-opentomcat
 # sed -i '/luci.main.mediaurlbase/d' luci-theme-ifit/files/10_luci-theme-ifit
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+git clone https://github.com/jerrykuku/luci-app-argon-config
 git clone https://github.com/jerrykuku/lua-maxminddb.git
 git clone https://github.com/jerrykuku/luci-app-vssr.git
 # 添加插件
