@@ -29,7 +29,7 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/dns2socks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray-plugin
-svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
+# svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
