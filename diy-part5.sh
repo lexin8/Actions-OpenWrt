@@ -32,7 +32,7 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
-svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
+# svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
 # 添加依赖garypang13
 #svn checkout https://github.com/garypang13/openwrt-packages/trunk/smartdns-le
 #svn checkout https://github.com/garypang13/openwrt-packages/trunk/tcping
