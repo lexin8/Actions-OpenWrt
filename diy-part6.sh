@@ -25,7 +25,7 @@ svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/redsocks2
-svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
+# svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/shadowsocksr-libev
 cd ../ && git clone https://github.com/fw876/helloworld.git
 cd ../ && rm -rf feeds/diy1/v2ray
 # cd ../ && svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-ssr-plus
