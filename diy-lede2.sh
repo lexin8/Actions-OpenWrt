@@ -36,7 +36,7 @@ sed -i "s/R21.6.1/R21.6.1 build $(TZ=UTC-8 date "+%Y.%m.%d") /g" package/lean/de
 find . -name ssr-plus.po | xargs sed -i '/msgstr/ { s/ShadowSocksR Plus+ 设置/科学上网设置/g;  s/ShadowSocksR/科学上网/g; }'
 find . -name shadowsocksr.lua | xargs sed -i 's/"ShadowSocksR Plus+"/"科学上网"/g'
 find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序#g"
-find . -name passwall.po | xargs sed -i 's/"PassWall"/"正确翻墙姿势✔"/g'
+find . -name passwall.po | xargs sed -i 's/"PassWall"/"帕斯沃分流版"/g'
 find . -name vssr.lua | xargs sed -i "s/Hello World/科学上网国旗版/g"
 find . -name vssr.po | xargs sed -i '/msgstr/s/Hello World/科学上网国旗版/g'
 
