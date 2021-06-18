@@ -38,7 +38,7 @@ env:
   DIY_P2_SH: diy-lede2.sh
   DIY_P3_SH: diy-part3.sh
   DIY_P5_SH: diy-lede4.sh
-  SSH_ACTIONS: false
+  SSH_ACTIONS: true
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
@@ -68,10 +68,12 @@ jobs:
     - name: 下载源码
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
       
-    - name: 旧源码
-      run: |
-        cd openwrt
-        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       
     - name: 运行1脚本
       run: |
@@ -115,12 +117,7 @@ jobs:
       run: |
         git clone https://github.com/tuanqing/mknop
         
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+#
 
     - name: Download package
       id: package
