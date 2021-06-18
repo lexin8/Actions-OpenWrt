@@ -118,6 +118,13 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
+    - name: branch
+      id: branch
+      run: |
+        cd openwrt
+        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+        
     - name: Compile the firmware
       id: compile
       run: |
