@@ -26,8 +26,8 @@ on:
     inputs:
       ssh:
         description: 'SSH connection to Actions'
-        required: false
-        default: 'false'
+        required: true
+        default: 'true'
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -38,7 +38,7 @@ env:
   DIY_P2_SH: diy-lede2.sh
   DIY_P3_SH: diy-part3.sh
   DIY_P5_SH: diy-lede4.sh
-  SSH_ACTIONS: true
+  SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: true
