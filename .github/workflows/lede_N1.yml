@@ -129,7 +129,6 @@ jobs:
       run: |
         cd openwrt
         git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
-        ./scripts/feeds update -a && ./scripts/feeds install -a
         
     - name: Compile the firmware
       id: compile
