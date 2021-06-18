@@ -68,6 +68,11 @@ jobs:
     - name: 下载源码
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
       
+    - name: 旧源码
+      run: |
+        cd openwrt
+        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
+      
     - name: 运行1脚本
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
@@ -125,10 +130,6 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: gun
-      run: |
-        cd openwrt
-        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
         
     - name: Compile the firmware
       id: compile
