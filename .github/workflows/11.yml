@@ -27,7 +27,7 @@ on:
       ssh:
         description: 'SSH connection to Actions'
         required: true
-        default: 'false'
+        default: 'true'
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -68,10 +68,6 @@ jobs:
     - name: 下载源码
       run: git clone https://github.com/coolsnowwolf/lede openwrt
       
-    - name: checkout
-      run: |
-        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
-        ./scripts/feeds update -a && ./scripts/feeds install -a
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
