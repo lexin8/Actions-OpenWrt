@@ -68,6 +68,8 @@ jobs:
     - name: 下载源码
       run: git clone https://github.com/coolsnowwolf/lede openwrt
       
+      
+      
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
@@ -130,6 +132,7 @@ jobs:
         
     - name: checkout
       run: |
+        cd openwrt
         git checkout 7a50383ab6231354746d9b8ddd8b2837f2d3b85e
         
         
