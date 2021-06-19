@@ -70,7 +70,7 @@ jobs:
       
     - name: checkout
       run: |
-        git checkout 7a50383ab6231354746d9b8ddd8b2837f2d3b85e
+        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
         ./scripts/feeds update -a && ./scripts/feeds install -a
         
     - name: SSH connection to Actions
