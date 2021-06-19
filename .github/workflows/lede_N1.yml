@@ -71,7 +71,7 @@ jobs:
     - name: checkout
       run: |
         cd openwrt
-        git checkout f1e7ffbd74f184e97db83b0a83786e667dafb16e
+        git checkout 3403deeaf8ffe3bb255230dd901336adf35e48f3
       
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
