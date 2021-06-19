@@ -68,7 +68,10 @@ jobs:
     - name: 下载源码
       run: git clone https://github.com/coolsnowwolf/lede openwrt
       
-      
+    - name: checkout
+      run: |
+        cd openwrt
+        git checkout f1e7ffbd74f184e97db83b0a83786e667dafb16e
       
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -129,11 +132,6 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-        
-    - name: checkout
-      run: |
-        cd openwrt
-        git checkout f1e7ffbd74f184e97db83b0a83786e667dafb16e
         
         
     - name: Compile the firmware
