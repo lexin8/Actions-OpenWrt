@@ -81,8 +81,18 @@ jobs:
         chmod +x $DIY_P1_SH
         cd openwrt
         ../$DIY_P1_SH
+        
+    - name: 更新 feeds
+      run: |
+        cd openwrt
         ./scripts/feeds update -a && ./scripts/feeds install -a
-      
+        
+    - name: DIY插件_脚本5
+      run: |
+        chmod +x $DIY_P5_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P5_SH    
+                          
     - name: 配置_运行脚本2
       run: |
         [ -e files ] && mv files openwrt/files
@@ -105,6 +115,7 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         
+
     - name: Download package
       id: package
       run: |
