@@ -67,7 +67,13 @@ jobs:
         
     - name: 下载源码
       run: git clone https://github.com/coolsnowwolf/lede openwrt
-  
+
+    - name: 运行1脚本
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        ../$DIY_P1_SH
     - name: checkout
       run: |
         cd openwrt
