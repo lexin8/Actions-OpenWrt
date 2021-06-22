@@ -27,7 +27,7 @@ on:
       ssh:
         description: 'SSH connection to Actions'
         required: true
-        default: 'false'
+        default: 'true'
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -68,18 +68,12 @@ jobs:
     - name: 下载源码
       run: git clone https://github.com/coolsnowwolf/lede openwrt
   
-#    - name: checkout
-#      run: |
-#        cd openwrt
-#        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
-#        ./scripts/feeds update -a && ./scripts/feeds install -a
-        
-    - name: SSH connection to Actions
-      uses: P3TERX/ssh2actions@v1.0.0
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-      env:
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    - name: checkout
+      run: |
+        cd openwrt
+        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+      
       
     - name: 配置_运行脚本2
       run: |
@@ -96,6 +90,13 @@ jobs:
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
         
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        
     - name: Download package
       id: package
       run: |
@@ -104,6 +105,8 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+        
+        
         
     - name: Compile the firmware
       id: compile
