@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  OpenWrt
+name:  lede2
 
 on:
   repository_dispatch:
@@ -69,10 +69,10 @@ jobs:
       run: git clone https://github.com/coolsnowwolf/lede openwrt
 
 
-    - name: checkout
-      run: |
-        cd openwrt
-        git checkout f6f590958de979a8411a7884eb3a6f569df0ed56
+#    - name: checkout
+#      run: |
+#        cd openwrt
+#        git checkout f6f590958de979a8411a7884eb3a6f569df0ed56
         
         
     - name: 运行1脚本
