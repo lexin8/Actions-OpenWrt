@@ -69,10 +69,10 @@ jobs:
       run: git clone https://github.com/coolsnowwolf/lede openwrt
 
 
-#    - name: checkout
-#      run: |
-#        cd openwrt
-#        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
+    - name: checkout
+      run: |
+        cd openwrt
+        git checkout 5a56f1eeaa246dea92dbbddfc3d51292fe58f736
         
         
     - name: 运行1脚本
