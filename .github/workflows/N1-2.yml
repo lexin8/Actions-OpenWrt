@@ -10,13 +10,6 @@ name: N1-2 OpenWrt
 
 on:
   repository_dispatch:
-  release:
-    types: published
-  push:
-    branches:
-      - master
-    paths:
-      - 'N1-2.config'
   schedule:
     - cron: 0 20 * * 2,4,6,0
   watch:
