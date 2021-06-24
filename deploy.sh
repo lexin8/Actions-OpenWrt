@@ -17,6 +17,7 @@ git clone https://github.com/lisaac/luci-lib-docker
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
 git clone https://github.com/Aslin-Ameng/luci-theme-Light
 git clone https://github.com/sirpdboy/luci-theme-opentopd
+git clone https://github.com/garypang13/luci-theme-edge
 #svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-opentopd
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-opentomcat
 svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-ifit
