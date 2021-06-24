@@ -10,7 +10,6 @@ name:  lede3
 
 on:
   repository_dispatch:
-  push:
   schedule:
     - cron: 0 20 * * 2,4,6,0
   watch:
@@ -61,7 +60,6 @@ jobs:
     - name: 运行一键部署脚本
       run: |
         chmod +x $DIY_P1_SH
-        cd openwrt
         ../$DIY_P1_SH
         
                           
