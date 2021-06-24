@@ -29,5 +29,6 @@ popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
 git clone https://github.com/tuanqing/install-program
+git clone https://github.com/sirpdboy/NetSpeedTest
 cd ../ && rm -rf feeds/diy1/v2ray
 
