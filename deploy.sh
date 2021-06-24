@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 #拉取源码
+git clone https://github.com/tuanqing/mknop
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
 sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
@@ -27,5 +28,6 @@ git clone https://github.com/jerrykuku/luci-app-vssr.git
 popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
+git clone https://github.com/tuanqing/install-program
 cd ../ && rm -rf feeds/diy1/v2ray
 
