@@ -27,6 +27,4 @@ popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
 cd ../ && rm -rf feeds/diy1/v2ray
-#.config
-[ -e files ] && mv files openwrt/files
-[ -e $lede2.config ] && mv $lede2.config openwrt/.config
+
