@@ -19,7 +19,7 @@ on:
     inputs:
       ssh:
         description: 'SSH connection to Actions'
-        required: false
+        required: true
         default: 'false'
 
 env:
@@ -27,10 +27,9 @@ env:
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: N1-2.config
-  DIY_P1_SH: diy-lede1.sh
+  DIY_P1_SH: deploy.sh
   DIY_P2_SH: diy-lede2.sh
   DIY_P3_SH: diy-part3.sh
-  DIY_P5_SH: diy-lede5.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -58,27 +57,12 @@ jobs:
         sudo -E apt-get -qq clean
         sudo timedatectl set-timezone "$TZ"
         
-    - name: 下载源码
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-      
-    - name: 运行1脚本
+    - name: 运行一键部署脚本
       run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
-        cd openwrt
-        ../$DIY_P1_SH
-    - name: Update feeds
-      run: cd openwrt && ./scripts/feeds update -a
-
-    - name: Install feeds
-      run: cd openwrt && ./scripts/feeds install -a
-    
-    - name: 脚本5
-      run: |
-        chmod +x $DIY_P5_SH
-        cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P5_SH
-    - name: .config运行脚本2
+        ./$DIY_P1_SH
+                    
+    - name: 配置_脚本2
       run: |
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -86,8 +70,7 @@ jobs:
         cd openwrt
         ../$DIY_P2_SH
         
-        
-    - name: 脚本3
+    - name: 定制_脚本3
       run: |
         chmod +x $DIY_P3_SH
         cd openwrt
@@ -117,6 +100,7 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+        
     - name: Compile the firmware
       id: compile
       run: |
@@ -124,6 +108,7 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+        
     - name: Build firmware
       run: |
         cp openwrt/bin/targets/*/*/*.tar.gz mknop/openwrt
@@ -142,6 +127,7 @@ jobs:
         cd ../
         echo "firmware_$x=$filename" >> $GITHUB_ENV
         done
+        
     - name: Upload firmware @ phicomm n1
       uses: actions/upload-artifact@main
       with:
