@@ -103,6 +103,7 @@ jobs:
       run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
+        ls | grep -v combined | xargs rm
         echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
         
