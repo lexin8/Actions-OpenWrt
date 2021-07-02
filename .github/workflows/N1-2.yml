@@ -142,3 +142,10 @@ jobs:
       with:
         name: ${{ env.firmware_rk3328 }}
         path: mknop/out/rk3328
+        
+    - name: 上传到奶牛
+      run: |
+       curl -sL https://git.io/cowtransfer | sh
+       ./cowtransfer-uploader -s mknop/out/
+     
+
