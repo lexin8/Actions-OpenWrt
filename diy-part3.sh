@@ -35,9 +35,9 @@ mv2 banner package/base-files/files/etc
 mv2 luci.mk feeds/luci
 mv2 adbyby package/lean/luci-app-adbyby-plus/root/etc/config
 #mv2 passwall feeds/diy1/luci-app-passwall/root/etc/config
-mv2 white.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
-mv2 black.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
-mv2 shadowsocksr package/helloworld/luci-app-ssr-plus/root/etc/config
+#mv2 white.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
+#mv2 black.list package/helloworld/luci-app-ssr-plus/root/etc/ssrplus
+#mv2 shadowsocksr package/helloworld/luci-app-ssr-plus/root/etc/config
 mv2 sysctl.conf etc/
 # mv2 hostname etc/
 
