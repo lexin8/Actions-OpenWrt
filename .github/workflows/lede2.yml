@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  lede2
+name:  LEDE
 
 on:
   repository_dispatch:
@@ -23,7 +23,7 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: lede2.config
+  CONFIG_FILE: lede.config
   DIY_P1_SH: deploy.sh
   DIY_P2_SH: diy-lede2.sh
   DIY_P3_SH: diy-part3.sh
