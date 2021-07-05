@@ -13,8 +13,6 @@ on:
   release:
     types: published
   push:
-    branches:
-      - master
     paths:
       - 'x86_lede.config'
   schedule:
