@@ -107,13 +107,6 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         ls | grep -v .gz | xargs rm
- 
-    - name: Upload firmware @ phicomm n1
-      uses: actions/upload-artifact@main
-      with:
-        name: ${{ env.firmware_phicomm-n1 }}
-        path: openwrt/bin/targets/armvirt/64
-
         
     - name: 上传到奶牛
       run: |
