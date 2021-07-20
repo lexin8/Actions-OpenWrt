@@ -100,33 +100,22 @@ jobs:
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
         
-    - name: Build firmware
+    - name: Organize files
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cp openwrt/bin/targets/*/*/*.tar.gz mknop/openwrt
-        
-    - name: Build firmware2
-      run: |
-        cd mknop
-        sudo ./gen_openwrt -d -k latest
-        
-        devices=("phicomm-n1" "vplus" "rk3328" "s9xxx")
-        cd out
-        for x in ${devices[*]}; do
-        cd $x
-        filename=$(ls | awk -F '.img' '{print $1}')
-        gzip *.img
-        cd ../
-        echo "firmware_$x=$filename" >> $GITHUB_ENV
-        done
-        
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
+        ls | grep -v .gz | xargs rm
+ 
     - name: Upload firmware @ phicomm n1
       uses: actions/upload-artifact@main
       with:
         name: ${{ env.firmware_phicomm-n1 }}
-        path: mknop/out/phicomm-n1
+        path: openwrt/bin/targets/armvirt/64
 
         
     - name: 上传到奶牛
       run: |
        curl -sL https://git.io/cowtransfer | sh
-       ./cowtransfer-uploader -s mknop/out/
+       ./cowtransfer-uploader -s openwrt/bin/targets/armvirt/64
