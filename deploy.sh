@@ -26,8 +26,8 @@ svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-ifit
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 git clone https://github.com/jerrykuku/luci-app-argon-config
-git clone https://github.com/jerrykuku/lua-maxminddb.git
-git clone https://github.com/jerrykuku/luci-app-vssr.git
+# git clone https://github.com/jerrykuku/lua-maxminddb.git
+# git clone https://github.com/jerrykuku/luci-app-vssr.git
 git clone https://github.com/kiddin9/openwrt-bypass.git
 popd
 # 添加插件
