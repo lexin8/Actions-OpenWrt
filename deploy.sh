@@ -28,7 +28,8 @@ git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 git clone https://github.com/jerrykuku/luci-app-argon-config
 # git clone https://github.com/jerrykuku/lua-maxminddb.git
 # git clone https://github.com/jerrykuku/luci-app-vssr.git
-git clone https://github.com/kiddin9/openwrt-bypass.git
+# git clone https://github.com/kiddin9/openwrt-bypass.git
+git clone https://github.com/nuobeike/openwrt-bypass.git
 popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
