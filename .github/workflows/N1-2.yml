@@ -108,6 +108,11 @@ jobs:
         rm -rf packages
         ls | grep -v .gz | xargs rm
         
+    - name: 上传到 cowtransfer
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer cow --block 2621440 -s openwrt/bin/targets/armvirt/64
+        
     - name: 上传到奶牛
       run: |
        curl -sL https://git.io/cowtransfer | sh
