@@ -4,7 +4,7 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 git clone https://github.com/tuanqing/mknop
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
-# sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
+ sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a && ./scripts/feeds install -a
 pushd package/lean
 # 添加主题
@@ -35,5 +35,5 @@ cd package && git clone https://github.com/fw876/helloworld
 git clone https://github.com/tuanqing/install-program
 # git clone https://github.com/sirpdboy/NetSpeedTest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
-# cd ../ && rm -rf feeds/diy1/v2ray
+ cd ../ && rm -rf feeds/diy1/v2ray
 
