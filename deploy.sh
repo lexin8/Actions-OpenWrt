@@ -6,6 +6,8 @@ git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
  sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a && ./scripts/feeds install -a
+cd /package
+git clone https://github.com/kenzok8/openwrt-packages.git kenzok8
 pushd package/lean
 # 添加主题
 rm -rf luci-theme*
@@ -17,18 +19,17 @@ svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
 git clone https://github.com/Aslin-Ameng/luci-theme-Light
 git clone https://github.com/sirpdboy/luci-theme-opentopd
-#git clone https://github.com/garypang13/luci-theme-edge
-git clone -b 18.06 https://github.com/garypang13/luci-theme-edge
-#svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-opentopd
-svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-opentomcat
-svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-theme-ifit
+git clone -b 18.06 https://github.com/kiddin9/luci-theme-edge.git
+cp -r ~/openwrt/package/kenzok8/luci-app-openclash .
+cp -r ~/openwrt/package/kenzok8/luci-theme-opentomcat .
+cp -r ~/openwrt/package/kenzok8/luci-theme-ifit .
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 git clone https://github.com/jerrykuku/luci-app-argon-config
 git clone https://github.com/jerrykuku/lua-maxminddb.git
 git clone https://github.com/jerrykuku/luci-app-vssr.git
-svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
+# svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
 popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
@@ -36,4 +37,5 @@ git clone https://github.com/tuanqing/install-program
 # git clone https://github.com/sirpdboy/NetSpeedTest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
  cd ../ && rm -rf feeds/diy1/v2ray
+ rm -rf package/kenzok8
 
