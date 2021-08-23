@@ -19,9 +19,9 @@ git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
 git clone https://github.com/Aslin-Ameng/luci-theme-Light
 git clone https://github.com/sirpdboy/luci-theme-opentopd
 git clone -b 18.06 https://github.com/kiddin9/luci-theme-edge.git
-cp -r ~/openwrt/package/kenzok8/luci-app-openclash .
-cp -r ~/openwrt/package/kenzok8/luci-theme-opentomcat .
-cp -r ~/openwrt/package/kenzok8/luci-theme-ifit .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
