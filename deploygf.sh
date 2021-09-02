@@ -8,4 +8,3 @@ cd openwrt
 ./scripts/feeds update -a && ./scripts/feeds install -a
 cd package
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lede/package/lean .
-cd..
