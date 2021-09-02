@@ -4,7 +4,13 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 git clone https://github.com/tuanqing/mknop
 git clone https://github.com/openwrt/openwrt
 git clone https://github.com/coolsnowwolf/lede
+cd lede
+./scripts/feeds update -a && ./scripts/feeds install -a
+cd ..
 cd openwrt
 ./scripts/feeds update -a && ./scripts/feeds install -a
 cd package
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lede/package/lean .
+cd ..
+cd package/network/config/firewall/
+rm -rf patches && rm -rf Makefile
