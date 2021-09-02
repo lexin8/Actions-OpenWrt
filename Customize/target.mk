@@ -26,6 +26,8 @@ DEFAULT_PACKAGES:=\
 	uclient-fetch \
 	urandom-seed \
 	urngd \
+	default-settings \
+	luci \
 	omcproxy \
 	luci-app-upnp \
 	luci-app-adbyby-plus \
@@ -34,7 +36,7 @@ DEFAULT_PACKAGES:=\
 	luci-app-vlmcsd \
 	luci-app-ramfree \
 	luci-app-flowoffload \
-	luci-app-ddns \
+	luci-app-ddns
 
 ifneq ($(CONFIG_SELINUX),)
 DEFAULT_PACKAGES+=busybox-selinux procd-selinux
