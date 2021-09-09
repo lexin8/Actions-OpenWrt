@@ -32,8 +32,7 @@ git clone https://github.com/jerrykuku/luci-app-vssr.git
 # svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
 popd
 # 添加插件
-cd package
-#&& git clone https://github.com/fw876/helloworld
+cd package && git clone https://github.com/fw876/helloworld
 git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/NetSpeedTest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
