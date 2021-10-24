@@ -100,6 +100,16 @@ jobs:
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
         
+        
+    - name: 开始拷贝固件
+      id: CP
+      run: |
+        cd opt
+        git clone https://github.com/lexin8/openwrt_packit.git
+        cd openwrt_packit
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/openwrt-armvirt-64-default-rootfs.tar.gz .
+         ./mk_s905d_n1.sh
+        
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -111,11 +121,11 @@ jobs:
     - name: Upload firmware to WeTransfer
       run: |
         curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress openwrt/bin/targets/armvirt/64 | tee wetransfer.log
+        ./transfer wet -s -p 16 --no-progress opt/openwrt_packit/tmp | tee wetransfer.log
         echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
         echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
 #    - name: 上传到奶牛
 #      run: |
 #       curl -sL https://git.io/cowtransfer | sh
-#       ./cowtransfer-uploader -s openwrt/bin/targets/armvirt/64
+#       ./cowtransfer-uploader -s opt/openwrt_packit/tmp
