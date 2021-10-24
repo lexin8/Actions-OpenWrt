@@ -107,7 +107,7 @@ jobs:
         cd opt
         git clone https://github.com/lexin8/openwrt_packit.git
         cd openwrt_packit
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/openwrt-armvirt-64-default-rootfs.tar.gz .
+        cp -r ~/work/Actions-OpenWrt/openwrt/bin/targets/openwrt-armvirt-64-default-rootfs.tar.gz .
          ./mk_s905d_n1.sh
         
     - name: Organize files
