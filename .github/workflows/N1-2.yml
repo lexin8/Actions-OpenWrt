@@ -102,7 +102,7 @@ jobs:
         
         
     - name: 开始拷贝固件
-      id: CP
+      id: Copy
       run: |
         cd opt
         git clone https://github.com/lexin8/openwrt_packit.git
@@ -118,7 +118,7 @@ jobs:
         rm -rf packages
         ls | grep -v .gz | xargs rm
         
-    - name: Upload firmware to WeTransfer
+    - name: 上传固件到WeTransfer
       run: |
         curl -fsSL git.io/file-transfer | sh
         ./transfer wet -s -p 16 --no-progress opt/openwrt_packit/tmp | tee wetransfer.log
