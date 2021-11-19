@@ -27,7 +27,7 @@ git clone https://github.com/jerrykuku/luci-app-vssr.git
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/pdnsd-alt
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/microsocks
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/dns2socks
-svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
+# svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/simple-obfs
 # svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/v2ray-plugin
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/trojan
 svn checkout https://github.com/coolsnowwolf/lede/trunk/package/lean/ipt2socks
