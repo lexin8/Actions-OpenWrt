@@ -15,8 +15,12 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'diy.config'
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'false'
   schedule:
     - cron: 0 0 * * 5
   watch:
