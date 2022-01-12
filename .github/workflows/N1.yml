@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name: N1-2 OpenWrt
+name: N1 OpenWrt
 
 on:
   repository_dispatch:
@@ -26,7 +26,7 @@ env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
-  CONFIG_FILE: N1-2.config
+  CONFIG_FILE: N1.config
   DIY_P1_SH: deploy.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
