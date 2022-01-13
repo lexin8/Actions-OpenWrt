@@ -37,7 +37,7 @@ popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
 #git clone https://github.com/tuanqing/install-program
-#git clone https://github.com/sirpdboy/netspeedtest
+git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
 cd ../
 #&& rm -rf feeds/diy1/v2ray
