@@ -121,7 +121,7 @@ jobs:
     - name: 上传固件到WeTransfer
       run: |
         curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress opt/openwrt_packit/tmp | tee wetransfer.log
+        ./transfer wet -s -p 16 --no-progress opt/openwrt_packit/output | tee wetransfer.log
         ./transfer wet -s -p 16 --no-progress openwrt/bin/targets/armvirt/64
         echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
         echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
@@ -129,4 +129,4 @@ jobs:
 #    - name: 上传到奶牛
 #      run: |
 #       curl -sL https://git.io/cowtransfer | sh
-#       ./cowtransfer-uploader -s opt/openwrt_packit/tmp
+#       ./cowtransfer-uploader -s opt/openwrt_packit/output
