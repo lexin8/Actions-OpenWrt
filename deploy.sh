@@ -6,8 +6,10 @@ git clone https://github.com/tuanqing/mknop
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
  sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
-./scripts/feeds update -a && ./scripts/feeds install -a
+./scripts/feeds update -a
+./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
+rm -rf feeds/luci/applications/luci-theme*
 pushd package/lean
 # 添加主题
 rm -rf luci-theme*
