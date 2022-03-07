@@ -10,7 +10,7 @@ cd openwrt
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 rm -rf feeds/luci/applications/luci-theme*
-ls |grep -v luci-theme-bootstrap |xargs rm -rf
+ls |grep -v feeds/luci/theme/luci-theme-bootstrap |xargs rm -rf
 pushd package/lean
 # 添加主题
 rm -rf luci-theme*
