@@ -17,7 +17,7 @@ pushd package/lean
 rm -rf luci-theme*
 # rm -rf luci-lib-docker
 # rm -rf luci-app-diskman
-svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman
+# svn co https://github.com/lisaac/luci-app-dockerman/trunk/applications/luci-app-dockerman
 # svn co https://github.com/lisaac/luci-app-diskman/trunk/applications/luci-app-diskman
 # git clone https://github.com/lisaac/luci-lib-docker
 git clone https://github.com/esirplayground/luci-theme-atmaterial-ColorIcon
