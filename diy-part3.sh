@@ -33,6 +33,7 @@ Diy-Part1() {
 # mv2 AutoUpdate.sh package/base-files/files/bin
 mv2 banner package/base-files/files/etc
 mv2 index.htm package/lean/autocore/files/x86
+mv2 arm/index.htm package/lean/autocore/files/arm
 # mv2 luci.mk feeds/luci
 # mv2 adbyby package/lean/luci-app-adbyby-plus/root/etc/config
 # mv2 passwall feeds/diy1/luci-app-passwall/root/etc/config
