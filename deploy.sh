@@ -5,7 +5,7 @@ git clone https://github.com/lexin8/kernel opt
 git clone https://github.com/tuanqing/mknop
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
-#sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
+# sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
@@ -42,6 +42,7 @@ popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git
+git clone https://github.com/xiaorouji/openwrt-passwall.git
 #git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
