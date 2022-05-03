@@ -6,7 +6,6 @@ git clone https://github.com/tuanqing/mknop
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
 #sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
-sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall2.git;main' feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
