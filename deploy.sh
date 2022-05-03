@@ -41,6 +41,7 @@ git clone https://github.com/jerrykuku/luci-app-vssr.git
 popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
+git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git
 #git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
