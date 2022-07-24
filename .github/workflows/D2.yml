@@ -102,3 +102,12 @@ jobs:
         cd openwrt/bin/targets/*/*
         rm -rf packages
         ls | grep -v .gz | xargs rm
+        
+    - name: 上传固件到WeTransfer
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress opt/openwrt_packit/output | tee wetransfer.log
+        ./transfer wet -s -p 16 --no-progress openwrt/bin/targets/ramips/mt7621
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
+        echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"        
+        
