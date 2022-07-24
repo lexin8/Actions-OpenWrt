@@ -27,7 +27,6 @@ git clone https://github.com/sirpdboy/luci-theme-opentopd
 git clone -b 18.06 https://github.com/kiddin9/luci-theme-edge.git
 git clone https://github.com/virualv/luci-theme-pink.git
 git clone https://github.com/thinktip/luci-theme-neobird.git
-git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
@@ -45,6 +44,7 @@ popd
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall.git
+git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 #git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
