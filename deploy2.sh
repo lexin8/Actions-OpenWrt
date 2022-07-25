@@ -34,8 +34,8 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-by
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
-# git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-git clone https://github.com/jerrykuku/luci-theme-argon.git
+git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+# git clone https://github.com/jerrykuku/luci-theme-argon.git
 git clone https://github.com/jerrykuku/luci-app-argon-config
 git clone https://github.com/jerrykuku/lua-maxminddb.git
 git clone https://github.com/jerrykuku/luci-app-vssr.git
