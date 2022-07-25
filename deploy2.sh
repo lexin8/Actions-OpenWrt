@@ -9,7 +9,6 @@ cd openwrt
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 rm -rf feeds/luci/applications/luci-theme*
-rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
 ls |grep -v luci-theme-bootstrap |xargs rm -rf && cd -
 pushd package/lean
@@ -36,7 +35,7 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
 git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
 # git clone https://github.com/jerrykuku/luci-theme-argon.git
-git clone https://github.com/jerrykuku/luci-app-argon-config
+# git clone https://github.com/jerrykuku/luci-app-argon-config
 git clone https://github.com/jerrykuku/lua-maxminddb.git
 git clone https://github.com/jerrykuku/luci-app-vssr.git
 # svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
