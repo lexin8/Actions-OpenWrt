@@ -10,7 +10,6 @@ cd openwrt
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 rm -rf feeds/luci/applications/luci-theme*
-rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
 ls |grep -v luci-theme-bootstrap |xargs rm -rf && cd -
 pushd package/lean
@@ -44,7 +43,6 @@ popd
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall.git
-git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 #git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
