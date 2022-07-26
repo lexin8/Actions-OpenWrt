@@ -9,7 +9,7 @@
 #============================================================
 
 # Modify default IP
-sed -i 's/192.168.6.1/192.168.100.1/g' package/base-files/files/bin/config_generate
+sed -i 's/192.168.6.1/10.10.10.10/g' package/base-files/files/bin/config_generate
 
 # Delete default password
 # sed -i "/CYXluq4wUazHjmCDBCqXF/d" package/default-settings/files/zzz-default-settings
