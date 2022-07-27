@@ -15,6 +15,10 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-by
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
 popd
 # 添加插件
+cd feeds/luci/applications/
+rm -rf luci-app-ddns
+svn co https://github.com/coolsnowwolf/luci/trunk/applications/luci-app-ddns
+cd ../../../
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall.git
