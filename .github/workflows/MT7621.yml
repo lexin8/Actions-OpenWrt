@@ -25,6 +25,8 @@ on:
 env:
   CONFIG_FILE_1: AC2100_kernel.config
   CONFIG_FILE_2: AC2100.config
+  CONFIG_FILE_3: D2_kernel.config
+  CONFIG_FILE_4: D2.config
   DIY_P1_SH: deploy2.sh
   DIY_P2_SH: deploy2_D2.sh
   DIY_P3_SH: diy-part3.sh
@@ -67,6 +69,7 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         ../$DIY_P2_SH
+        
     - name: 定制_脚本3
       run: |
         chmod +x $DIY_P3_SH
@@ -88,14 +91,70 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-    - name: 开始编译固件
-      id: compile
+        
+    - name: 开始编译固件1
+      id: compile_1
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success"
+
+    - name: 编译D2内核
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE_3 ] && mv $CONFIG_FILE_3 openwrt/.config
+        
+    - name: 开始编译固件2
+      id: compile_2
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
         
+ 
+    - name: 开始拷贝固件
+      id: Copy
+      run: |
+        mkdir ios
+        cd ios
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/*/*/immortalwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-initramfs-kernel.bin .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/*/*/immortalwrt-ramips-mt7621-d-team_newifi-d2-initramfs-kernel.bin .
+ 
+    - name: 编译AC2100
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE_2 ] && mv $CONFIG_FILE_2 openwrt/.config
+ 
+    - name: 开始编译固件3
+      id: compile_3
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success" 
+        
+    - name: 编译D2
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE_4 ] && mv $CONFIG_FILE_4 openwrt/.config
+ 
+    - name: 开始编译固件4
+      id: compile_4
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success" 
+
+    - name: 开始拷贝固件
+      id: Copy2
+      run: |
+        cd ios
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/*/*/immortalwrt-ramips-mt7621-xiaomi_redmi-router-ac2100-squashfs-sysupgrade.bin .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/bin/targets/*/*/immortalwrt-ramips-mt7621-d-team_newifi-d2-squashfs-sysupgrade.bin .
+
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -107,7 +166,7 @@ jobs:
     - name: 上传固件到WeTransfer
       run: |
         curl -fsSL git.io/file-transfer | sh
-        ./transfer wet -s -p 16 --no-progress openwrt/bin/targets/*/* | tee wetransfer.log
-        ./transfer wet -s -p 16 --no-progress openwrt/bin/targets/*/*
+        ./transfer wet -s -p 16 --no-progress ios/* | tee wetransfer.log
+        ./transfer wet -s -p 16 --no-progress ios/*
         echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
         echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"  
