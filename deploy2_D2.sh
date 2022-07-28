@@ -40,7 +40,7 @@ find . -name vssr.lua | xargs sed -i "s/Hello World/科学上网国旗版/g"
 find . -name vssr.po | xargs sed -i '/msgstr/s/Hello World/SSR+国旗版/g'
 
 sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/emortal/autocore/files/generic/090-cover-index_htm
-sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/lean/autocore/files/x86/index.htm
+sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/emortal/autocore/files/generic/index.htm
 sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/lean/autocore/files/arm/index.htm
 
 
