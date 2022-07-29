@@ -97,8 +97,13 @@ jobs:
       run: |
         cd openwrt
         make -j8
-        rm .config
-        rm -rf scripts/config
+        
+    - name: 清理
+      id: clear
+      run: | 
+        cd openwrt
+        rm -rf ./tmp && rm -rf .config
+        ./scripts/feeds update -a && ./scripts/feeds install -a
 
     - name: 编译D2内核
       run: |
