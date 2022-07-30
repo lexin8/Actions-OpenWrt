@@ -107,7 +107,7 @@ jobs:
         
     - name: 编译D2内核
       run: |
-        [ -e $CONFIG_FILE_3 ] && mv $CONFIG_FILE_3 openwrt/.config
+        [ -e $CONFIG_FILE_1 ] && mv $CONFIG_FILE_1 openwrt/.config
         
     - name: 开始编译固件2
       id: compile_2
