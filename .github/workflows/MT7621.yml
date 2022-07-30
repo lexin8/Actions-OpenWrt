@@ -97,7 +97,17 @@ jobs:
       run: |
         cd openwrt
         make -j8
-
+        
+    - name: 清理
+      id: clear
+      run: | 
+        cd openwrt
+        rm -rf ./tmp && rm -rf .config
+        ./scripts/feeds update -a && ./scripts/feeds install -a
+        
+    - name: 编译D2内核
+      run: |
+        [ -e $CONFIG_FILE_3 ] && mv $CONFIG_FILE_3 openwrt/.config
         
     - name: 开始编译固件2
       id: compile_2
@@ -117,7 +127,7 @@ jobs:
  
     - name: 编译AC2100
       run: |
-        [ -e files ] && mv files openwrt/files
+
         [ -e $CONFIG_FILE_2 ] && mv $CONFIG_FILE_2 openwrt/.config
  
     - name: 开始编译固件3
@@ -129,7 +139,7 @@ jobs:
         
     - name: 编译D2
       run: |
-        [ -e files ] && mv files openwrt/files
+
         [ -e $CONFIG_FILE_4 ] && mv $CONFIG_FILE_4 openwrt/.config
  
     - name: 开始编译固件4
