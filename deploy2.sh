@@ -3,7 +3,7 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 #拉取源码
 git clone https://github.com/tuanqing/mknop
 git clone https://github.com/padavanonly/immortalwrt openwrt
-git clone https://github.com/lexin8/Actions-OpenWrt config
+git clone https://github.com/lexin8/Actions-OpenWrt profile
 cd openwrt
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a
