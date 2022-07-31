@@ -23,10 +23,6 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE_1: AC2100_kernel.config
-  CONFIG_FILE_2: AC2100.config
-  CONFIG_FILE_3: D2_kernel.config
-  CONFIG_FILE_4: D2.config
   DIY_P1_SH: deploy2.sh
   DIY_P2_SH: deploy2_D2.sh
   DIY_P3_SH: diy-part3.sh
@@ -67,7 +63,7 @@ jobs:
         [ -e files ] && mv files openwrt/files
         chmod +x $DIY_P2_SH
         cd openwrt
-        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/AC2100_kernel.config .config
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/AC2100_kernel.config .config
         ../$DIY_P2_SH
         
     - name: 定制_脚本3
@@ -98,12 +94,12 @@ jobs:
         cd openwrt
         make -j8
         
-    - name: 编译D2内核
+    - name: D2内核配置
       run: |
         cd openwrt
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
-        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/D2_kernel.config .config
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/D2_kernel.config .config
         make defconfig
         
     - name: 开始编译D2_kernel
@@ -127,7 +123,7 @@ jobs:
         cd openwrt
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
-        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/AC2100.config .config
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/AC2100.config .config
         make defconfig
 
  
@@ -143,7 +139,7 @@ jobs:
         cd openwrt
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
-        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/D2.config .config
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/D2.config .config
         make defconfig
  
     - name: 开始编译D2固件
