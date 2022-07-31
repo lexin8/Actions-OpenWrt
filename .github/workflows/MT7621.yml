@@ -93,7 +93,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make V=s -j$(nproc)
+        make -j$(nproc)
         
     - name: D2内核配置
       run: |
@@ -107,7 +107,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make V=s -j$(nproc)
+        make -j$(nproc)
         
  
     - name: 开始拷贝固件
@@ -130,7 +130,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make V=s -j$(nproc)
+        make -j$(nproc)
         
     - name: D2配置
       run: |
@@ -144,7 +144,7 @@ jobs:
       run: |
         cd openwrt
         make defconfig
-        make V=s -j$(nproc)
+        make -j$(nproc)
 
     - name: 开始拷贝固件
       id: Copy2
