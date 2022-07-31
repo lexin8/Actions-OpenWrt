@@ -98,16 +98,11 @@ jobs:
         cd openwrt
         make -j8
         
-    - name: 清理
-      id: clear
-      run: | 
-        cd openwrt
-        rm -rf ./tmp && rm -rf .config
-        ./scripts/feeds update -a && ./scripts/feeds install -a
-        
     - name: 编译D2内核
       run: |
         cd openwrt
+        git pull
+        ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/D2_kernel.config .config
         make defconfig
         
@@ -130,7 +125,11 @@ jobs:
     - name: AC2100配置
       run: |
         cd openwrt
+        git pull
+        ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/AC2100.config .config
+        make defconfig
+
  
     - name: 开始编译AC2100固件
       id: compile_3
@@ -142,7 +141,10 @@ jobs:
     - name: D2配置
       run: |
         cd openwrt
+        git pull
+        ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/D2.config .config
+        make defconfig
  
     - name: 开始编译D2固件
       id: compile_4
