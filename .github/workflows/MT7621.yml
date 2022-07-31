@@ -92,7 +92,8 @@ jobs:
       id: compile_1
       run: |
         cd openwrt
-        make -j8
+        make defconfig
+        make V=s -j$(nproc)
         
     - name: D2内核配置
       run: |
@@ -100,14 +101,13 @@ jobs:
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/D2_kernel.config .config
-        make defconfig
         
     - name: 开始编译D2_kernel
       id: compile_2
       run: |
         cd openwrt
-        make -j8
-        rm .config
+        make defconfig
+        make V=s -j$(nproc)
         
  
     - name: 开始拷贝固件
@@ -124,15 +124,13 @@ jobs:
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/AC2100.config .config
-        make defconfig
-
  
     - name: 开始编译AC2100固件
       id: compile_3
       run: |
         cd openwrt
-        make -j8
-        rm .config
+        make defconfig
+        make V=s -j$(nproc)
         
     - name: D2配置
       run: |
@@ -140,14 +138,13 @@ jobs:
         git pull
         ./scripts/feeds update -a && ./scripts/feeds install -a
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/config/D2.config .config
-        make defconfig
  
     - name: 开始编译D2固件
       id: compile_4
       run: |
         cd openwrt
-        make -j8
-        rm .config
+        make defconfig
+        make V=s -j$(nproc)
 
     - name: 开始拷贝固件
       id: Copy2
