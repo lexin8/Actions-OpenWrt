@@ -67,7 +67,6 @@ jobs:
         [ -e files ] && mv files openwrt/files
         chmod +x $DIY_P2_SH
         cd openwrt
-        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/config/AC2100_kernel.config .config
         ../$DIY_P2_SH
         
     - name: 定制_脚本3
