@@ -65,9 +65,9 @@ jobs:
     - name: 配置_脚本2
       run: |
         [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE_1 ] && mv $CONFIG_FILE_1 openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/config/AC2100_kernel.config .config
         ../$DIY_P2_SH
         
     - name: 定制_脚本3
@@ -107,7 +107,8 @@ jobs:
         
     - name: 编译D2内核
       run: |
-        [ -e $CONFIG_FILE_2 ] && mv $CONFIG_FILE_2 openwrt/.config
+        cd openwrt
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/config/D2_kernel.config .config
         
     - name: 开始编译固件2
       id: compile_2
@@ -127,8 +128,8 @@ jobs:
  
     - name: 编译AC2100
       run: |
-
-        [ -e $CONFIG_FILE_2 ] && mv $CONFIG_FILE_2 openwrt/.config
+        cd openwrt
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/config/AC2100.config .config
  
     - name: 开始编译固件3
       id: compile_3
@@ -139,8 +140,8 @@ jobs:
         
     - name: 编译D2
       run: |
-
-        [ -e $CONFIG_FILE_4 ] && mv $CONFIG_FILE_4 openwrt/.config
+        cd openwrt
+        \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/config/D2.config .config
  
     - name: 开始编译固件4
       id: compile_4
