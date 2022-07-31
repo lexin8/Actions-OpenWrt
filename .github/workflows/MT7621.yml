@@ -92,7 +92,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 开始编译固件1
+    - name: 开始编译AC2100_kernel
       id: compile_1
       run: |
         cd openwrt
@@ -110,7 +110,7 @@ jobs:
         cd openwrt
         \cp -af ~/work/Actions-OpenWrt/Actions-OpenWrt/profile/D2_kernel.config .config
         
-    - name: 开始编译固件2
+    - name: 开始编译D2_kernel
       id: compile_2
       run: |
         cd openwrt
