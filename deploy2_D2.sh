@@ -15,7 +15,7 @@ sed -i 's/192.168.6.1/10.10.10.10/g' package/base-files/files/bin/config_generat
 # sed -i "/CYXluq4wUazHjmCDBCqXF/d" package/default-settings/files/zzz-default-settings
 
 # 修改主机名字，把OpenWrt-123修改你喜欢的就行（不能使用中文）
-sed -i '/uci commit system/i\uci set set system.@system[-1].hostname='OpenWrt' package/base-files/files/bin/config_generate
+sed -i '/uci commit system/i\uci set set system.@system[-1].hostname='OpenWrt'' package/base-files/files/bin/config_generate
 
 # 内核显示增加自己个性名称（281677160 build $(TZ=UTC-8 date "+%Y.%m.%d") @ 这些为后期增加）
 sed -i "s/22.7.7/22.7.7 build $(TZ=UTC-8 date "+%Y-%m-%d") /g" package/lean/default-settings/files/zzz-default-settings
