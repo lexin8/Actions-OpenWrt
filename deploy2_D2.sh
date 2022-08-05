@@ -18,7 +18,7 @@ sed -i 's/192.168.6.1/10.10.10.10/g' package/base-files/files/bin/config_generat
 sed -i 's/ImmortalWrt/OpenWrt/'  package/base-files/files/bin/config_generate
 
 # 内核显示增加自己个性名称（281677160 build $(TZ=UTC-8 date "+%Y.%m.%d") @ 这些为后期增加）
-sed -i "s/22.7.7/22.7.7 build $(TZ=UTC-8 date "+%Y-%m-%d") /g" package/lean/default-settings/files/zzz-default-settings
+# sed -i "s/22.7.7/22.7.7 build $(TZ=UTC-8 date "+%Y-%m-%d") /g" package/lean/default-settings/files/zzz-default-settings
 
 # 修改 argon 为默认主题,可根据你喜欢的修改成其他的（不选择那些会自动改变为默认主题的主题才有效果）
 # sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
