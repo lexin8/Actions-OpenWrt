@@ -9,6 +9,7 @@ cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
+rm -rf feeds/luci/applications/luci-app-unblockmusic*
 pushd feeds/luci/themes
 # 添加主题
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash ..
@@ -23,8 +24,9 @@ cd ../../../
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall.git
-#git clone https://github.com/tuanqing/install-program
+# git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
+git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
 cd ../
 #&& rm -rf feeds/diy1/v2ray
