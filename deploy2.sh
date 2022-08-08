@@ -9,7 +9,7 @@ cd openwrt
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
-rm -rf feeds/luci/applications/luci-app-unblockneteasemusic*
+rm -rf feeds/luci/applications/luci-app-unblockmusic*
 pushd feeds/luci/themes
 # 添加主题
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash ..
