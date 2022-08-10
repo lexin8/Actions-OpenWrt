@@ -40,7 +40,7 @@ find . -name status.htm | xargs sed -i "s#ShadowsocksR Plus+ #科学上网程序
 find . -name vssr.lua | xargs sed -i "s/Hello World/科学上网国旗版/g"
 find . -name vssr.po | xargs sed -i '/msgstr/s/Hello World/SSR+国旗版/g'
 
-sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/emortal/autocore/files/generic/index.htm
+sed -i 's/os.date(),/os.date("%Y-%m-%d %H:%M:%S"),/g' package/lean/autocore/files/x86/index.htm
 
 # sed -i 's/PassWall/正确翻墙翻墙✔/g' package/openwrt-packages/luci-app-passwall/Makefile
 # sed -i 's/"BaiduPCS Web"/"百度网盘"/g' package/lean/luci-app-baidupcs-web/luasrc/controller/baidupcs-web.lua
