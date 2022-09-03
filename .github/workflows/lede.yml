@@ -102,6 +102,7 @@ jobs:
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
+        ls
         rm -rf packages
         ls | grep -v combined | xargs rm
         tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
