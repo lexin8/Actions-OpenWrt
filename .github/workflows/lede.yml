@@ -105,7 +105,7 @@ jobs:
         rm -rf packages
         ls | grep -v combined | xargs rm
         tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
-        ls | grep -v .gz | xargs rm
+        # ls | grep -v .gz | xargs rm
         echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
         
