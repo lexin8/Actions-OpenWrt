@@ -44,6 +44,7 @@ popd
 # 添加插件
 cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
+git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
 git clone https://github.com/xiaorouji/openwrt-passwall.git
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 #git clone https://github.com/tuanqing/install-program
