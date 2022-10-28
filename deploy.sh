@@ -12,9 +12,10 @@ git reset --hard 7626542dcb60faeafac597a746f15c77958615fa
 cd feeds/
 rm -rf packages/
 git clone https://github.com/coolsnowwolf/packages
-cd ../../
-#
+cd packages/
 git reset --hard e97bffbe18bbe149c62ead5b9a147e3a7cd33f3b
+cd ../../
+# EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
