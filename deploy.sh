@@ -8,6 +8,13 @@ git reset --hard 7626542dcb60faeafac597a746f15c77958615fa
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
+# 退回 packages
+cd feeds/
+rm -rf packages/
+git clone https://github.com/coolsnowwolf/packages
+cd ../../
+#
+git reset --hard e97bffbe18bbe149c62ead5b9a147e3a7cd33f3b
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
