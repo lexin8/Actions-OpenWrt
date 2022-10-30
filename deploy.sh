@@ -4,7 +4,7 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 git clone https://github.com/lexin8/kernel opt
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
-# git reset --hard 7626542dcb60faeafac597a746f15c77958615fa
+git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -15,7 +15,7 @@ rm -rf luci/
 git clone https://github.com/coolsnowwolf/packages
 git clone https://github.com/coolsnowwolf/luci
 cd packages/
-git reset --hard e97bffbe18bbe149c62ead5b9a147e3a7cd33f3b
+git reset --hard 889d742b61b153ed9cfc73bd3c24aa8ad30a03ec
 cd ..
 cd luci/
 git reset --hard 0cb5c5c78274871cd98c3e114ed9e70ab86ad5d6
