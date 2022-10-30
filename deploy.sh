@@ -4,7 +4,7 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 git clone https://github.com/lexin8/kernel opt
 git clone https://github.com/coolsnowwolf/lede openwrt
 cd openwrt
-git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
+# git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -59,6 +59,7 @@ git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
 git clone https://github.com/xiaorouji/openwrt-passwall.git
 git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+cd luci-app-unblockneteasemusic && git reset --hard 3d1e3ba97724880bdd9c1170d5522e6a993811c6 && cd ..
 #git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
 # svn checkout https://github.com/sirpdboy/sirpdboy-package/trunk/luci-app-koolproxyR
