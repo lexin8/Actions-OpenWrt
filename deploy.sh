@@ -60,7 +60,8 @@ cd package && git clone https://github.com/fw876/helloworld
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
 git clone https://github.com/xiaorouji/openwrt-passwall.git
-git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+# git clone https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+git clone --branch master https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
 # cd luci-app-unblockneteasemusic && git reset --hard 3d1e3ba97724880bdd9c1170d5522e6a993811c6 && cd ..
 # git clone https://github.com/tuanqing/install-program
 git clone https://github.com/sirpdboy/netspeedtest
