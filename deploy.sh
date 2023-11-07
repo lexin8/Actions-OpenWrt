@@ -58,7 +58,8 @@ git clone https://github.com/jerrykuku/luci-app-vssr.git
 # svn checkout https://github.com/kenzok8/openwrt-packages/trunk/luci-app-openclash
 popd
 # 添加插件
-cd package && git clone https://github.com/fw876/helloworld
+# cd package && git clone https://github.com/fw876/helloworld
+cd package && git clone --depth=1 https://github.com/fw876/helloworld.git
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
 git clone https://github.com/xiaorouji/openwrt-passwall.git
