@@ -49,8 +49,10 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-oaf .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-onliner .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
