@@ -22,6 +22,7 @@ cd openwrt
 #cd ../../
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
+git clone https://github.com/haiibo/openwrt-packages.git package/haiibo
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
@@ -45,10 +46,11 @@ svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-clash .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-bypass .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
