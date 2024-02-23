@@ -65,7 +65,7 @@ popd
 # 添加插件
 # cd package && git clone https://github.com/fw876/helloworld
 # cd package && git clone -b main https://github.com/fw876/helloworld.git
-# cd package && git clone --depth=1 https://github.com/fw876/helloworld.git
+cd package && git clone --depth=1 https://github.com/fw876/helloworld.git
 git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
 git clone https://github.com/xiaorouji/openwrt-passwall.git
