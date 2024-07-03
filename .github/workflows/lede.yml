@@ -181,7 +181,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
     - name: 下载 package too
-      id: package too
+      id: package2
       run: |
         cd openwrt
         make defconfig
@@ -190,12 +190,13 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         
     - name: 开始编译固件 too
-      id: compile too
+      id: compile2
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+        
     - name: Organize files
       id: organize too
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
