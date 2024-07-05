@@ -22,7 +22,7 @@ cd openwrt
 #cd ../../
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
-git clone https://github.com/haiibo/openwrt-packages.git package/haiibo
+# git clone https://github.com/haiibo/openwrt-packages.git package/haiibo
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
