@@ -121,6 +121,16 @@ jobs:
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
 
+    - name: softethervpn
+      id: softethervpn
+      run: |
+        cd openwrt
+        git checkout master
+        git pull
+        git checkout -b rollback-softethervpn-5.01.9674-1
+        cd feeds/packages/net/softethervpn5
+        git checkout 7d89c09430930e3bf9b487333f0a18dd117f46af
+
     - name: 下载 package
       id: package
       run: |
