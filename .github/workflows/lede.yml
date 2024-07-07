@@ -116,6 +116,14 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
+    - name: softethervpn
+      id: softethervpn
+      run: |
+        cd openwrt/feeds/packages/net/
+        rm -rf softethervpn*
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+
     - name: 配置
       run: |
         [ -e files ] && mv files openwrt/files
