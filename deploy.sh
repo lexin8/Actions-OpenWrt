@@ -22,6 +22,7 @@ cd openwrt
 #cd ../../
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
+git clone https://github.com/liudf0716/luci.git package/liudf0716
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
@@ -52,6 +53,7 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-st
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-oaf .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-onliner .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applications/luci-app-strongswan-swanctl .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
@@ -77,3 +79,4 @@ git clone https://github.com/xiaorouji/openwrt-passwall.git
 cd ../
 #&& rm -rf feeds/diy1/v2ray
 rm -rf package/kenzok8
+rm -rf package/liudf0716
