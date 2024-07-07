@@ -119,6 +119,7 @@ jobs:
     - name: softethervpn
       id: softethervpn
       run: |
+        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
         cd openwrt/feeds/packages/net/
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
