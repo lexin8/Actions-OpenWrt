@@ -23,6 +23,7 @@ cd openwrt
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 git clone https://github.com/liudf0716/luci.git package/liudf0716
+git clone https://github.com/kiddin9/openwrt-packages package/kiddin9
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
@@ -41,19 +42,21 @@ git clone https://github.com/sirpdboy/luci-theme-opentopd
 git clone -b 18.06 https://github.com/kiddin9/luci-theme-edge.git
 git clone https://github.com/virualv/luci-theme-pink.git
 git clone https://github.com/thinktip/luci-theme-neobird.git
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-openclash .
 # svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-clash .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-clash .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-theme-opentomcat .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-theme-ifit .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//smartdns-le .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-wechatpush .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-theme-design .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-store .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-oaf .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-onliner .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applications/luci-app-strongswan-swanctl .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kiddin9/luci-app-mihomo .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kiddin9/mihomo .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
@@ -66,7 +69,6 @@ popd
 # 添加插件
 # cd package && git clone https://github.com/fw876/helloworld
 cd package && git clone https://github.com/fw876/helloworld.git
-git clone https://github.com/morytyann/OpenWrt-mihomo.git
 # cd package && git clone --depth=1 https://github.com/fw876/helloworld.git
 # git clone -b luci https://github.com/xiaorouji/openwrt-passwall.git passwall
 # git clone https://github.com/xiaorouji/openwrt-passwall2.git passwall2
@@ -81,3 +83,4 @@ cd ../
 #&& rm -rf feeds/diy1/v2ray
 rm -rf package/kenzok8
 rm -rf package/liudf0716
+rm -rf package/kiddin9
