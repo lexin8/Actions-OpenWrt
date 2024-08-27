@@ -42,8 +42,16 @@ git clone https://github.com/sirpdboy/luci-theme-opentopd
 git clone -b 18.06 https://github.com/kiddin9/luci-theme-edge.git
 git clone https://github.com/virualv/luci-theme-pink.git
 git clone https://github.com/thinktip/luci-theme-neobird.git
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-openclash .
 # svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-clash .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-app-clash .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-theme-opentomcat .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//luci-theme-ifit .
