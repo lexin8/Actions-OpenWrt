@@ -23,7 +23,7 @@ cd openwrt
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 git clone https://github.com/liudf0716/luci.git package/liudf0716
-git clone https://github.com/kiddin9/openwrt-packages package/kiddin9
+git clone https://github.com/kiddin9/openwrt-packages.git package/kiddin9
 rm -rf feeds/luci/applications/luci-theme*
 rm -rf feeds/luci/applications/luci-app-unblockmusic*
 cd feeds/luci/themes/
