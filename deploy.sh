@@ -83,3 +83,4 @@ cd ../
 #&& rm -rf feeds/diy1/v2ray
 rm -rf package/kenzok8
 rm -rf package/liudf0716
+rm -rf package/kiddin9
