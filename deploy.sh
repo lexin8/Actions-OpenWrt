@@ -45,18 +45,13 @@ git clone https://github.com/thinktip/luci-theme-neobird.git
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
 # svn co https://github.com/vernesong/OpenClash/trunk/luci-app-openclash
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-clash .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-opentomcat .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-ifit .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/smartdns-le .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-bypass .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-oaf .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/haiibo/luci-app-onliner .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/luci-app-mihomo .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/mihomo .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applications/luci-app-strongswan-swanctl .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kiddin9/luci-app-mihomo .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kiddin9/mihomo .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
