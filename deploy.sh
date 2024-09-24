@@ -7,6 +7,9 @@ cd openwrt
 # git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
+sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
+sed -i '2,3d' feeds.conf.default
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 # 退回 packages
