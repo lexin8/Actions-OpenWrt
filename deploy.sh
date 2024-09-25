@@ -7,8 +7,8 @@ cd openwrt
 # git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
 echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
-# sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
-# sed -i '2,3d' feeds.conf.default
+sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
+sed -i '2,3d' feeds.conf.default
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -59,8 +59,8 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applicati
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
-git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
-# git clone https://github.com/jerrykuku/luci-theme-argon.git
+# git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+git clone https://github.com/jerrykuku/luci-theme-argon.git
 git clone https://github.com/jerrykuku/luci-app-argon-config
 git clone https://github.com/jerrykuku/lua-maxminddb.git
 # git clone https://github.com/jerrykuku/luci-app-vssr.git
