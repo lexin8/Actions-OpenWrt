@@ -6,7 +6,7 @@ echo "\n----------- 开始进入指定文件夹 --------------\n";
 cd openwrt
 # git reset --hard f833707a78974af47ddbe1f7e038bf62b463f633
 # sed -i '$a src-git diy1 https://github.com/xiaorouji/openwrt-passwall.git;main' feeds.conf.default
-# echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
+echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
 sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
 sed -i '2,3d' feeds.conf.default
 
@@ -53,8 +53,8 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-wechatpush .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-theme-design .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-store .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/luci-app-mihomo .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/mihomo .
+# cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/luci-app-mihomo .
+# cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/mihomo .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applications/luci-app-strongswan-swanctl .
 
 # 删除配置
