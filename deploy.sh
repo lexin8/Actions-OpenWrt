@@ -9,8 +9,6 @@ cd openwrt
 # echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
 # sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
 # sed -i '2,3d' feeds.conf.default
-rm -rf feeds/packages/lang/golang
-git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -28,7 +26,6 @@ git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 #cd ../../
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
-git clone https://github.com/kenzok8/small-package package/kenzok8-small
 git clone https://github.com/liudf0716/luci.git package/liudf0716
 git clone https://github.com/kiddin9/openwrt-packages.git package/kiddin9
 rm -rf feeds/luci/applications/luci-theme*
@@ -59,7 +56,6 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-st
 # cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/luci-app-mihomo .
 # cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package//kiddin9/mihomo .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/liudf0716/applications/luci-app-strongswan-swanctl .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8-small/luci-app-homeproxy .
 
 # 删除配置
 grep -rnl 'luci.main.mediaurlbase' ./ | xargs sed -i '/luci.main.mediaurlbase/d'
@@ -88,4 +84,12 @@ cd ../
 rm -rf package/kenzok8
 rm -rf package/liudf0716
 rm -rf package/kiddin9
-rm -rf package/kenzok8-small
+
+sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-mosdns
+rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
+rm -rf feeds/packages/utils/v2dat
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
+./scripts/feeds install -a 
