@@ -15,7 +15,7 @@ sed -i 's/192.168.1.1/192.168.10.253/g' package/base-files/files/bin/config_gene
 ./scripts/feeds install -a
 
 cd package && git clone https://github.com/xiaorouji/openwrt-passwall.git
-git clone https://github.com/xiaorouji/openwrt-passwall-packages.git
+# git clone https://github.com/xiaorouji/openwrt-passwall-packages.git
 #cd package && git clone https://github.com/fw876/helloworld.git
 
 
