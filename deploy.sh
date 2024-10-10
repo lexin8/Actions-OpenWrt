@@ -13,17 +13,17 @@ git reset --hard 625dbc350539d424d44f5d0683b734435e2aa90f
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 # 退回 packages
-#cd feeds/
-#rm -rf packages/
-#rm -rf luci/
-#git clone https://github.com/coolsnowwolf/packages
-#git clone https://github.com/coolsnowwolf/luci
-#cd packages/
-#git reset --hard 889d742b61b153ed9cfc73bd3c24aa8ad30a03ec
-#cd ..
-#cd luci/
-#git reset --hard 0cb5c5c78274871cd98c3e114ed9e70ab86ad5d6
-#cd ../../
+cd feeds/
+rm -rf packages/
+rm -rf luci/
+git clone https://github.com/coolsnowwolf/packages
+git clone https://github.com/coolsnowwolf/luci
+cd packages/
+git reset --hard 3f2901f4fe36a5026db8e9c4bfb1a8358aecf069
+cd ..
+cd luci/
+git reset --hard 66d29de33efbde0fa3b721bfec495acf9460386a
+cd ../../
 # EOF
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 git clone https://github.com/liudf0716/luci.git package/liudf0716
