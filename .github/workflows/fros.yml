@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  FROS
+name:  AC2100
 
 on:
   repository_dispatch:
@@ -23,40 +23,142 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: fros.config
-  DIY_P1_SH: fros.sh
+  CONFIG_FILE: AC2100.config
+  DIY_P1_SH: deploy.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
-  SSH_ACTIONS: true
+  SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_URL2: https://github.com/immortalwrt/immortalwrt
+  REPO_BRANCH: master
+  DIY_SCRIPT: diy-script.sh
+  CLASH_KERNEL: amd64
+  CACHE_TOOLCHAIN: true
+  FIRMWARE_RELEASE: true
+  FIRMWARE_TAG: X86_64
   TZ: Asia/Shanghai
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    if: github.event.repository.owner.id == github.event.sender.id
+  Build:
+    runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@master
-      
-    - name: 安装依赖包
+    - name: Check Server Performance
+      run: |
+        echo "警告⚠"
+        echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+        echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+        echo "--------------------------CPU信息--------------------------"
+        echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+        echo "CPU核心数量: $(nproc)"
+        echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+        echo "--------------------------内存信息--------------------------"
+        echo "已安装内存详细信息:"
+        echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+        echo "--------------------------硬盘信息--------------------------"
+        echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+    - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
-        sudo -E apt-get -qq update
-        sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf wget curl swig rsync cmake curl wget vim git antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cpio device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip xmlto xxd zlib1g-dev ack
-        sudo -E apt-get -qq clean
+        docker rmi $(docker images -q)
+        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+        sudo -E apt-get -y update
+        sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
+        sudo -E systemctl daemon-reload
+        sudo -E apt-get -y autoremove --purge
+        sudo -E apt-get -y clean
         sudo timedatectl set-timezone "$TZ"
+
+    - name: Combine Disks
+      uses: easimon/maximize-build-space@master
+      with:
+        swap-size-mb: 1024
+        temp-reserve-mb: 100
+        root-reserve-mb: 1024
+
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Clone Source Code
+      run: |
+        df -hT $GITHUB_WORKSPACE
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        cd openwrt
+        echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+        COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+        echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+        COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+        echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
+        COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+        echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+        COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+        echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+
+
+    - name: Cache Toolchain
+      if: env.CACHE_TOOLCHAIN == 'true'
+      uses: HiGarfield/cachewrtbuild@main
+      with:
+        ccache: false
+        mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+        prefix: ${{ env.OPENWRT_PATH }}
+
+    - name: Install Feeds
+      run: |
+        cd $OPENWRT_PATH
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+    - name: softethervpn
+      id: softethervpn
+      run: |
+        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+        cd openwrt/feeds/packages/net/
+        rm -rf softethervpn*
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+
+    - name: 配置
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
+
+    - name: 下载 package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        
     
     - name: 运行一键部署脚本
       run: |
         chmod +x $DIY_P1_SH
         ./$DIY_P1_SH
+                    
+    - name: 配置_脚本2
+      run: |
+        rm -rf openwrt/.config
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        ../$DIY_P2_SH
+        
+    - name: 定制_脚本3
+      run: |
+        chmod +x $DIY_P3_SH
+        cd openwrt
+        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -65,6 +167,23 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
+    - name: 下载 package too
+      id: package2
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        
+    - name: 开始编译固件 too
+      id: compile2
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success"
+        
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -74,7 +193,7 @@ jobs:
         rm -rf packages
         # ls | grep -v combined | xargs rm
         # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
-        tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo openwrt-x86-64-generic-squashfs-combined-efi.img.gz
+        tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.bin
         # ls | grep -v .gz | xargs rm
         ls | grep -v OpenWrt.tar.gz | xargs rm
         ls
@@ -87,3 +206,17 @@ jobs:
       with:
         name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
         path: ${{ steps.organize.outputs.FIRMWARE }}
+
+    - name: 上传到奶牛 cowtransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
+      run: |
+        curl -sL https://git.io/cowtransfer | sh
+        ./transfer wet -s -p 16 --no-progress ${{ steps.organize.outputs.FIRMWARE }} | tee wetransfer.log
+        echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
+        
+    - name: 上传到  WeTransfer
+      if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
+      run: |
+        curl -fsSL git.io/file-transfer | sh
+        ./transfer wet -s -p 16 --no-progress ${{ steps.organize.outputs.FIRMWARE }} | tee wetransfer.log
+        echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
