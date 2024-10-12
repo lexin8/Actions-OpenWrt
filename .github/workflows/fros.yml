@@ -123,22 +123,7 @@ jobs:
         cd openwrt/feeds/packages/net/
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
-
-    - name: 配置
-      run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-
-    - name: 下载 package
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .        
     
     - name: 运行一键部署脚本
       run: |
