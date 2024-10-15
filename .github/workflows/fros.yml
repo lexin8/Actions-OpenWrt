@@ -153,7 +153,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
     - name: luci 23.05
-      id: luci 23.05
+      id: luci
       run: |
         cd openwrt
         sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
