@@ -152,14 +152,14 @@ jobs:
         cd openwrt
         source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
 
-    - name: softethervpn
-      id: softethervpn
-      run: |
-        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
-        cd openwrt/feeds/packages/net/
-        rm -rf softethervpn*
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+#    - name: softethervpn
+#      id: softethervpn
+#      run: |
+#        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+#        cd openwrt/feeds/packages/net/
+#        rm -rf softethervpn*
+#        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+#        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
