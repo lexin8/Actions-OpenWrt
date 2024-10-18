@@ -10,6 +10,7 @@ sed -i 's/192.168.1.1/192.168.10.253/g' package/base-files/files/bin/config_gene
 git clone https://github.com/kenzok8/openwrt-packages.git package/kenzok8
 git clone https://github.com/liudf0716/luci.git package/liudf0716
 git clone https://github.com/kiddin9/openwrt-packages.git package/kiddin9
+git clone https://github.com/xiaorouji/openwrt-passwall-packages package/
 pushd package/diy
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-openclash .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/kenzok8/luci-app-clash .
