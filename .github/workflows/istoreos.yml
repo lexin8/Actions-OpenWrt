@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  immortalwrt
+name:  istoreos
 
 on:
   repository_dispatch:
@@ -23,9 +23,9 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: AC2100.config
+  CONFIG_FILE: lede.config
   CONFIG_FILE2: lede2.config
-  DIY_P1_SH: immortalwrt.sh
+  DIY_P1_SH: istoreos.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
   SSH_ACTIONS: false
@@ -34,7 +34,7 @@ env:
   UPLOAD_COWTRANSFER: false
   UPLOAD_WETRANSFER: false
   REPO_URL: https://github.com/istoreos/istoreos
-  REPO_BRANCH: master
+  REPO_BRANCH: istoreos-22.03
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
@@ -156,8 +156,8 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 开始编译固件 too
-      id: compile2
+    - name: 开始编译固件
+      id: compile
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
@@ -173,7 +173,7 @@ jobs:
         rm -rf packages
         # ls | grep -v combined | xargs rm
         # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
-        tar czvf `date +%Y.%m.%d.%H`_immortalwrt.tar.gz config.buildinfo *.bin
+        tar czvf `date +%Y.%m.%d.%H`_istoreos.tar.gz config.buildinfo *.bin *img.gz
         # ls | grep -v .gz | xargs rm
         ls | grep -v immortalwrt.tar.gz | xargs rm
         ls
