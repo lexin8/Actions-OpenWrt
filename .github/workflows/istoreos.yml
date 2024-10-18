@@ -173,9 +173,9 @@ jobs:
         rm -rf packages
         # ls | grep -v combined | xargs rm
         # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
-        tar czvf `date +%Y.%m.%d.%H`_istoreos.tar.gz config.buildinfo *.bin *img.gz
+        tar czvf `date +%Y.%m.%d.%H`_istoreos.tar.gz config.buildinfo *img.gz
         # ls | grep -v .gz | xargs rm
-        ls | grep -v immortalwrt.tar.gz | xargs rm
+        ls | grep -v istoreos.tar.gz | xargs rm
         ls
         echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
