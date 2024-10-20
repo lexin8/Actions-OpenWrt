@@ -157,38 +157,33 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 编译固件
-      id: compile
+    - name: 开始编译固件 too
+      id: compile2
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
         echo "::set-output name=status::success"
-
-    - name: 检查磁盘空间
-      if: (!cancelled())
-      run: df -hT
-
-    - name: 上传 bin 文件夹
-      uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-      with:
-        name: OpenWrt_bin${{ env.FILE_DATE }}
-        path: openwrt/bin
-
-    - name: 整理固件文件
+        
+    - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
+        ls
         rm -rf packages
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
+        # ls | grep -v combined | xargs rm
+        # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
+        tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *combined.img.gz
+        # ls | grep -v .gz | xargs rm
+        ls | grep -v OpenWrt.tar.gz | xargs rm
+        ls
+        echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
-
-    - name: 上传固件目录
-      uses: actions/upload-artifact@main
+        
+    - name: 上传到 directory
+      uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
-        name: OpenWrt_firmware${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}
+        name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
+        path: ${{ steps.organize.outputs.FIRMWARE }}
