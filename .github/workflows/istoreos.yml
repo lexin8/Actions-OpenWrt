@@ -165,6 +165,11 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+
+    - name: 搜索固件
+      run: |
+        cd openwrt
+        find . -name "*squashfs*"
         
     - name: Organize files
       id: organize
