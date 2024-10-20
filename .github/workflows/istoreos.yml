@@ -25,7 +25,7 @@ on:
 env:
   CONFIG_FILE: lede.config
   CONFIG_FILE2: lede2.config
-  DIY_P1_SH: istoreos.sh
+  DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
   SSH_ACTIONS: false
@@ -35,7 +35,8 @@ env:
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
   REPO_URL: https://github.com/istoreos/istoreos
-  REPO_BRANCH: istoreos-22.03
+  REPO_URL2: https://github.com/immortalwrt/immortalwrt
+  REPO_BRANCH: openwrt-23.05
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
