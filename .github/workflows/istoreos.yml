@@ -175,7 +175,7 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd openwrt/bin/targets/*/*
+        cd openwrt/bin/targets/x86/64/
         ls
         rm -rf packages
         # ls | grep -v combined | xargs rm
