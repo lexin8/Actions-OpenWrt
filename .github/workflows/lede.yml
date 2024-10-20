@@ -117,10 +117,6 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: 配置
-      run: |
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
 
     - name: 下载 package
       id: package
@@ -137,7 +133,7 @@ jobs:
         chmod +x $DIY_P1_SH
         ./$DIY_P1_SH
                     
-    - name: 配置_脚本2
+    - name: 配置_脚本
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
