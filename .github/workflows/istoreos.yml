@@ -168,7 +168,7 @@ jobs:
 
     - name: 搜索固件
       run: |
-        cd openwrt
+        cd openwrt/bin/
         find . -name "*squashfs*"
         
     - name: Organize files
@@ -180,7 +180,7 @@ jobs:
         rm -rf packages
         # ls | grep -v combined | xargs rm
         # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
-        tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo openwrt-x86-64-generic-squashfs-combined-efi.img.gz
+        tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
         # ls | grep -v .gz | xargs rm
         ls | grep -v OpenWrt.tar.gz | xargs rm
         ls
