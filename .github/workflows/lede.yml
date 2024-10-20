@@ -25,7 +25,7 @@ on:
 env:
   CONFIG_FILE: lede.config
   CONFIG_FILE2: lede2.config
-  DIY_P1_SH: deploy3.sh
+  DIY_P1_SH: deploy2.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
   SSH_ACTIONS: false
@@ -90,7 +90,7 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone $REPO_URL2 -b $REPO_BRANCH openwrt
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -128,10 +128,10 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         
     
-#    - name: 运行一键部署脚本
-#      run: |
-#        chmod +x $DIY_P1_SH
-#        ./$DIY_P1_SH
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P1_SH
+        ./$DIY_P1_SH
                     
     - name: 配置_脚本
       run: |
