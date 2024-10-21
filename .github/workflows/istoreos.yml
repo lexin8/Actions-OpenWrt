@@ -36,7 +36,7 @@ env:
   UPLOAD_WETRANSFER: false
   REPO_URL: https://github.com/istoreos/istoreos
   REPO_URL2: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: master
+  REPO_BRANCH: openwrt-21.02
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
@@ -140,6 +140,15 @@ jobs:
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+
+    - name: softethervpn
+      id: softethervpn
+      run: |
+        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+        cd openwrt/feeds/packages/net/
+        rm -rf softethervpn*
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
         
 
     - name: SSH connection to Actions
