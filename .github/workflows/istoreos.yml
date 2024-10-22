@@ -149,6 +149,15 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
+    - name: softethervpn
+      id: softethervpn
+      run: |
+        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+        cd openwrt/feeds/packages/net/
+        rm -rf softethervpn*
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+
     - name: 下载 package too
       id: package2
       run: |
