@@ -116,25 +116,6 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a     
     
-    - name: 运行一键部署脚本
-      run: |
-        chmod +x $DIY_P1_SH
-        ./$DIY_P1_SH
-                    
-    - name: 配置_脚本2
-      run: |
-        rm -rf openwrt/.config
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        ../$DIY_P2_SH
-        
-    - name: 定制_脚本3
-      run: |
-        chmod +x $DIY_P3_SH
-        cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
 
     - name: softethervpn
       id: softethervpn
@@ -152,17 +133,9 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-#    - name: luci 23.05
-#      id: luci
-#      run: |
-#        cd openwrt
-#        sed -i '$a src-git luci https://github.com/coolsnowwolf/luci.git;openwrt-23.05' feeds.conf.default
-#        sed -i '2,3d' feeds.conf.default
-#        ./scripts/feeds update -a
-#        ./scripts/feeds install -a
     
-    - name: 下载 package too
-      id: package2
+    - name: 下载 package
+      id: package
       run: |
         cd openwrt
         make defconfig
@@ -170,7 +143,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 开始编译固件 too
+    - name: 开始编译固件
       id: compile2
       run: |
         cd openwrt
