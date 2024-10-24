@@ -15,9 +15,8 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 #sed -i 's/$(TARGET_DIR)) install/$(TARGET_DIR)) install --force-overwrite/' package/Makefile
 #sed -i 's/root:.*/root:$1$tTPCBw1t$ldzfp37h5lSpO9VXk4uUE\/:18336:0:99999:7:::/g' package/base-files/files/etc/shadow
 
-sed -i '$a src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main' openwrt/feeds.conf.default
-
-#cd openwrt
+cd openwrt
+echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
 #git clone -b openwrt-21.02 https://github.com/immortalwrt/luci.git package/immortalwrt
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/immortalwrt/applications/luci-app-passwall .
 #rm -rf package/immortalwrt
