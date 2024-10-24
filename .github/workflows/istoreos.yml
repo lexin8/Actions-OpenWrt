@@ -118,18 +118,6 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-
-
-    - name: 下载 package
-      id: package
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        
-
     - name: 运行一键部署脚本
       run: |
         chmod +x $DIY_P1_SH
@@ -158,6 +146,14 @@ jobs:
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
 
+    - name: 下载 package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
         
     - name: 开始编译固件
       id: compile
@@ -176,7 +172,8 @@ jobs:
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        cd openwrt/bin/targets/x86/64/
+        cd openwrt/bin/
+        cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
         ls
         rm -rf packages
         # ls | grep -v combined | xargs rm
