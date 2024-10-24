@@ -158,14 +158,6 @@ jobs:
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
 
-    - name: 下载 package
-      id: package2
-      run: |
-        cd openwrt
-        make defconfig
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
         
     - name: 开始编译固件
       id: compile
@@ -189,6 +181,8 @@ jobs:
         rm -rf packages
         # ls | grep -v combined | xargs rm
         # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
+        find . -name "*ext4*" |xargs rm -rf
+        find . -name "*root*" |xargs rm -rf
         tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
         # ls | grep -v .gz | xargs rm
         ls | grep -v OpenWrt.tar.gz | xargs rm
