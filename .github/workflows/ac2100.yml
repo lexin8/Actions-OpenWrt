@@ -24,6 +24,7 @@ on:
 
 env:
   CONFIG_FILE: AC2100.config
+  CONFIG_FILE2: AC21002.config
   DIY_P1_SH: deploy2.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
@@ -135,7 +136,7 @@ jobs:
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
     
     - name: 下载 package
       id: package
