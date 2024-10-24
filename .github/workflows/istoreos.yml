@@ -130,12 +130,12 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         
 
-#    - name: 运行一键部署脚本
-#      run: |
-#        chmod +x $DIY_P1_SH
-#        ./$DIY_P1_SH
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P1_SH
+        ./$DIY_P1_SH
                     
-    - name: 配置_脚本2
+    - name: 配置_脚本
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
@@ -158,7 +158,7 @@ jobs:
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
 
-    - name: 下载 package too
+    - name: 下载 package
       id: package2
       run: |
         cd openwrt
@@ -167,8 +167,8 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
         
-    - name: 开始编译固件 too
-      id: compile2
+    - name: 开始编译固件
+      id: compile
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
