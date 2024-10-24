@@ -20,3 +20,5 @@ echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "f
 #git clone -b openwrt-21.02 https://github.com/immortalwrt/luci.git package/immortalwrt
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/immortalwrt/applications/luci-app-passwall .
 #rm -rf package/immortalwrt
+
+./scripts/feeds update -a && ./scripts/feeds install -a
