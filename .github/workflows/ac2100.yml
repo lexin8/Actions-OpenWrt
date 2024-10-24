@@ -137,6 +137,12 @@ jobs:
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .   
+
+    - name: 配置_config
+      run: |
+        rm -rf openwrt/.config
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
@@ -144,12 +150,6 @@ jobs:
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-    - name: 配置_config
-      run: |
-        rm -rf openwrt/.config
-        [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
     
     - name: 下载 package
       id: package
