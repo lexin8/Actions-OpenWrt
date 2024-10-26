@@ -102,7 +102,7 @@ jobs:
 
     - name: Install Feeds
       run: |
-        cd $OPENWRT_PATH
+        cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
