@@ -125,7 +125,7 @@ jobs:
 
     - name: Install Feeds
       run: |
-        cd $OPENWRT_PATH
+        cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a     
 
@@ -150,12 +150,7 @@ jobs:
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-    - name: Install Feeds2
-      run: |
-        cd $OPENWRT_PATH
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a  
+ 
     
     - name: 下载 package
       id: package
@@ -173,6 +168,7 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
+
     - name: 搜索固件
       run: |
         cd openwrt/bin/
