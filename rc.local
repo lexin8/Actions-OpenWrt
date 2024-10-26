@@ -1,0 +1,10 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+ifconfig rai0 up
+ifconfig ra0 up
+brctl addif br-lan rai0
+brctl addif br-lan ra0
+sh /etc/ipset-rules/ipv4_CN.sh
+/etc/init.d/mwan3 restart
+exit 0
