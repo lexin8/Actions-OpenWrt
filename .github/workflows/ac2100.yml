@@ -142,6 +142,8 @@ jobs:
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        chmod +x $DIY_P1_SH
+        ./$DIY_P1_SH
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
