@@ -101,10 +101,8 @@ jobs:
     - name: 配置_config
       run: |
         rm -rf openwrt/.config
-        rm -rf openwrt/package/base-files/files/etc/rc.local
-        [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        [ -e rc.local ] && mv rc.local openwrt/package/base-files/files/etc/rc.local
+
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
