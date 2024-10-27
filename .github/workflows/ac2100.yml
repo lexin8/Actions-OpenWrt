@@ -76,7 +76,7 @@ jobs:
       run: |
         cd openwrt
         echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
-        git reset --hard 6835ff8cbcc826ce64b073872e740a7399cb0b47
+        git reset --hard 088bb1e12e07794dd3842df1d3b804f6550ea033
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
