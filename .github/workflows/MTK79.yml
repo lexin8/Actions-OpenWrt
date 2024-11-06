@@ -23,7 +23,7 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: 100.config
+  CONFIG_FILE: mt79.config
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
@@ -71,7 +71,7 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
+        git clone $REPO_URL2 -b $REPO_BRANCH2 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
 
