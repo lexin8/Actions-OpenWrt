@@ -94,7 +94,6 @@ jobs:
     - name: hostapd
       id: hostapd
       run: |
-        git clone https://github.com/lexin8/Actions-OpenWrt lexin8
         cd openwrt/package/network/services/
         rm -rf hostapd
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/hostapd .
