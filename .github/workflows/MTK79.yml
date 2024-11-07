@@ -71,7 +71,8 @@ jobs:
       working-directory: /workdir
       run: |
         df -hT $PWD
-        git clone $REPO_URL1 -b $REPO_BRANCH3 openwrt
+        git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
+        git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
 
@@ -86,17 +87,11 @@ jobs:
       id: softethervpn
       run: |
         git clone https://github.com/lexin8/Actions-OpenWrt lexin8
-        git clone https://github.com/hanwckf/immortalwrt-mt798x mtk
         cd openwrt/feeds/packages/net/
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .  
 
-    - name: mtk
-      id: mtk
-      run: |
-        cd openwrt/package/
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/mtk/package/mtk .
         
     - name: Load custom configuration
       run: |
