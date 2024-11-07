@@ -72,13 +72,13 @@ jobs:
       run: |
         df -hT $PWD
         git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
-        git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
 
     - name: Install Feeds
       run: |
         cd openwrt
+        git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
         echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
         ./scripts/feeds update -a
         ./scripts/feeds install -a
