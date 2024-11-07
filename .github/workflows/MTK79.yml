@@ -86,7 +86,7 @@ jobs:
       id: softethervpn
       run: |
         git clone https://github.com/lexin8/Actions-OpenWrt lexin8
-        git clone https://github.com/padavanonly/immortalwrt-mt798x-23.05
+        git clone https://github.com/hanwckf/immortalwrt-mt798x mtk
         cd openwrt/feeds/packages/net/
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
@@ -96,7 +96,7 @@ jobs:
       id: mtk
       run: |
         cd openwrt/package/
-        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/immortalwrt-mt798x-23.05/package/mtk .
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/mtk/package/mtk .
         
     - name: Load custom configuration
       run: |
