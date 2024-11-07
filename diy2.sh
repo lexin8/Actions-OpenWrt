@@ -2,7 +2,7 @@
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 #拉取源码
 cd openwrt
-git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
+# git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 # 退回 packages
