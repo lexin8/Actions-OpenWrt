@@ -76,10 +76,8 @@ jobs:
 
     - name: 回滚
       run: |
-        [ -e files ] && mv files openwrt/files
         chmod +x $DIY_P3_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P3_SH
+        ./$DIY_P3_SH
 
     - name: Install Feeds
       run: |
