@@ -26,7 +26,7 @@ env:
   CONFIG_FILE: 100.config
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
-  DIY_P3_SH: diy-part3.sh
+  DIY_P3_SH: diy2.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -74,11 +74,16 @@ jobs:
         git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
+    - name: 回滚
+      run: |
+        [ -e files ] && mv files openwrt/files
+        chmod +x $DIY_P3_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P3_SH
 
     - name: Install Feeds
       run: |
         cd openwrt
-        git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
         echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
         ./scripts/feeds update -a
         ./scripts/feeds install -a
