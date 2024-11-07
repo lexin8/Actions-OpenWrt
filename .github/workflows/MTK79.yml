@@ -91,6 +91,13 @@ jobs:
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .  
 
+    - name: hostapd
+      id: hostapd
+      run: |
+        cd openwrt/package/network/services/
+        rm -rf hostapd
+        cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/hostapd .
+        
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
