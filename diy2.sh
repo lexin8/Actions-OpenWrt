@@ -16,3 +16,6 @@ git reset --hard 322c4266835a9b73eb1045cf3e532ee15802c85a
 cd ..
 cd luci/
 git reset --hard 65e5852f965462eb3e85e8a50dd6cb313491acf7
+cd ../../
+./scripts/feeds update -a
+./scripts/feeds install -a
