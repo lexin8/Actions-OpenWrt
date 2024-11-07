@@ -21,4 +21,4 @@ cd openwrt
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/immortalwrt/applications/luci-app-passwall .
 #rm -rf package/immortalwrt
 
-./scripts/feeds update -a && ./scripts/feeds install -a
+#./scripts/feeds update -a && ./scripts/feeds install -a
