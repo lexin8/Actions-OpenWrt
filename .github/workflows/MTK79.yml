@@ -80,11 +80,6 @@ jobs:
         echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-
-    - name: 回滚
-      run: |
-        chmod +x $DIY_P3_SH
-        ./$DIY_P3_SH
         
     - name: softethervpn
       id: softethervpn
