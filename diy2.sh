@@ -10,6 +10,9 @@ pushd package/
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-istorex .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-quickstart .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-store .
- 
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-lib-taskd .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/quickstart .
+
+
 cd ../
 rm -rf small
