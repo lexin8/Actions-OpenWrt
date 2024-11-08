@@ -12,6 +12,9 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-quickstart .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-store .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-lib-taskd .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/quickstart .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-lib-xterm .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/taskd .
+
 
 
 cd ../
