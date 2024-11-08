@@ -1,21 +1,14 @@
 #!/bin/bash
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 #拉取源码
-cd openwrt
-# git reset --hard 33913d674f71807f4e9711b647fdb8f6b504e393
+sed -i 's/192.168.6.1/192.168.20.1/g' package/base-files/files/bin/config_generate
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-# 退回 packages
-cd feeds/
-rm -rf packages/
-rm -rf luci/
-git clone -b openwrt-23.05 https://github.com/immortalwrt/packages
-git clone -b openwrt-23.05 https://github.com/immortalwrt/luci
-cd packages/
-git reset --hard 322c4266835a9b73eb1045cf3e532ee15802c85a
-cd ..
-cd luci/
-git reset --hard 65e5852f965462eb3e85e8a50dd6cb313491acf7
-cd ../../
-./scripts/feeds update -a
-./scripts/feeds install -a
+
+git clone https://github.com/kenzok8/small-package.git small
+pushd package/
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/small/luci-app-istorex .
+
+
+cd ../
+rm -rf small
