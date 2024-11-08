@@ -73,6 +73,7 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        cd openwrt
         sed -i "1i src-git chajian1 https://github.com/kenzok8/small-package.git" feeds.conf.default
         cat feeds.conf.default
         tree
