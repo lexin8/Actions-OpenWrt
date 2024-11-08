@@ -73,6 +73,9 @@ jobs:
         df -hT $PWD
         git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        sed -i "1i src-git chajian1 https://github.com/kenzok8/small-package.git" feeds.conf.default
+        cat feeds.conf.default
+        tree
 
     - name: Install Feeds
       run: |
@@ -90,7 +93,6 @@ jobs:
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .  
 
-        
     - name: Load custom configuration
       run: |
         [ -e files ] && mv files openwrt/files
