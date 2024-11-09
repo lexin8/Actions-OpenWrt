@@ -80,6 +80,11 @@ jobs:
         echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P3_SH
+        ./$DIY_P3_SH
         
     - name: softethervpn
       id: softethervpn
@@ -97,11 +102,6 @@ jobs:
         chmod +x $DIY_P1_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P1_SH
-
-    - name: 运行一键部署脚本
-      run: |
-        chmod +x $DIY_P3_SH
-        ./$DIY_P3_SH
         
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
