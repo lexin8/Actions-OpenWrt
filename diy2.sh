@@ -15,3 +15,5 @@ cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/small/luci-lib-taskd .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/small/quickstart .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/small/luci-lib-xterm .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/small/taskd .
+
+ls
