@@ -74,13 +74,6 @@ jobs:
         git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: 回滚
-      run: |
-        cd openwrt
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
-        git reset --hard c1036cb21b5276bb87c5432696956e80c51920c2
-
     - name: Install Feeds
       run: |
         cd openwrt
