@@ -81,10 +81,10 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-#    - name: 运行一键部署脚本
-#      run: |
-#        chmod +x $DIY_P3_SH
-#        ./$DIY_P3_SH
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P3_SH
+        ./$DIY_P3_SH
         
     - name: softethervpn
       id: softethervpn
