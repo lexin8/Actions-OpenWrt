@@ -6,7 +6,7 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  immortalwrt
+name:  istoreos
 
 on:
   repository_dispatch:
@@ -23,21 +23,20 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: immortalwrt.config
+  CONFIG_FILE: lede.config
+  CONFIG_FILE2: lede2.config
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
-  DIY_P3_SH: diy2.sh
+  DIY_P3_SH: diy-part3.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  UPLOAD_COWTRANSFER: false
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
-  REPO_URL1: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/hanwckf/immortalwrt-mt798x
-  REPO_URL3: https://github.com/padavanonly/immortalwrt-mt798x-23.05
-  REPO_BRANCH: master
-  REPO_BRANCH2: openwrt-21.02
-  REPO_BRANCH3: openwrt-23.05
+  REPO_URL: https://github.com/istoreos/istoreos
+  REPO_URL2: https://github.com/immortalwrt/immortalwrt
+  REPO_BRANCH: openwrt-23.05
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
@@ -64,7 +63,6 @@ jobs:
         echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
     - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -78,7 +76,6 @@ jobs:
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get -y clean
         sudo timedatectl set-timezone "$TZ"
-
     - name: Combine Disks
       uses: easimon/maximize-build-space@master
       with:
@@ -92,7 +89,7 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone $REPO_URL1 -b $REPO_BRANCH3 openwrt
+        git clone $REPO_URL2 -b $REPO_BRANCH openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -103,8 +100,6 @@ jobs:
         echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
         COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
         echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-
     - name: Cache Toolchain
       if: env.CACHE_TOOLCHAIN == 'true'
       uses: HiGarfield/cachewrtbuild@main
@@ -118,14 +113,16 @@ jobs:
         cd $OPENWRT_PATH
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P1_SH
+        ./$DIY_P1_SH
                     
     - name: 配置_脚本
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
@@ -141,7 +138,6 @@ jobs:
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
-
     - name: 下载 package
       id: package
       run: |
@@ -158,7 +154,6 @@ jobs:
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
-
     - name: 搜索固件
       run: |
         cd openwrt/bin/
