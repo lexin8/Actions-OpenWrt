@@ -8,5 +8,5 @@ sed -i 's/192.168.6.1/192.168.20.1/g' package/base-files/files/bin/config_genera
 
 cd package/net/
 rm -rf nfs-kernel-server
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/packages/package/net/nfs-kernel-server .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/packages/net/nfs-kernel-server .
 
