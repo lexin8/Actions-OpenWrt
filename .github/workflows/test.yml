@@ -26,7 +26,7 @@ env:
   CONFIG_FILE: test.config
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
-  DIY_P3_SH: diy2.sh
+  DIY_P3_SH: test.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -141,6 +141,11 @@ jobs:
         rm -rf softethervpn*
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
         cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+
+    - name: 运行一键部署脚本
+      run: |
+        chmod +x $DIY_P3_SH
+        ./$DIY_P3_SH
 
     - name: 下载 package
       id: package
