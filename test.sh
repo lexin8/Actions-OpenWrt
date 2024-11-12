@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "\n----------- 开始进入指定文件夹 --------------\n";
 #拉取源码
-git clone https://github.com/coolsnowwolf/packages packages
+git clone -b openwrt-23.05 https://github.com/immortalwrt/immortalwrt packages
 cd openwrt
 sed -i 's/192.168.6.1/192.168.20.1/g' package/base-files/files/bin/config_generate
 
