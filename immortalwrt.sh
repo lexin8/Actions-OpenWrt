@@ -19,6 +19,9 @@ git clone -b openwrt-24.10 https://github.com/immortalwrt/luci diy
 cd openwrt
 echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
 
+./scripts/feeds update -a
+./scripts/feeds install -a
+
 cd package
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/applications/luci-app-strongswan-swanctl .
 #git clone -b openwrt-21.02 https://github.com/immortalwrt/luci.git package/immortalwrt
