@@ -17,6 +17,7 @@
 
 git clone -b main https://github.com/kiddin9/kwrt-packages diy
 git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
+git clone -b openwrt-24.10 https://github.com/immortalwrt/luci luci
 
 cd openwrt
 echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
@@ -27,6 +28,7 @@ echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "f
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 cd package
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/luci-app-strongswan-swanctl .
+# cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/luci-app-strongswan-swanctl .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/utils/swanmon .
 cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/libs/davici .
+cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/luci/applications/luci-app-strongswan-swanctl .
