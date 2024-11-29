@@ -27,8 +27,8 @@ echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "f
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
-cd package
-# cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/luci-app-strongswan-swanctl .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/utils/swanmon .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/libs/davici .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/luci/applications/luci-app-strongswan-swanctl .
+#cd package
+#cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/luci-app-strongswan-swanctl .
+#cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/utils/swanmon .
+#cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/libs/davici .
+
