@@ -146,7 +146,7 @@ jobs:
       run: |
         chmod +x $DIY_P3_SH
         cd openwrt
-        source $GITHUB_WORKSPACE/$DIY_P3_SH && Diy-Part1
+        source $GITHUB_WORKSPACE/$DIY_P3_SH
 
     - name: softethervpn
       id: softethervpn
