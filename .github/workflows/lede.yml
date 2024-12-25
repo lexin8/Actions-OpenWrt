@@ -137,7 +137,7 @@ jobs:
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
         chmod +x $DIY_P2_SH
         cd openwrt
         ../$DIY_P2_SH
