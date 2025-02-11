@@ -20,7 +20,7 @@ git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
 git clone -b openwrt-24.10 https://github.com/immortalwrt/luci luci
 
 cd openwrt
-echo "src-git mihomo https://github.com/morytyann/OpenWrt-mihomo.git;main" >> "feeds.conf.default"
+echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> "feeds.conf.default"
 #git clone -b openwrt-21.02 https://github.com/immortalwrt/luci.git package/immortalwrt
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/package/immortalwrt/applications/luci-app-passwall .
 #rm -rf package/immortalwrt
