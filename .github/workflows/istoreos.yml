@@ -23,7 +23,7 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: lede.config
+  CONFIG_FILE: istoreos..config
   CONFIG_FILE2: lede2.config
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
@@ -91,7 +91,7 @@ jobs:
     - name: Clone Source Code
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone $REPO_URL2 -b $REPO_BRANCH2 openwrt
+        git clone $REPO_URL -b $REPO_BRANCH2 openwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -126,7 +126,7 @@ jobs:
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
-        [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
         
     - name: softethervpn
       id: softethervpn
