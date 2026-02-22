@@ -28,9 +28,11 @@ env:
   DIY_P1_SH: immortalwrt.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
+  
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
+  UPLOAD_SOFTETHERVPN: false
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
@@ -130,6 +132,7 @@ jobs:
         
     - name: softethervpn
       id: softethervpn
+      if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
       run: |
         git clone https://github.com/lexin8/Actions-OpenWrt lexin8
         cd openwrt/feeds/packages/net/
