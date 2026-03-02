@@ -124,6 +124,13 @@ jobs:
       run: |
         chmod +x $DIY_P1_SH
         ./$DIY_P1_SH
+
+    - name: 安装更新的 Go 版本
+      run: |
+          wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
+          sudo rm -rf /usr/local/go
+          sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+          echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
                     
     - name: 配置_脚本
       run: |
