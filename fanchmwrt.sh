@@ -29,6 +29,8 @@ echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >>
 ./scripts/feeds install -a
 cd package
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/diy/luci-app-strongswan-swanctl .
-cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/luci/applications/luci-app-passwall .
+#cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/luci/applications/luci-app-passwall .
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/utils/swanmon .
 #cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/swanmon/libs/davici .
+cd..
+cp -r -n /luci/applications/* /openwrt/luci/applications/
