@@ -106,7 +106,7 @@ jobs:
     - name: Clone immortalwrt
       run: |
         df -hT $GITHUB_WORKSPACE
-        git clone $REPO_URL -b $REPO_BRANCH2 immortalwrt
+        git clone $REPO_URL immortalwrt
         cd openwrt
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
         COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
