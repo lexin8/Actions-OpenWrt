@@ -157,36 +157,36 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-	- name: 强制使用新Go版本
-	  run: |
-		# 删除缓存的Go工具链
-		rm -rf ~/go
-		rm -rf /home/runner/go
-		rm -rf /home/runner/.cache/go-build
-		rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/dl/go*
-		rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/build_dir/host/go-*
-		rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/staging_dir/host/share/go-*
-		
-		# 设置环境变量
-		export PATH=/usr/local/go/bin:$PATH
-		export GOROOT=/usr/local/go
-		export GOTOOLCHAIN=auto
-		export GOPROXY=https://goproxy.io,direct
-		
-		# 验证版本
-		go version
-		
-	- name: 开始编译固件
-	  env:
-		GOTOOLCHAIN: auto
-		GOROOT: /usr/local/go
-		PATH: /usr/local/go/bin:$PATH
-	  id: compile
-	  run: |
-		cd openwrt
-		echo -e "$(nproc) thread compile"
-		make -j$(nproc) || make -j1 || make -j1 V=s
-		echo "::set-output name=status::success"
+   # 👇 在这里添加新的步骤
+    - name: 升级Go版本以支持geoview编译
+      run: |
+        echo "当前Go版本："
+        go version || echo "Go未安装"
+        
+        # 下载并安装Go 1.24.0
+        wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+        
+        # 设置环境变量
+        echo "export PATH=/usr/local/go/bin:\$PATH" >> ~/.profile
+        echo "export GOTOOLCHAIN=auto" >> ~/.profile
+        source ~/.profile
+        
+        # 验证新版本
+        echo "升级后Go版本："
+        /usr/local/go/bin/go version
+        
+        # 创建软链接确保系统命令也能使用新版本
+        sudo ln -sf /usr/local/go/bin/go /usr/bin/go
+        
+    - name: 开始编译固件
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success"
         
     - name: 搜索固件
       run: |
