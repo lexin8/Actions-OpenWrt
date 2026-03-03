@@ -6,15 +6,14 @@
 # Blog: https://p3terx.com
 #=================================================
 
-name:  fanchmwrt
+name: fanchmwrt
 
 on:
   repository_dispatch:
-#  schedule:
-#    - cron: 0 20 * * 2,4,6,0
+  #  schedule:
+  #    - cron: 0 20 * * 2,4,6,0
   watch:
     types: started
-    
   workflow_dispatch:
     inputs:
       ssh:
@@ -28,7 +27,6 @@ env:
   DIY_P1_SH: fanchmwrt.sh
   DIY_P2_SH: diy-part2.sh
   DIY_P3_SH: diy-part3.sh
-  
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
@@ -66,11 +64,11 @@ jobs:
         echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
     - name: Initialization Environment
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-
         sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
         sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
         sudo -E apt-get -y update
@@ -79,7 +77,7 @@ jobs:
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get -y clean
         sudo timedatectl set-timezone "$TZ"
-        
+
     - name: Combine Disks
       uses: easimon/maximize-build-space@master
       with:
@@ -104,7 +102,7 @@ jobs:
         echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
         COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
         echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-        
+
     - name: Cache Toolchain
       if: env.CACHE_TOOLCHAIN == 'true'
       uses: HiGarfield/cachewrtbuild@main
@@ -118,19 +116,18 @@ jobs:
         cd $OPENWRT_PATH
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        
+
     - name: 运行一键部署脚本
       run: |
         chmod +x $DIY_P1_SH
         ./$DIY_P1_SH
 
-                    
     - name: 配置_脚本
       run: |
         rm -rf openwrt/.config
         [ -e files ] && mv files openwrt/files
         [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
-        
+
     - name: softethervpn
       id: softethervpn
       if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
@@ -147,7 +144,7 @@ jobs:
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        
+
     - name: 下载 package
       id: package
       run: |
@@ -157,42 +154,47 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-   # 👇 在这里添加新的步骤
-    - name: 升级Go版本以支持geoview编译
+    - name: 强制使用新Go版本
       run: |
-        echo "当前Go版本："
-        go version || echo "Go未安装"
-        
-        # 下载并安装Go 1.24.0
-        wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
-        sudo rm -rf /usr/local/go
-        sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+        # 删除缓存的Go工具链
+        rm -rf ~/go
+        rm -rf /home/runner/go
+        rm -rf /home/runner/.cache/go-build
+        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/dl/go*
+        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/build_dir/host/go-*
+        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/staging_dir/host/share/go-*
         
         # 设置环境变量
-        echo "export PATH=/usr/local/go/bin:\$PATH" >> ~/.profile
-        echo "export GOTOOLCHAIN=auto" >> ~/.profile
-        source ~/.profile
+        export PATH=/usr/local/go/bin:$PATH
+        export GOROOT=/usr/local/go
+        export GOTOOLCHAIN=auto
+        export GOPROXY=https://goproxy.io,direct
         
-        # 验证新版本
-        echo "升级后Go版本："
-        /usr/local/go/bin/go version
+        # 验证版本
+        go version
         
-        # 创建软链接确保系统命令也能使用新版本
-        sudo ln -sf /usr/local/go/bin/go /usr/bin/go
-        
+        # 将环境变量写入GITHUB_ENV，使其在后续步骤中生效
+        echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
+        echo "GOROOT=/usr/local/go" >> $GITHUB_ENV
+        echo "GOTOOLCHAIN=auto" >> $GITHUB_ENV
+
     - name: 开始编译固件
+      env:
+        GOTOOLCHAIN: auto
+        GOROOT: /usr/local/go
+        PATH: /usr/local/go/bin:$PATH
       id: compile
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
-        
+
     - name: 搜索固件
       run: |
         cd openwrt/bin/
         find . -name "*squashfs*"
-        
+
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
@@ -211,7 +213,7 @@ jobs:
         ls
         echo "::set-output name=FIRMWARE::$PWD"
         echo "::set-output name=status::success"
-        
+
     - name: 上传到 directory
       uses: actions/upload-artifact@master
       if: steps.organize.outputs.status == 'success' && !cancelled()
