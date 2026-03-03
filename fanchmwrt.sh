@@ -27,8 +27,8 @@ echo "src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall
 ./scripts/feeds install -a
 
 #拷贝immortalwrt
-cp -r -n ../immortalwrt/feeds/luci/applications/* ./feeds/luci/applications/
-cp -r -n ../immortalwrt/feeds/packages/net/* ./openwrt/feeds/packages/net/
+cp -r -n ../immortalwrt/* ./
+# cp -r -n ../immortalwrt/feeds/packages/net/* ./openwrt/feeds/packages/net/
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
