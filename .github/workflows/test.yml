@@ -157,10 +157,31 @@ jobs:
         make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
+
+   # 👇 在这里添加新的步骤
+    - name: 升级Go版本以支持geoview编译
+      run: |
+        echo "当前Go版本："
+        go version || echo "Go未安装"
+        
+        # 下载并安装Go 1.24.0
+        wget https://go.dev/dl/go1.24.0.linux-amd64.tar.gz
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf go1.24.0.linux-amd64.tar.gz
+        
+        # 设置环境变量
+        echo "export PATH=/usr/local/go/bin:\$PATH" >> ~/.profile
+        echo "export GOTOOLCHAIN=auto" >> ~/.profile
+        source ~/.profile
+        
+        # 验证新版本
+        echo "升级后Go版本："
+        /usr/local/go/bin/go version
+        
+        # 创建软链接确保系统命令也能使用新版本
+        sudo ln -sf /usr/local/go/bin/go /usr/bin/go
         
     - name: 开始编译固件
-      env:
-        GOTOOLCHAIN: auto
       id: compile
       run: |
         cd openwrt
