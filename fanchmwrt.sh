@@ -16,7 +16,7 @@
 
 git clone -b main https://github.com/kiddin9/kwrt-packages diy
 git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
-git clone -b openwrt-24.10 https://github.com/immortalwrt/luci luci
+# git clone -b openwrt-24.10 https://github.com/immortalwrt/luci luci
 
 cd openwrt
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> "feeds.conf.default"
@@ -26,24 +26,9 @@ echo "src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-#拷贝luci
-cp -r -n ../luci/applications/* ./feeds/luci/applications/
+#拷贝immortalwrt
+cp -r -n ../immortalwrt/feeds/luci/applications/* ./feeds/luci/applications/
+cp -r -n ../immortalwrt/feeds/packages/net/* ./openwrt/feeds/packages/net/
+./scripts/feeds update -a
+./scripts/feeds install -a
 
-
-#==================================================
-# 禁用geoview包
-#==================================================
-
-
-# 在配置文件中禁用geoview
-if [ -f .config ]; then
-    sed -i 's/CONFIG_PACKAGE_geoview=.*/CONFIG_PACKAGE_geoview=n/' .config 2>/dev/null || true
-    echo "CONFIG_PACKAGE_geoview=n" >> .config
-else
-    echo "CONFIG_PACKAGE_geoview=n" > .config
-fi
-
-# 从feeds中移除
-./scripts/feeds uninstall geoview 2>/dev/null || true
-
-echo "geoview已禁用"
