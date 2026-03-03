@@ -132,6 +132,12 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
+    - name: Install Feeds immortalwrt
+      run: |
+        cd immortalwrt
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
     - name: 运行一键部署脚本
       run: |
         chmod +x $DIY_P1_SH
