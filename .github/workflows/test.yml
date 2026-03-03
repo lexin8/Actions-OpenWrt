@@ -154,35 +154,8 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: 强制使用新Go版本
-      run: |
-        # 删除缓存的Go工具链
-        rm -rf ~/go
-        rm -rf /home/runner/go
-        rm -rf /home/runner/.cache/go-build
-        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/dl/go*
-        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/build_dir/host/go-*
-        rm -rf /home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt/staging_dir/host/share/go-*
-        
-        # 设置环境变量
-        export PATH=/usr/local/go/bin:$PATH
-        export GOROOT=/usr/local/go
-        export GOTOOLCHAIN=auto
-        export GOPROXY=https://goproxy.io,direct
-        
-        # 验证版本
-        go version
-        
-        # 将环境变量写入GITHUB_ENV，使其在后续步骤中生效
-        echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
-        echo "GOROOT=/usr/local/go" >> $GITHUB_ENV
-        echo "GOTOOLCHAIN=auto" >> $GITHUB_ENV
 
     - name: 开始编译固件
-      env:
-        GOTOOLCHAIN: auto
-        GOROOT: /usr/local/go
-        PATH: /usr/local/go/bin:$PATH
       id: compile
       run: |
         cd openwrt
