@@ -21,13 +21,22 @@ git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
 cd openwrt
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> "feeds.conf.default"
 
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-#拷贝immortalwrt
-\cp -rf ../immortalwrt/feeds/packages/lang/* ./feeds/packages/lang/
-cp -r -n ../immortalwrt/feeds/luci/applications/* ./feeds/luci/applications/
-cp -r -n ../immortalwrt/feeds/packages/net/* ./feeds/packages/net/
+# 拷贝immortalwrt
+# \cp -rf ../immortalwrt/feeds/packages/lang/* ./feeds/packages/lang/
+# cp -r -n ../immortalwrt/feeds/luci/applications/* ./feeds/luci/applications/
+# cp -r -n ../immortalwrt/feeds/packages/net/* ./feeds/packages/net/
+
+sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-mosdns
+rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
+rm -rf feeds/packages/utils/v2dat
+rm -rf feeds/packages/lang/golang
+git clone https://github.com/kenzok8/golang feeds/packages/lang/golang
 
 ./scripts/feeds update -a
 ./scripts/feeds install -a
