@@ -25,7 +25,7 @@ echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >>
 ./scripts/feeds install -a
 
 #拷贝immortalwrt
-\cp -rf ../immortalwrt/feeds/packages/lang/* ./openwrt/feeds/packages/lang/
-cp -r -n ../immortalwrt/feeds/luci/applications/* ./openwrt/feeds/luci/applications/
+\cp -rf ../immortalwrt/feeds/packages/lang/* ./feeds/packages/lang/
+cp -r -n ../immortalwrt/feeds/luci/applications/* ./feeds/luci/applications/
 ./scripts/feeds update -a
 ./scripts/feeds install -a
