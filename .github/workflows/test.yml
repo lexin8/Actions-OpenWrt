@@ -46,7 +46,6 @@ env:
   FIRMWARE_TAG: X86_64
   TZ: Asia/Shanghai
 
-
 jobs:
   Build:
     runs-on: ubuntu-22.04
@@ -207,9 +206,13 @@ jobs:
           cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
           ls
           rm -rf packages
+          # ls | grep -v combined | xargs rm
+          # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
           find . -name "*ext4*" |xargs rm -rf
           find . -name "*root*" |xargs rm -rf
           tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
+          # ls | grep -v .gz | xargs rm
+          ls | grep -v OpenWrt.tar.gz | xargs rm
           ls
           echo "::set-output name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
