@@ -151,7 +151,7 @@ jobs:
 
     - name: softethervpn
       id: softethervpn
-      if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
+      if: env.UPLOAD_SOFTETHERVPN == 'false' && !cancelled()
       run: |
         git clone https://github.com/lexin8/Actions-OpenWrt lexin8
         cd openwrt/feeds/packages/net/
