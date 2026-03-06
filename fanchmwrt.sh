@@ -28,6 +28,7 @@ echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >>
 # 拷贝immortalwrt
 # \cp -rf ../immortalwrt/feeds/packages/lang/* ./feeds/packages/lang/
 cp -r -n ../immortalwrt/feeds/luci/applications/luci-app-diskman/* ./feeds/luci/applications/luci-app-diskman/
+cp -r -n ../immortalwrt/feeds/packages/net/* ./feeds/packages/net/
 # cp -r -n ../immortalwrt/feeds/packages/net/* ./feeds/packages/net/
 
 sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
