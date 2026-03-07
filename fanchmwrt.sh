@@ -3,7 +3,6 @@
 # 适配openwrt-24.10分支，集成Nikki插件、Docker、IPsec/L2TP依赖、磁盘分区工具
 
 # 拉取基础扩展包
-git clone -b main https://github.com/kiddin9/kwrt-packages diy
 git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
 
 cd openwrt
