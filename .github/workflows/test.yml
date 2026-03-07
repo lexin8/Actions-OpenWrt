@@ -1,17 +1,7 @@
-#=================================================
-# https://github.com/P3TERX/Actions-OpenWrt
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
-
 name: fanchmwrt
 
 on:
   repository_dispatch:
-  #  schedule:
-  #    - cron: 0 20 * * 2,4,6,0
   watch:
     types: started
   workflow_dispatch:
@@ -30,7 +20,7 @@ env:
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  ENABLE_L2TP_COMPONENTS: false
+  ENABLE_L2TP_COMPONENTS: true
   UPLOAD_SOFTETHERVPN: true
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
@@ -153,9 +143,7 @@ jobs:
       - name: 运行L2TP组件追加脚本
         if: env.ENABLE_L2TP_COMPONENTS == 'true' && !cancelled()
         run: |
-          # 确保脚本有执行权限
           chmod +x $DIY_P2_SH
-          # 进入OpenWrt源码目录执行脚本
           cd $OPENWRT_PATH
           ../$DIY_P2_SH
 
@@ -206,12 +194,9 @@ jobs:
           cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
           ls
           rm -rf packages
-          # ls | grep -v combined | xargs rm
-          # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
           find . -name "*ext4*" |xargs rm -rf
           find . -name "*root*" |xargs rm -rf
           tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
-          # ls | grep -v .gz | xargs rm
           ls | grep -v OpenWrt.tar.gz | xargs rm
           ls
           echo "::set-output name=FIRMWARE::$PWD"
