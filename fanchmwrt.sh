@@ -7,18 +7,6 @@ git clone -b main https://github.com/kiddin9/kwrt-packages diy
 git clone -b openwrt-24.10 https://github.com/immortalwrt/packages swanmon
 
 cd openwrt
-
-# 1. 修改默认管理IP地址为192.168.10.1
-sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_generate
-
-# 2. 自定义设备型号为3865U（覆盖默认的Unknown）
-# 方式1：修改系统信息生成脚本，强制设置设备型号
-sed -i '/DISTRIB_DESCRIPTION=/a\export DISTRIB_MODEL="3865U"' package/base-files/files/bin/config_generate
-# 方式2：直接修改openwrt_release模板，确保型号写入
-sed -i 's/DISTRIB_DESCRIPTION='\''%D %V %C'\''/DISTRIB_DESCRIPTION='\''%D %V %C (3865U)'\''/g' package/base-files/files/etc/openwrt_release
-# 方式3：补充型号变量（防止部分版本读取不到）
-echo 'DISTRIB_MODEL="3865U"' >> package/base-files/files/etc/openwrt_release
-
 # 添加Nikki插件源码源
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> "feeds.conf.default"
 
