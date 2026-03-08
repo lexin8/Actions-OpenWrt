@@ -72,7 +72,6 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # 步骤1：基础固件
       - name: 1.1 配置基础固件
         if: env.STEP1_BASE == 'true'
         run: |
@@ -82,7 +81,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=800
+          CONFIG_TARGET_ROOTFS_PARTSIZE=512
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_EFI_IMAGES=y
           CONFIG_PACKAGE_luci=y
@@ -95,6 +94,16 @@ jobs:
           CONFIG_PACKAGE_wget=y
           CONFIG_PACKAGE_curl=y
           CONFIG_PACKAGE_openssh-sftp-server=y
+          # 关闭指定无用插件
+          # CONFIG_DEFAULT_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-zerotier is not set
+          # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
           EOF
           make defconfig && make download -j$(nproc)
           find dl -size -1024c -exec rm -f {} \;
@@ -116,12 +125,11 @@ jobs:
         if: env.STEP1_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 01-基础固件（fanchmwrt+中文Argon）
+          name: 01-基础固件（fanchmwrt）
           path: |
             ${{ env.OPENWRT_PATH }}/*/*/*combined-efi.img.gz
             ${{ env.OPENWRT_PATH }}/*/*/files.json
 
-      # 步骤2：常用组件
       - name: 2.1 配置常用组件
         if: env.STEP1_SUCCESS == 'true' && env.STEP2_COMMON == 'true'
         run: |
@@ -131,7 +139,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=900
+          CONFIG_TARGET_ROOTFS_PARTSIZE=640
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_EFI_IMAGES=y
           CONFIG_PACKAGE_luci=y
@@ -156,6 +164,16 @@ jobs:
           CONFIG_PACKAGE_wget=y
           CONFIG_PACKAGE_curl=y
           CONFIG_PACKAGE_openssh-sftp-server=y
+          # 关闭指定无用插件
+          # CONFIG_DEFAULT_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-zerotier is not set
+          # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
           EOF
           make defconfig && make download -j$(nproc)
         shell: bash
@@ -181,12 +199,10 @@ jobs:
             ${{ env.OPENWRT_PATH }}/*/*/*combined-efi.img.gz
             ${{ env.OPENWRT_PATH }}/*/*/files.json
 
-      # 步骤3：dockerman
       - name: 3.1 配置dockerman
         if: env.STEP2_SUCCESS == 'true' && env.STEP3_DOCKER == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 修复：双引号解析变量，避免${DOCKERMAN_FEED}被当作字符串
           sed -i "1i src-git kenzok8 $DOCKERMAN_FEED;main" feeds.conf.default
           ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-docker 2>/dev/null
           ./scripts/feeds install -a
@@ -195,7 +211,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=800
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_EFI_IMAGES=y
           CONFIG_PACKAGE_luci=y
@@ -223,6 +239,19 @@ jobs:
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
           CONFIG_PACKAGE_kmod-ipt-nat6=y
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+          # 关闭指定无用插件
+          # CONFIG_DEFAULT_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-zerotier is not set
+          # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
           EOF
           make defconfig && make download -j$(nproc)
         shell: bash
@@ -243,12 +272,11 @@ jobs:
         if: env.STEP3_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 03-带dockerman的固件（fanchmwrt+常用组件）
+          name: 03-带dockerman的固件（fanchmwrt）
           path: |
             ${{ env.OPENWRT_PATH }}/*/*/*combined-efi.img.gz
             ${{ env.OPENWRT_PATH }}/*/*/files.json
 
-      # 步骤4：Nikki
       - name: 4.1 配置Nikki组件
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_NIKKI == 'true'
         run: |
@@ -260,7 +288,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1300
+          CONFIG_TARGET_ROOTFS_PARTSIZE=960
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_EFI_IMAGES=y
           CONFIG_PACKAGE_luci=y
@@ -288,6 +316,19 @@ jobs:
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
           CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+          # 关闭指定无用插件
+          # CONFIG_DEFAULT_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-zerotier is not set
+          # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
           EOF
           make defconfig && make download -j$(nproc)
         shell: bash
@@ -313,12 +354,10 @@ jobs:
             ${{ env.OPENWRT_PATH }}/*/*/*combined-efi.img.gz
             ${{ env.OPENWRT_PATH }}/*/*/files.json
 
-      # 步骤5：Passwall+homeproxy
       - name: 5.1 配置Passwall+homeproxy组件
         if: env.STEP4_SUCCESS == 'true' && env.STEP5_PROXY == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 核心修复：双引号解析变量，避免${PASSWALL_*}被当作字符串
           sed -i "2i src-git passwall_packages $PASSWALL_PACKAGES_REPO;main" feeds.conf.default
           sed -i "3i src-git passwall_main $PASSWALL_MAIN_REPO;main" feeds.conf.default
           sed -i "4i src-git homeproxy $HOMEPROXY_FEED;main" feeds.conf.default
@@ -332,7 +371,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=2000
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1600
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_EFI_IMAGES=y
           CONFIG_PACKAGE_luci=y
@@ -379,6 +418,19 @@ jobs:
           CONFIG_PACKAGE_rust-bindgen-host=y
           CONFIG_GOLANG_VERSION_1_26=y
           CONFIG_GOLANG_BASE_VERSION="1.26"
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+          # 关闭指定无用插件
+          # CONFIG_DEFAULT_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          # CONFIG_PACKAGE_luci-app-zerotier is not set
+          # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
           EOF
           make defconfig && make download -j$(nproc)
         shell: bash
