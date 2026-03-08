@@ -116,8 +116,8 @@ jobs:
           echo "当前磁盘使用情况:"
           df -hT $GITHUB_WORKSPACE
           
-          echo "克隆源码中: $REPO_URL (默认分支)"
-          git clone --depth 1 $REPO_URL openwrt
+          echo "克隆源码中: $REPO_URL"
+          git clone $REPO_URL openwrt
           
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
