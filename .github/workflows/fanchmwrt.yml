@@ -75,7 +75,18 @@ jobs:
           echo "内存信息: $(sudo lshw -short -C memory | grep GiB)"
           echo "硬盘信息: $(ls /dev/sd* | grep -v [1-9] | wc -l) 块" && df -hT
 
-      # 2. 环境初始化（合并函数定义+系统配置）
+      # 2. 磁盘扩容（修复：使用官方Action而非手动docker运行）
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 1024
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+
+      # 3. 环境初始化（合并函数定义+系统配置）
       - name: Init Env
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -89,7 +100,6 @@ jobs:
               echo "LAST_STEP=${1}" >> $GITHUB_ENV
             } || echo "STEP${1}_SUCCESS=false" >> $GITHUB_ENV
           }
-
           # 生成配置
           gen_config() {
             cd $OPENWRT_PATH
@@ -99,12 +109,10 @@ jobs:
             make defconfig && make download -j$(nproc)
             find dl -size -1024c -exec rm -f {} \;
           }
-
           # 添加feeds源
           add_feed() {
             grep -q "^src-git $1 " feeds.conf.default || echo "src-git $1 $2;main" >> feeds.conf.default
           }
-
           # 编译执行
           run_build() {
             cd $OPENWRT_PATH
@@ -113,10 +121,8 @@ jobs:
             echo "status=success" >> $GITHUB_OUTPUT
           }
           EOF
-
           # 加载函数
           source /tmp/build.sh
-
           # 系统配置
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
@@ -124,16 +130,12 @@ jobs:
           sudo -E apt-get autoremove -y && sudo -E apt-get clean -y
           sudo timedatectl set-timezone "$TZ"
           sudo fallocate -l 16G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
-
           # 初始化变量
           echo "LAST_STEP=0" >> $GITHUB_ENV
 
-      # 3. 磁盘扩容+代码检出
-      - name: Env Prepare
+      # 4. 代码检出+依赖处理
+      - name: Code Checkout & Env Prepare
         run: |
-          # 磁盘扩容
-          docker run --rm -v /:/mnt easimon/maximize-build-space:master \
-            --swap-size-mb 1024 --temp-reserve-mb 100 --root-reserve-mb 1024
           # 克隆源码
           git clone --depth=1 $REPO_URL openwrt
           cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
@@ -146,7 +148,7 @@ jobs:
           git clone --depth=1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
           ./scripts/feeds install -a
 
-      # 4. SSH调试
+      # 5. SSH调试
       - name: SSH Debug
         uses: P3TERX/ssh2actions@v1.0.0
         if: github.event.inputs.ssh == 'true'
