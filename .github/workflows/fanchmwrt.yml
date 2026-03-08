@@ -64,7 +64,55 @@ jobs:
   Build:
     runs-on: ubuntu-22.04
     steps:
-      # 1. 服务器性能检查
+      # 1. 极致清理磁盘空间（首要步骤）
+      - name: Clean Disk Space
+        run: |
+          echo "===== 初始磁盘使用情况 ====="
+          df -h
+          
+          # 清理GitHub Actions默认大文件
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /var/lib/docker
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /opt/hostedtoolcache/Python
+          sudo rm -rf /opt/hostedtoolcache/Node.js
+          
+          # 清理系统日志和缓存
+          sudo apt-get clean
+          sudo apt-get autoremove -y --purge
+          sudo rm -rf /var/cache/apt/*
+          sudo rm -rf /var/log/*
+          sudo rm -rf /tmp/*
+          sudo truncate -s 0 /var/log/syslog
+          
+          # 清理swap并重建小容量swap
+          sudo swapoff /swapfile
+          sudo rm -f /swapfile
+          sudo fallocate -l 2G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          
+          echo "===== 清理后磁盘使用情况 ====="
+          df -h
+
+      # 2. 磁盘扩容（官方Action）
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 1024
+          temp-reserve-mb: 100
+          root-reserve-mb: 512
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      # 3. 服务器性能检查
       - name: Check Server Performance
         run: |
           echo "警告⚠ 服务器性能有限，插件过多需注意CPU负载！"
@@ -75,18 +123,7 @@ jobs:
           echo "内存信息: $(sudo lshw -short -C memory | grep GiB)"
           echo "硬盘信息: $(ls /dev/sd* | grep -v [1-9] | wc -l) 块" && df -hT
 
-      # 2. 磁盘扩容（修复：使用官方Action而非手动docker运行）
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          swap-size-mb: 1024
-          temp-reserve-mb: 100
-          root-reserve-mb: 1024
-          remove-dotnet: true
-          remove-android: true
-          remove-haskell: true
-
-      # 3. 环境初始化（合并函数定义+系统配置）
+      # 4. 环境初始化（合并函数定义+系统配置）
       - name: Init Env
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -113,42 +150,55 @@ jobs:
           add_feed() {
             grep -q "^src-git $1 " feeds.conf.default || echo "src-git $1 $2;main" >> feeds.conf.default
           }
-          # 编译执行
+          # 编译执行（优化：单线程编译减少临时文件，编译后清理）
           run_build() {
             cd $OPENWRT_PATH
-            make -j$(nproc) || make -j1 V=s
+            # 编译前再次清理临时文件
+            rm -rf tmp/ build_dir/ staging_dir/ logs/ 2>/dev/null
+            # 单线程编译（减少内存/磁盘占用）
+            make -j1 V=s
+            # 编译后清理临时文件
+            rm -rf tmp/ build_dir/tmp/ staging_dir/tmp/ 2>/dev/null
             build_verify $1
             echo "status=success" >> $GITHUB_OUTPUT
+          }
+          # 清理编译临时文件
+          clean_build_cache() {
+            cd $OPENWRT_PATH
+            rm -rf tmp/ build_dir/host/ staging_dir/host/ dl/*.tmp 2>/dev/null
+            echo "Cleaned build cache files"
           }
           EOF
           # 加载函数
           source /tmp/build.sh
-          # 系统配置
-          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          sudo -E apt-get update && sudo -E apt-get install -y $(curl -fsSL is.gd/depends_ubuntu_2204)
-          sudo -E apt-get autoremove -y && sudo -E apt-get clean -y
+          # 系统配置（最小化安装）
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+            build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
+            file wget curl openssh-client
+          sudo apt-get autoremove -y && sudo apt-get clean -y
           sudo timedatectl set-timezone "$TZ"
-          sudo fallocate -l 16G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
           # 初始化变量
           echo "LAST_STEP=0" >> $GITHUB_ENV
 
-      # 4. 代码检出+依赖处理
+      # 5. 代码检出+依赖处理
       - name: Code Checkout & Env Prepare
         run: |
-          # 克隆源码
-          git clone --depth=1 $REPO_URL openwrt
+          # 克隆源码（浅克隆减少空间）
+          git clone --depth=1 --single-branch $REPO_URL openwrt
           cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           ./scripts/feeds update -a
           # 清理冲突包
           rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns} 2>/dev/null
           rm -rf feeds/packages/utils/v2dat feeds/packages/lang/golang 2>/dev/null
-          # 安装依赖
+          # 安装依赖（浅克隆）
           git clone --depth=1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
           ./scripts/feeds install -a
+          # 初始清理
+          clean_build_cache
 
-      # 5. SSH调试
+      # 6. SSH调试
       - name: SSH Debug
         uses: P3TERX/ssh2actions@v1.0.0
         if: github.event.inputs.ssh == 'true'
@@ -156,7 +206,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # -------------------------- 分步编译 --------------------------
+      # -------------------------- 分步编译（每步后清理缓存） --------------------------
       # 步骤1：基础固件
       - name: Step1 - Base Firmware
         id: step1
@@ -165,6 +215,7 @@ jobs:
           source /tmp/build.sh
           gen_config 512
           run_build 1
+          clean_build_cache
 
       # 步骤2：常用组件
       - name: Step2 - Common Plugins
@@ -188,6 +239,7 @@ jobs:
           )
           gen_config 640 "$CFG"
           run_build 2
+          clean_build_cache
 
       # 步骤3：Dockerman
       - name: Step3 - Dockerman
@@ -221,6 +273,7 @@ jobs:
           )
           gen_config 800 "$CFG"
           run_build 3
+          clean_build_cache
 
       # 步骤4：Nikki
       - name: Step4 - Nikki
@@ -253,6 +306,7 @@ jobs:
           )
           gen_config 960 "$CFG"
           run_build 4
+          clean_build_cache
 
       # 步骤5：代理组件
       - name: Step5 - Proxy Plugins
@@ -306,17 +360,19 @@ jobs:
           )
           gen_config 1600 "$CFG"
           run_build 5
+          clean_build_cache
 
       # -------------------------- 结果处理 --------------------------
-      # 上传固件
+      # 上传固件（仅保留核心固件文件）
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         if: ${{ (steps.step1.outputs.status == 'success' || steps.step2.outputs.status == 'success' || steps.step3.outputs.status == 'success' || steps.step4.outputs.status == 'success' || steps.step5.outputs.status == 'success') && !cancelled() }}
         with:
           name: OpenWrt_Firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
           path: |
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*
-            !${{ env.OPENWRT_PATH }}/bin/targets/*/packages
+            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.img.gz
+            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.config
+            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.json
           retention-days: 7
 
       # 错误调试
@@ -325,6 +381,8 @@ jobs:
         run: |
           source /tmp/build.sh
           cd $OPENWRT_PATH
+          echo "===== 磁盘使用情况 ====="
+          df -h
           echo "===== 编译错误 ====="
           cat build.log | grep -E "error|conflict|fatal|version mismatch|no such file" || echo "无关键错误"
           echo "===== Feeds配置 ====="
