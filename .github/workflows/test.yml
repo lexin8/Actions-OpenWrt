@@ -25,13 +25,12 @@ env:
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
-  # ========== 核心修改：新增REPO_URL3指向OpenWrt官方（主源码） ==========
-  REPO_URL: https://github.com/immortalwrt/immortalwrt          # 辅助源（diskman等）
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt             # fanchmwrt界面/组件源
-  REPO_URL3: https://github.com/openwrt/openwrt                 # OpenWrt官方主源码
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_URL3: https://github.com/openwrt/openwrt
   REPO_BRANCH: openwrt-23.05
-  REPO_BRANCH2: openwrt-24.10
-  REPO_BRANCH3: openwrt-24.10                                   # 官方24.10分支
+  REPO_BRANCH2: openwrt-23.05
+  REPO_BRANCH3: openwrt-23.05
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
@@ -82,11 +81,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      # ========== 核心修改：优先拉取OpenWrt官方作为主源码 ==========
       - name: Clone OpenWrt Official Source (Main)
         run: |
           df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt  # 主源码：OpenWrt官方
+          git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -98,7 +96,6 @@ jobs:
           COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
 
-      # 拉取immortalwrt（辅助：diskman等组件）
       - name: Clone immortalwrt (Helper)
         run: |
           df -hT $GITHUB_WORKSPACE
@@ -107,7 +104,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 拉取fanchmwrt（界面/组件补充）
       - name: Clone fanchmwrt (UI/Components)
         run: |
           df -hT $GITHUB_WORKSPACE
@@ -137,14 +133,15 @@ jobs:
 
       - name: 配置编译参数
         run: |
-          rm -rf openwrt/.config
-          [ -e files ] && mv files openwrt/files
-          [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
+          cd $OPENWRT_PATH
+          rm -rf .config
+          [ -e ../files ] && mv ../files ./files
+          [ -e ../$CONFIG_FILE2 ] && mv ../$CONFIG_FILE2 ./.config
 
       - name: 运行L2TP组件追加脚本
         if: env.ENABLE_L2TP_COMPONENTS == 'true' && !cancelled()
         run: |
-          chmod +x $DIY_P2_SH
+          chmod +x ../$DIY_P2_SH
           cd $OPENWRT_PATH
           ../$DIY_P2_SH
 
@@ -153,10 +150,10 @@ jobs:
         if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
         run: |
           git clone https://github.com/lexin8/Actions-OpenWrt lexin8
-          cd openwrt/feeds/packages/net/
-          rm -rf softethervpn*
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+          cd $OPENWRT_PATH/feeds/packages/net/
+          rm -rf softethervpn* || true
+          cp -r $GITHUB_WORKSPACE/lexin8/softethervpn . || true
+          cp -r $GITHUB_WORKSPACE/lexin8/softethervpn5 . || true
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
@@ -168,7 +165,7 @@ jobs:
       - name: 下载 package
         id: package
         run: |
-          cd openwrt
+          cd $OPENWRT_PATH
           make defconfig
           make download -j8
           find dl -size -1024c -exec ls -l {} \;
@@ -177,28 +174,33 @@ jobs:
       - name: 开始编译固件
         id: compile
         run: |
-          cd openwrt
+          cd $OPENWRT_PATH
           echo -e "$(nproc) thread compile"
           make -j$(nproc) || make -j1 || make -j1 V=s
           echo "::set-output name=status::success"
 
       - name: 搜索固件
         run: |
-          cd openwrt/bin/
+          cd $OPENWRT_PATH/bin/
           find . -name "*squashfs*"
 
       - name: 整理固件文件
         id: organize
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
-          cd openwrt/bin/
-          cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
+          cd $OPENWRT_PATH/bin/
+          TARGET_DIR=$(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
+          if [ -z "$TARGET_DIR" ]; then
+              echo "错误：未找到squashfs固件目录"
+              exit 1
+          fi
+          cd $TARGET_DIR
           ls
-          rm -rf packages
-          find . -name "*ext4*" |xargs rm -rf
-          find . -name "*root*" |xargs rm -rf
-          tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
-          ls | grep -v OpenWrt.tar.gz | xargs rm
+          rm -rf packages || true
+          find . -name "*ext4*" | xargs rm -rf || true
+          find . -name "*root*" | xargs rm -rf || true
+          tar czvf $(date +%Y.%m.%d.%H)_OpenWrt.tar.gz config.buildinfo *.img.gz
+          ls | grep -v OpenWrt.tar.gz | xargs rm -f || true
           ls
           echo "::set-output name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
@@ -207,5 +209,5 @@ jobs:
         uses: actions/upload-artifact@master
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
+          name: OpenWrt_firmware_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
           path: ${{ steps.organize.outputs.FIRMWARE }}
