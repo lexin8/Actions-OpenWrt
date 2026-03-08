@@ -3,6 +3,44 @@
 # 进入openwrt源码目录（确保路径正确）
 cd openwrt || exit 1
 
+cat > .config << 'EOF'
+CONFIG_TARGET_x86=y
+CONFIG_TARGET_x86_64=y
+CONFIG_TARGET_KERNEL_PARTSIZE=100
+CONFIG_TARGET_ROOTFS_PARTSIZE=2048
+CONFIG_TARGET_ROOTFS_TARGZ=y
+# CONFIG_VMDK_IMAGES is not set
+# CONFIG_PACKAGE_igmpproxy is not set
+CONFIG_PACKAGE_ddns-scripts=y
+CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+CONFIG_PACKAGE_luci-app-ddns=y
+CONFIG_PACKAGE_luci-app-passwall=y
+CONFIG_PACKAGE_luci-app-udpxy=y
+CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_luci-app-nikki=y
+CONFIG_PACKAGE_luci-app-dockerman=y
+CONFIG_PACKAGE_luci-app-diskman=y
+CONFIG_PACKAGE_blockd=y
+CONFIG_PACKAGE_blkid=y
+CONFIG_PACKAGE_e2fsprogs=y
+CONFIG_PACKAGE_parted=y
+CONFIG_PACKAGE_lsblk=y
+CONFIG_PACKAGE_cfdisk=y
+CONFIG_PACKAGE_mount-utils=y
+CONFIG_PACKAGE_ntfs-3g=y
+
+# CONFIG_DEFAULT_luci-app-arpbind is not set
+# CONFIG_PACKAGE_luci-app-autoreboot is not set
+# CONFIG_PACKAGE_luci-app-nlbwmon is not set
+# CONFIG_PACKAGE_luci-app-samba4 is not set
+# CONFIG_PACKAGE_luci-app-samba is not set
+# CONFIG_PACKAGE_luci-app-vlmcsd is not set
+# CONFIG_PACKAGE_luci-app-wol is not set
+# CONFIG_PACKAGE_luci-app-zerotier is not set
+# CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
+EOF
+
 # 1. 引入nikki源码（兼容官方版）
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 
