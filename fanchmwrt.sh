@@ -5,34 +5,52 @@ set -e
 cd openwrt || { echo "错误：找不到openwrt目录！"; exit 1; }
 
 # ===================== 1. 清理旧配置/组件 =====================
+echo "清理旧配置..."
 sed -i '/passwall/d; /nikki/d; /immortalwrt/d; /dockerman/d' feeds.conf.default
 rm -rf feeds/luci/applications/{luci-app-homeproxy,luci-app-passwall,luci-app-dockerman} 2>/dev/null
 rm -rf package/{homeproxy,luci-app-homeproxy,passwall-packages,passwall-luci,immortalwrt-luci-tmp,luci-lib-docker,luci-app-dockerman} 2>/dev/null
 
-# ===================== 2. 拉取luci-app-homeproxy =====================
-echo "临时克隆immortalwrt/luci仓库，提取luci-app-homeproxy..."
+# ===================== 2. 强制切换Golang到1.26 =====================
+echo "切换Golang版本到1.26..."
+rm -rf feeds/packages/lang/golang
+# 注意：这里只需要执行一次
+git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
+
+# ===================== 3. 拉取luci-app-homeproxy =====================
+echo "克隆immortalwrt/luci仓库，提取luci-app-homeproxy..."
 git clone --depth 1 --branch openwrt-24.10 https://github.com/immortalwrt/luci.git package/immortalwrt-luci-tmp
 
 mkdir -p package/luci-app-homeproxy
 cp -rf package/immortalwrt-luci-tmp/applications/luci-app-homeproxy/* package/luci-app-homeproxy/
 rm -rf package/immortalwrt-luci-tmp
 
-# ===================== 3. 集成lisaac原版luci-app-dockerman =====================
+# ===================== 4. 集成lisaac原版luci-app-dockerman =====================
 echo "克隆lisaac原版luci-app-dockerman及依赖..."
 git clone --depth 1 https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
 git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
 
-# ===================== 4. 添加Passwall/nikki源 =====================
+# ===================== 5. 添加Passwall/nikki源 =====================
+echo "添加软件源..."
 sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
 sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 
-# ===================== 5. 更新并安装Feeds =====================
-echo "正在更新feeds..."
+# ===================== 6. 更新并安装Feeds =====================
+echo "更新feeds..."
 ./scripts/feeds update -a
+
+# 安装前先创建必要的链接
+echo "安装feeds..."
 ./scripts/feeds install -a
 
-# ===================== 6. 写入编译配置 =====================
+# 特别处理某些包的依赖关系
+./scripts/feeds install luci-app-passwall
+./scripts/feeds install luci-app-homeproxy
+./scripts/feeds install luci-app-nikki
+./scripts/feeds install luci-app-dockerman
+
+# ===================== 7. 写入编译配置 =====================
+echo "写入编译配置..."
 cat > .config << 'EOF'
 CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
