@@ -2,146 +2,89 @@ name: fanchmwrt
 
 on:
   repository_dispatch:
+  watch:
+    types: started
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH connection to Actions (true/false)'
-        required: false
+        description: 'SSH connection to Actions'
+        required: true
         default: 'false'
-      target_device:
-        description: 'Target device (leave empty for default)'
-        required: false
-        default: ''
 
 env:
-  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
+  CONFIG_FILE: istoreos.config
+  CONFIG_FILE2: fanchmwrt.config
+  DIY_P1_SH: fanchmwrt.sh
+  DIY_P2_SH: l2tp.sh
+  DIY_P3_SH: diy-part3.sh
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  ENABLE_L2TP_COMPONENTS: false
+  UPLOAD_SOFTETHERVPN: false
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_RELEASE: true
+  UPLOAD_WETRANSFER: false
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: openwrt-23.05
+  REPO_BRANCH2: openwrt-24.10
+  DIY_SCRIPT: diy-script.sh
+  CLASH_KERNEL: amd64
+  CACHE_TOOLCHAIN: true
+  FIRMWARE_RELEASE: true
+  FIRMWARE_TAG: X86_64
   TZ: Asia/Shanghai
-  COMPILE_THREADS: $(nproc)  # 自动检测CPU线程数
 
 jobs:
-  build_openwrt:
+  Build:
     runs-on: ubuntu-22.04
-    if: github.event.repository.owner.id == github.event.sender.id
 
     steps:
-      # ========== 步骤1: 服务器性能检查 ==========
-      - name: 服务器性能检查
+      - name: Check Server Performance
         run: |
-          echo "=================================================="
-          echo "             服务器性能检查报告"
-          echo "=================================================="
           echo "警告⚠"
           echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
           echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
-          
           echo "--------------------------CPU信息--------------------------"
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
-          
           echo "--------------------------内存信息--------------------------"
-          if command -v lshw &> /dev/null; then
-            echo "已安装内存详细信息:"
-            sudo lshw -short -C memory | grep GiB || echo "无法获取内存详细信息"
-          else
-            echo "内存总量: $(free -h | grep Mem | awk '{print $2}')"
-            echo "可用内存: $(free -h | grep Mem | awk '{print $7}')"
-          fi
-          echo ""
-          
+          echo "已安装内存详细信息:"
+          echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
           echo "--------------------------硬盘信息--------------------------"
-          echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)"
-          df -hT
-          echo "=================================================="
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
-      # ========== 步骤2: 最大化编译空间 ==========
-      - name: 最大化编译空间
-        uses: easimon/maximize-build-space@master
-        with:
-          swap-size-mb: 1024        # 设置swap大小
-          temp-reserve-mb: 100       # 临时文件保留空间
-          root-reserve-mb: 1024      # 根目录保留空间
-          remove-dotnet: true        # 移除dotnet
-          remove-android: true       # 移除android相关
-          remove-haskell: true       # 移除haskell
-          remove-codeql: true        # 移除codeql
-
-      # ========== 步骤3: 初始化编译环境并设置全局变量 ==========
-      - name: 初始化编译环境
+      - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          echo "开始清理无用软件包..."
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          
-          echo "更新软件源..."
           sudo -E apt-get -y update
-          
-          echo "安装编译依赖..."
-          curl -fsSL is.gd/depends_ubuntu_2204 -o /tmp/depends.txt || true
-          if [ -s /tmp/depends.txt ]; then
-            sudo -E apt-get -y install $(cat /tmp/depends.txt)
-          else
-            sudo -E apt-get -y install ack antlr3 asciidoc autoconf automake autopoint binutils bison \
-              build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk \
-              gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 \
-              libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
-              libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build \
-              p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons \
-              squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-          fi
-          
-          echo "系统优化..."
+          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          
-          echo "创建工作目录..."
-          sudo mkdir -p /workdir
-          sudo chown $USER:$GROUPS /workdir
-          
-          # 设置全局日期变量（用于所有后续步骤）
-          echo "BUILD_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-          echo "环境初始化完成！"
 
-      # ========== 步骤4: 检出当前仓库 ==========
-      - name: 检出仓库代码
-        uses: actions/checkout@v4
+      - name: Combine Disks
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 1024
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
 
-      # ========== 步骤5: 克隆OpenWrt主源码（带重试） ==========
-      - name: 克隆OpenWrt源码
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone Source Code
         run: |
-          echo "当前磁盘使用情况:"
           df -hT $GITHUB_WORKSPACE
-          
-          echo "克隆源码中: $REPO_URL (默认分支)"
-          # 重试3次，每次失败后等待5秒
-          for i in {1..3}; do
-            echo "尝试第 $i 次克隆..."
-            git clone --depth 1 $REPO_URL openwrt && break
-            if [ $i -eq 3 ]; then
-              echo "❌ 克隆失败，请检查仓库地址或网络连接: $REPO_URL"
-              exit 1
-            fi
-            sleep 5
-          done
-          
-          # 检查目录是否存在
-          if [ ! -d "openwrt" ]; then
-            echo "❌ openwrt 目录不存在，克隆可能失败"
-            exit 1
-          fi
-          
+          git clone $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          
-          # 获取当前分支信息
-          CURRENT_BRANCH=$(git branch --show-current)
-          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
-          
-          # 获取提交信息
           COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
           echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
           COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
@@ -150,209 +93,118 @@ jobs:
           echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
           COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-          
-          echo "源码信息:"
-          echo "分支: $CURRENT_BRANCH"
-          echo "$COMMIT_AUTHOR"
-          echo "$COMMIT_DATE"
-          echo "$COMMIT_MESSAGE"
-          echo "$COMMIT_HASH"
-          
-          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-      # ========== 步骤6: 添加第三方插件源（带重试） ==========
-      - name: 添加第三方插件源
+      - name: Clone immortalwrt
+        run: |
+          df -hT $GITHUB_WORKSPACE
+          git clone $REPO_URL immortalwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
+          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+
+      - name: Cache Toolchain
+        if: env.CACHE_TOOLCHAIN == 'true'
+        uses: HiGarfield/cachewrtbuild@main
+        with:
+          ccache: false
+          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+          prefix: ${{ env.OPENWRT_PATH }}
+
+      - name: Install Feeds
         run: |
           cd $OPENWRT_PATH
-          echo "添加第三方插件源..."
-          
-          # 定义克隆函数（带重试）
-          clone_repo() {
-            local url=$1
-            local target=$2
-            for i in {1..3}; do
-              echo "尝试 $i: git clone $url -> $target"
-              git clone --depth 1 "$url" "$target" && return 0
-              sleep 5
-            done
-            echo "❌ 克隆失败: $url"
-            return 1
-          }
-          
-          # Passwall
-          clone_repo https://github.com/Openwrt-Passwall/openwrt-passwall package/openwrt-passwall
-          clone_repo https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
-          
-          # Homeproxy
-          clone_repo https://github.com/immortalwrt/homeproxy package/homeproxy
-          
-          # Nikki
-          clone_repo https://github.com/nikkinikki-org/OpenWrt-nikki package/OpenWrt-nikki
-          
-          # ===== Docker相关插件 =====
-          echo "===== 开始添加Docker相关组件 ====="
-          clone_repo https://github.com/lisaac/luci-lib-docker package/luci-lib-docker
-          clone_repo https://github.com/lisaac/luci-app-dockerman package/luci-app-dockerman
-          clone_repo https://github.com/lisaac/openwrt-docker package/openwrt-docker
-          
-          # 移除可能存在的冲突插件
-          rm -rf package/lean/luci-app-passwall package/lean/luci-app-homeproxy 2>/dev/null || true
-          
-          echo "插件源添加完成！"
-
-      # ========== 步骤7: 更新并安装feeds ==========
-      - name: 更新并安装Feeds
-        run: |
-          cd $OPENWRT_PATH
-          echo "更新feeds..."
           ./scripts/feeds update -a
-          echo "安装feeds..."
           ./scripts/feeds install -a
 
-      # ========== 步骤8: 配置编译选项 ==========
-      - name: 配置编译选项
+      - name: Install Feeds immortalwrt
         run: |
+          cd immortalwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: 运行一键部署脚本
+        run: |
+          chmod +x $DIY_P1_SH
+          ./$DIY_P1_SH
+
+      - name: 配置_脚本
+        run: |
+          rm -rf openwrt/.config
+          [ -e files ] && mv files openwrt/files
+          [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
+
+      - name: 运行L2TP组件追加脚本
+        if: env.ENABLE_L2TP_COMPONENTS == 'true' && !cancelled()
+        run: |
+          chmod +x $DIY_P2_SH
           cd $OPENWRT_PATH
-          
-          # 如果指定了设备，尝试应用设备配置
-          if [ -n "${{ github.event.inputs.target_device }}" ]; then
-            echo "应用设备配置: ${{ github.event.inputs.target_device }}"
-            echo "CONFIG_TARGET_${{ github.event.inputs.target_device }}=y" >> .config
-          fi
-          
-          # 生成默认配置
-          make defconfig || { echo "❌ make defconfig 失败"; exit 1; }
-          
-          # 禁用不需要的插件
-          for pkg in arpbind autoreboot nlbwmon samba4 samba vlmcsd wol zerotier strongswan-swanctl; do
-            sed -i "/CONFIG_PACKAGE_luci-app-${pkg}/d" .config
-            echo "# CONFIG_PACKAGE_luci-app-${pkg} is not set" >> .config
-          done
-          
-          # 启用所需插件（分组）
-          BASE_PLUGINS="luci-app-nikki luci-app-passwall luci-i18n-passwall-zh-cn luci-app-homeproxy"
-          DDNS_PLUGINS="ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns luci-i18n-ddns-zh-cn"
-          NETWORK_PLUGINS="luci-app-omcproxy luci-app-udpxy udpxy"
-          
-          # Docker相关
-          DOCKER_DEPS="luci-lib-docker luci-lib-jsonc"
-          DOCKER_MAIN="luci-app-dockerman luci-i18n-dockerman-zh-cn"
-          DOCKER_OPTIONAL="ttyd"
-          DOCKER_RUNTIME="docker-ce docker-compose"
-          DOCKER_PLUGINS="$DOCKER_DEPS $DOCKER_MAIN $DOCKER_OPTIONAL $DOCKER_RUNTIME"
-          
-          ENABLED_PLUGINS="$BASE_PLUGINS $DDNS_PLUGINS $NETWORK_PLUGINS $DOCKER_PLUGINS"
-          
-          for pkg in $ENABLED_PLUGINS; do
-            sed -i "/CONFIG_PACKAGE_${pkg}/d" .config
-            echo "CONFIG_PACKAGE_${pkg}=y" >> .config
-          done
-          
-          # Docker选项
-          echo "CONFIG_DOCKER_OPTIONAL_FEATURES=y" >> .config
-          echo "CONFIG_DOCKER_NETWORK_BRIDGE=y" >> .config
-          echo "CONFIG_DOCKER_NETWORK_IPVLAN=y" >> .config
-          echo "CONFIG_DOCKER_NETWORK_MACVLAN=y" >> .config
-          echo "CONFIG_PACKAGE_ttyd=y" >> .config
-          
-          make defconfig
-          ./scripts/diffconfig.sh > seed.config
-          
-          echo "配置完成！ seed.config 已生成"
+          ../$DIY_P2_SH
 
-      # ========== 步骤9: 上传配置文件 ==========
-      - name: 上传配置文件
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenWrt_Config_${{ env.CURRENT_BRANCH }}
-          path: ${{ env.OPENWRT_PATH }}/seed.config
-          retention-days: 7
+      - name: softethervpn
+        id: softethervpn
+        if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
+        run: |
+          git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+          cd openwrt/feeds/packages/net/
+          rm -rf softethervpn*
+          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
+          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
 
-      # ========== 步骤10: SSH调试连接 ==========
-      - name: SSH远程调试（可选）
+      - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
-        if: ${{ github.event.inputs.ssh == 'true' }}
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # ========== 步骤11: 下载依赖包 ==========
-      - name: 下载编译依赖包
+      - name: 下载 package
+        id: package
         run: |
-          cd $OPENWRT_PATH
-          make download -j$(nproc)
+          cd openwrt
+          make defconfig
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
-      # ========== 步骤12: 编译固件 ==========
-      - name: 编译OpenWrt固件
+      - name: 开始编译固件
         id: compile
         run: |
-          cd $OPENWRT_PATH
-          START_TIME=$(date +%s)
-          make -j${{ env.COMPILE_THREADS }} || {
-            EXIT_CODE=$?
-            echo "⚠ 首次编译失败，尝试单线程输出详细日志..."
-            make -j1 V=s
-            exit $EXIT_CODE
-          }
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          echo "编译耗时: $((DURATION/3600))h $(((DURATION%3600)/60))m $((DURATION%60))s"
-          
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | head -1)
-          echo "DEVICE_NAME=${DEVICE_NAME:-unknown}" >> $GITHUB_ENV
-          echo "status=success" >> $GITHUB_OUTPUT
+          cd openwrt
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) || make -j1 || make -j1 V=s
+          echo "::set-output name=status::success"
 
-      # ========== 步骤13: 检查磁盘使用情况 ==========
-      - name: 检查磁盘使用情况
-        if: ${{ !cancelled() }}
+      - name: 搜索固件
         run: |
-          df -h
-          du -sh $OPENWRT_PATH
-          ls -la $OPENWRT_PATH/bin/targets/ 2>/dev/null || echo "Bin目录不存在"
+          cd openwrt/bin/
+          find . -name "*squashfs*"
 
-      # ========== 步骤14: 上传固件产物 ==========
-      - name: 上传编译好的固件
-        uses: actions/upload-artifact@v4
-        if: ${{ steps.compile.outputs.status == 'success' && !cancelled() }}
+      - name: Organize files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        run: |
+          cd openwrt/bin/
+          cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
+          ls
+          rm -rf packages
+          find . -name "*ext4*" |xargs rm -rf
+          find . -name "*root*" |xargs rm -rf
+          tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
+          ls | grep -v OpenWrt.tar.gz | xargs rm
+          ls
+          echo "::set-output name=FIRMWARE::$PWD"
+          echo "::set-output name=status::success"
+
+      - name: 上传到 directory
+        uses: actions/upload-artifact@master
+        if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_Firmware_${{ env.CURRENT_BRANCH }}_${{ env.DEVICE_NAME }}_${{ env.BUILD_DATE }}
-          path: |
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*
-            !${{ env.OPENWRT_PATH }}/bin/targets/*/packages
-          retention-days: 7
-
-      # ========== 步骤15: 准备并上传日志（编译失败时） ==========
-      - name: 准备日志文件
-        if: ${{ failure() }}
-        run: |
-          mkdir -p /tmp/artifact-logs
-          # 复制所有可能存在的日志文件，不存在的文件会被忽略
-          [ -d "$OPENWRT_PATH/logs" ] && cp -r $OPENWRT_PATH/logs /tmp/artifact-logs/ 2>/dev/null || true
-          [ -f "$OPENWRT_PATH/.config" ] && cp $OPENWRT_PATH/.config /tmp/artifact-logs/ 2>/dev/null || true
-          [ -f "$OPENWRT_PATH/feeds.conf" ] && cp $OPENWRT_PATH/feeds.conf /tmp/artifact-logs/ 2>/dev/null || true
-          [ -f "$OPENWRT_PATH/seed.config" ] && cp $OPENWRT_PATH/seed.config /tmp/artifact-logs/ 2>/dev/null || true
-          # 如果目录为空，则创建一个标识文件
-          if [ -z "$(ls -A /tmp/artifact-logs)" ]; then
-            echo "No logs available" > /tmp/artifact-logs/README.txt
-          fi
-          
-      - name: 上传编译日志
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenWrt_Compile_Logs_${{ env.CURRENT_BRANCH }}_${{ env.BUILD_DATE }}
-          path: /tmp/artifact-logs/
-          retention-days: 7
-
-      # ========== 步骤16: 编译完成通知 ==========
-      - name: 编译完成通知
-        if: ${{ always() }}
-        run: |
-          echo "=================================================="
-          echo "               编译工作流完成"
-          echo "=================================================="
-          echo "分支: ${{ env.CURRENT_BRANCH }}"
-          echo "提交: ${{ env.COMMIT_MESSAGE }}"
-          echo "状态: ${{ steps.compile.outputs.status }}"
-          echo "=================================================="
+          name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
+          path: ${{ steps.organize.outputs.FIRMWARE }}
