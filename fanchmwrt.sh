@@ -30,6 +30,9 @@ CONFIG_PACKAGE_cfdisk=y
 CONFIG_PACKAGE_mount-utils=y
 CONFIG_PACKAGE_ntfs-3g=y
 
+# 明确禁用smartdns（关键：从编译层面排除）
+CONFIG_PACKAGE_smartdns=n
+
 # CONFIG_DEFAULT_luci-app-arpbind is not set
 # CONFIG_PACKAGE_luci-app-autoreboot is not set
 # CONFIG_PACKAGE_luci-app-nlbwmon is not set
@@ -51,7 +54,7 @@ sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
 # 3. 更新feeds（先更新再清理，避免路径不存在）
 ./scripts/feeds update -a
 
-# 4. 清理冲突组件（仅删除存在的文件，避免报错）
+# 4. 清理冲突组件（增强smartdns清理，覆盖所有可能路径）
 rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
 rm -rf feeds/packages/net/alist 2>/dev/null
 rm -rf feeds/packages/net/adguardhome 2>/dev/null
@@ -62,6 +65,9 @@ rm -rf feeds/packages/net/sing* 2>/dev/null
 rm -rf feeds/packages/net/smartdns 2>/dev/null
 rm -rf feeds/packages/utils/v2dat 2>/dev/null
 rm -rf feeds/packages/lang/golang 2>/dev/null
+# 新增：删除kenzo源下的smartdns（核心修复）
+rm -rf feeds/kenzo/smartdns 2>/dev/null
+rm -rf feeds/kenzo/luci-app-smartdns 2>/dev/null
 
 # 5. 替换高版本golang（解决passwall/homeproxy编译依赖）
 git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
@@ -81,3 +87,7 @@ git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
 # 9. 修复luci版本依赖（针对small/kenzo源的正确路径）
 sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
 sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
+
+# 新增：可选方案 - 若仍有rust依赖问题，安装rust环境（备用）
+# ./scripts/feeds install rust
+# ./scripts/feeds install rust-bindgen/host
