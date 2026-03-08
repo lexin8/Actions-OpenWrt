@@ -14,10 +14,6 @@ env:
   TZ: Asia/Shanghai
   PASSWALL_PACKAGES_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
   PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
-  STEP1_BASE: true
-  STEP2_DOCKER: true
-  STEP3_NIKKI: true
-  STEP4_PROXY: true
   # 通用基础配置（含关闭无用插件）
   BASE_CONFIG: |
     CONFIG_TARGET_x86=y
@@ -50,6 +46,15 @@ env:
 jobs:
   build-openwrt:
     runs-on: ubuntu-22.04
+    # 后置步骤：无论成功/失败，只上传最新成功的固件
+    post:
+      - name: Upload latest successful firmware
+        if: always() && env.LATEST_PACKAGE_PATH != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.LATEST_UPLOAD_NAME }}
+          path: ${{ env.LATEST_PACKAGE_PATH }}
+
     steps:
       - name: Initialize system environment
         env:
@@ -76,7 +81,7 @@ jobs:
             find dl -size -1024c -exec rm -f {} \;
           }
 
-          # 函数2：编译验证
+          # 函数2：编译验证（失败则退出）
           build_firmware() {
             local STEP=$1
             local DESC=$2
@@ -86,38 +91,37 @@ jobs:
             if ls $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz 1> /dev/null 2>&1; then
               echo "${STEP}_SUCCESS=true" >> $GITHUB_ENV
               echo "$DESC build success!"
+              return 0
             else
               echo "${STEP}_SUCCESS=false" >> $GITHUB_ENV
-              echo "$DESC build failed!"
+              echo "$DESC build failed! Terminating workflow..."
               exit 1
             fi
           }
 
-          # 函数3：打包并准备上传（仅ASCII命名，环境变量字母开头）
-          package_and_upload() {
+          # 函数3：打包最新固件（覆盖旧文件，仅保留最新）
+          package_latest_firmware() {
             local STEP_NUM=$1
             local TYPE=$2
             local DESC=$3
-            # 步骤标识（字母开头，如STEP1）
-            local STEP="STEP${STEP_NUM}"
             # 获取北京时间（仅数字和符号，无中文）
             TIME=$(date +"%y%m%d_%H%M")
-            # 压缩包名称：仅ASCII字符（避免URI解析错误）
-            PACKAGE_NAME="${TIME}_openwrt_${TYPE}.tar.gz"
-            UPLOAD_DISPLAY_NAME="${TIME}_0${STEP_NUM}-${DESC}"
+            # 统一打包文件名（覆盖旧文件）
+            PACKAGE_NAME="latest_openwrt_${TYPE}_v${STEP_NUM}.tar.gz"
+            UPLOAD_DISPLAY_NAME="${TIME}_openwrt_${DESC}"
             
-            # 创建临时目录打包
-            mkdir -p /tmp/openwrt_files
-            cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_files/
-            cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_files/
-            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_files .
+            # 创建临时目录打包（覆盖旧文件）
+            mkdir -p /tmp/openwrt_latest
+            rm -rf /tmp/openwrt_latest/*
+            cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_latest/
+            cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_latest/
+            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_latest .
             
-            # 保存上传参数（环境变量字母开头，合法命名）
-            echo "${STEP}_PACKAGE_PATH=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
-            echo "${STEP}_UPLOAD_NAME=$UPLOAD_DISPLAY_NAME" >> $GITHUB_ENV
-            echo "===== Packaged as: $PACKAGE_NAME ====="
+            # 保存最新固件信息（覆盖旧环境变量）
+            echo "LATEST_PACKAGE_PATH=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
+            echo "LATEST_UPLOAD_NAME=$UPLOAD_DISPLAY_NAME" >> $GITHUB_ENV
+            echo "===== Packaged latest firmware: $PACKAGE_NAME ====="
           }
-
           # 函数4：清理冲突组件
           clean_conflict_components() {
             cd $OPENWRT_PATH
@@ -167,36 +171,25 @@ jobs:
 
       # -------------------------- Step 1: Base firmware --------------------------
       - name: Step1 - Configure base firmware
-        if: env.STEP1_BASE == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           generate_config "800" "" "true"
         shell: bash
 
       - name: Step1 - Build base firmware
-        if: env.STEP1_BASE == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           build_firmware "STEP1" "base firmware"
         shell: bash
 
-      - name: Step1 - Package base firmware
-        if: env.STEP1_SUCCESS == 'true'
+      - name: Step1 - Package latest base firmware
         run: |
           source /tmp/openwrt_funcs.sh
-          package_and_upload "1" "base" "base_firmware_efi"
+          package_latest_firmware "1" "base" "base_firmware_efi"
         shell: bash
-
-      - name: Step1 - Upload base firmware
-        if: env.STEP1_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.STEP1_UPLOAD_NAME }}
-          path: ${{ env.STEP1_PACKAGE_PATH }}
 
       # -------------------------- Step 2: Docker firmware --------------------------
       - name: Step2 - Configure Docker firmware
-        if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           DOCKER_CFG=$(cat <<'EOF'
@@ -214,29 +207,19 @@ jobs:
         shell: bash
 
       - name: Step2 - Build Docker firmware
-        if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           build_firmware "STEP2" "docker firmware"
         shell: bash
 
-      - name: Step2 - Package Docker firmware
-        if: env.STEP2_SUCCESS == 'true'
+      - name: Step2 - Package latest Docker firmware
         run: |
           source /tmp/openwrt_funcs.sh
-          package_and_upload "2" "docker" "docker_firmware_efi"
+          package_latest_firmware "2" "docker" "docker_firmware_efi"
         shell: bash
-
-      - name: Step2 - Upload Docker firmware
-        if: env.STEP2_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.STEP2_UPLOAD_NAME }}
-          path: ${{ env.STEP2_PACKAGE_PATH }}
 
       # -------------------------- Step 3: Nikki firmware --------------------------
       - name: Step3 - Configure Nikki firmware
-        if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
@@ -258,29 +241,19 @@ jobs:
         shell: bash
 
       - name: Step3 - Build Nikki firmware
-        if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           build_firmware "STEP3" "nikki firmware"
         shell: bash
 
-      - name: Step3 - Package Nikki firmware
-        if: env.STEP3_SUCCESS == 'true'
+      - name: Step3 - Package latest Nikki firmware
         run: |
           source /tmp/openwrt_funcs.sh
-          package_and_upload "3" "nikki" "docker_nikki_firmware_efi"
+          package_latest_firmware "3" "nikki" "docker_nikki_firmware_efi"
         shell: bash
-
-      - name: Step3 - Upload Nikki firmware
-        if: env.STEP3_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.STEP3_UPLOAD_NAME }}
-          path: ${{ env.STEP3_PACKAGE_PATH }}
 
       # -------------------------- Step 4: Passwall firmware --------------------------
       - name: Step4 - Configure Passwall firmware
-        if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
@@ -324,25 +297,16 @@ jobs:
         shell: bash
 
       - name: Step4 - Build final firmware
-        if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           build_firmware "STEP4" "final firmware (docker+nikki+passwall)"
         shell: bash
 
-      - name: Step4 - Package final firmware
-        if: env.STEP4_SUCCESS == 'true'
+      - name: Step4 - Package latest final firmware
         run: |
           source /tmp/openwrt_funcs.sh
-          package_and_upload "4" "full" "docker_nikki_passwall_firmware_efi"
+          package_latest_firmware "4" "full" "docker_nikki_passwall_firmware_efi"
         shell: bash
-
-      - name: Step4 - Upload final firmware
-        if: env.STEP4_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.STEP4_UPLOAD_NAME }}
-          path: ${{ env.STEP4_PACKAGE_PATH }}
 
       # -------------------------- Error debug --------------------------
       - name: Output build log
