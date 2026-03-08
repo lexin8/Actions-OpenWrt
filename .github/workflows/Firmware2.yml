@@ -1,4 +1,4 @@
-name: Build OpenWrt Firmware
+name: Build OpenWrt Firmware2
 
 on:
   repository_dispatch:
@@ -10,13 +10,9 @@ on:
         default: 'false'
 
 env:
-  # 编译核心数（按需调整）
   CORES: 4
-  # 主源码仓库（拉取默认分支）
   REPO_URL: https://github.com/fanchmwrt/fanchmwrt
-  # 自定义配置文件名称
   CONFIG_FILE: .config
-  # 固件打包名称（含日期）
   FIRMWARE_NAME: OpenWrt-Firmware-$(date +%Y%m%d-%H%M%S)
 
 jobs:
@@ -44,33 +40,22 @@ jobs:
 
       - name: Clone OpenWrt source code and third-party packages
         run: |
-          # 克隆主源码（默认分支）
           git clone --depth 1 $REPO_URL openwrt
           cd openwrt
-          
-          # 添加 luci-app-nikki 插件
           git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki package/luci-app-nikki
-          
-          # 添加 passwall 插件及依赖
           git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
           git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall package/openwrt-passwall
-          
-          # 添加 homeproxy 插件
           git clone --depth 1 https://github.com/immortalwrt/homeproxy package/homeproxy
 
       - name: Load custom configuration
         run: |
           cd openwrt
-          # 清空原有配置
           rm -f .config
-          # 更新并安装所有 feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          # 生成默认配置
           make defconfig
-          
-          # 写入自定义配置（严格保留注释格式）
-          cat >> .config << EOF
+          # 写入自定义配置（修复EOF格式）
+          cat >> .config << 'EOF'
 # 关闭指定无用插件（严格格式）
 # CONFIG_DEFAULT_luci-app-arpbind is not set
 # CONFIG_PACKAGE_luci-app-autoreboot is not set
@@ -82,7 +67,6 @@ jobs:
 # CONFIG_PACKAGE_luci-app-zerotier is not set
 # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
 
-# 开启指定插件
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-passwall=y
 CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
@@ -97,15 +81,12 @@ CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
 CONFIG_PACKAGE_luci-app-udpxy=y
 CONFIG_PACKAGE_udpxy=y
 EOF
-          
-          # 检查并修复配置（自动补全依赖，验证格式）
           make defconfig
 
       - name: Download packages
         run: |
           cd openwrt
           make download -j$CORES
-          # 清理损坏的下载文件
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
@@ -113,22 +94,16 @@ EOF
         run: |
           cd openwrt
           echo -e "$(nproc) thread compile"
-          # 先多线程编译，失败则单线程输出详细日志
           make -j$CORES || make -j1 V=s
           echo "Compile completed!"
 
       - name: Package firmware (zip)
         run: |
-          # 创建打包目录
           mkdir -p firmware-output
-          # 复制固件文件到打包目录
           cp -r openwrt/bin/targets/* firmware-output/
-          # 复制编译日志（可选，便于排查问题）
           cp openwrt/.config firmware-output/config.txt
           echo "Firmware build info: $(date)" > firmware-output/build-info.txt
-          # 打包为 zip（压缩率更高，便于下载）
           zip -r $FIRMWARE_NAME.zip firmware-output/
-          # 查看打包结果
           ls -lh $FIRMWARE_NAME.zip
 
       - name: Upload firmware package
@@ -136,5 +111,4 @@ EOF
         with:
           name: ${{ env.FIRMWARE_NAME }}
           path: ${{ env.FIRMWARE_NAME }}.zip
-          # 保留90天（默认90天，可调整）
           retention-days: 90
