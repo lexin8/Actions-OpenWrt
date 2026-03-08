@@ -13,22 +13,24 @@ env:
   # 基础配置
   REPO_URL: https://github.com/fanchmwrt/fanchmwrt
   TZ: Asia/Shanghai
+  DEVICE_NAME: x86_64_Generic
+  FILE_DATE: ${{ github.run_id }}
   # 第三方源
-  PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
-  PASSWALL_PACKAGES_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
-  HOMEPROXY_FEED: https://github.com/immortalwrt/homeproxy
-  DOCKERMAN_FEED: https://github.com/kenzok8/openwrt-packages
+  PASSWALL_MAIN: https://github.com/Openwrt-Passwall/openwrt-passwall
+  PASSWALL_PKG: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
+  HOMEPROXY: https://github.com/immortalwrt/homeproxy
+  DOCKERMAN: https://github.com/kenzok8/openwrt-packages
   GOLANG_REPO: https://github.com/kenzok8/golang
   GOLANG_BRANCH: 1.26
   NIKKI_FEED: https://github.com/nikkinikki-org/OpenWrt-nikki
   # 步骤开关
-  STEP1_BASE: true
-  STEP2_COMMON: true
-  STEP3_DOCKER: true
-  STEP4_NIKKI: true
-  STEP5_PROXY: true
-  # 通用编译配置（严格格式）
-  COMMON_CONFIG: |
+  STEP1: true
+  STEP2: true
+  STEP3: true
+  STEP4: true
+  STEP5: true
+  # 通用编译配置
+  COMMON_CFG: |
     CONFIG_TARGET_x86=y
     CONFIG_TARGET_x86_64=y
     CONFIG_TARGET_x86_64_Generic=y
@@ -47,7 +49,7 @@ env:
     CONFIG_PACKAGE_openssh-sftp-server=y
     CONFIG_GOLANG_VERSION_1_26=y
     CONFIG_GOLANG_BASE_VERSION="1.26"
-    # 关闭指定无用插件（严格格式）
+    # 关闭无用插件
     # CONFIG_DEFAULT_luci-app-arpbind is not set
     # CONFIG_PACKAGE_luci-app-autoreboot is not set
     # CONFIG_PACKAGE_luci-app-nlbwmon is not set
@@ -61,144 +63,90 @@ env:
 jobs:
   Build:
     runs-on: ubuntu-22.04
-
     steps:
+      # 1. 服务器性能检查
       - name: Check Server Performance
         run: |
-          echo "警告⚠"
-          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo "警告⚠ 服务器性能有限，插件过多需注意CPU负载！"
           echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
-          echo "--------------------------CPU信息--------------------------"
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
-          echo "--------------------------内存信息--------------------------"
-          echo "已安装内存详细信息:"
-          echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
-          echo "--------------------------硬盘信息--------------------------"
-          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+          echo -e "CPU型号: $(cat /proc/cpuinfo | grep -m1 'model name' | awk -F: '{print $2}')\n"
+          echo "内存信息: $(sudo lshw -short -C memory | grep GiB)"
+          echo "硬盘信息: $(ls /dev/sd* | grep -v [1-9] | wc -l) 块" && df -hT
 
-      - name: Initialization Environment
+      # 2. 环境初始化（合并函数定义+系统配置）
+      - name: Init Env
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 核心函数定义
-          cat > /tmp/funcs.sh << 'EOF'
-          # 编译验证函数
+          # 核心函数封装
+          cat > /tmp/build.sh << 'EOF'
+          # 编译验证
           build_verify() {
-            local STEP=$1
-            local STEP_NUM=$2
-            if find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f | grep -q .; then
-              echo "STEP${STEP_NUM}_SUCCESS=true" >> $GITHUB_ENV
-              echo "LAST_SUCCESS_STEP_NUM=${STEP_NUM}" >> $GITHUB_ENV
-            else
-              echo "STEP${STEP_NUM}_SUCCESS=false" >> $GITHUB_ENV
-            fi
+            [ -f "$OPENWRT_PATH/bin/targets/x86/64/*combined-efi*" ] && {
+              echo "STEP${1}_SUCCESS=true" >> $GITHUB_ENV
+              echo "LAST_STEP=${1}" >> $GITHUB_ENV
+            } || echo "STEP${1}_SUCCESS=false" >> $GITHUB_ENV
           }
 
-          # 配置生成函数
+          # 生成配置
           gen_config() {
-            local ROOT_SIZE=$1
-            local CUSTOM_CFG=$2
             cd $OPENWRT_PATH
-            echo "$COMMON_CONFIG" > .config
-            echo "CONFIG_TARGET_ROOTFS_PARTSIZE=${ROOT_SIZE}" >> .config
-            echo "${CUSTOM_CFG}" >> .config
+            echo "$COMMON_CFG" > .config
+            echo "CONFIG_TARGET_ROOTFS_PARTSIZE=${1}" >> .config
+            [ -n "$2" ] && echo "$2" >> .config
             make defconfig && make download -j$(nproc)
             find dl -size -1024c -exec rm -f {} \;
           }
 
-          # 打包函数
-          package_fw() {
-            local STEP_NUM=$1
-            local TYPE=$2
-            local NAME=$3
-            TIME=$(date +"%y%m%d_%H%M")
-            PKG_NAME="openwrt_${TYPE}_v${STEP_NUM}_${TIME}.tar.gz"
-            UPLOAD_NAME="${STEP_NUM}-${NAME}_${TIME}"
-            
-            mkdir -p /tmp/fw && rm -rf /tmp/fw/*
-            find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f -exec cp {} /tmp/fw/ \;
-            find $OPENWRT_PATH -name "config.buildinfo" -type f -exec cp {} /tmp/fw/ \;
-            tar -zcvf /tmp/${PKG_NAME} -C /tmp/fw .
-            
-            echo "FINAL_PKG_PATH=/tmp/${PKG_NAME}" >> $GITHUB_ENV
-            echo "FINAL_UPLOAD_NAME=${UPLOAD_NAME}" >> $GITHUB_ENV
+          # 添加feeds源
+          add_feed() {
+            grep -q "^src-git $1 " feeds.conf.default || echo "src-git $1 $2;main" >> feeds.conf.default
           }
 
-          # 安全添加feeds源（避免重复添加）
-          add_feed() {
-            local NAME=$1
-            local URL=$2
-            if ! grep -q "^src-git ${NAME} " feeds.conf.default; then
-              echo "src-git ${NAME} ${URL};main" >> feeds.conf.default
-            fi
+          # 编译执行
+          run_build() {
+            cd $OPENWRT_PATH
+            make -j$(nproc) || make -j1 V=s
+            build_verify $1
+            echo "status=success" >> $GITHUB_OUTPUT
           }
           EOF
 
           # 加载函数
-          source /tmp/funcs.sh
+          source /tmp/build.sh
 
-          # 系统环境清理与配置
+          # 系统配置
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          sudo -E apt-get -y update
-          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
-          sudo -E systemctl daemon-reload
-          sudo -E apt-get -y autoremove --purge
-          sudo -E apt-get -y clean
+          sudo -E apt-get update && sudo -E apt-get install -y $(curl -fsSL is.gd/depends_ubuntu_2204)
+          sudo -E apt-get autoremove -y && sudo -E apt-get clean -y
           sudo timedatectl set-timezone "$TZ"
-          
-          # 配置16G交换分区
           sudo fallocate -l 16G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
 
-          # 初始化环境变量
-          echo "LAST_SUCCESS_STEP_NUM=0" >> $GITHUB_ENV
-          echo "FINAL_PKG_PATH=" >> $GITHUB_ENV
+          # 初始化变量
+          echo "LAST_STEP=0" >> $GITHUB_ENV
 
-      - name: Combine Disks
-        uses: easimon/maximize-build-space@master
-        with:
-          swap-size-mb: 1024
-          temp-reserve-mb: 100
-          root-reserve-mb: 1024
-
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Clone Source Code
+      # 3. 磁盘扩容+代码检出
+      - name: Env Prepare
         run: |
-          source /tmp/funcs.sh
-          df -hT $GITHUB_WORKSPACE
+          # 磁盘扩容
+          docker run --rm -v /:/mnt easimon/maximize-build-space:master \
+            --swap-size-mb 1024 --temp-reserve-mb 100 --root-reserve-mb 1024
+          # 克隆源码
           git clone --depth=1 $REPO_URL openwrt
           cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-          # 初始化feeds
           ./scripts/feeds update -a
-
-      - name: Clean Conflict Packages
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
+          # 清理冲突包
           rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns} 2>/dev/null
           rm -rf feeds/packages/utils/v2dat feeds/packages/lang/golang 2>/dev/null
-
-      - name: Install Dependencies
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          # 替换Golang 1.26
+          # 安装依赖
           git clone --depth=1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
           ./scripts/feeds install -a
 
+      # 4. SSH调试
       - name: SSH Debug
         uses: P3TERX/ssh2actions@v1.0.0
         if: github.event.inputs.ssh == 'true'
@@ -206,29 +154,25 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # -------------------------- 分步编译阶段 --------------------------
-      - name: Step1 - Base Firmware Config
-        if: env.STEP1_BASE == 'true'
+      # -------------------------- 分步编译 --------------------------
+      # 步骤1：基础固件
+      - name: Step1 - Base Firmware
+        id: step1
+        if: env.STEP1 == 'true'
         run: |
-          source /tmp/funcs.sh
-          gen_config "512" ""
+          source /tmp/build.sh
+          gen_config 512
+          run_build 1
 
-      - name: Step1 - Base Firmware Build
-        if: env.STEP1_BASE == 'true'
+      # 步骤2：常用组件
+      - name: Step2 - Common Plugins
+        id: step2
+        if: env.STEP2 == 'true' && env.STEP1_SUCCESS == 'true'
         run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          make -j$(nproc) || make -j1 V=s
-          build_verify "STEP1" "1"
-
-      - name: Step2 - Common Plugins Config
-        if: env.STEP2_COMMON == 'true' && env.STEP1_SUCCESS == 'true'
-        run: |
-          source /tmp/funcs.sh
-          CUSTOM_CFG=$(cat <<'EOF'
+          source /tmp/build.sh
+          CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
           CONFIG_PACKAGE_luci-app-udpxy=y
@@ -240,28 +184,22 @@ jobs:
           CONFIG_PACKAGE_e2fsprogs=y
           EOF
           )
-          gen_config "640" "${CUSTOM_CFG}"
+          gen_config 640 "$CFG"
+          run_build 2
 
-      - name: Step2 - Common Plugins Build
-        if: env.STEP2_COMMON == 'true' && env.STEP1_SUCCESS == 'true'
+      # 步骤3：Dockerman
+      - name: Step3 - Dockerman
+        id: step3
+        if: env.STEP3 == 'true' && env.STEP2_SUCCESS == 'true'
         run: |
-          source /tmp/funcs.sh
+          source /tmp/build.sh
           cd $OPENWRT_PATH
-          make -j$(nproc) || make -j1 V=s
-          build_verify "STEP2" "2"
-
-      - name: Step3 - Dockerman Config
-        if: env.STEP3_DOCKER == 'true' && env.STEP2_SUCCESS == 'true'
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          add_feed "kenzok8" "$DOCKERMAN_FEED"
+          add_feed kenzok8 $DOCKERMAN
           ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-docker 2>/dev/null
           ./scripts/feeds install -a
-          CUSTOM_CFG=$(cat <<'EOF'
+          CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
           CONFIG_PACKAGE_luci-app-udpxy=y
@@ -279,27 +217,21 @@ jobs:
           CONFIG_PACKAGE_kmod-ipt-nat6=y
           EOF
           )
-          gen_config "800" "${CUSTOM_CFG}"
+          gen_config 800 "$CFG"
+          run_build 3
 
-      - name: Step3 - Dockerman Build
-        if: env.STEP3_DOCKER == 'true' && env.STEP2_SUCCESS == 'true'
+      # 步骤4：Nikki
+      - name: Step4 - Nikki
+        id: step4
+        if: env.STEP4 == 'true' && env.STEP3_SUCCESS == 'true'
         run: |
-          source /tmp/funcs.sh
+          source /tmp/build.sh
           cd $OPENWRT_PATH
-          make -j$(nproc) || make -j1 V=s
-          build_verify "STEP3" "3"
-
-      - name: Step4 - Nikki Config
-        if: env.STEP4_NIKKI == 'true' && env.STEP3_SUCCESS == 'true'
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          add_feed "nikki" "$NIKKI_FEED"
+          add_feed nikki $NIKKI_FEED
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          CUSTOM_CFG=$(cat <<'EOF'
+          CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
           CONFIG_PACKAGE_luci-app-udpxy=y
@@ -317,37 +249,25 @@ jobs:
           CONFIG_PACKAGE_luci-app-nikki=y
           EOF
           )
-          gen_config "960" "${CUSTOM_CFG}"
+          gen_config 960 "$CFG"
+          run_build 4
 
-      - name: Step4 - Nikki Build
-        if: env.STEP4_NIKKI == 'true' && env.STEP3_SUCCESS == 'true'
+      # 步骤5：代理组件
+      - name: Step5 - Proxy Plugins
+        id: step5
+        if: env.STEP5 == 'true' && env.STEP4_SUCCESS == 'true'
         run: |
-          source /tmp/funcs.sh
+          source /tmp/build.sh
           cd $OPENWRT_PATH
-          make -j$(nproc) || make -j1 V=s
-          build_verify "STEP4" "4"
-
-      - name: Step5 - Proxy Plugins Config
-        if: env.STEP5_PROXY == 'true' && env.STEP4_SUCCESS == 'true'
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          # 正确添加代理源
-          add_feed "passwall_packages" "$PASSWALL_PACKAGES_REPO"
-          add_feed "passwall_main" "$PASSWALL_MAIN_REPO"
-          add_feed "homeproxy" "$HOMEPROXY_FEED"
-          
-          # 先更新所有feeds，再安装
+          add_feed passwall_pkg $PASSWALL_PKG
+          add_feed passwall_main $PASSWALL_MAIN
+          add_feed homeproxy $HOMEPROXY
           ./scripts/feeds update -a
-          # 清理冲突组件
           rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,hysteria,tuic-client} 2>/dev/null
-          # 安装所有feeds
           ./scripts/feeds install -a
-          
-          CUSTOM_CFG=$(cat <<'EOF'
+          CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
           CONFIG_PACKAGE_luci-app-udpxy=y
@@ -382,47 +302,31 @@ jobs:
           CONFIG_PACKAGE_rust-bindgen-host=y
           EOF
           )
-          gen_config "1600" "${CUSTOM_CFG}"
+          gen_config 1600 "$CFG"
+          run_build 5
 
-      - name: Step5 - Proxy Plugins Build
-        if: env.STEP5_PROXY == 'true' && env.STEP4_SUCCESS == 'true'
-        run: |
-          source /tmp/funcs.sh
-          cd $OPENWRT_PATH
-          make -j$(nproc) || make -j1 V=s
-          build_verify "STEP5" "5"
-
-      # -------------------------- 收尾阶段 --------------------------
-      - name: Package Firmware
-        if: env.LAST_SUCCESS_STEP_NUM > 0
-        run: |
-          source /tmp/funcs.sh
-          case $LAST_SUCCESS_STEP_NUM in
-            1) package_fw "1" "base" "基础固件" ;;
-            2) package_fw "2" "common" "常用组件固件" ;;
-            3) package_fw "3" "docker" "Dockerman固件" ;;
-            4) package_fw "4" "nikki" "Nikki固件" ;;
-            5) package_fw "5" "full" "完整固件" ;;
-          esac
-
+      # -------------------------- 结果处理 --------------------------
+      # 上传固件
       - name: Upload Firmware
-        if: env.FINAL_PKG_PATH != ''
         uses: actions/upload-artifact@v4
+        if: ${{ (steps.step1.outputs.status == 'success' || steps.step2.outputs.status == 'success' || steps.step3.outputs.status == 'success' || steps.step4.outputs.status == 'success' || steps.step5.outputs.status == 'success') && !cancelled() }}
         with:
-          name: ${{ env.FINAL_UPLOAD_NAME }}
-          path: ${{ env.FINAL_PKG_PATH }}
+          name: OpenWrt_Firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+          path: |
+            ${{ env.OPENWRT_PATH }}/bin/targets/*/*
+            !${{ env.OPENWRT_PATH }}/bin/targets/*/packages
           retention-days: 7
 
+      # 错误调试
       - name: Error Debug
         if: failure()
         run: |
-          source /tmp/funcs.sh
+          source /tmp/build.sh
           cd $OPENWRT_PATH
-          echo "===== 编译错误日志 ====="
+          echo "===== 编译错误 ====="
           cat build.log | grep -E "error|conflict|fatal|version mismatch|no such file" || echo "无关键错误"
-          echo "===== Feeds列表检查 ====="
+          echo "===== Feeds配置 ====="
           cat feeds.conf.default
-          echo "===== 固件生成检查 ====="
-          find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f || echo "未生成固件文件"
-          echo "===== 最后成功步骤 ====="
-          echo "LAST_SUCCESS_STEP_NUM: $LAST_SUCCESS_STEP_NUM"
+          echo "===== 固件检查 ====="
+          find bin/targets/x86/64 -name "*combined-efi*" || echo "未生成固件"
+          echo "最后成功步骤: $LAST_STEP"
