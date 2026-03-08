@@ -1,210 +1,133 @@
-name: fanchmwrt
+name: Build OpenWrt Firmware
 
 on:
-  repository_dispatch:
-  watch:
-    types: started
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: true
-        default: 'false'
 
 env:
-  CONFIG_FILE: istoreos.config
-  CONFIG_FILE2: fanchmwrt.config
-  DIY_P1_SH: fanchmwrt.sh
-  DIY_P2_SH: l2tp.sh
-  DIY_P3_SH: diy-part3.sh
-  SSH_ACTIONS: false
-  UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
-  ENABLE_L2TP_COMPONENTS: false
-  UPLOAD_SOFTETHERVPN: false
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_RELEASE: true
-  UPLOAD_WETRANSFER: false
-  REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH: openwrt-23.05
-  REPO_BRANCH2: openwrt-24.10
-  DIY_SCRIPT: diy-script.sh
-  CLASH_KERNEL: amd64
-  CACHE_TOOLCHAIN: true
-  FIRMWARE_RELEASE: true
-  FIRMWARE_TAG: X86_64
+  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: fanchmwrt-24.10.4
+  CONFIG_FILE: .config
   TZ: Asia/Shanghai
 
 jobs:
-  Build:
+  build:
     runs-on: ubuntu-22.04
-
+    permissions:
+      contents: write
+    
     steps:
-      - name: Check Server Performance
-        run: |
-          echo "警告⚠"
-          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
-          echo "--------------------------CPU信息--------------------------"
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-          echo "CPU核心数量: $(nproc)"
-          echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
-          echo "--------------------------内存信息--------------------------"
-          echo "已安装内存详细信息:"
-          echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
-          echo "--------------------------硬盘信息--------------------------"
-          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: 初始化编译环境
+      run: |
+        sudo timedatectl set-timezone "$TZ"
+        sudo apt-get update
+        sudo apt-get install -y build-essential clang flex bison g++ gawk \
+        gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev \
+        python3-setuptools rsync swig unzip zlib1g-dev file wget subversion \
+        upx-ucl autoconf automake libtool patch cmake
+        sudo apt-get install -y qemu-utils
+        df -h
+    
+    - name: 克隆源码
+      run: |
+        git clone $REPO_URL openwrt
+        cd openwrt
+        ln -sf $GITHUB_WORKSPACE $CONFIG_FILE
+        
+    - name: 更新 feeds 并添加第三方源
+      run: |
+        cd openwrt
+        
+        # 添加 nikki 源码
+        echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+        
+        # 添加 kenzo/small 源
+        sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+        sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+        
+        # 更新 feeds
+        ./scripts/feeds update -a
+        
+        # 清理冲突组件
+        rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
+        rm -rf feeds/packages/net/alist 2>/dev/null
+        rm -rf feeds/packages/net/adguardhome 2>/dev/null
+        rm -rf feeds/packages/net/mosdns 2>/dev/null
+        rm -rf feeds/packages/net/xray* 2>/dev/null
+        rm -rf feeds/packages/net/v2ray* 2>/dev/null
+        rm -rf feeds/packages/net/sing* 2>/dev/null
+        rm -rf feeds/packages/net/smartdns 2>/dev/null
+        rm -rf feeds/packages/utils/v2dat 2>/dev/null
+        rm -rf feeds/packages/lang/golang 2>/dev/null
+        
+        # 替换高版本 golang
+        git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
+        
+        # 重新更新并安装 feeds
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+        
+        # 强制安装核心组件
+        ./scripts/feeds install -p small luci-app-homeproxy
+        ./scripts/feeds install -p kenzo luci-app-passwall
+        ./scripts/feeds install -p nikki luci-app-nikki
+        ./scripts/feeds install ucode-mod-digest
+        
+        # 修复依赖版本
+        sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
+        sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
+    
 
-      - name: Initialization Environment
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          sudo -E apt-get -y update
-          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
-          sudo -E systemctl daemon-reload
-          sudo -E apt-get -y autoremove --purge
-          sudo -E apt-get -y clean
-          sudo timedatectl set-timezone "$TZ"
-
-      - name: Combine Disks
-        uses: easimon/maximize-build-space@master
-        with:
-          swap-size-mb: 1024
-          temp-reserve-mb: 100
-          root-reserve-mb: 1024
-
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Clone Source Code
-        run: |
-          df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL2 openwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-      - name: Clone immortalwrt
-        run: |
-          df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL immortalwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-      - name: Cache Toolchain
-        if: env.CACHE_TOOLCHAIN == 'true'
-        uses: HiGarfield/cachewrtbuild@main
-        with:
-          ccache: false
-          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
-          prefix: ${{ env.OPENWRT_PATH }}
-
-      - name: Install Feeds
-        run: |
-          cd $OPENWRT_PATH
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Install Feeds immortalwrt
-        run: |
-          cd immortalwrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: 运行一键部署脚本
-        run: |
-          chmod +x $DIY_P1_SH
-          ./$DIY_P1_SH
-
-      - name: 配置_脚本
-        run: |
-          rm -rf openwrt/.config
-          [ -e files ] && mv files openwrt/files
-          [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
-
-      - name: 运行L2TP组件追加脚本
-        if: env.ENABLE_L2TP_COMPONENTS == 'true' && !cancelled()
-        run: |
-          chmod +x $DIY_P2_SH
-          cd $OPENWRT_PATH
-          ../$DIY_P2_SH
-
-      - name: softethervpn
-        id: softethervpn
-        if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
-        run: |
-          git clone https://github.com/lexin8/Actions-OpenWrt lexin8
-          cd openwrt/feeds/packages/net/
-          rm -rf softethervpn*
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
-
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      - name: 下载 package
-        id: package
-        run: |
-          cd openwrt
-          make defconfig
-          make download -j8
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-
-      - name: 开始编译固件
-        id: compile
-        run: |
-          cd openwrt
-          echo -e "$(nproc) thread compile"
-          make -j$(nproc) || make -j1 || make -j1 V=s
-          echo "::set-output name=status::success"
-
-      - name: 搜索固件
-        run: |
-          cd openwrt/bin/
-          find . -name "*squashfs*"
-
-      - name: Organize files
-        id: organize
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-        run: |
-          cd openwrt/bin/
-          cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
-          ls
-          rm -rf packages
-          find . -name "*ext4*" |xargs rm -rf
-          find . -name "*root*" |xargs rm -rf
-          tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
-          ls | grep -v OpenWrt.tar.gz | xargs rm
-          ls
-          echo "::set-output name=FIRMWARE::$PWD"
-          echo "::set-output name=status::success"
-
-      - name: 上传到 directory
-        uses: actions/upload-artifact@master
-        if: steps.organize.outputs.status == 'success' && !cancelled()
-        with:
-          name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
-          path: ${{ steps.organize.outputs.FIRMWARE }}
+        
+        # 运行配置
+        make defconfig
+        
+    - name: 下载软件包
+      run: |
+        cd openwrt
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        
+    - name: 编译固件
+      run: |
+        cd openwrt
+        make -j$(nproc) || make -j1 V=s
+        echo "======================="
+        echo "编译完成!"
+        echo "======================="
+        
+    - name: 整理输出文件
+      run: |
+        cd openwrt/bin/targets/x86/64
+        rm -rf packages
+        echo "==========固件信息=========="
+        ls -lh
+        
+    - name: 上传固件
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenWrt-x86-64-${{ github.run_number }}
+        path: openwrt/bin/targets/x86/64/*.img*
+        
+    - name: 上传配置文件
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenWrt-config-${{ github.run_number }}
+        path: openwrt/.config
+        
+    - name: 创建发布
+      if: github.event_name == 'push' && contains(github.ref, 'tags')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          openwrt/bin/targets/x86/64/*.img*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
