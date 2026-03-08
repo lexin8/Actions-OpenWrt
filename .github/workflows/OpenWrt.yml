@@ -157,6 +157,23 @@ jobs:
               echo "Cleaned conflict components: $EXCLUDE_COMPONENTS"
             fi
           }
+
+          # 新增函数：检查并补充Docker LuCI依赖
+          check_docker_luci_deps() {
+            cd $OPENWRT_PATH
+            # 确保luci-app-docker相关包已安装
+            ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
+            # 补充Docker核心依赖
+            echo "CONFIG_PACKAGE_luci-app-docker=y" >> .config
+            echo "CONFIG_PACKAGE_luci-lib-docker=y" >> .config
+            echo "CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y" >> .config
+            echo "CONFIG_PACKAGE_docker-ce=y" >> .config
+            echo "CONFIG_PACKAGE_docker-ce-cli=y" >> .config
+            echo "CONFIG_PACKAGE_docker-ce-rootless-extras=y" >> .config
+            echo "CONFIG_PACKAGE_containerd=y" >> .config
+            echo "CONFIG_PACKAGE_runc=y" >> .config
+            make defconfig
+          }
           EOF
 
           # 系统环境初始化
@@ -187,7 +204,9 @@ jobs:
           git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          # 提前安装Docker LuCI相关包
           ./scripts/feeds update -a
+          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
           ./scripts/feeds install -a
         shell: bash
 
@@ -231,17 +250,36 @@ jobs:
         run: |
           source /tmp/openwrt_funcs.sh
           DOCKER_CFG=$(cat <<'EOF'
+          # Docker核心组件
           CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-ce=y
+          CONFIG_PACKAGE_docker-ce-cli=y
+          CONFIG_PACKAGE_docker-ce-rootless-extras=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_runc=y
           CONFIG_PACKAGE_docker-compose=y
+          # Docker LuCI插件（完整配置）
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
+          # Docker内核依赖
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
           CONFIG_PACKAGE_kmod-ipt-nat6=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-nf-ipt=y
+          CONFIG_PACKAGE_kmod-nf-nat=y
+          CONFIG_PACKAGE_kmod-bridge=y
+          CONFIG_PACKAGE_kmod-ipv6=y
+          CONFIG_PACKAGE_kmod-ipt-ipset=y
+          CONFIG_PACKAGE_ipset=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_iptables=y
           EOF
           )
           generate_config "1000" "$DOCKER_CFG" "false"
+          # 检查并补充Docker LuCI依赖
+          check_docker_luci_deps
         shell: bash
 
       - name: Step2 - Build Docker firmware
@@ -271,19 +309,33 @@ jobs:
           cd $OPENWRT_PATH
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
           ./scripts/feeds update -a
+          # 重新安装Docker LuCI包（避免被覆盖）
+          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
           ./scripts/feeds install -a
           NIKKI_CFG=$(cat <<'EOF'
+          # Docker核心组件
           CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-ce=y
+          CONFIG_PACKAGE_docker-ce-cli=y
+          CONFIG_PACKAGE_docker-ce-rootless-extras=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_runc=y
           CONFIG_PACKAGE_docker-compose=y
+          # Docker LuCI插件
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
+          # Docker内核依赖
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
+          CONFIG_PACKAGE_kmod-ipt-nat6=y
+          # Nikki插件
           CONFIG_PACKAGE_luci-app-nikki=y
           EOF
           )
           generate_config "1200" "$NIKKI_CFG" "false"
+          # 检查并补充Docker LuCI依赖
+          check_docker_luci_deps
         shell: bash
 
       - name: Step3 - Build Nikki firmware
@@ -316,20 +368,33 @@ jobs:
           sed -i "1i src-git passwall_packages $PASSWALL_PACKAGES_REPO;main" feeds.conf.default
           sed -i "2i src-git passwall_main $PASSWALL_MAIN_REPO;main" feeds.conf.default
           ./scripts/feeds update -a
+          # 重新安装Docker LuCI包（避免Passwall源覆盖）
+          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
           clean_conflict_components
           ./scripts/feeds update passwall_packages passwall_main
           ./scripts/feeds install -a -p passwall_packages
           ./scripts/feeds install -a -p passwall_main
           ./scripts/feeds install ucode-mod-digest
           PROXY_CFG=$(cat <<'EOF'
+          # Docker核心组件
           CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-ce=y
+          CONFIG_PACKAGE_docker-ce-cli=y
+          CONFIG_PACKAGE_docker-ce-rootless-extras=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_runc=y
           CONFIG_PACKAGE_docker-compose=y
+          # Docker LuCI插件
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
+          # Docker内核依赖
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
+          CONFIG_PACKAGE_kmod-ipt-nat6=y
+          # Nikki插件
           CONFIG_PACKAGE_luci-app-nikki=y
+          # Passwall插件
           CONFIG_PACKAGE_luci-app-passwall=y
           CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
           CONFIG_PACKAGE_geoview=y
@@ -348,6 +413,8 @@ jobs:
           EOF
           )
           generate_config "1500" "$PROXY_CFG" "false"
+          # 检查并补充Docker LuCI依赖（最终确认）
+          check_docker_luci_deps
         shell: bash
 
       - name: Step4 - Build final firmware
@@ -404,4 +471,8 @@ jobs:
           cd $OPENWRT_PATH
           cat build.log || echo "No build.log file"
           ls -lh $OPENWRT_PATH/bin/targets/x86/64/ || echo "No build products"
+          # 额外检查Docker LuCI包是否存在
+          echo "===== Check Docker LuCI packages ====="
+          ./scripts/feeds search luci-app-docker
+          grep -E "luci-app-docker|docker" .config || echo "Docker config not found"
         shell: bash
