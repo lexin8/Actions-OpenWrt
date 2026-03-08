@@ -23,7 +23,6 @@ env:
   STEP3_DOCKER: true
   STEP4_NIKKI: true
   STEP5_PROXY: true
-  # 通用.config基础配置（提取所有步骤重复的部分）
   COMMON_CONFIG: |
     CONFIG_TARGET_x86=y
     CONFIG_TARGET_x86_64=y
@@ -41,61 +40,47 @@ env:
     CONFIG_PACKAGE_wget=y
     CONFIG_PACKAGE_curl=y
     CONFIG_PACKAGE_openssh-sftp-server=y
-    # 关闭指定无用插件
-    # CONFIG_DEFAULT_luci-app-arpbind is not set
-    # CONFIG_PACKAGE_luci-app-autoreboot is not set
-    # CONFIG_PACKAGE_luci-app-nlbwmon is not set
-    # CONFIG_PACKAGE_luci-app-samba4 is not set
-    # CONFIG_PACKAGE_luci-app-samba is not set
-    # CONFIG_PACKAGE_luci-app-vlmcsd is not set
-    # CONFIG_PACKAGE_luci-app-wol is not set
-    # CONFIG_PACKAGE_luci-app-zerotier is not set
-    # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
+    CONFIG_GOLANG_VERSION_1_26=y
+    CONFIG_GOLANG_BASE_VERSION="1.26"
 
 jobs:
   build-openwrt:
     runs-on: ubuntu-22.04
     steps:
-      - name: 0.1 初始化系统环境
+      - name: 0.1 初始化环境
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 定义通用函数
+          # 核心函数定义
           cat > /tmp/openwrt_funcs.sh << 'EOF'
-          # 编译验证函数
           build_verify() {
-            local STEP=$1
-            if find $OPENWRT_PATH -name "*squashfs-combined-efi*" -type f | grep -q .; then
-              echo "${STEP}_SUCCESS=true" >> $GITHUB_ENV
+            local STEP=$1 STEP_NUM=$2 STEP_NAME=$3
+            if find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f | grep -q .; then
+              echo "${STEP}_SUCCESS=true BUILD_STOPPED=false LAST_SUCCESS_STEP_NUM=${STEP_NUM} LAST_SUCCESS_STEP_NAME=${STEP_NAME}" >> $GITHUB_ENV
+              return 0
             else
-              echo "${STEP}_SUCCESS=false" >> $GITHUB_ENV && exit 1
+              echo "${STEP}_SUCCESS=false BUILD_STOPPED=true" >> $GITHUB_ENV
+              return 1
             fi
           }
 
-          # 打包上传函数
-          package_upload() {
-            local STEP=$1
-            local TYPE=$2
-            local NAME=$3
-            TIME=$(date +"%y.%m.%d.%H:%M")
-            PACKAGE_NAME="${TIME}_openwrt_${TYPE}.tar.gz"
-            mkdir -p /tmp/openwrt_files
-            find $OPENWRT_PATH -name "*squashfs-combined-efi*" -type f -exec cp {} /tmp/openwrt_files/ \;
-            find $OPENWRT_PATH -name "config.buildinfo" -type f -exec cp {} /tmp/openwrt_files/ \;
-            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_files .
-            echo "打包完成：$PACKAGE_NAME"
-            ls -lh /tmp/$PACKAGE_NAME
-            echo "${STEP}_PACKAGE=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
-            echo "TIME=$TIME" >> $GITHUB_ENV
-            echo "UPLOAD_NAME=${NAME}_${TIME}_openwrt" >> $GITHUB_ENV
+          package_firmware() {
+            local STEP_NUM=$1 STEP_TYPE=$2 STEP_NAME=$3
+            TIME=$(date +"%y%m%d_%H%M")
+            PACKAGE_NAME="openwrt_${STEP_TYPE}_v${STEP_NUM}_${TIME}.tar.gz"
+            UPLOAD_NAME="${STEP_NUM}-${STEP_NAME}_${TIME}"
+            
+            mkdir -p /tmp/openwrt_package && rm -rf /tmp/openwrt_package/*
+            find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f -exec cp {} /tmp/openwrt_package/ \;
+            find $OPENWRT_PATH -name "config.buildinfo" -type f -exec cp {} /tmp/openwrt_package/ \;
+            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_package .
+            
+            echo "FINAL_PACKAGE_PATH=/tmp/$PACKAGE_NAME FINAL_UPLOAD_NAME=$UPLOAD_NAME" >> $GITHUB_ENV
           }
 
-          # 生成.config函数：参数1=根分区大小 参数2=差异化配置
           generate_config() {
-            local ROOT_PART_SIZE=$1
-            local CUSTOM_CONFIG=$2
+            local ROOT_PART_SIZE=$1 CUSTOM_CONFIG=$2
             cd $OPENWRT_PATH
-            # 拼接通用配置+根分区大小+差异化配置
             echo "$COMMON_CONFIG" > .config
             echo "CONFIG_TARGET_ROOTFS_PARTSIZE=$ROOT_PART_SIZE" >> .config
             echo "$CUSTOM_CONFIG" >> .config
@@ -104,7 +89,6 @@ jobs:
           }
           EOF
 
-          # 加载函数
           source /tmp/openwrt_funcs.sh
 
           # 系统初始化
@@ -114,17 +98,18 @@ jobs:
           sudo -E apt-get -y autoremove --purge && sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
           sudo swapoff /swapfile && sudo rm -f /swapfile
-          sudo fallocate -l 8G /swapfile && sudo chmod 600 /swapfile
+          sudo fallocate -l 16G /swapfile && sudo chmod 600 /swapfile
           sudo mkswap /swapfile && sudo swapon /swapfile
-        shell: bash
 
-      - name: 0.2 克隆源码+初始化Feeds
+          # 初始化环境变量
+          echo "BUILD_STOPPED=false LAST_SUCCESS_STEP_NUM=0 FINAL_PACKAGE_PATH=" >> $GITHUB_ENV
+
+      - name: 0.2 克隆源码
         run: |
           source /tmp/openwrt_funcs.sh
           git clone --depth=1 $REPO_URL openwrt
           cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           ./scripts/feeds update -a
-        shell: bash
 
       - name: 0.3 清理冲突组件
         run: |
@@ -133,7 +118,6 @@ jobs:
           rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
           rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns} 2>/dev/null
           rm -rf feeds/packages/utils/v2dat feeds/packages/lang/golang 2>/dev/null
-        shell: bash
 
       - name: 0.4 替换Golang 1.26
         run: |
@@ -141,53 +125,34 @@ jobs:
           cd $OPENWRT_PATH
           git clone --depth=1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
           ./scripts/feeds install -a
-        shell: bash
 
       - name: 0.5 SSH调试
         uses: P3TERX/ssh2actions@v1.0.0
-        if: env.ssh == 'true'
+        if: github.event.inputs.ssh == 'true'
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # -------------------------- 步骤1：基础固件 --------------------------
+      # 步骤1：基础固件
       - name: 1.1 配置基础固件
-        if: env.STEP1_BASE == 'true'
+        if: env.STEP1_BASE == 'true' && env.BUILD_STOPPED == 'false'
         run: |
           source /tmp/openwrt_funcs.sh
-          # 基础固件无差异化配置，仅指定根分区大小
           generate_config "512" ""
-        shell: bash
 
       - name: 1.2 编译基础固件
-        if: env.STEP1_BASE == 'true'
+        if: env.STEP1_BASE == 'true' && env.BUILD_STOPPED == 'false'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
           make -j$(nproc) || make -j1 V=s
-          build_verify "STEP1"
-        shell: bash
+          build_verify "STEP1" "1" "基础固件"
 
-      - name: 1.3 打包基础固件
-        if: env.STEP1_SUCCESS == 'true'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_upload "STEP1" "base" "01-基础固件"
-        shell: bash
-
-      - name: 1.4 上传基础固件
-        if: env.STEP1_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.STEP1_PACKAGE }}
-
-      # -------------------------- 步骤2：常用组件 --------------------------
+      # 步骤2：常用组件
       - name: 2.1 配置常用组件
-        if: env.STEP1_SUCCESS == 'true' && env.STEP2_COMMON == 'true'
+        if: env.STEP2_COMMON == 'true' && env.BUILD_STOPPED == 'false' && env.STEP1_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          # 常用组件差异化配置
           CUSTOM_CONFIG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -204,42 +169,24 @@ jobs:
           EOF
           )
           generate_config "640" "$CUSTOM_CONFIG"
-        shell: bash
 
       - name: 2.2 编译常用组件固件
-        if: env.STEP1_SUCCESS == 'true' && env.STEP2_COMMON == 'true'
+        if: env.STEP2_COMMON == 'true' && env.BUILD_STOPPED == 'false' && env.STEP1_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
           make -j$(nproc) || make -j1 V=s
-          build_verify "STEP2"
-        shell: bash
+          build_verify "STEP2" "2" "常用组件固件"
 
-      - name: 2.3 打包常用组件固件
-        if: env.STEP2_SUCCESS == 'true'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_upload "STEP2" "common" "02-常用组件固件"
-        shell: bash
-
-      - name: 2.4 上传常用组件固件
-        if: env.STEP2_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.STEP2_PACKAGE }}
-
-      # -------------------------- 步骤3：Dockerman --------------------------
-      - name: 3.1 配置dockerman
-        if: env.STEP2_SUCCESS == 'true' && env.STEP3_DOCKER == 'true'
+      # 步骤3：Dockerman
+      - name: 3.1 配置Dockerman
+        if: env.STEP3_DOCKER == 'true' && env.BUILD_STOPPED == 'false' && env.STEP2_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          # 添加dockerman源
           sed -i "1i src-git kenzok8 $DOCKERMAN_FEED;main" feeds.conf.default
           ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-docker 2>/dev/null
           ./scripts/feeds install -a
-          # dockerman差异化配置
           CUSTOM_CONFIG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -262,41 +209,23 @@ jobs:
           EOF
           )
           generate_config "800" "$CUSTOM_CONFIG"
-        shell: bash
 
-      - name: 3.2 编译dockerman固件
-        if: env.STEP2_SUCCESS == 'true' && env.STEP3_DOCKER == 'true'
+      - name: 3.2 编译Dockerman固件
+        if: env.STEP3_DOCKER == 'true' && env.BUILD_STOPPED == 'false' && env.STEP2_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
           make -j$(nproc) || make -j1 V=s
-          build_verify "STEP3"
-        shell: bash
+          build_verify "STEP3" "3" "Dockerman固件"
 
-      - name: 3.3 打包dockerman固件
-        if: env.STEP3_SUCCESS == 'true'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_upload "STEP3" "docker" "03-dockerman固件"
-        shell: bash
-
-      - name: 3.4 上传dockerman固件
-        if: env.STEP3_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.STEP3_PACKAGE }}
-
-      # -------------------------- 步骤4：Nikki --------------------------
+      # 步骤4：Nikki
       - name: 4.1 配置Nikki组件
-        if: env.STEP3_SUCCESS == 'true' && env.STEP4_NIKKI == 'true'
+        if: env.STEP4_NIKKI == 'true' && env.BUILD_STOPPED == 'false' && env.STEP3_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          # 添加Nikki源
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          # Nikki差异化配置
           CUSTOM_CONFIG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -319,38 +248,21 @@ jobs:
           EOF
           )
           generate_config "960" "$CUSTOM_CONFIG"
-        shell: bash
 
       - name: 4.2 编译Nikki固件
-        if: env.STEP3_SUCCESS == 'true' && env.STEP4_NIKKI == 'true'
+        if: env.STEP4_NIKKI == 'true' && env.BUILD_STOPPED == 'false' && env.STEP3_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
           make -j$(nproc) || make -j1 V=s
-          build_verify "STEP4"
-        shell: bash
+          build_verify "STEP4" "4" "Nikki固件"
 
-      - name: 4.3 打包Nikki固件
-        if: env.STEP4_SUCCESS == 'true'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_upload "STEP4" "nikki" "04-Nikki固件"
-        shell: bash
-
-      - name: 4.4 上传Nikki固件
-        if: env.STEP4_SUCCESS == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.STEP4_PACKAGE }}
-
-      # -------------------------- 步骤5：Passwall+Homeproxy --------------------------
-      - name: 5.1 配置Passwall+homeproxy组件
-        if: env.STEP4_SUCCESS == 'true' && env.STEP5_PROXY == 'true'
+      # 步骤5：Passwall+Homeproxy
+      - name: 5.1 配置代理组件
+        if: env.STEP5_PROXY == 'true' && env.BUILD_STOPPED == 'false' && env.STEP4_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          # 添加代理相关源
           sed -i "2i src-git passwall_packages $PASSWALL_PACKAGES_REPO;main" feeds.conf.default
           sed -i "3i src-git passwall_main $PASSWALL_MAIN_REPO;main" feeds.conf.default
           sed -i "4i src-git homeproxy $HOMEPROXY_FEED;main" feeds.conf.default
@@ -359,7 +271,6 @@ jobs:
           ./scripts/feeds install -a -p passwall_packages
           ./scripts/feeds install -a -p passwall_main
           ./scripts/feeds install -a -p homeproxy
-          # 代理差异化配置
           CUSTOM_CONFIG=$(cat <<'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -396,43 +307,48 @@ jobs:
           CONFIG_PACKAGE_chinadns-ng=y
           CONFIG_PACKAGE_ucode-mod-digest=y
           CONFIG_PACKAGE_rust-bindgen-host=y
-          CONFIG_GOLANG_VERSION_1_26=y
-          CONFIG_GOLANG_BASE_VERSION="1.26"
           EOF
           )
           generate_config "1600" "$CUSTOM_CONFIG"
-        shell: bash
 
       - name: 5.2 编译最终固件
-        if: env.STEP4_SUCCESS == 'true' && env.STEP5_PROXY == 'true'
+        if: env.STEP5_PROXY == 'true' && env.BUILD_STOPPED == 'false' && env.STEP4_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
           make -j$(nproc) || make -j1 V=s
-          build_verify "STEP5"
-        shell: bash
+          build_verify "STEP5" "5" "完整固件"
 
-      - name: 5.3 打包最终固件
-        if: env.STEP5_SUCCESS == 'true'
+      # 统一打包
+      - name: 打包固件
+        if: env.LAST_SUCCESS_STEP_NUM > 0
         run: |
           source /tmp/openwrt_funcs.sh
-          package_upload "STEP5" "full" "05-完整固件"
-        shell: bash
+          if [ "$BUILD_STOPPED" = "false" ] && [ "$LAST_SUCCESS_STEP_NUM" = "5" ]; then
+            package_firmware "5" "full" "完整固件"
+          else
+            case $LAST_SUCCESS_STEP_NUM in
+              1) package_firmware "1" "base" "基础固件" ;;
+              2) package_firmware "2" "common" "常用组件固件" ;;
+              3) package_firmware "3" "docker" "Dockerman固件" ;;
+              4) package_firmware "4" "nikki" "Nikki固件" ;;
+            esac
+          fi
 
-      - name: 5.4 上传最终固件
-        if: env.STEP5_SUCCESS == 'true'
+      # 统一上传
+      - name: 上传固件
+        if: env.FINAL_PACKAGE_PATH != ''
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME }}
-          path: ${{ env.STEP5_PACKAGE }}
+          name: ${{ env.FINAL_UPLOAD_NAME }}
+          path: ${{ env.FINAL_PACKAGE_PATH }}
+          retention-days: 7
 
-      # -------------------------- 错误排查 --------------------------
-      - name: 输出编译日志
+      # 错误排查
+      - name: 输出错误日志
         if: failure()
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          cat build.log | grep -E "conflict|error|version|golang" || echo "无关键错误日志"
-          find $OPENWRT_PATH -name "*squashfs-combined-efi*" -type f
-          find $OPENWRT_PATH -name "config.buildinfo" -type f
-        shell: bash
+          cat build.log | grep -E "error|conflict|fatal|version mismatch" || echo "无关键错误"
+          find $OPENWRT_PATH/bin/targets/x86/64 -name "*combined-efi*" -type f || echo "无固件文件"
