@@ -105,10 +105,36 @@ jobs:
             mkdir -p /tmp/openwrt_latest
             rm -rf /tmp/openwrt_latest/*
             
-            # 复制核心文件：EFI固件 + files.json + config.buildinfo
-            cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_latest/
-            cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_latest/
-            cp $OPENWRT_PATH/bin/targets/x86/64/config.buildinfo /tmp/openwrt_latest/
+            # 复制核心文件：只复制存在的文件，避免报错
+            echo "===== Start copying firmware files ====="
+            # 复制EFI固件（核心文件，必须存在）
+            if ls $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz 1> /dev/null 2>&1; then
+              cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_latest/
+              echo "✓ Copied EFI firmware image"
+            else
+              echo "✗ EFI firmware image not found!"
+              return 1
+            fi
+            
+            # 复制config.buildinfo（存在则复制）
+            if [ -f "$OPENWRT_PATH/bin/targets/x86/64/config.buildinfo" ]; then
+              cp $OPENWRT_PATH/bin/targets/x86/64/config.buildinfo /tmp/openwrt_latest/
+              echo "✓ Copied config.buildinfo"
+            else
+              echo "⚠ config.buildinfo not found, skip copying"
+            fi
+            
+            # 复制files.json（存在则复制，不存在则跳过）
+            if [ -f "$OPENWRT_PATH/bin/targets/x86/64/files.json" ]; then
+              cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_latest/
+              echo "✓ Copied files.json"
+            else
+              echo "⚠ files.json not found, skip copying"
+            fi
+            
+            # 列出复制的文件，方便调试
+            echo "===== Files to package ====="
+            ls -lh /tmp/openwrt_latest/
             
             # 打包（保留完整目录结构）
             tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_latest .
