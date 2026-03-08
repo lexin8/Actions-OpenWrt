@@ -11,6 +11,7 @@ env:
   REPO_URL: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: fanchmwrt-24.10.4
   CONFIG_FILE: .config
+  CONFIG_FILE2: .fanchmwrt
   TZ: Asia/Shanghai
 
 jobs:
@@ -83,10 +84,12 @@ jobs:
         sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
         sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
     
-
-        
-        # 运行配置
-        make defconfig
+    - name: 配置_脚本
+      run: |
+          rm -rf openwrt/.config
+          [ -e files ] && mv files openwrt/files
+          [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
+          make defconfig
         
     - name: 下载软件包
       run: |
