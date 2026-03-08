@@ -1,6 +1,6 @@
 # 工作流：fanchmwrt X86-64分步编译（dockerman+Passwall+homeproxy，无冲突）
 # 适配：Golang 1.26、Passwall+homeproxy、dockerman增强版
-name: fanchmwrt
+name: fanchmwrt X86-64 分步编译测试（完整版）
 
 on:
   workflow_dispatch:
@@ -12,9 +12,8 @@ on:
         type: boolean
 
 env:
-  # 主源码配置
+  # 主源码配置（移除分支指定，拉取默认分支）
   REPO_URL: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH: main
   TZ: Asia/Shanghai
   # 第三方仓库（版本匹配）
   PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
@@ -51,12 +50,15 @@ jobs:
           sudo mkswap /swapfile && sudo swapon /swapfile
         shell: bash
 
-      - name: 0.2 克隆源码+初始化Feeds
+      - name: 0.2 克隆源码（默认分支）+初始化Feeds
         run: |
-          git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
+          # 直接克隆默认分支，无需指定分支参数
+          echo "开始克隆fanchmwrt默认分支..."
+          git clone --depth=1 $REPO_URL openwrt
           cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           ./scripts/feeds update -a
         shell: bash
+        continue-on-error: false
 
       - name: 0.3 清理冲突组件
         run: |
