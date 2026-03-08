@@ -93,16 +93,18 @@ jobs:
             fi
           }
 
-          # 函数3：打包并准备上传（仅ASCII命名）
+          # 函数3：打包并准备上传（仅ASCII命名，环境变量字母开头）
           package_and_upload() {
-            local STEP=$1
+            local STEP_NUM=$1
             local TYPE=$2
             local DESC=$3
+            # 步骤标识（字母开头，如STEP1）
+            local STEP="STEP${STEP_NUM}"
             # 获取北京时间（仅数字和符号，无中文）
             TIME=$(date +"%y%m%d_%H%M")
             # 压缩包名称：仅ASCII字符（避免URI解析错误）
             PACKAGE_NAME="${TIME}_openwrt_${TYPE}.tar.gz"
-            UPLOAD_DISPLAY_NAME="${TIME}_0${STEP}-${DESC}"
+            UPLOAD_DISPLAY_NAME="${TIME}_0${STEP_NUM}-${DESC}"
             
             # 创建临时目录打包
             mkdir -p /tmp/openwrt_files
@@ -110,7 +112,7 @@ jobs:
             cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_files/
             tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_files .
             
-            # 保存上传参数
+            # 保存上传参数（环境变量字母开头，合法命名）
             echo "${STEP}_PACKAGE_PATH=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
             echo "${STEP}_UPLOAD_NAME=$UPLOAD_DISPLAY_NAME" >> $GITHUB_ENV
             echo "===== Packaged as: $PACKAGE_NAME ====="
@@ -189,8 +191,8 @@ jobs:
         if: env.STEP1_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.1_UPLOAD_NAME }}
-          path: ${{ env.1_PACKAGE_PATH }}
+          name: ${{ env.STEP1_UPLOAD_NAME }}
+          path: ${{ env.STEP1_PACKAGE_PATH }}
 
       # -------------------------- Step 2: Docker firmware --------------------------
       - name: Step2 - Configure Docker firmware
@@ -229,8 +231,8 @@ jobs:
         if: env.STEP2_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.2_UPLOAD_NAME }}
-          path: ${{ env.2_PACKAGE_PATH }}
+          name: ${{ env.STEP2_UPLOAD_NAME }}
+          path: ${{ env.STEP2_PACKAGE_PATH }}
 
       # -------------------------- Step 3: Nikki firmware --------------------------
       - name: Step3 - Configure Nikki firmware
@@ -273,8 +275,8 @@ jobs:
         if: env.STEP3_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.3_UPLOAD_NAME }}
-          path: ${{ env.3_PACKAGE_PATH }}
+          name: ${{ env.STEP3_UPLOAD_NAME }}
+          path: ${{ env.STEP3_PACKAGE_PATH }}
 
       # -------------------------- Step 4: Passwall firmware --------------------------
       - name: Step4 - Configure Passwall firmware
@@ -339,8 +341,8 @@ jobs:
         if: env.STEP4_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.4_UPLOAD_NAME }}
-          path: ${{ env.4_PACKAGE_PATH }}
+          name: ${{ env.STEP4_UPLOAD_NAME }}
+          path: ${{ env.STEP4_PACKAGE_PATH }}
 
       # -------------------------- Error debug --------------------------
       - name: Output build log
