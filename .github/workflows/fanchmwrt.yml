@@ -1,392 +1,361 @@
-name: fanchmwrt-build
+name: fanchmwrt
 
 on:
+  repository_dispatch:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH调试（true/false）'
-        required: true
+        description: 'SSH connection to Actions (true/false)'
+        required: false
         default: 'false'
-        type: boolean
+      target_device:
+        description: 'Target device (leave empty for default)'
+        required: false
+        default: ''
 
 env:
-  # 基础配置
   REPO_URL: https://github.com/fanchmwrt/fanchmwrt
   TZ: Asia/Shanghai
-  DEVICE_NAME: x86_64_Generic
-  FILE_DATE: ${{ github.run_id }}
-  # 第三方源
-  PASSWALL_MAIN: https://github.com/Openwrt-Passwall/openwrt-passwall
-  PASSWALL_PKG: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
-  HOMEPROXY: https://github.com/immortalwrt/homeproxy
-  DOCKERMAN: https://github.com/kenzok8/openwrt-packages
-  GOLANG_REPO: https://github.com/kenzok8/golang
-  GOLANG_BRANCH: 1.26
-  NIKKI_FEED: https://github.com/nikkinikki-org/OpenWrt-nikki
-  # 步骤开关
-  STEP1: true
-  STEP2: true
-  STEP3: true
-  STEP4: true
-  STEP5: true
-  # 通用编译配置
-  COMMON_CFG: |
-    CONFIG_TARGET_x86=y
-    CONFIG_TARGET_x86_64=y
-    CONFIG_TARGET_x86_64_Generic=y
-    CONFIG_TARGET_KERNEL_PARTSIZE=60
-    CONFIG_TARGET_ROOTFS_TARGZ=y
-    CONFIG_TARGET_EFI_IMAGES=y
-    CONFIG_PACKAGE_luci=y
-    CONFIG_PACKAGE_luci-base=y
-    CONFIG_PACKAGE_luci-mod-admin-full=y
-    CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-    CONFIG_PACKAGE_luci-theme-argon=y
-    CONFIG_PACKAGE_luci-theme-argon-config=y
-    CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
-    CONFIG_PACKAGE_wget=y
-    CONFIG_PACKAGE_curl=y
-    CONFIG_PACKAGE_openssh-sftp-server=y
-    CONFIG_GOLANG_VERSION_1_26=y
-    CONFIG_GOLANG_BASE_VERSION="1.26"
-    # 关闭无用插件
-    # CONFIG_DEFAULT_luci-app-arpbind is not set
-    # CONFIG_PACKAGE_luci-app-autoreboot is not set
-    # CONFIG_PACKAGE_luci-app-nlbwmon is not set
-    # CONFIG_PACKAGE_luci-app-samba4 is not set
-    # CONFIG_PACKAGE_luci-app-samba is not set
-    # CONFIG_PACKAGE_luci-app-vlmcsd is not set
-    # CONFIG_PACKAGE_luci-app-wol is not set
-    # CONFIG_PACKAGE_luci-app-zerotier is not set
-    # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
+  COMPILE_THREADS: $(nproc)  # 自动检测CPU线程数
 
 jobs:
-  Build:
+  build_openwrt:
     runs-on: ubuntu-22.04
-    steps:
-      # 1. 极致清理磁盘空间（首要步骤）
-      - name: Clean Disk Space
-        run: |
-          echo "===== 初始磁盘使用情况 ====="
-          df -h
-          
-          # 清理GitHub Actions默认大文件
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /var/lib/docker
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo rm -rf /opt/hostedtoolcache/Python
-          sudo rm -rf /opt/hostedtoolcache/Node.js
-          
-          # 清理系统日志和缓存
-          sudo apt-get clean
-          sudo apt-get autoremove -y --purge
-          sudo rm -rf /var/cache/apt/*
-          sudo rm -rf /var/log/*
-          sudo rm -rf /tmp/*
-          sudo truncate -s 0 /var/log/syslog
-          
-          # 清理swap并重建小容量swap
-          sudo swapoff /swapfile
-          sudo rm -f /swapfile
-          sudo fallocate -l 2G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          
-          echo "===== 清理后磁盘使用情况 ====="
-          df -h
+    if: github.event.repository.owner.id == github.event.sender.id
 
-      # 2. 磁盘扩容（官方Action）
+    steps:
+      # 1. 服务器性能检查
+      - name: Check Server Performance
+        run: |
+          echo "=================================================="
+          echo "             服务器性能检查报告"
+          echo "=================================================="
+          echo "警告⚠"
+          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+          
+          echo "--------------------------CPU信息--------------------------"
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+          
+          echo "--------------------------内存信息--------------------------"
+          if command -v lshw &> /dev/null; then
+            echo "已安装内存详细信息:"
+            sudo lshw -short -C memory | grep GiB || echo "无法获取内存详细信息"
+          else
+            echo "内存总量: $(free -h | grep Mem | awk '{print $2}')"
+            echo "可用内存: $(free -h | grep Mem | awk '{print $7}')"
+          fi
+          echo ""
+          
+          echo "--------------------------硬盘信息--------------------------"
+          echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)"
+          df -hT
+          echo "=================================================="
+
+      # 2. 最大化编译空间
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
           swap-size-mb: 1024
           temp-reserve-mb: 100
-          root-reserve-mb: 512
+          root-reserve-mb: 1024
           remove-dotnet: true
           remove-android: true
           remove-haskell: true
           remove-codeql: true
-          remove-docker-images: true
 
-      # 3. 服务器性能检查
-      - name: Check Server Performance
-        run: |
-          echo "警告⚠ 服务器性能有限，插件过多需注意CPU负载！"
-          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort -u | wc -l)"
-          echo "CPU核心数量: $(nproc)"
-          echo -e "CPU型号: $(cat /proc/cpuinfo | grep -m1 'model name' | awk -F: '{print $2}')\n"
-          echo "内存信息: $(sudo lshw -short -C memory | grep GiB)"
-          echo "硬盘信息: $(ls /dev/sd* | grep -v [1-9] | wc -l) 块" && df -hT
-
-      # 4. 环境初始化（合并函数定义+系统配置）
-      - name: Init Env
+      # 3. 初始化编译环境
+      - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 核心函数封装
-          cat > /tmp/build.sh << 'EOF'
-          # 编译验证
-          build_verify() {
-            [ -f "$OPENWRT_PATH/bin/targets/x86/64/*combined-efi*" ] && {
-              echo "STEP${1}_SUCCESS=true" >> $GITHUB_ENV
-              echo "LAST_STEP=${1}" >> $GITHUB_ENV
-            } || echo "STEP${1}_SUCCESS=false" >> $GITHUB_ENV
-          }
-          # 生成配置
-          gen_config() {
-            cd $OPENWRT_PATH
-            echo "$COMMON_CFG" > .config
-            echo "CONFIG_TARGET_ROOTFS_PARTSIZE=${1}" >> .config
-            [ -n "$2" ] && echo "$2" >> .config
-            make defconfig && make download -j$(nproc)
-            find dl -size -1024c -exec rm -f {} \;
-          }
-          # 添加feeds源
-          add_feed() {
-            grep -q "^src-git $1 " feeds.conf.default || echo "src-git $1 $2;main" >> feeds.conf.default
-          }
-          # 编译执行（优化：单线程编译减少临时文件，编译后清理）
-          run_build() {
-            cd $OPENWRT_PATH
-            # 编译前再次清理临时文件
-            rm -rf tmp/ build_dir/ staging_dir/ logs/ 2>/dev/null
-            # 单线程编译（减少内存/磁盘占用）
-            make -j1 V=s
-            # 编译后清理临时文件
-            rm -rf tmp/ build_dir/tmp/ staging_dir/tmp/ 2>/dev/null
-            build_verify $1
-            echo "status=success" >> $GITHUB_OUTPUT
-          }
-          # 清理编译临时文件
-          clean_build_cache() {
-            cd $OPENWRT_PATH
-            rm -rf tmp/ build_dir/host/ staging_dir/host/ dl/*.tmp 2>/dev/null
-            echo "Cleaned build cache files"
-          }
-          EOF
-          # 加载函数
-          source /tmp/build.sh
-          # 系统配置（最小化安装）
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
-            build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
-            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
-            file wget curl openssh-client
-          sudo apt-get autoremove -y && sudo apt-get clean -y
+          echo "开始清理无用软件包..."
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          
+          echo "更新软件源..."
+          sudo -E apt-get -y update
+          
+          echo "安装编译依赖..."
+          # 使用curl获取依赖列表，如果失败则使用本地列表
+          curl -fsSL is.gd/depends_ubuntu_2204 -o /tmp/depends.txt || true
+          if [ -s /tmp/depends.txt ]; then
+            sudo -E apt-get -y install $(cat /tmp/depends.txt)
+          else
+            # 本地依赖列表（备用）
+            sudo -E apt-get -y install ack antlr3 asciidoc autoconf automake autopoint binutils bison \
+              build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk \
+              gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 \
+              libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
+              libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build \
+              p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons \
+              squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          fi
+          
+          echo "系统优化..."
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          # 初始化变量
-          echo "LAST_STEP=0" >> $GITHUB_ENV
+          
+          echo "创建工作目录..."
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          
+          echo "环境初始化完成！"
 
-      # 5. 代码检出+依赖处理
-      - name: Code Checkout & Env Prepare
+      # 4. 检出代码
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 5. 克隆主源码（默认分支）
+      - name: Clone Source Code
         run: |
-          # 克隆源码（浅克隆减少空间）
-          git clone --depth=1 --single-branch $REPO_URL openwrt
-          cd openwrt && echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          ./scripts/feeds update -a
-          # 清理冲突包
-          rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
-          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns} 2>/dev/null
-          rm -rf feeds/packages/utils/v2dat feeds/packages/lang/golang 2>/dev/null
-          # 安装依赖（浅克隆）
-          git clone --depth=1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
-          ./scripts/feeds install -a
-          # 初始清理
-          clean_build_cache
+          echo "当前磁盘使用情况:"
+          df -hT $GITHUB_WORKSPACE
+          
+          echo "克隆源码中: $REPO_URL (默认分支)"
+          git clone --depth 1 $REPO_URL openwrt
+          
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          
+          # 获取当前分支信息
+          CURRENT_BRANCH=$(git branch --show-current)
+          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
+          
+          # 获取提交信息
+          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
+          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+          
+          echo "源码信息:"
+          echo "分支: $CURRENT_BRANCH"
+          echo "$COMMIT_AUTHOR"
+          echo "$COMMIT_DATE"
+          echo "$COMMIT_MESSAGE"
+          echo "$COMMIT_HASH"
+          
+          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-      # 6. SSH调试
-      - name: SSH Debug
+      # 6. 添加第三方插件源
+      - name: Add Custom Feeds
+        run: |
+          cd $OPENWRT_PATH
+          echo "添加第三方插件源..."
+          
+          # Passwall
+          git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall package/openwrt-passwall
+          git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
+          
+          # Homeproxy
+          git clone --depth 1 https://github.com/immortalwrt/homeproxy package/homeproxy
+          
+          # Nikki
+          git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki package/OpenWrt-nikki
+          
+          # Dockerman - Docker管理界面
+          git clone --depth 1 https://github.com/lisaac/luci-app-dockerman package/luci-app-dockerman
+          
+          # Docker需要dockerd支持，添加docker-ce包
+          git clone --depth 1 https://github.com/lisaac/openwrt-docker package/openwrt-docker
+          
+          # 移除冲突插件
+          rm -rf package/lean/luci-app-passwall package/lean/luci-app-homeproxy 2>/dev/null || true
+          
+          echo "插件源添加完成！"
+
+      # 7. 更新并安装feeds
+      - name: Update and Install Feeds
+        run: |
+          cd $OPENWRT_PATH
+          echo "更新feeds..."
+          ./scripts/feeds update -a
+          echo "安装feeds..."
+          ./scripts/feeds install -a
+
+      # 8. 配置编译项
+      - name: Configure Compilation Options
+        run: |
+          cd $OPENWRT_PATH
+          
+          # 如果指定了设备，尝试应用设备配置
+          if [ -n "${{ github.event.inputs.target_device }}" ]; then
+            echo "CONFIG_TARGET_${{ github.event.inputs.target_device }}=y" >> .config
+          fi
+          
+          # 生成默认配置
+          make defconfig
+          
+          # 禁用不需要的插件
+          echo "配置禁用插件..."
+          for pkg in arpbind autoreboot nlbwmon samba4 samba vlmcsd wol zerotier strongswan-swanctl; do
+            sed -i "/CONFIG_PACKAGE_luci-app-${pkg}/d" .config
+            echo "# CONFIG_PACKAGE_luci-app-${pkg} is not set" >> .config
+          done
+          
+          # 启用所需插件
+          echo "配置启用插件..."
+          for pkg in luci-app-nikki luci-app-passwall luci-i18n-passwall-zh-cn luci-app-homeproxy \
+                     ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns \
+                     luci-i18n-ddns-zh-cn luci-app-omcproxy luci-app-udpxy udpxy \
+                     luci-app-dockerman luci-i18n-dockerman-zh-cn docker-ce docker-compose; do
+            sed -i "/CONFIG_PACKAGE_${pkg}/d" .config
+            echo "CONFIG_PACKAGE_${pkg}=y" >> .config
+          done
+          
+          # 配置Docker相关选项
+          echo "配置Docker存储驱动..."
+          echo "CONFIG_DOCKER_OPTIONAL_FEATURES=y" >> .config
+          echo "CONFIG_DOCKER_NETWORK_BRIDGE=y" >> .config
+          echo "CONFIG_DOCKER_NETWORK_IPVLAN=y" >> .config
+          echo "CONFIG_DOCKER_NETWORK_MACVLAN=y" >> .config
+          
+          # 最终配置确认
+          make defconfig
+          
+          # 保存配置差异供查看
+          ./scripts/diffconfig.sh > seed.config
+          
+          echo "配置完成！配置已保存为 seed.config"
+          echo "当前分支: ${{ env.CURRENT_BRANCH }}"
+
+      # 9. 上传配置文件
+      - name: Upload Config File
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt_Config_${{ env.CURRENT_BRANCH }}
+          path: ${{ env.OPENWRT_PATH }}/seed.config
+          retention-days: 7
+
+      # 10. SSH调试连接
+      - name: SSH to Actions (Debug)
         uses: P3TERX/ssh2actions@v1.0.0
-        if: github.event.inputs.ssh == 'true'
+        if: ${{ github.event.inputs.ssh == 'true' }}
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # -------------------------- 分步编译（每步后清理缓存） --------------------------
-      # 步骤1：基础固件
-      - name: Step1 - Base Firmware
-        id: step1
-        if: env.STEP1 == 'true'
+      # 11. 下载依赖包
+      - name: Download Dependencies
         run: |
-          source /tmp/build.sh
-          gen_config 512
-          run_build 1
-          clean_build_cache
-
-      # 步骤2：常用组件
-      - name: Step2 - Common Plugins
-        id: step2
-        if: env.STEP2 == 'true' && env.STEP1_SUCCESS == 'true'
-        run: |
-          source /tmp/build.sh
-          CFG=$(cat <<'EOF'
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_udpxy=y
-          CONFIG_PACKAGE_parted=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_mkfs.ext4=y
-          CONFIG_PACKAGE_mkfs.vfat=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          EOF
-          )
-          gen_config 640 "$CFG"
-          run_build 2
-          clean_build_cache
-
-      # 步骤3：Dockerman
-      - name: Step3 - Dockerman
-        id: step3
-        if: env.STEP3 == 'true' && env.STEP2_SUCCESS == 'true'
-        run: |
-          source /tmp/build.sh
           cd $OPENWRT_PATH
-          add_feed kenzok8 $DOCKERMAN
-          ./scripts/feeds update -a && rm -rf feeds/luci/applications/luci-app-docker 2>/dev/null
-          ./scripts/feeds install -a
-          CFG=$(cat <<'EOF'
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_udpxy=y
-          CONFIG_PACKAGE_parted=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_mkfs.ext4=y
-          CONFIG_PACKAGE_mkfs.vfat=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          EOF
-          )
-          gen_config 800 "$CFG"
-          run_build 3
-          clean_build_cache
+          echo "下载编译依赖..."
+          make download -j$(nproc)
+          find dl -size -1024c -exec rm -f {} \;
+          echo "依赖下载完成！"
 
-      # 步骤4：Nikki
-      - name: Step4 - Nikki
-        id: step4
-        if: env.STEP4 == 'true' && env.STEP3_SUCCESS == 'true'
+      # 12. 编译固件
+      - name: Compile Firmware
+        id: compile
         run: |
-          source /tmp/build.sh
           cd $OPENWRT_PATH
-          add_feed nikki $NIKKI_FEED
-          ./scripts/feeds update -a && ./scripts/feeds install -a
-          CFG=$(cat <<'EOF'
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_udpxy=y
-          CONFIG_PACKAGE_parted=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_mkfs.ext4=y
-          CONFIG_PACKAGE_mkfs.vfat=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          EOF
-          )
-          gen_config 960 "$CFG"
-          run_build 4
-          clean_build_cache
+          echo "=================================================="
+          echo "开始编译 OpenWrt 固件"
+          echo "源码分支: ${{ env.CURRENT_BRANCH }}"
+          echo "CPU核心数: $(nproc)"
+          echo "使用线程数: ${{ env.COMPILE_THREADS }}"
+          echo "已启用插件: Docker + luci-app-dockerman"
+          echo "=================================================="
+          
+          # 记录开始时间
+          START_TIME=$(date +%s)
+          
+          # 首次编译尝试
+          make -j${{ env.COMPILE_THREADS }} || {
+            EXIT_CODE=$?
+            echo "⚠ 首次编译失败，退出代码: $EXIT_CODE"
+            echo "尝试单线程编译以查看详细错误..."
+            make -j1 V=s
+            exit $EXIT_CODE
+          }
+          
+          # 计算编译时间
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          HOURS=$((DURATION / 3600))
+          MINUTES=$(( (DURATION % 3600) / 60 ))
+          SECONDS=$((DURATION % 60))
+          
+          echo "=================================================="
+          echo "编译完成！"
+          echo "编译耗时: ${HOURS}h ${MINUTES}m ${SECONDS}s"
+          echo "=================================================="
+          
+          # 提取设备名称和编译时间
+          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | head -1)
+          echo "DEVICE_NAME=${DEVICE_NAME:-unknown}" >> $GITHUB_ENV
+          echo "FILE_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "status=success" >> $GITHUB_OUTPUT
 
-      # 步骤5：代理组件
-      - name: Step5 - Proxy Plugins
-        id: step5
-        if: env.STEP5 == 'true' && env.STEP4_SUCCESS == 'true'
+      # 13. 检查磁盘使用情况
+      - name: Check Disk Usage
+        if: ${{ !cancelled() }}
         run: |
-          source /tmp/build.sh
-          cd $OPENWRT_PATH
-          add_feed passwall_pkg $PASSWALL_PKG
-          add_feed passwall_main $PASSWALL_MAIN
-          add_feed homeproxy $HOMEPROXY
-          ./scripts/feeds update -a
-          rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,hysteria,tuic-client} 2>/dev/null
-          ./scripts/feeds install -a
-          CFG=$(cat <<'EOF'
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_udpxy=y
-          CONFIG_PACKAGE_parted=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_mkfs.ext4=y
-          CONFIG_PACKAGE_mkfs.vfat=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-app-passwall=y
-          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
-          CONFIG_PACKAGE_geoview=y
-          CONFIG_PACKAGE_luci-i18n-geoview-zh-cn=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_luci-i18n-homeproxy-zh-cn=y
-          CONFIG_PACKAGE_xray-core=y
-          CONFIG_PACKAGE_v2ray-core=y
-          CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_hysteria=y
-          CONFIG_PACKAGE_tuic-client=y
-          CONFIG_PACKAGE_smartdns=y
-          CONFIG_PACKAGE_luci-app-smartdns=y
-          CONFIG_PACKAGE_luci-i18n-smartdns-zh-cn=y
-          CONFIG_PACKAGE_chinadns-ng=y
-          CONFIG_PACKAGE_ucode-mod-digest=y
-          CONFIG_PACKAGE_rust-bindgen-host=y
-          EOF
-          )
-          gen_config 1600 "$CFG"
-          run_build 5
-          clean_build_cache
+          echo "=================================================="
+          echo "编译后磁盘使用情况"
+          echo "=================================================="
+          echo "=== 整体磁盘使用情况 ==="
+          df -h
+          echo "=== 编译目录大小 ==="
+          du -sh $OPENWRT_PATH
+          echo "=== Bin目录详情 ==="
+          ls -la $OPENWRT_PATH/bin/targets/ 2>/dev/null || echo "Bin目录不存在"
+          echo "=== 固件文件列表 ==="
+          find $OPENWRT_PATH/bin/targets -type f -name "*.bin" -o -name "*.img" -o -name "*.gz" 2>/dev/null | head -20
 
-      # -------------------------- 结果处理 --------------------------
-      # 上传固件（仅保留核心固件文件）
+      # 14. 上传固件产物
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
-        if: ${{ (steps.step1.outputs.status == 'success' || steps.step2.outputs.status == 'success' || steps.step3.outputs.status == 'success' || steps.step4.outputs.status == 'success' || steps.step5.outputs.status == 'success') && !cancelled() }}
+        if: ${{ steps.compile.outputs.status == 'success' && !cancelled() }}
         with:
-          name: OpenWrt_Firmware_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
+          name: OpenWrt_Firmware_${{ env.CURRENT_BRANCH }}_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
           path: |
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.img.gz
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.config
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*/*.json
+            ${{ env.OPENWRT_PATH }}/bin/targets/*/*
+            !${{ env.OPENWRT_PATH }}/bin/targets/*/packages
           retention-days: 7
 
-      # 错误调试
-      - name: Error Debug
-        if: failure()
+      # 15. 上传日志（编译失败时）
+      - name: Upload Logs on Failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt_Compile_Logs_${{ env.CURRENT_BRANCH }}_${{ env.FILE_DATE }}
+          path: |
+            ${{ env.OPENWRT_PATH }}/logs/
+            ${{ env.OPENWRT_PATH }}/.config
+            ${{ env.OPENWRT_PATH }}/feeds.conf
+            ${{ env.OPENWRT_PATH }}/seed.config
+          retention-days: 7
+
+      # 16. 编译完成通知
+      - name: Compilation Complete Notification
+        if: ${{ always() }}
         run: |
-          source /tmp/build.sh
-          cd $OPENWRT_PATH
-          echo "===== 磁盘使用情况 ====="
-          df -h
-          echo "===== 编译错误 ====="
-          cat build.log | grep -E "error|conflict|fatal|version mismatch|no such file" || echo "无关键错误"
-          echo "===== Feeds配置 ====="
-          cat feeds.conf.default
-          echo "===== 固件检查 ====="
-          find bin/targets/x86/64 -name "*combined-efi*" || echo "未生成固件"
-          echo "最后成功步骤: $LAST_STEP"
+          echo "=================================================="
+          echo "               编译工作流完成"
+          echo "=================================================="
+          echo "源码分支: ${{ env.CURRENT_BRANCH }}"
+          echo "提交信息: ${{ env.COMMIT_MESSAGE }}"
+          echo "提交作者: ${{ env.COMMIT_AUTHOR }}"
+          echo "提交时间: ${{ env.COMMIT_DATE }}"
+          echo "提交HASH: ${{ env.COMMIT_HASH }}"
+          echo "------------------------------------------"
+          echo "状态: ${{ steps.compile.outputs.status }}"
+          if [ "${{ steps.compile.outputs.status }}" == "success" ]; then
+            echo "✅ 固件编译成功！"
+            echo "固件名称: OpenWrt_Firmware_${{ env.CURRENT_BRANCH }}_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}"
+            echo "已集成 Docker + luci-app-dockerman"
+            echo "可在 Actions 页面下载固件"
+          else
+            echo "❌ 固件编译失败"
+            echo "请检查上传的日志文件"
+          fi
+          echo "=================================================="
