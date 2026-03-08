@@ -1,0 +1,306 @@
+name: OpenWrt X86-64 分步编译测试
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH连接调试（true/false）'
+        required: true
+        default: 'false'
+
+env:
+  # 基础配置
+  REPO_URL: https://github.com/openwrt/openwrt
+  REPO_BRANCH: v23.05.3
+  TZ: Asia/Shanghai
+  # 分步编译标记
+  STEP1_BASE: true          # 步骤1：基础固件
+  STEP2_DOCKER: true        # 步骤2：添加Docker
+  STEP3_NIKKI: true         # 步骤3：添加Nikki
+  STEP4_PROXY: true         # 步骤4：添加Passwall/Homeproxy
+
+jobs:
+  build-openwrt:
+    runs-on: ubuntu-22.04
+    steps:
+      # 步骤0：环境初始化（通用）
+      - name: 初始化系统环境
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+          # 扩容磁盘
+          sudo swapoff /swapfile
+          sudo rm -f /swapfile
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+      - name: 克隆OpenWrt官方源码
+        run: |
+          git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          # 初始化feeds
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: SSH调试（可选）
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: github.event.inputs.ssh == 'true'
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      # 步骤1：编译基础X86-64固件（仅官方核心组件）
+      - name: 步骤1 - 配置基础固件
+        if: env.STEP1_BASE == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          # 基础X86-64配置
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=60
+          CONFIG_TARGET_ROOTFS_PARTSIZE=800
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          # 基础LuCI界面
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          # 基础网络工具
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+          EOF
+          # 生成配置
+          make defconfig
+          # 下载依赖
+          make download -j$(nproc)
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 步骤1 - 编译基础固件
+        if: env.STEP1_BASE == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          echo "开始编译基础固件..."
+          make -j$(nproc) || make -j1 V=s
+          # 验证编译结果
+          if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
+            echo "STEP1_SUCCESS=true" >> $GITHUB_ENV
+            echo "基础固件编译成功！"
+          else
+            echo "STEP1_SUCCESS=false" >> $GITHUB_ENV
+            echo "基础固件编译失败！"
+            exit 1
+          fi
+
+      - name: 步骤1 - 上传基础固件
+        if: env.STEP1_SUCCESS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 01-基础OpenWrt固件
+          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
+
+      # 步骤2：添加Docker组件编译
+      - name: 步骤2 - 配置Docker组件
+        if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          # 清空旧配置，保留基础配置并添加Docker
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=60
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1000
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          # 基础LuCI
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          # Docker组件
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          # Docker依赖内核模块
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-macvlan=y
+          CONFIG_PACKAGE_kmod-ipt-nat6=y
+          EOF
+          make defconfig
+          make download -j$(nproc)
+
+      - name: 步骤2 - 编译带Docker的固件
+        if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          echo "开始编译带Docker的固件..."
+          make -j$(nproc) || make -j1 V=s
+          if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
+            echo "STEP2_SUCCESS=true" >> $GITHUB_ENV
+            echo "Docker固件编译成功！"
+          else
+            echo "STEP2_SUCCESS=false" >> $GITHUB_ENV
+            echo "Docker固件编译失败！"
+            exit 1
+          fi
+
+      - name: 步骤2 - 上传Docker固件
+        if: env.STEP2_SUCCESS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 02-带Docker的OpenWrt固件
+          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
+
+      # 步骤3：添加Nikki组件编译
+      - name: 步骤3 - 配置Nikki组件
+        if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          # 添加Nikki源码源
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          # 配置文件添加Nikki
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=60
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1200
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          # 基础LuCI
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          # Docker组件
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-macvlan=y
+          # Nikki组件
+          CONFIG_PACKAGE_luci-app-nikki=y
+          EOF
+          make defconfig
+          make download -j$(nproc)
+
+      - name: 步骤3 - 编译带Nikki的固件
+        if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          echo "开始编译带Nikki的固件..."
+          make -j$(nproc) || make -j1 V=s
+          if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
+            echo "STEP3_SUCCESS=true" >> $GITHUB_ENV
+            echo "Nikki固件编译成功！"
+          else
+            echo "STEP3_SUCCESS=false" >> $GITHUB_ENV
+            echo "Nikki固件编译失败！"
+            exit 1
+          fi
+
+      - name: 步骤3 - 上传Nikki固件
+        if: env.STEP3_SUCCESS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 03-带Docker+Nikki的OpenWrt固件
+          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
+
+      # 步骤4：添加Passwall/Homeproxy组件编译
+      - name: 步骤4 - 配置Passwall/Homeproxy组件
+        if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          # 添加kenzo/small源（Passwall/Homeproxy依赖）
+          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+          # 更新feeds并清理冲突
+          ./scripts/feeds update -a
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
+          # 重新更新并安装组件
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          # 强制安装Passwall/Homeproxy
+          ./scripts/feeds install -p kenzo luci-app-passwall
+          ./scripts/feeds install -p small luci-app-homeproxy
+          # 修复依赖
+          ./scripts/feeds install ucode-mod-digest
+          sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
+          sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
+          # 最终配置文件
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=60
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1500
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          # 基础LuCI
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          # Docker组件
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-macvlan=y
+          # Nikki组件
+          CONFIG_PACKAGE_luci-app-nikki=y
+          # Passwall/Homeproxy
+          CONFIG_PACKAGE_luci-app-passwall=y
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          # 依赖组件
+          CONFIG_PACKAGE_ucode-mod-digest=y
+          CONFIG_PACKAGE_rust-bindgen-host=y
+          EOF
+          make defconfig
+          make download -j$(nproc)
+
+      - name: 步骤4 - 编译最终完整固件
+        if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
+        run: |
+          cd $OPENWRT_PATH
+          echo "开始编译最终完整固件（Docker+Nikki+Passwall+Homeproxy）..."
+          make -j$(nproc) || make -j1 V=s
+          if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
+            echo "STEP4_SUCCESS=true" >> $GITHUB_ENV
+            echo "最终固件编译成功！"
+          else
+            echo "STEP4_SUCCESS=false" >> $GITHUB_ENV
+            echo "最终固件编译失败！"
+            exit 1
+          fi
+
+      - name: 步骤4 - 上传最终完整固件
+        if: env.STEP4_SUCCESS == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 04-完整固件（Docker+Nikki+Passwall+Homeproxy）
+          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
+
+      # 兜底：输出编译日志（方便调试）
+      - name: 输出编译日志（失败时）
+        if: failure()
+        run: |
+          cd $OPENWRT_PATH
+          cat build.log || echo "无build.log文件"
+          ls -lh bin/targets/x86/64/ || echo "无编译产物"
