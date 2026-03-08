@@ -35,14 +35,9 @@ env:
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
-  REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH: openwrt-23.05
   REPO_BRANCH2: openwrt-24.10
-  CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
-  FIRMWARE_RELEASE: true
-  FIRMWARE_TAG: X86_64
   TZ: Asia/Shanghai
 
 jobs:
@@ -110,8 +105,6 @@ jobs:
           ccache: false
           mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
           prefix: ${{ env.OPENWRT_PATH }}
-
-
 
       - name: 运行一键部署脚本
         run: |
