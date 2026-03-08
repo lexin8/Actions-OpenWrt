@@ -68,21 +68,12 @@ jobs:
         rm -rf feeds/packages/lang/golang 2>/dev/null
         
         # 替换高版本 golang
+        rm -rf feeds/packages/lang/golang
         git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
         
         # 重新更新并安装 feeds
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        
-        # 强制安装核心组件
-        ./scripts/feeds install -p small luci-app-homeproxy
-        ./scripts/feeds install -p kenzo luci-app-passwall
-        ./scripts/feeds install -p nikki luci-app-nikki
-        ./scripts/feeds install ucode-mod-digest
-        
-        # 修复依赖版本
-        sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
-        sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
     
     - name: 配置_脚本
       run: |
