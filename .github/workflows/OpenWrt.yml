@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH连接调试（true/false）'
+        description: 'SSH connection debug (true/false)'
         required: true
         default: 'false'
 
@@ -18,7 +18,7 @@ env:
   STEP2_DOCKER: true
   STEP3_NIKKI: true
   STEP4_PROXY: true
-  # 1. 通用基础配置（含关闭无用插件）
+  # 通用基础配置（含关闭无用插件）
   BASE_CONFIG: |
     CONFIG_TARGET_x86=y
     CONFIG_TARGET_x86_64=y
@@ -44,86 +44,88 @@ env:
     # CONFIG_PACKAGE_luci-app-wol is not set
     # CONFIG_PACKAGE_luci-app-zerotier is not set
     # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
-  # 2. 需排除的无用/冲突组件（集中管理）
+  # 需排除的无用/冲突组件（集中管理）
   EXCLUDE_COMPONENTS: "xray-core v2ray-geodata sing-box chinadns-ng dns2socks hysteria ipt2socks microsocks naiveproxy shadowsocks-libev shadowsocks-rust shadowsocksr-libev simple-obfs tcping trojan-plus tuic-client v2ray-plugin xray-plugin geoview shadow-tls"
 
 jobs:
   build-openwrt:
     runs-on: ubuntu-22.04
     steps:
-      - name: 初始化系统环境
+      - name: Initialize system environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           # 封装所有通用函数
           cat > /tmp/openwrt_funcs.sh << 'EOF'
           # 函数1：生成.config文件
-          # 参数1=根分区大小  参数2=差异化配置  参数3=是否包含基础工具（wget/ssh等）
           generate_config() {
             local ROOT_SIZE=$1
             local CUSTOM_CFG=$2
             local WITH_BASE_TOOLS=$3
             cd $OPENWRT_PATH
-            # 拼接基础配置 + 根分区大小
             echo "$BASE_CONFIG" > .config
             echo "CONFIG_TARGET_ROOTFS_PARTSIZE=$ROOT_SIZE" >> .config
-            # 可选：添加基础工具（仅步骤1需要）
             if [ "$WITH_BASE_TOOLS" = "true" ]; then
               echo "CONFIG_PACKAGE_wget=y" >> .config
               echo "CONFIG_PACKAGE_curl=y" >> .config
               echo "CONFIG_PACKAGE_openssh-sftp-server=y" >> .config
             fi
-            # 添加差异化配置
             echo "$CUSTOM_CFG" >> .config
-            # 生成配置+下载依赖
             make defconfig
             make download -j$(nproc)
             find dl -size -1024c -exec rm -f {} \;
           }
 
           # 函数2：编译验证
-          # 参数1=步骤标识（如STEP1）  参数2=编译描述（如基础固件）
           build_firmware() {
             local STEP=$1
             local DESC=$2
             cd $OPENWRT_PATH
-            echo "===== 开始编译$DESC ====="
+            echo "===== Start building $DESC ====="
             make -j$(nproc) || make -j1 V=s
-            # 验证编译产物
             if ls $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz 1> /dev/null 2>&1; then
               echo "${STEP}_SUCCESS=true" >> $GITHUB_ENV
-              echo "$DESC编译成功！"
+              echo "$DESC build success!"
             else
               echo "${STEP}_SUCCESS=false" >> $GITHUB_ENV
-              echo "$DESC编译失败！"
+              echo "$DESC build failed!"
               exit 1
             fi
           }
 
-          # 函数3：上传固件
-          # 参数1=步骤标识  参数2=上传名称
-          upload_firmware() {
+          # 函数3：打包并准备上传（仅ASCII命名）
+          package_and_upload() {
             local STEP=$1
-            local UPLOAD_NAME=$2
-            echo "===== 开始上传$UPLOAD_NAME ====="
-            # 保存上传参数到环境变量
-            echo "UPLOAD_PATH_${STEP}=${OPENWRT_PATH}/bin/targets/x86/64/*combined-efi.img.gz" >> $GITHUB_ENV
-            echo "UPLOAD_FILES_${STEP}=${OPENWRT_PATH}/bin/targets/x86/64/files.json" >> $GITHUB_ENV
-            echo "UPLOAD_NAME_${STEP}=$UPLOAD_NAME" >> $GITHUB_ENV
+            local TYPE=$2
+            local DESC=$3
+            # 获取北京时间（仅数字和符号，无中文）
+            TIME=$(date +"%y%m%d_%H%M")
+            # 压缩包名称：仅ASCII字符（避免URI解析错误）
+            PACKAGE_NAME="${TIME}_openwrt_${TYPE}.tar.gz"
+            UPLOAD_DISPLAY_NAME="${TIME}_0${STEP}-${DESC}"
+            
+            # 创建临时目录打包
+            mkdir -p /tmp/openwrt_files
+            cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_files/
+            cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_files/
+            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_files .
+            
+            # 保存上传参数
+            echo "${STEP}_PACKAGE_PATH=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
+            echo "${STEP}_UPLOAD_NAME=$UPLOAD_DISPLAY_NAME" >> $GITHUB_ENV
+            echo "===== Packaged as: $PACKAGE_NAME ====="
           }
 
           # 函数4：清理冲突组件
           clean_conflict_components() {
             cd $OPENWRT_PATH
-            # 拼接要删除的组件路径
             local COMPONENT_PATH=""
             for comp in $EXCLUDE_COMPONENTS; do
               COMPONENT_PATH+="feeds/packages/net/$comp "
             done
-            # 删除冲突组件
             if [ -n "$COMPONENT_PATH" ]; then
               rm -rf $COMPONENT_PATH
-              echo "已清理冲突组件：$EXCLUDE_COMPONENTS"
+              echo "Cleaned conflict components: $EXCLUDE_COMPONENTS"
             fi
           }
           EOF
@@ -144,7 +146,7 @@ jobs:
           sudo swapon /swapfile
         shell: bash
 
-      - name: 克隆OpenWrt官方源码
+      - name: Clone OpenWrt source code
         run: |
           source /tmp/openwrt_funcs.sh
           git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
@@ -154,51 +156,47 @@ jobs:
           ./scripts/feeds install -a
         shell: bash
 
-      - name: SSH调试
+      - name: SSH debug
         uses: P3TERX/ssh2actions@v1.0.0
         if: github.event.inputs.ssh == 'true'
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # -------------------------- 步骤1：基础固件 --------------------------
-      - name: 步骤1 - 配置基础固件
+      # -------------------------- Step 1: Base firmware --------------------------
+      - name: Step1 - Configure base firmware
         if: env.STEP1_BASE == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          # 基础固件仅添加基础工具，无其他差异化配置
           generate_config "800" "" "true"
         shell: bash
 
-      - name: 步骤1 - 编译基础固件
+      - name: Step1 - Build base firmware
         if: env.STEP1_BASE == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          build_firmware "STEP1" "基础固件"
+          build_firmware "STEP1" "base firmware"
         shell: bash
 
-      - name: 步骤1 - 上传基础固件
+      - name: Step1 - Package base firmware
         if: env.STEP1_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          upload_firmware "STEP1" "01-基础OpenWrt固件（EFI）"
+          package_and_upload "1" "base" "base_firmware_efi"
         shell: bash
 
-      - name: 步骤1 - 执行上传
+      - name: Step1 - Upload base firmware
         if: env.STEP1_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME_STEP1 }}
-          path: |
-            ${{ env.UPLOAD_PATH_STEP1 }}
-            ${{ env.UPLOAD_FILES_STEP1 }}
+          name: ${{ env.1_UPLOAD_NAME }}
+          path: ${{ env.1_PACKAGE_PATH }}
 
-      # -------------------------- 步骤2：Docker组件 --------------------------
-      - name: 步骤2 - 配置Docker组件
+      # -------------------------- Step 2: Docker firmware --------------------------
+      - name: Step2 - Configure Docker firmware
         if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          # Docker差异化配置
           DOCKER_CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
@@ -213,40 +211,36 @@ jobs:
           generate_config "1000" "$DOCKER_CFG" "false"
         shell: bash
 
-      - name: 步骤2 - 编译带Docker的固件
+      - name: Step2 - Build Docker firmware
         if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          build_firmware "STEP2" "带Docker的固件"
+          build_firmware "STEP2" "docker firmware"
         shell: bash
 
-      - name: 步骤2 - 上传Docker固件
+      - name: Step2 - Package Docker firmware
         if: env.STEP2_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          upload_firmware "STEP2" "02-带Docker的OpenWrt固件（EFI）"
+          package_and_upload "2" "docker" "docker_firmware_efi"
         shell: bash
 
-      - name: 步骤2 - 执行上传
+      - name: Step2 - Upload Docker firmware
         if: env.STEP2_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME_STEP2 }}
-          path: |
-            ${{ env.UPLOAD_PATH_STEP2 }}
-            ${{ env.UPLOAD_FILES_STEP2 }}
+          name: ${{ env.2_UPLOAD_NAME }}
+          path: ${{ env.2_PACKAGE_PATH }}
 
-      # -------------------------- 步骤3：Nikki组件 --------------------------
-      - name: 步骤3 - 配置Nikki组件
+      # -------------------------- Step 3: Nikki firmware --------------------------
+      - name: Step3 - Configure Nikki firmware
         if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          # 添加Nikki源
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          # Nikki差异化配置
           NIKKI_CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
@@ -261,50 +255,43 @@ jobs:
           generate_config "1200" "$NIKKI_CFG" "false"
         shell: bash
 
-      - name: 步骤3 - 编译带Nikki的固件
+      - name: Step3 - Build Nikki firmware
         if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          build_firmware "STEP3" "带Docker+Nikki的固件"
+          build_firmware "STEP3" "nikki firmware"
         shell: bash
 
-      - name: 步骤3 - 上传Nikki固件
+      - name: Step3 - Package Nikki firmware
         if: env.STEP3_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          upload_firmware "STEP3" "03-带Docker+Nikki的OpenWrt固件（EFI）"
+          package_and_upload "3" "nikki" "docker_nikki_firmware_efi"
         shell: bash
 
-      - name: 步骤3 - 执行上传
+      - name: Step3 - Upload Nikki firmware
         if: env.STEP3_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME_STEP3 }}
-          path: |
-            ${{ env.UPLOAD_PATH_STEP3 }}
-            ${{ env.UPLOAD_FILES_STEP3 }}
+          name: ${{ env.3_UPLOAD_NAME }}
+          path: ${{ env.3_PACKAGE_PATH }}
 
-      # -------------------------- 步骤4：Passwall组件 --------------------------
-      - name: 步骤4 - 配置Passwall组件
+      # -------------------------- Step 4: Passwall firmware --------------------------
+      - name: Step4 - Configure Passwall firmware
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          # 清理旧源
           sed -i '/kenzo/d' feeds.conf.default
           sed -i '/small/d' feeds.conf.default
-          # 添加Passwall源
           sed -i "1i src-git passwall_packages $PASSWALL_PACKAGES_REPO;main" feeds.conf.default
           sed -i "2i src-git passwall_main $PASSWALL_MAIN_REPO;main" feeds.conf.default
           ./scripts/feeds update -a
-          # 清理冲突组件
           clean_conflict_components
-          # 更新Passwall feeds
           ./scripts/feeds update passwall_packages passwall_main
           ./scripts/feeds install -a -p passwall_packages
           ./scripts/feeds install -a -p passwall_main
           ./scripts/feeds install ucode-mod-digest
-          # Passwall差异化配置
           PROXY_CFG=$(cat <<'EOF'
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
@@ -334,35 +321,33 @@ jobs:
           generate_config "1500" "$PROXY_CFG" "false"
         shell: bash
 
-      - name: 步骤4 - 编译最终完整固件
+      - name: Step4 - Build final firmware
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          build_firmware "STEP4" "最终完整固件（Docker+Nikki+Passwall）"
+          build_firmware "STEP4" "final firmware (docker+nikki+passwall)"
         shell: bash
 
-      - name: 步骤4 - 上传最终完整固件
+      - name: Step4 - Package final firmware
         if: env.STEP4_SUCCESS == 'true'
         run: |
           source /tmp/openwrt_funcs.sh
-          upload_firmware "STEP4" "04-完整固件（Docker+Nikki+Passwall-EFI）"
+          package_and_upload "4" "full" "docker_nikki_passwall_firmware_efi"
         shell: bash
 
-      - name: 步骤4 - 执行上传
+      - name: Step4 - Upload final firmware
         if: env.STEP4_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.UPLOAD_NAME_STEP4 }}
-          path: |
-            ${{ env.UPLOAD_PATH_STEP4 }}
-            ${{ env.UPLOAD_FILES_STEP4 }}
+          name: ${{ env.4_UPLOAD_NAME }}
+          path: ${{ env.4_PACKAGE_PATH }}
 
-      # -------------------------- 错误排查 --------------------------
-      - name: 输出编译日志
+      # -------------------------- Error debug --------------------------
+      - name: Output build log
         if: failure()
         run: |
           source /tmp/openwrt_funcs.sh
           cd $OPENWRT_PATH
-          cat build.log || echo "无build.log文件"
-          ls -lh $OPENWRT_PATH/bin/targets/x86/64/ || echo "无编译产物"
+          cat build.log || echo "No build.log file"
+          ls -lh $OPENWRT_PATH/bin/targets/x86/64/ || echo "No build products"
         shell: bash
