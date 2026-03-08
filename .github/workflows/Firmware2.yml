@@ -38,7 +38,7 @@ jobs:
           sudo apt autoremove -y && sudo apt clean -y
           sudo timedatectl set-timezone Asia/Shanghai
 
-      - name: Clone OpenWrt source code and third-party packages
+      - name: Clone OpenWrt source and packages
         run: |
           git clone --depth 1 $REPO_URL openwrt
           cd openwrt
@@ -47,40 +47,40 @@ jobs:
           git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall package/openwrt-passwall
           git clone --depth 1 https://github.com/immortalwrt/homeproxy package/homeproxy
 
-      - name: Load custom configuration
+      - name: Generate custom config
         run: |
           cd openwrt
           rm -f .config
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           make defconfig
-          cat >> .config << 'EOF'
-# 关闭指定无用插件（严格格式）
-# CONFIG_DEFAULT_luci-app-arpbind is not set
-# CONFIG_PACKAGE_luci-app-autoreboot is not set
-# CONFIG_PACKAGE_luci-app-nlbwmon is not set
-# CONFIG_PACKAGE_luci-app-samba4 is not set
-# CONFIG_PACKAGE_luci-app-samba is not set
-# CONFIG_PACKAGE_luci-app-vlmcsd is not set
-# CONFIG_PACKAGE_luci-app-wol is not set
-# CONFIG_PACKAGE_luci-app-zerotier is not set
-# CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
-CONFIG_PACKAGE_luci-app-nikki=y
-CONFIG_PACKAGE_luci-app-passwall=y
-CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
-CONFIG_PACKAGE_luci-i18n-geoview-zh-cn=y
-CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_ddns-scripts=y
-CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
-CONFIG_PACKAGE_luci-app-ddns=y
-CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
-CONFIG_PACKAGE_luci-app-udpxy=y
-CONFIG_PACKAGE_udpxy=y
-EOF
+          # 写入禁用插件配置
+          echo '# CONFIG_DEFAULT_luci-app-arpbind is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-autoreboot is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-nlbwmon is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-samba4 is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-samba is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-vlmcsd is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-wol is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-zerotier is not set' >> .config
+          echo '# CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set' >> .config
+          # 写入启用插件配置
+          echo 'CONFIG_PACKAGE_luci-app-nikki=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-app-passwall=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-i18n-geoview-zh-cn=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-app-homeproxy=y' >> .config
+          echo 'CONFIG_PACKAGE_ddns-scripts=y' >> .config
+          echo 'CONFIG_PACKAGE_ddns-scripts-cloudflare=y' >> .config
+          echo 'CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-app-ddns=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y' >> .config
+          echo 'CONFIG_PACKAGE_luci-app-udpxy=y' >> .config
+          echo 'CONFIG_PACKAGE_udpxy=y' >> .config
+          # 验证配置
           make defconfig
 
-      - name: Download packages
+      - name: Download dependencies
         run: |
           cd openwrt
           make download -j$CORES
@@ -90,22 +90,22 @@ EOF
       - name: Compile OpenWrt
         run: |
           cd openwrt
-          echo -e "$(nproc) thread compile"
+          echo "Using $(nproc) threads for compilation"
           make -j$CORES || make -j1 V=s
-          echo "Compile completed!"
+          echo "Compilation finished successfully!"
 
-      - name: Package firmware (zip)
+      - name: Package firmware
         run: |
           mkdir -p firmware-output
           cp -r openwrt/bin/targets/* firmware-output/
           cp openwrt/.config firmware-output/config.txt
-          echo "Firmware build info: $(date)" > firmware-output/build-info.txt
+          echo "Build time: $(date '+%Y-%m-%d %H:%M:%S')" > firmware-output/build-info.txt
           zip -r $FIRMWARE_NAME.zip firmware-output/
           ls -lh $FIRMWARE_NAME.zip
 
-      - name: Upload firmware package
+      - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.FIRMWARE_NAME }}
-          path: ${{ env.FIRMWARE_NAME }}.zip
+          path: ./${{ env.FIRMWARE_NAME }}.zip
           retention-days: 90
