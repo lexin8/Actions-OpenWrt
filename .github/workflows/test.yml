@@ -25,10 +25,13 @@ env:
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
-  REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  # ========== 核心修改：新增REPO_URL3指向OpenWrt官方（主源码） ==========
+  REPO_URL: https://github.com/immortalwrt/immortalwrt          # 辅助源（diskman等）
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt             # fanchmwrt界面/组件源
+  REPO_URL3: https://github.com/openwrt/openwrt                 # OpenWrt官方主源码
   REPO_BRANCH: openwrt-23.05
   REPO_BRANCH2: openwrt-24.10
+  REPO_BRANCH3: openwrt-24.10                                   # 官方24.10分支
   DIY_SCRIPT: diy-script.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
@@ -79,10 +82,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone Source Code
+      # ========== 核心修改：优先拉取OpenWrt官方作为主源码 ==========
+      - name: Clone OpenWrt Official Source (Main)
         run: |
           df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL2 openwrt
+          git clone $REPO_URL3 -b $REPO_BRANCH3 openwrt  # 主源码：OpenWrt官方
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -94,47 +98,44 @@ jobs:
           COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
 
-      - name: Clone immortalwrt
+      # 拉取immortalwrt（辅助：diskman等组件）
+      - name: Clone immortalwrt (Helper)
         run: |
           df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL immortalwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+          git clone $REPO_URL -b $REPO_BRANCH immortalwrt
+          cd immortalwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      # 拉取fanchmwrt（界面/组件补充）
+      - name: Clone fanchmwrt (UI/Components)
+        run: |
+          df -hT $GITHUB_WORKSPACE
+          git clone $REPO_URL2 -b $REPO_BRANCH2 fanchmwrt-src
+          cd fanchmwrt-src
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
       - name: Cache Toolchain
         if: env.CACHE_TOOLCHAIN == 'true'
         uses: HiGarfield/cachewrtbuild@main
         with:
           ccache: false
-          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+          mixkey: ${{ env.REPO_URL3 }}-${{ env.REPO_BRANCH3 }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
           prefix: ${{ env.OPENWRT_PATH }}
 
-      - name: Install Feeds
+      - name: Install Feeds (OpenWrt Official)
         run: |
           cd $OPENWRT_PATH
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Install Feeds immortalwrt
-        run: |
-          cd immortalwrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: 运行一键部署脚本
+      - name: 运行一键部署脚本（集成fanchmwrt界面+组件）
         run: |
           chmod +x $DIY_P1_SH
           ./$DIY_P1_SH
 
-      - name: 配置_脚本
+      - name: 配置编译参数
         run: |
           rm -rf openwrt/.config
           [ -e files ] && mv files openwrt/files
@@ -186,7 +187,7 @@ jobs:
           cd openwrt/bin/
           find . -name "*squashfs*"
 
-      - name: Organize files
+      - name: 整理固件文件
         id: organize
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
@@ -202,7 +203,7 @@ jobs:
           echo "::set-output name=FIRMWARE::$PWD"
           echo "::set-output name=status::success"
 
-      - name: 上传到 directory
+      - name: 上传固件到Artifact
         uses: actions/upload-artifact@master
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
