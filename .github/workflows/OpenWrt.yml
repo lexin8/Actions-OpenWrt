@@ -13,6 +13,9 @@ env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: v23.05.3
   TZ: Asia/Shanghai
+  # PassWall 官方仓库（替换原kenzo源）
+  PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
+  PASSWALL_PACKAGES_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
   # 分步编译标记
   STEP1_BASE: true          # 步骤1：基础固件
   STEP2_DOCKER: true        # 步骤2：添加Docker
@@ -221,29 +224,31 @@ jobs:
           name: 03-带Docker+Nikki的OpenWrt固件
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
-      # 步骤4：添加Passwall/Homeproxy组件编译
+      # 步骤4：添加Passwall/Homeproxy组件编译（核心替换部分）
       - name: 步骤4 - 配置Passwall/Homeproxy组件
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 添加kenzo/small源（Passwall/Homeproxy依赖）
-          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          # 更新feeds并清理冲突
+          # 移除原kenzo/small源（避免冲突），添加PassWall官方双仓库
+          sed -i '/kenzo/d' feeds.conf.default
+          sed -i '/small/d' feeds.conf.default
+          # 顶部插入PassWall官方仓库（packages仓库在前，主仓库在后）
+          sed -i '1i src-git passwall_packages ${PASSWALL_PACKAGES_REPO};main' feeds.conf.default
+          sed -i '2i src-git passwall_main ${PASSWALL_MAIN_REPO};main' feeds.conf.default
+          
+          # 更新feeds并清理冲突包（OpenWrt官方包与PassWall冲突）
           ./scripts/feeds update -a
-          rm -rf feeds/packages/lang/golang
-          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
-          # 重新更新并安装组件
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          # 强制安装Passwall/Homeproxy
-          ./scripts/feeds install -p kenzo luci-app-passwall
-          ./scripts/feeds install -p small luci-app-homeproxy
-          # 修复依赖
+          rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,dns2socks,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-libev,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,geoview,shadow-tls}
+          
+          # 重新更新并安装PassWall组件
+          ./scripts/feeds update passwall_packages passwall_main
+          ./scripts/feeds install -a -p passwall_packages
+          ./scripts/feeds install -a -p passwall_main
+          
+          # 修复Homeproxy依赖（如需保留Homeproxy，需适配PassWall仓库）
           ./scripts/feeds install ucode-mod-digest
-          sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
-          sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
-          # 最终配置文件
+          
+          # 最终配置文件（启用PassWall官方组件）
           cat > .config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -265,12 +270,23 @@ jobs:
           CONFIG_PACKAGE_kmod-macvlan=y
           # Nikki组件
           CONFIG_PACKAGE_luci-app-nikki=y
-          # Passwall/Homeproxy
+          # PassWall官方组件（核心替换）
           CONFIG_PACKAGE_luci-app-passwall=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_geoview=y  # PassWall必需依赖（分流核心）
+          # PassWall核心依赖组件
+          CONFIG_PACKAGE_xray-core=y
+          CONFIG_PACKAGE_v2ray-core=y
+          CONFIG_PACKAGE_sing-box=y
+          CONFIG_PACKAGE_hysteria=y
+          CONFIG_PACKAGE_tuic-client=y
+          # DNS分流组件
+          CONFIG_PACKAGE_smartdns=y
+          CONFIG_PACKAGE_chinadns-ng=y
           # 依赖组件
           CONFIG_PACKAGE_ucode-mod-digest=y
           CONFIG_PACKAGE_rust-bindgen-host=y
+          # 中文语言包
+          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
           EOF
           make defconfig
           make download -j$(nproc)
@@ -279,7 +295,7 @@ jobs:
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           cd $OPENWRT_PATH
-          echo "开始编译最终完整固件（Docker+Nikki+Passwall+Homeproxy）..."
+          echo "开始编译最终完整固件（Docker+Nikki+Passwall官方版）..."
           make -j$(nproc) || make -j1 V=s
           if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
             echo "STEP4_SUCCESS=true" >> $GITHUB_ENV
@@ -294,7 +310,7 @@ jobs:
         if: env.STEP4_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 04-完整固件（Docker+Nikki+Passwall+Homeproxy）
+          name: 04-完整固件（Docker+Nikki+Passwall官方版）
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
       # 兜底：输出编译日志（方便调试）
