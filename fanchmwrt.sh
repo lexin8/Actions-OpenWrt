@@ -31,8 +31,6 @@ git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luc
 
 # ===================== 5. 添加Passwall/nikki源 =====================
 echo "添加软件源..."
-sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
-sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 
 # ===================== 6. 更新并安装Feeds =====================
@@ -44,7 +42,6 @@ echo "安装feeds..."
 ./scripts/feeds install -a
 
 # 特别处理某些包的依赖关系
-./scripts/feeds install luci-app-passwall
 ./scripts/feeds install luci-app-homeproxy
 ./scripts/feeds install luci-app-nikki
 ./scripts/feeds install luci-app-dockerman
