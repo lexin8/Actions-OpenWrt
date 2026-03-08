@@ -85,9 +85,3 @@ CONFIG_PACKAGE_luci-app-nikki=y
 # CONFIG_PACKAGE_luci-app-zerotier is not set
 # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
 EOF
-
-# ===================== 7. 编译前准备与编译 =====================
-echo "校验配置文件..."
-make defconfig
-
-EOF
