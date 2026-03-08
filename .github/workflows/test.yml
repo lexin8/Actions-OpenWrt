@@ -7,33 +7,27 @@ on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH connection to Actions'
+        description: SSH connection to Actions
         required: true
         default: 'false'
 
 env:
-  CONFIG_FILE: istoreos.config
   CONFIG_FILE2: fanchmwrt.config
   DIY_P1_SH: fanchmwrt.sh
-  DIY_P2_SH: l2tp.sh
-  DIY_P3_SH: diy-part3.sh
   SSH_ACTIONS: false
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
-  ENABLE_L2TP_COMPONENTS: true
   UPLOAD_SOFTETHERVPN: false
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: v23.05.3
-  SSH_ACTIONS: false
   TZ: Asia/Shanghai
 
 jobs:
   Build:
     runs-on: ubuntu-22.04
-
     steps:
       - name: Check Server Performance
         run: |
@@ -70,8 +64,7 @@ jobs:
           temp-reserve-mb: 100
           root-reserve-mb: 1024
 
-      - name: Checkout
-        uses: actions/checkout@main
+      - uses: actions/checkout@main
 
       - name: Clone Source Code
         run: |
@@ -79,22 +72,6 @@ jobs:
           git clone $REPO_URL openwrt -b $REPO_BRANCH
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-      - name: Cache Toolchain
-        if: env.CACHE_TOOLCHAIN == 'true'
-        uses: HiGarfield/cachewrtbuild@main
-        with:
-          ccache: false
-          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
-          prefix: ${{ env.OPENWRT_PATH }}
 
       - name: Install Feeds
         run: |
@@ -102,72 +79,49 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 运行一键部署脚本
+      - name: Run DIY Script
         run: |
           chmod +x $DIY_P1_SH
           ./$DIY_P1_SH
 
-      - name: 配置_脚本
+      - name: Load Config
         run: |
           rm -rf openwrt/.config
           [ -e files ] && mv files openwrt/files
           [ -e $CONFIG_FILE2 ] && mv $CONFIG_FILE2 openwrt/.config
 
-      - name: 运行L2TP组件追加脚本
-        if: env.ENABLE_L2TP_COMPONENTS == 'true' && !cancelled()
-        run: |
-          chmod +x $DIY_P2_SH
-          cd $OPENWRT_PATH
-          ../$DIY_P2_SH
-
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        if: github.event.inputs.ssh == 'true' || contains(github.event.action, 'ssh')
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      - name: 下载 package
-        id: package
+      - name: Download Packages
         run: |
           cd openwrt
           make defconfig
           make download -j8
-          find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
 
-      - name: 开始编译固件
-        id: compile
+      - name: Compile Firmware
         run: |
           cd openwrt
-          echo -e "$(nproc) thread compile"
-          make -j$(nproc) || make -j1 || make -j1 V=s
-          echo "::set-output name=status::success"
+          make -j$(nproc) || make -j1 V=s
 
-      - name: 搜索固件
-        run: |
-          cd openwrt/bin/
-          find . -name "*squashfs*"
-
-      - name: Organize files
+      - name: Organize Files
         id: organize
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
-          cd openwrt/bin/
-          cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
-          ls
+          cd openwrt/bin/targets/x86/64
           rm -rf packages
-          find . -name "*ext4*" |xargs rm -rf
-          find . -name "*root*" |xargs rm -rf
-          tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
-          ls | grep -v OpenWrt.tar.gz | xargs rm
-          ls
-          echo "::set-output name=FIRMWARE::$PWD"
-          echo "::set-output name=status::success"
+          find . -name "*ext4*" | xargs rm -rf
+          find . -name "*root*" | xargs rm -rf
+          tar czvf $(date +%Y.%m.%d-%H)_OpenWrt_x86_64.tar.gz config.buildinfo *.img.gz
+          ls | grep -v OpenWrt | xargs rm
+          echo "FIRMWARE=$PWD" >> $GITHUB_ENV
 
-      - name: 上传到 directory
-        uses: actions/upload-artifact@master
-        if: steps.organize.outputs.status == 'success' && !cancelled()
+      - name: Upload Firmware
+        uses: actions/upload-artifact@main
         with:
-          name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
-          path: ${{ steps.organize.outputs.FIRMWARE }}
+          name: OpenWrt_x86_64
+          path: ${{ env.FIRMWARE }}
