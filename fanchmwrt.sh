@@ -1,28 +1,45 @@
 #!/bin/bash
 
-cd openwrt
+# 进入openwrt源码目录（确保路径正确）
+cd openwrt || exit 1
 
 # 1. 引入nikki源码（兼容官方版）
 echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 
-# 2. 保留你要求的kenzo/small源（解决passwall/homeproxy依赖）
+# 2. 保留要求的kenzo/small源（解决passwall/homeproxy依赖）
 sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
 sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
 
-# 3. 更新feeds并清理冲突组件
+# 3. 更新feeds（先更新再清理，避免路径不存在）
 ./scripts/feeds update -a
-rm -rf feeds/luci/applications/luci-app-mosdns
-rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns}
-rm -rf feeds/packages/utils/v2dat
-rm -rf feeds/packages/lang/golang
 
-# 4. 替换高版本golang（解决passwall/homeproxy编译依赖）
+# 4. 清理冲突组件（仅删除存在的文件，避免报错）
+rm -rf feeds/luci/applications/luci-app-mosdns 2>/dev/null
+rm -rf feeds/packages/net/alist 2>/dev/null
+rm -rf feeds/packages/net/adguardhome 2>/dev/null
+rm -rf feeds/packages/net/mosdns 2>/dev/null
+rm -rf feeds/packages/net/xray* 2>/dev/null
+rm -rf feeds/packages/net/v2ray* 2>/dev/null
+rm -rf feeds/packages/net/sing* 2>/dev/null
+rm -rf feeds/packages/net/smartdns 2>/dev/null
+rm -rf feeds/packages/utils/v2dat 2>/dev/null
+rm -rf feeds/packages/lang/golang 2>/dev/null
+
+# 5. 替换高版本golang（解决passwall/homeproxy编译依赖）
 git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
 
-# 5. 关键补充：强制安装passwall/homeproxy依赖
+# 6. 重新更新feeds并安装所有组件
+./scripts/feeds update -a
 ./scripts/feeds install -a
-./scripts/feeds install luci-app-passwall luci-app-homeproxy luci-app-nikki
 
-# 6. 修复官方版luci接口兼容问题
-sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile
-sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-homeproxy/Makefile
+# 7. 强制安装核心组件（指定正确路径）
+./scripts/feeds install -p small luci-app-homeproxy
+./scripts/feeds install -p kenzo luci-app-passwall
+./scripts/feeds install -p nikki luci-app-nikki
+
+# 8. 修复依赖缺失问题（手动添加ucode-mod-digest）
+./scripts/feeds install ucode-mod-digest
+
+# 9. 修复luci版本依赖（针对small/kenzo源的正确路径）
+sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/small/luci-app-homeproxy/Makefile 2>/dev/null
+sed -i 's/luci-base >= 22.03/luci-base >= 21.02/g' feeds/kenzo/luci-app-passwall/Makefile 2>/dev/null
