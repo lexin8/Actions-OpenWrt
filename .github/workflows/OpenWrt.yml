@@ -1,478 +1,105 @@
-name: OpenWrt X86-64 分步编译测试
+name: OpenWrt（中文界面）
 
 on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH connection debug (true/false)'
-        required: true
+        description: '是否开启SSH调试（true/false）'
+        required: false
         default: 'false'
 
 env:
-  REPO_URL: https://github.com/openwrt/openwrt
-  REPO_BRANCH: v23.05.3
-  TZ: Asia/Shanghai
-  PASSWALL_PACKAGES_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
-  PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
-  # 通用基础配置（含关闭无用插件）
-  BASE_CONFIG: |
-    CONFIG_TARGET_x86=y
-    CONFIG_TARGET_x86_64=y
-    CONFIG_TARGET_x86_64_Generic=y
-    CONFIG_TARGET_KERNEL_PARTSIZE=60
-    CONFIG_TARGET_ROOTFS_TARGZ=y
-    CONFIG_TARGET_IMAGES_GZIP=y
-    CONFIG_TARGET_EFI_IMAGES=y
-    CONFIG_PACKAGE_luci=y
-    CONFIG_PACKAGE_luci-base=y
-    CONFIG_PACKAGE_luci-mod-admin-full=y
-    CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-    CONFIG_PACKAGE_luci-theme-argon=y
-    CONFIG_PACKAGE_luci-theme-argon-config=y
-    CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
-    # 关闭指定无用插件
-    # CONFIG_DEFAULT_luci-app-arpbind is not set
-    # CONFIG_PACKAGE_luci-app-autoreboot is not set
-    # CONFIG_PACKAGE_luci-app-nlbwmon is not set
-    # CONFIG_PACKAGE_luci-app-samba4 is not set
-    # CONFIG_PACKAGE_luci-app-samba is not set
-    # CONFIG_PACKAGE_luci-app-vlmcsd is not set
-    # CONFIG_PACKAGE_luci-app-wol is not set
-    # CONFIG_PACKAGE_luci-app-zerotier is not set
-    # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
-  # 需排除的无用/冲突组件（集中管理）
-  EXCLUDE_COMPONENTS: "xray-core v2ray-geodata sing-box chinadns-ng dns2socks hysteria ipt2socks microsocks naiveproxy shadowsocks-libev shadowsocks-rust shadowsocksr-libev simple-obfs tcping trojan-plus tuic-client v2ray-plugin xray-plugin geoview shadow-tls"
+  # 编译目标（按需修改，示例为x86_64）
+  TARGET_ARCH: x86_64
+  # OpenWrt源码分支（建议23.05，兼容性更好）
+  OPENWRT_BRANCH: openwrt-23.05
+  # Nikki插件Feed名称
+  NIKKI_FEED_NAME: nikki
 
 jobs:
-  build-openwrt:
+  build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Initialize system environment
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 初始化编译环境
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 封装所有通用函数
-          cat > /tmp/openwrt_funcs.sh << 'EOF'
-          # 函数1：生成.config文件
-          generate_config() {
-            local ROOT_SIZE=$1
-            local CUSTOM_CFG=$2
-            local WITH_BASE_TOOLS=$3
-            cd $OPENWRT_PATH
-            echo "$BASE_CONFIG" > .config
-            echo "CONFIG_TARGET_ROOTFS_PARTSIZE=$ROOT_SIZE" >> .config
-            if [ "$WITH_BASE_TOOLS" = "true" ]; then
-              echo "CONFIG_PACKAGE_wget=y" >> .config
-              echo "CONFIG_PACKAGE_curl=y" >> .config
-              echo "CONFIG_PACKAGE_openssh-sftp-server=y" >> .config
-            fi
-            echo "$CUSTOM_CFG" >> .config
-            make defconfig
-            make download -j$(nproc)
-            find dl -size -1024c -exec rm -f {} \;
-          }
+          # 清理冗余包，加速编译
+          sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          sudo apt update -y
+          sudo apt full-upgrade -y
+          # 安装编译依赖（含中文环境相关）
+          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget curl locales
+          # 配置中文locale（避免编译时语言乱码）
+          sudo locale-gen zh_CN.UTF-8
+          sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8
+          # 安装yq（Nikki依赖）
+          sudo wget -O /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/bin/yq
+          # 清理缓存
+          sudo apt autoremove -y && sudo apt clean -y
 
-          # 函数2：编译验证（返回值：0=成功，1=失败）
-          build_firmware() {
-            local STEP=$1
-            local DESC=$2
-            cd $OPENWRT_PATH
-            echo "===== Start building $DESC ====="
-            make -j$(nproc) || make -j1 V=s
-            if ls $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz 1> /dev/null 2>&1; then
-              echo "${STEP}_SUCCESS=true" >> $GITHUB_ENV
-              echo "$DESC build success! Continue to next step..."
-              return 0
-            else
-              echo "${STEP}_SUCCESS=false" >> $GITHUB_ENV
-              echo "$DESC build failed! Stop compiling, start packaging latest firmware..."
-              return 1
-            fi
-          }
-
-          # 函数3：打包最新固件（包含config.buildinfo，覆盖旧文件）
-          package_latest_firmware() {
-            local STEP_NUM=$1
-            local TYPE=$2
-            local DESC=$3
-            # 获取北京时间（仅数字和符号，无中文）
-            TIME=$(date +"%y%m%d_%H%M")
-            # 统一打包文件名（覆盖旧文件）
-            PACKAGE_NAME="latest_openwrt_${TYPE}_v${STEP_NUM}.tar.gz"
-            UPLOAD_DISPLAY_NAME="${TIME}_openwrt_${DESC}"
-            
-            # 创建临时目录打包（覆盖旧文件）
-            mkdir -p /tmp/openwrt_latest
-            rm -rf /tmp/openwrt_latest/*
-            
-            # 复制核心文件：只复制存在的文件，避免报错
-            echo "===== Start copying firmware files ====="
-            # 复制EFI固件（核心文件，必须存在）
-            if ls $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz 1> /dev/null 2>&1; then
-              cp $OPENWRT_PATH/bin/targets/x86/64/*combined-efi.img.gz /tmp/openwrt_latest/
-              echo "✓ Copied EFI firmware image"
-            else
-              echo "✗ EFI firmware image not found!"
-              return 1
-            fi
-            
-            # 复制config.buildinfo（存在则复制）
-            if [ -f "$OPENWRT_PATH/bin/targets/x86/64/config.buildinfo" ]; then
-              cp $OPENWRT_PATH/bin/targets/x86/64/config.buildinfo /tmp/openwrt_latest/
-              echo "✓ Copied config.buildinfo"
-            else
-              echo "⚠ config.buildinfo not found, skip copying"
-            fi
-            
-            # 复制files.json（存在则复制，不存在则跳过）
-            if [ -f "$OPENWRT_PATH/bin/targets/x86/64/files.json" ]; then
-              cp $OPENWRT_PATH/bin/targets/x86/64/files.json /tmp/openwrt_latest/
-              echo "✓ Copied files.json"
-            else
-              echo "⚠ files.json not found, skip copying"
-            fi
-            
-            # 列出复制的文件，方便调试
-            echo "===== Files to package ====="
-            ls -lh /tmp/openwrt_latest/
-            
-            # 打包（保留完整目录结构）
-            tar -zcvf /tmp/$PACKAGE_NAME -C /tmp/openwrt_latest .
-            
-            # 保存最新固件信息（覆盖旧环境变量）
-            echo "LATEST_PACKAGE_PATH=/tmp/$PACKAGE_NAME" >> $GITHUB_ENV
-            echo "LATEST_UPLOAD_NAME=$UPLOAD_DISPLAY_NAME" >> $GITHUB_ENV
-            echo "===== Packaged latest firmware (include config.buildinfo): $PACKAGE_NAME ====="
-          }
-
-          # 函数4：清理冲突组件
-          clean_conflict_components() {
-            cd $OPENWRT_PATH
-            local COMPONENT_PATH=""
-            for comp in $EXCLUDE_COMPONENTS; do
-              COMPONENT_PATH+="feeds/packages/net/$comp "
-            done
-            if [ -n "$COMPONENT_PATH" ]; then
-              rm -rf $COMPONENT_PATH
-              echo "Cleaned conflict components: $EXCLUDE_COMPONENTS"
-            fi
-          }
-
-          # 新增函数：检查并补充Docker LuCI依赖
-          check_docker_luci_deps() {
-            cd $OPENWRT_PATH
-            # 确保luci-app-docker相关包已安装
-            ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
-            # 补充Docker核心依赖
-            echo "CONFIG_PACKAGE_luci-app-docker=y" >> .config
-            echo "CONFIG_PACKAGE_luci-lib-docker=y" >> .config
-            echo "CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y" >> .config
-            echo "CONFIG_PACKAGE_docker-ce=y" >> .config
-            echo "CONFIG_PACKAGE_docker-ce-cli=y" >> .config
-            echo "CONFIG_PACKAGE_docker-ce-rootless-extras=y" >> .config
-            echo "CONFIG_PACKAGE_containerd=y" >> .config
-            echo "CONFIG_PACKAGE_runc=y" >> .config
-            make defconfig
-          }
-          EOF
-
-          # 系统环境初始化
-          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          sudo -E apt-get -y update
-          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
-          sudo -E apt-get -y autoremove --purge
-          sudo -E apt-get -y clean
-          sudo timedatectl set-timezone "$TZ"
-          sudo swapoff /swapfile
-          sudo rm -f /swapfile
-          sudo fallocate -l 4G /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-
-          # 初始化环境变量
-          echo "CURRENT_STEP=0" >> $GITHUB_ENV
-          echo "BUILD_STOPPED=false" >> $GITHUB_ENV
-          echo "LATEST_PACKAGE_PATH=" >> $GITHUB_ENV
-          echo "LATEST_UPLOAD_NAME=" >> $GITHUB_ENV
-        shell: bash
-
-      - name: Clone OpenWrt source code
+      - name: 克隆OpenWrt源码
         run: |
-          source /tmp/openwrt_funcs.sh
-          git clone --depth=1 $REPO_URL -b $REPO_BRANCH openwrt
+          git clone --depth 1 --branch $OPENWRT_BRANCH https://github.com/openwrt/openwrt.git openwrt
           cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          # 提前安装Docker LuCI相关包
+          # 添加Nikki插件源（核心步骤）
+          echo "src-git $NIKKI_FEED_NAME https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+          # 更新并安装所有Feeds（含Nikki）
           ./scripts/feeds update -a
-          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
           ./scripts/feeds install -a
-        shell: bash
 
-      - name: SSH debug
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: github.event.inputs.ssh == 'true'
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      # -------------------------- Step 1: Base firmware --------------------------
-      - name: Step1 - Configure base firmware
-        if: env.BUILD_STOPPED == 'false'
+      - name: 配置编译选项（关键：启用中文+Nikki）
         run: |
-          source /tmp/openwrt_funcs.sh
-          generate_config "800" "" "true"
-        shell: bash
+          cd openwrt
+          # 生成默认配置
+          make defconfig
+          # ========== 核心配置：确保中文界面 ==========
+          # 启用LuCI中文语言包
+          echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
+          # 启用LuCI基本界面（必须）
+          echo "CONFIG_PACKAGE_luci=y" >> .config
+          echo "CONFIG_PACKAGE_luci-base=y" >> .config
+          echo "CONFIG_PACKAGE_luci-mod-admin-full=y" >> .config
+          echo "CONFIG_PACKAGE_luci-theme-bootstrap=y" >> .config
+          # ========== 核心配置：启用Nikki插件 ==========
+          # 显式启用luci-app-nikki（确保编译进固件）
+          echo "CONFIG_PACKAGE_luci-app-nikki=y" >> .config
+          echo "CONFIG_PACKAGE_nikki=y" >> .config
+          # 启用Nikki中文语言包（插件自带多语言）
+          echo "CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y" >> .config
+          # ========== 可选：调试用（如需） ==========
+          # 保留编译日志
+          echo "CONFIG_DEVEL=y" >> .config
+          echo "CONFIG_BUILD_LOG=y" >> .config
+          # 加载配置并检查
+          make defconfig
 
-      - name: Step1 - Build base firmware
-        id: build_step1
-        if: env.BUILD_STOPPED == 'false'
+      - name: 可选：SSH调试（如需手动调整）
+        if: ${{ github.event.inputs.ssh == 'true' }}
+        uses: mxschmitt/action-tmate@v3
+
+      - name: 开始编译
         run: |
-          source /tmp/openwrt_funcs.sh
-          if build_firmware "STEP1" "base firmware"; then
-            echo "CURRENT_STEP=1" >> $GITHUB_ENV
-          else
-            echo "BUILD_STOPPED=true" >> $GITHUB_ENV
-          fi
-        shell: bash
+          cd openwrt
+          # 查看CPU核心数，最大化编译速度
+          CORE_COUNT=$(nproc --all)
+          echo "使用 $CORE_COUNT 核心编译"
+          make -j$CORE_COUNT V=s 2>&1 | tee build.log
 
-      - name: Step1 - Package latest base firmware
-        if: steps.build_step1.outcome == 'success' && env.BUILD_STOPPED == 'false'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_latest_firmware "1" "base" "base_firmware_efi"
-        shell: bash
-
-      # -------------------------- Step 2: Docker firmware --------------------------
-      - name: Step2 - Configure Docker firmware
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '1'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          DOCKER_CFG=$(cat <<'EOF'
-          # Docker核心组件
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-ce=y
-          CONFIG_PACKAGE_docker-ce-cli=y
-          CONFIG_PACKAGE_docker-ce-rootless-extras=y
-          CONFIG_PACKAGE_containerd=y
-          CONFIG_PACKAGE_runc=y
-          CONFIG_PACKAGE_docker-compose=y
-          # Docker LuCI插件（完整配置）
-          CONFIG_PACKAGE_luci-app-docker=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
-          # Docker内核依赖
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          CONFIG_PACKAGE_kmod-ipt-raw=y
-          CONFIG_PACKAGE_kmod-nf-ipt=y
-          CONFIG_PACKAGE_kmod-nf-nat=y
-          CONFIG_PACKAGE_kmod-bridge=y
-          CONFIG_PACKAGE_kmod-ipv6=y
-          CONFIG_PACKAGE_kmod-ipt-ipset=y
-          CONFIG_PACKAGE_ipset=y
-          CONFIG_PACKAGE_ip6tables=y
-          CONFIG_PACKAGE_iptables=y
-          EOF
-          )
-          generate_config "1000" "$DOCKER_CFG" "false"
-          # 检查并补充Docker LuCI依赖
-          check_docker_luci_deps
-        shell: bash
-
-      - name: Step2 - Build Docker firmware
-        id: build_step2
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '1'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          if build_firmware "STEP2" "docker firmware"; then
-            echo "CURRENT_STEP=2" >> $GITHUB_ENV
-          else
-            echo "BUILD_STOPPED=true" >> $GITHUB_ENV
-          fi
-        shell: bash
-
-      - name: Step2 - Package latest Docker firmware
-        if: steps.build_step2.outcome == 'success' && env.BUILD_STOPPED == 'false'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_latest_firmware "2" "docker" "docker_firmware_efi"
-        shell: bash
-
-      # -------------------------- Step 3: Nikki firmware --------------------------
-      - name: Step3 - Configure Nikki firmware
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '2'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          cd $OPENWRT_PATH
-          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
-          ./scripts/feeds update -a
-          # 重新安装Docker LuCI包（避免被覆盖）
-          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
-          ./scripts/feeds install -a
-          NIKKI_CFG=$(cat <<'EOF'
-          # Docker核心组件
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-ce=y
-          CONFIG_PACKAGE_docker-ce-cli=y
-          CONFIG_PACKAGE_docker-ce-rootless-extras=y
-          CONFIG_PACKAGE_containerd=y
-          CONFIG_PACKAGE_runc=y
-          CONFIG_PACKAGE_docker-compose=y
-          # Docker LuCI插件
-          CONFIG_PACKAGE_luci-app-docker=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
-          # Docker内核依赖
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          # Nikki插件
-          CONFIG_PACKAGE_luci-app-nikki=y
-          EOF
-          )
-          generate_config "1200" "$NIKKI_CFG" "false"
-          # 检查并补充Docker LuCI依赖
-          check_docker_luci_deps
-        shell: bash
-
-      - name: Step3 - Build Nikki firmware
-        id: build_step3
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '2'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          if build_firmware "STEP3" "nikki firmware"; then
-            echo "CURRENT_STEP=3" >> $GITHUB_ENV
-          else
-            echo "BUILD_STOPPED=true" >> $GITHUB_ENV
-          fi
-        shell: bash
-
-      - name: Step3 - Package latest Nikki firmware
-        if: steps.build_step3.outcome == 'success' && env.BUILD_STOPPED == 'false'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_latest_firmware "3" "nikki" "docker_nikki_firmware_efi"
-        shell: bash
-
-      # -------------------------- Step 4: Passwall firmware --------------------------
-      - name: Step4 - Configure Passwall firmware
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '3'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          cd $OPENWRT_PATH
-          sed -i '/kenzo/d' feeds.conf.default
-          sed -i '/small/d' feeds.conf.default
-          sed -i "1i src-git passwall_packages $PASSWALL_PACKAGES_REPO;main" feeds.conf.default
-          sed -i "2i src-git passwall_main $PASSWALL_MAIN_REPO;main" feeds.conf.default
-          ./scripts/feeds update -a
-          # 重新安装Docker LuCI包（避免Passwall源覆盖）
-          ./scripts/feeds install -y luci-app-docker luci-lib-docker luci-i18n-docker-zh-cn
-          clean_conflict_components
-          ./scripts/feeds update passwall_packages passwall_main
-          ./scripts/feeds install -a -p passwall_packages
-          ./scripts/feeds install -a -p passwall_main
-          ./scripts/feeds install ucode-mod-digest
-          PROXY_CFG=$(cat <<'EOF'
-          # Docker核心组件
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-ce=y
-          CONFIG_PACKAGE_docker-ce-cli=y
-          CONFIG_PACKAGE_docker-ce-rootless-extras=y
-          CONFIG_PACKAGE_containerd=y
-          CONFIG_PACKAGE_runc=y
-          CONFIG_PACKAGE_docker-compose=y
-          # Docker LuCI插件
-          CONFIG_PACKAGE_luci-app-docker=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
-          # Docker内核依赖
-          CONFIG_PACKAGE_kmod-veth=y
-          CONFIG_PACKAGE_kmod-macvlan=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          # Nikki插件
-          CONFIG_PACKAGE_luci-app-nikki=y
-          # Passwall插件
-          CONFIG_PACKAGE_luci-app-passwall=y
-          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
-          CONFIG_PACKAGE_geoview=y
-          CONFIG_PACKAGE_luci-i18n-geoview-zh-cn=y
-          CONFIG_PACKAGE_xray-core=y
-          CONFIG_PACKAGE_v2ray-core=y
-          CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_hysteria=y
-          CONFIG_PACKAGE_tuic-client=y
-          CONFIG_PACKAGE_smartdns=y
-          CONFIG_PACKAGE_luci-app-smartdns=y
-          CONFIG_PACKAGE_luci-i18n-smartdns-zh-cn=y
-          CONFIG_PACKAGE_chinadns-ng=y
-          CONFIG_PACKAGE_ucode-mod-digest=y
-          CONFIG_PACKAGE_rust-bindgen-host=y
-          EOF
-          )
-          generate_config "1500" "$PROXY_CFG" "false"
-          # 检查并补充Docker LuCI依赖（最终确认）
-          check_docker_luci_deps
-        shell: bash
-
-      - name: Step4 - Build final firmware
-        id: build_step4
-        if: env.BUILD_STOPPED == 'false' && env.CURRENT_STEP == '3'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          if build_firmware "STEP4" "final firmware (docker+nikki+passwall)"; then
-            echo "CURRENT_STEP=4" >> $GITHUB_ENV
-          else
-            echo "BUILD_STOPPED=true" >> $GITHUB_ENV
-          fi
-        shell: bash
-
-      - name: Step4 - Package latest final firmware
-        if: steps.build_step4.outcome == 'success' && env.BUILD_STOPPED == 'false'
-        run: |
-          source /tmp/openwrt_funcs.sh
-          package_latest_firmware "4" "full" "docker_nikki_passwall_firmware_efi"
-        shell: bash
-
-      # -------------------------- 关键：失败时打包最新成功固件 --------------------------
-      - name: Package latest firmware when build stopped
-        if: env.BUILD_STOPPED == 'true' && env.CURRENT_STEP > 0
-        run: |
-          source /tmp/openwrt_funcs.sh
-          # 根据当前成功的步骤，打包对应的固件
-          case $CURRENT_STEP in
-            1)
-              package_latest_firmware "1" "base" "base_firmware_efi"
-              ;;
-            2)
-              package_latest_firmware "2" "docker" "docker_firmware_efi"
-              ;;
-            3)
-              package_latest_firmware "3" "nikki" "docker_nikki_firmware_efi"
-              ;;
-          esac
-        shell: bash
-
-      # -------------------------- 统一上传最新固件（无论成功/失败） --------------------------
-      - name: Upload latest successful firmware
-        if: always() && env.LATEST_PACKAGE_PATH != ''
+      - name: 上传编译产物
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.LATEST_UPLOAD_NAME }}
-          path: ${{ env.LATEST_PACKAGE_PATH }}
+          name: OpenWrt-Nikki-Chinese-${{ env.TARGET_ARCH }}
+          path: openwrt/bin/targets/**/*.bin
+          retention-days: 7
 
-      # -------------------------- Error debug --------------------------
-      - name: Output build log
-        if: failure()
-        run: |
-          source /tmp/openwrt_funcs.sh
-          cd $OPENWRT_PATH
-          cat build.log || echo "No build.log file"
-          ls -lh $OPENWRT_PATH/bin/targets/x86/64/ || echo "No build products"
-          # 额外检查Docker LuCI包是否存在
-          echo "===== Check Docker LuCI packages ====="
-          ./scripts/feeds search luci-app-docker
-          grep -E "luci-app-docker|docker" .config || echo "Docker config not found"
-        shell: bash
+      - name: 上传编译日志（调试用）
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: openwrt/build.log
+          retention-days: 7
