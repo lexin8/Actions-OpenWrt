@@ -13,7 +13,7 @@ env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: v23.05.3
   TZ: Asia/Shanghai
-  # PassWall 官方仓库（替换原kenzo源）
+  # PassWall 官方仓库
   PASSWALL_MAIN_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall
   PASSWALL_PACKAGES_REPO: https://github.com/Openwrt-Passwall/openwrt-passwall-packages
   # 分步编译标记
@@ -62,12 +62,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      # 步骤1：编译基础X86-64固件（仅官方核心组件）
-      - name: 步骤1 - 配置基础固件
+      # 步骤1：编译基础X86-64固件（仅官方核心组件+中文基础）
+      - name: 步骤1 - 配置基础固件（含中文LuCI）
         if: env.STEP1_BASE == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 基础X86-64配置
+          # 基础X86-64配置 + 中文LuCI+Argon主题
           cat > .config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -75,11 +75,15 @@ jobs:
           CONFIG_TARGET_KERNEL_PARTSIZE=60
           CONFIG_TARGET_ROOTFS_PARTSIZE=800
           CONFIG_TARGET_ROOTFS_TARGZ=y
-          # 基础LuCI界面
+          # 基础LuCI + 中文语言包
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y  # LuCI核心中文语言包
+          # 美观的Argon中文主题（替代默认bootstrap）
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-argon-config=y  # Argon主题配置工具
+          CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y  # Argon配置中文包
           # 基础网络工具
           CONFIG_PACKAGE_wget=y
           CONFIG_PACKAGE_curl=y
@@ -95,7 +99,7 @@ jobs:
         if: env.STEP1_BASE == 'true'
         run: |
           cd $OPENWRT_PATH
-          echo "开始编译基础固件..."
+          echo "开始编译基础固件（含中文LuCI+Argon主题）..."
           make -j$(nproc) || make -j1 V=s
           # 验证编译结果
           if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
@@ -111,15 +115,15 @@ jobs:
         if: env.STEP1_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 01-基础OpenWrt固件
+          name: 01-基础OpenWrt固件（中文Argon主题）
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
-      # 步骤2：添加Docker组件编译
-      - name: 步骤2 - 配置Docker组件
+      # 步骤2：添加Docker组件编译（保留中文主题）
+      - name: 步骤2 - 配置Docker组件（含中文LuCI）
         if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 清空旧配置，保留基础配置并添加Docker
+          # 清空旧配置，保留中文主题+添加Docker
           cat > .config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -127,16 +131,20 @@ jobs:
           CONFIG_TARGET_KERNEL_PARTSIZE=60
           CONFIG_TARGET_ROOTFS_PARTSIZE=1000
           CONFIG_TARGET_ROOTFS_TARGZ=y
-          # 基础LuCI
+          # 中文LuCI + Argon主题
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-mod-admin-full=y
-          # Docker组件
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-argon-config=y
+          CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
+          # Docker组件 + 中文语言包
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y  # Docker中文语言包
           # Docker依赖内核模块
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
@@ -149,7 +157,7 @@ jobs:
         if: env.STEP1_SUCCESS == 'true' && env.STEP2_DOCKER == 'true'
         run: |
           cd $OPENWRT_PATH
-          echo "开始编译带Docker的固件..."
+          echo "开始编译带Docker的固件（含中文LuCI+Argon主题）..."
           make -j$(nproc) || make -j1 V=s
           if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
             echo "STEP2_SUCCESS=true" >> $GITHUB_ENV
@@ -164,11 +172,11 @@ jobs:
         if: env.STEP2_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 02-带Docker的OpenWrt固件
+          name: 02-带Docker的OpenWrt固件（中文Argon主题）
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
-      # 步骤3：添加Nikki组件编译
-      - name: 步骤3 - 配置Nikki组件
+      # 步骤3：添加Nikki组件编译（保留中文主题）
+      - name: 步骤3 - 配置Nikki组件（含中文LuCI）
         if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           cd $OPENWRT_PATH
@@ -176,7 +184,7 @@ jobs:
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          # 配置文件添加Nikki
+          # 配置文件：中文主题 + Nikki + Docker
           cat > .config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -184,19 +192,23 @@ jobs:
           CONFIG_TARGET_KERNEL_PARTSIZE=60
           CONFIG_TARGET_ROOTFS_PARTSIZE=1200
           CONFIG_TARGET_ROOTFS_TARGZ=y
-          # 基础LuCI
+          # 中文LuCI + Argon主题
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-mod-admin-full=y
-          # Docker组件
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-argon-config=y
+          CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
+          # Docker组件 + 中文
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
-          # Nikki组件
+          # Nikki组件（自动适配中文）
           CONFIG_PACKAGE_luci-app-nikki=y
           EOF
           make defconfig
@@ -206,7 +218,7 @@ jobs:
         if: env.STEP2_SUCCESS == 'true' && env.STEP3_NIKKI == 'true'
         run: |
           cd $OPENWRT_PATH
-          echo "开始编译带Nikki的固件..."
+          echo "开始编译带Nikki的固件（含中文LuCI+Argon主题）..."
           make -j$(nproc) || make -j1 V=s
           if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
             echo "STEP3_SUCCESS=true" >> $GITHUB_ENV
@@ -221,22 +233,21 @@ jobs:
         if: env.STEP3_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 03-带Docker+Nikki的OpenWrt固件
+          name: 03-带Docker+Nikki的OpenWrt固件（中文Argon主题）
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
-      # 步骤4：添加Passwall/Homeproxy组件编译（核心替换部分）
-      - name: 步骤4 - 配置Passwall/Homeproxy组件
+      # 步骤4：添加Passwall组件编译（保留中文主题）
+      - name: 步骤4 - 配置Passwall组件（含中文LuCI）
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           cd $OPENWRT_PATH
-          # 移除原kenzo/small源（避免冲突），添加PassWall官方双仓库
+          # 移除原kenzo/small源，添加PassWall官方双仓库
           sed -i '/kenzo/d' feeds.conf.default
           sed -i '/small/d' feeds.conf.default
-          # 顶部插入PassWall官方仓库（packages仓库在前，主仓库在后）
           sed -i '1i src-git passwall_packages ${PASSWALL_PACKAGES_REPO};main' feeds.conf.default
           sed -i '2i src-git passwall_main ${PASSWALL_MAIN_REPO};main' feeds.conf.default
           
-          # 更新feeds并清理冲突包（OpenWrt官方包与PassWall冲突）
+          # 更新feeds并清理冲突包
           ./scripts/feeds update -a
           rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,dns2socks,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-libev,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,geoview,shadow-tls}
           
@@ -245,10 +256,10 @@ jobs:
           ./scripts/feeds install -a -p passwall_packages
           ./scripts/feeds install -a -p passwall_main
           
-          # 修复Homeproxy依赖（如需保留Homeproxy，需适配PassWall仓库）
+          # 修复依赖
           ./scripts/feeds install ucode-mod-digest
           
-          # 最终配置文件（启用PassWall官方组件）
+          # 最终配置文件：中文主题 + 全组件
           cat > .config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -256,37 +267,43 @@ jobs:
           CONFIG_TARGET_KERNEL_PARTSIZE=60
           CONFIG_TARGET_ROOTFS_PARTSIZE=1500
           CONFIG_TARGET_ROOTFS_TARGZ=y
-          # 基础LuCI
+          # 核心中文LuCI + Argon主题
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-mod-admin-full=y
-          # Docker组件
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-theme-argon-config=y
+          CONFIG_PACKAGE_luci-i18n-argon-config-zh-cn=y
+          # Docker组件 + 中文
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_docker-compose=y
           CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
           CONFIG_PACKAGE_kmod-veth=y
           CONFIG_PACKAGE_kmod-macvlan=y
           # Nikki组件
           CONFIG_PACKAGE_luci-app-nikki=y
-          # PassWall官方组件（核心替换）
+          # PassWall官方组件 + 中文语言包
           CONFIG_PACKAGE_luci-app-passwall=y
-          CONFIG_PACKAGE_geoview=y  # PassWall必需依赖（分流核心）
+          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y  # PassWall中文语言包
+          CONFIG_PACKAGE_geoview=y
+          CONFIG_PACKAGE_luci-i18n-geoview-zh-cn=y    # Geoview中文语言包
           # PassWall核心依赖组件
           CONFIG_PACKAGE_xray-core=y
           CONFIG_PACKAGE_v2ray-core=y
           CONFIG_PACKAGE_sing-box=y
           CONFIG_PACKAGE_hysteria=y
           CONFIG_PACKAGE_tuic-client=y
-          # DNS分流组件
+          # DNS分流组件 + 中文
           CONFIG_PACKAGE_smartdns=y
+          CONFIG_PACKAGE_luci-app-smartdns=y
+          CONFIG_PACKAGE_luci-i18n-smartdns-zh-cn=y
           CONFIG_PACKAGE_chinadns-ng=y
           # 依赖组件
           CONFIG_PACKAGE_ucode-mod-digest=y
           CONFIG_PACKAGE_rust-bindgen-host=y
-          # 中文语言包
-          CONFIG_PACKAGE_luci-i18n-passwall-zh-cn=y
           EOF
           make defconfig
           make download -j$(nproc)
@@ -295,7 +312,7 @@ jobs:
         if: env.STEP3_SUCCESS == 'true' && env.STEP4_PROXY == 'true'
         run: |
           cd $OPENWRT_PATH
-          echo "开始编译最终完整固件（Docker+Nikki+Passwall官方版）..."
+          echo "开始编译最终完整固件（含中文LuCI+Argon主题）..."
           make -j$(nproc) || make -j1 V=s
           if [ -f bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz ]; then
             echo "STEP4_SUCCESS=true" >> $GITHUB_ENV
@@ -310,7 +327,7 @@ jobs:
         if: env.STEP4_SUCCESS == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: 04-完整固件（Docker+Nikki+Passwall官方版）
+          name: 04-完整固件（Docker+Nikki+Passwall+中文Argon主题）
           path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/*.img.gz
 
       # 兜底：输出编译日志（方便调试）
