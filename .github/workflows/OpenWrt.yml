@@ -174,7 +174,8 @@ jobs:
           cp -rf $(find bin/targets/ -type f -name "*combined*" -o -name "*squashfs*" -o -name "*ext4*" -o -name "*efi*") artifact/ 2>/dev/null || true
 
       - name: 上传固件
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # ⚠️ 关键修改：v3 → v4
         with:
           name: OpenWrt-L2TP-IPsec
           path: openwrt/artifact/
+          if-no-files-found: warn  # 如果没有固件文件，给出警告而不是报错
