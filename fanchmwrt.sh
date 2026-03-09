@@ -60,6 +60,7 @@ CONFIG_PACKAGE_luci-app-homeproxy=y
 CONFIG_PACKAGE_sing-box=y
 CONFIG_PACKAGE_luci-app-libreswan=y
 CONFIG_PACKAGE_libreswan=y
+CONFIG_PACKAGE_luci-app-softethervpn=y
 
 
 # 禁用不必要的插件
