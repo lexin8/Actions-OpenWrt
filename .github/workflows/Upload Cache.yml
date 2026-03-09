@@ -46,6 +46,10 @@ jobs:
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          # 关键修复：直接删除gpio-button-hotplug模块文件（彻底移除编译入口）
+          rm -rf package/kernel/gpio-button-hotplug
+          # 移除base-files对该模块的依赖
+          sed -i '/gpio-button-hotplug/d' package/base-files/Makefile
 
       - name: Generate Default Config
         run: |
@@ -59,7 +63,7 @@ jobs:
           cd $OPENWRT_PATH
           export CCACHE_DIR=$CCACHE_DIR
           export USE_CCACHE=1
-          make toolchain/install -j$(nproc) CCACHE=1 V=s || make toolchain/install -j1 V=s
+          make toolchain/install -j1 CCACHE=1 V=s
           ccache -s
 
       - name: Build Common Plugins
@@ -67,9 +71,10 @@ jobs:
           cd $OPENWRT_PATH
           export CCACHE_DIR=$CCACHE_DIR
           export USE_CCACHE=1
-          make package/base-files/compile -j$(nproc) CCACHE=1
-          make package/firewall/compile -j$(nproc) CCACHE=1
-          make package/luci-base/compile -j$(nproc) CCACHE=1
+          # 单核心编译基础插件，避免依赖冲突
+          make package/base-files/compile -j1 CCACHE=1
+          make package/firewall/compile -j1 CCACHE=1
+          make package/luci-base/compile -j1 CCACHE=1
           ccache -s
 
       - name: Package Base Cache
