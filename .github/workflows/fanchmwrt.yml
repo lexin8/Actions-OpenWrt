@@ -54,11 +54,16 @@ jobs:
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          # 修复1：安装并全局配置Golang 1.24.0，确保环境变量永久生效
           if [ ! -d "/usr/local/go" ]; then
             wget https://dl.google.com/go/go1.24.0.linux-amd64.tar.gz -O /tmp/go.tar.gz
             sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz
-            echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
           fi
+          echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
+          echo "GOROOT=/usr/local/go" >> $GITHUB_ENV
+          echo "GOPATH=$HOME/go" >> $GITHUB_ENV
+          # 验证系统级Golang版本
+          go version
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
@@ -103,12 +108,20 @@ jobs:
             exit 1
           fi
 
-      - name: Upgrade Golang to 1.24+
+      - name: Clean Old Golang & Upgrade to 1.24+
         run: |
           cd $OPENWRT_PATH
+          # 修复2：彻底清理缓存中的旧版Golang文件
           rm -rf feeds/packages/lang/golang
+          rm -rf staging_dir/target-x86_64_musl/usr/lib/go
+          rm -rf staging_dir/toolchain-x86_64_gcc-13.3.0_musl/usr/lib/go
+          rm -rf staging_dir/host/bin/go
+          # 重新安装新版Golang feed
           git clone --depth 1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
+          ./scripts/feeds update golang
           ./scripts/feeds install -a golang
+          # 验证OpenWrt环境Golang版本
+          ./scripts/feeds list | grep golang
 
       - name: 运行一键部署脚本
         run: |
@@ -165,9 +178,15 @@ jobs:
         id: compile
         run: |
           cd openwrt
+          # 修复3：透传Golang环境变量到编译环境，禁用版本警告
           export CCACHE_DIR=$GITHUB_WORKSPACE/openwrt/ccache
           export USE_CCACHE=1
-          make -j$(nproc) CCACHE=1 || make -j1 CCACHE=1 V=s
+          export PATH=/usr/local/go/bin:$PATH
+          export GOROOT=/usr/local/go
+          export CFLAGS="-Wno-format-nonliteral -Wno-error=all $CFLAGS"
+          export CXXFLAGS="-Wno-format-nonliteral -Wno-error=all $CXXFLAGS"
+          # 修复4：降低并行编译数，避免资源耗尽
+          make -j2 CCACHE=1 || make -j1 CCACHE=1 V=s
           echo "::set-output name=status::success"
 
       - name: 搜索固件
