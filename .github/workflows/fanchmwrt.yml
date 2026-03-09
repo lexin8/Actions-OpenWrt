@@ -98,25 +98,22 @@ jobs:
             exit 1
           fi
 
-      - name: Install Golang (Official Doc + Full Clean)
+      - name: Install Golang
         run: |
           cd $OPENWRT_PATH
-          # ========== 新增：彻底清理缓存中的旧版Golang ==========
-          # 1. 清理feeds中的golang（基础）
           rm -rf feeds/packages/lang/golang
-          # 2. 清理工具链/目标目录/主机目录中的golang可执行文件和库
-          rm -rf staging_dir/toolchain-*/*/lib/go staging_dir/toolchain-*/*/bin/go staging_dir/toolchain-*/*/bin/gofmt
-          rm -rf staging_dir/target-*/*/usr/lib/go staging_dir/target-*/*/usr/bin/go
-          rm -rf staging_dir/host/bin/go staging_dir/host/lib/go staging_dir/host/usr/lib/go
-          # 3. 清理下载缓存中的旧版golang源码
+          rm -rf staging_dir/toolchain-*/*/lib/go
+          rm -rf staging_dir/toolchain-*/*/bin/go
+          rm -rf staging_dir/toolchain-*/*/bin/gofmt
+          rm -rf staging_dir/target-*/*/usr/lib/go
+          rm -rf staging_dir/target-*/*/usr/bin/go
+          rm -rf staging_dir/host/bin/go
+          rm -rf staging_dir/host/lib/go
+          rm -rf staging_dir/host/usr/lib/go
           rm -rf dl/go*
-          # ========== 保留官方文档的安装逻辑 ==========
           git clone https://github.com/sbwml/packages_lang_golang -b 26.x feeds/packages/lang/golang
-          # 强制更新并安装，确保覆盖旧配置
           ./scripts/feeds update -f golang
           ./scripts/feeds install -a -f golang
-          # 验证清理结果（可选，便于排查）
-          echo "=== Golang清理结果验证 ==="
           find $OPENWRT_PATH -name "go" -type f -exec ls -l {} \; || echo "无残留的go可执行文件"
 
       - name: 运行一键部署脚本
@@ -157,10 +154,10 @@ jobs:
           if [ -f ".config" ]; then
             CONFIG_NAME="openwrt_config_$(date +%Y%m%d_%H%M%S).config"
             cp .config $GITHUB_WORKSPACE/$CONFIG_NAME
-            echo "::set-output name=CONFIG_PATH::$GITHUB_WORKSPACE/$CONFIG_NAME"
-            echo "::set-output name=status::success"
+            echo "CONFIG_PATH=$GITHUB_WORKSPACE/$CONFIG_NAME" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=status::failed"
+            echo "status=failed" >> $GITHUB_OUTPUT
           fi
 
       - name: 上传.config到directory
@@ -179,7 +176,7 @@ jobs:
           export CFLAGS="-Wno-format-nonliteral $CFLAGS"
           export CXXFLAGS="-Wno-format-nonliteral $CXXFLAGS"
           make -j2 CCACHE=1 || make -j1 CCACHE=1 V=s
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: 搜索固件
         run: |
@@ -191,23 +188,21 @@ jobs:
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
           cd openwrt/bin/
-          cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
-          ls
+          FIRMWARE_DIR=$(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
+          cd $FIRMWARE_DIR
           rm -rf packages
-          find . -name "*ext4*" |xargs rm -rf
-          find . -name "*root*" |xargs rm -rf
+          find . -name "*ext4*" | xargs rm -rf
+          find . -name "*root*" | xargs rm -rf
           FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_default.tar.gz
           tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
           ls | grep -v $FIRMWARE_NAME | xargs rm -rf
-          ls
-          echo "::set-output name=FIRMWARE::$PWD"
-          echo "::set-output name=FIRMWARE_NAME::$FIRMWARE_NAME"
-          echo "::set-output name=status::success"
+          echo "FIRMWARE_FILE=$PWD/$FIRMWARE_NAME" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: 上传到 directory
+      - name: 上传固件压缩包
         uses: actions/upload-artifact@v4
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_default
-          path: ${{ steps.organize.outputs.FIRMWARE }}
+          name: OpenWrt_Firmware
+          path: ${{ steps.organize.outputs.FIRMWARE_FILE }}
           retention-days: 7
