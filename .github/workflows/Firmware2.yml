@@ -35,7 +35,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_SOFTETHERVPN: false
   UPLOAD_COWTRANSFER: true
-  UPLOAD_RELEASE: true
+  UPLOAD_RELEASE: false
   UPLOAD_WETRANSFER: false
   # 源码仓库相关
   REPO_URL: https://github.com/immortalwrt/immortalwrt
@@ -172,19 +172,13 @@ jobs:
           make download -j8
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
-          
-          # 保存配置文件
-          cp .config $GITHUB_WORKSPACE/openwrt-config-x86-64.config
-          
-          # 同时保存为config.buildinfo格式
-          cp .config $OPENWRT_PATH/bin/config.buildinfo 2>/dev/null || true
 
-      - name: Upload .config to Artifact
+      - name: Upload .config to Artifact (Pre-build)
         uses: actions/upload-artifact@master
-        if: steps.package.outputs.status == 'success' && !cancelled()
+        if: success()
         with:
-          name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-          path: ${{ github.workspace }}/openwrt-config-x86-64.config
+          name: OpenWrt_config_prebuild_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          path: ${{ env.OPENWRT_PATH }}/.config
 
       - name: Compile OpenWrt Firmware
         id: compile
@@ -198,7 +192,7 @@ jobs:
       - name: Find Firmware Files
         run: |
           cd $OPENWRT_PATH/bin/
-          find . -name "*squashfs*" -o -name "*combined*" -o -name "*ext4*" -o -name "*config.buildinfo*"
+          find . -name "*squashfs*" -o -name "*combined*" -o -name "*ext4*"
 
       - name: Organize Firmware Files
         id: organize
@@ -216,9 +210,6 @@ jobs:
           # 清理无用文件
           rm -rf packages
           find . -name "*root*" -delete
-          
-          # 将配置文件复制到固件目录
-          cp $GITHUB_WORKSPACE/openwrt-config-x86-64.config ./config.buildinfo
           
           # 打包固件
           FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_x86-64.tar.gz
@@ -239,44 +230,9 @@ jobs:
           name: OpenWrt_firmware_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
           path: ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
 
-      - name: Upload Config to Artifact
+      - name: Upload .config to Artifact (Post-build)
         uses: actions/upload-artifact@master
-        if: steps.package.outputs.status == 'success' && !cancelled()
+        if: success()
         with:
-          name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-          path: ${{ github.workspace }}/openwrt-config-x86-64.config
-
-      - name: Upload Firmware to Release
-        uses: softprops/action-gh-release@v1
-        if: env.UPLOAD_RELEASE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
-        with:
-          tag_name: ${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-          name: OpenWrt Firmware ${{ env.FIRMWARE_TAG }} (Build ${{ github.run_id }})
-          body: |
-            ## OpenWrt 固件编译完成
-            
-            ### 版本信息
-            - 平台: x86-64
-            - 编译时间: ${{ env.COMMIT_DATE }}
-            - 源码版本: ${{ env.COMMIT_HASH }}
-            - 源码作者: ${{ env.COMMIT_AUTHOR }}
-            
-            ### 包含组件
-            - Luci Web界面
-            - Luci SSL支持
-            - Luci 防火墙
-            - **strongSwan Full (L2TP/IPsec VPN服务器)**
-            - xl2tpd (L2TP守护进程)
-            - PPP协议支持
-            
-            ### 说明
-            固件已包含完整的L2TP over IPsec VPN服务端组件，可直接配置使用。
-            默认登录IP: 192.168.1.1
-            默认密码: password
-            
-            **注意**: 首次使用请修改默认密码并配置防火墙规则。
-          files: |
-            ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
-            ${{ github.workspace }}/openwrt-config-x86-64.config
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: OpenWrt_config_postbuild_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          path: ${{ env.OPENWRT_PATH }}/.config
