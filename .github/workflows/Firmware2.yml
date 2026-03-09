@@ -15,6 +15,7 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-23.05
+  OPENWRT_DIR: /home/runner/work/openwrt
 
 jobs:
   Build:
@@ -45,17 +46,15 @@ jobs:
       - name: Clone Source Code
         id: clone
         run: |
-          echo "OPENWRT_DIR=/home/runner/work/openwrt" >> $GITHUB_ENV
-          mkdir -p ${{ env.OPENWRT_DIR }}
-          git clone --depth=1 -b $REPO_BRANCH $REPO_URL ${{ env.OPENWRT_DIR }}
-          echo "源码克隆完成，目录：${{ env.OPENWRT_DIR }}"
-          ls -la ${{ env.OPENWRT_DIR }}
+          git clone --depth=1 -b $REPO_BRANCH $REPO_URL $OPENWRT_DIR
+          echo "源码克隆完成，目录：$OPENWRT_DIR"
+          ls -la $OPENWRT_DIR
 
       - name: Install Feeds
         run: |
-          cd ${{ env.OPENWRT_DIR }}
+          cd $OPENWRT_DIR
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          ls -la ${{ env.OPENWRT_DIR }}/feeds/
+          ls -la $OPENWRT_DIR/feeds/
 
       - name: SSH Connection (Debug)
         uses: P3TERX/ssh2actions@v1.0.0
@@ -66,8 +65,8 @@ jobs:
 
       - name: Generate Build Configuration
         run: |
-          cd ${{ env.OPENWRT_DIR }}
-          cat > ${{ env.OPENWRT_DIR }}/.config <<EOF
+          cd $OPENWRT_DIR
+          cat > $OPENWRT_DIR/.config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_DEVICE_generic=y
@@ -78,33 +77,52 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
           EOF
           make defconfig
-          echo "验证.config文件："
-          ls -la ${{ env.OPENWRT_DIR }}/.config
-          cat ${{ env.OPENWRT_DIR }}/.config | head -20
 
       - name: Download Dependencies
         run: |
-          cd ${{ env.OPENWRT_DIR }}
+          cd $OPENWRT_DIR
           make download -j$(nproc) || make download -j1
           find dl -size -1024c -exec rm -f {} \;
           make defconfig
 
-      - name: Upload .config File
+      - name: Prepare Config File for Upload
+        run: |
+          # 递归搜索 .config 文件（优先 OPENWRT_DIR 目录）
+          CONFIG_FILE=$(find $OPENWRT_DIR -name ".config" -type f | head -n1)
+          if [ -z "$CONFIG_FILE" ]; then
+            echo "Error: .config file not found in $OPENWRT_DIR!"
+            exit 1
+          fi
+          echo "Found .config file at: $CONFIG_FILE"
+          
+          # 创建临时目录存放配置文件
+          mkdir -p /tmp/config_upload
+          # 复制并命名（加 run_id 避免冲突）
+          cp $CONFIG_FILE /tmp/config_upload/openwrt_config_${{ github.run_id }}.config
+          # 可选：打包成 tar.gz（防止文件权限/格式问题）
+          tar czvf /tmp/config_upload/openwrt_config_${{ github.run_id }}.tar.gz -C /tmp/config_upload .
+        shell: bash
+
+      # 上传配置文件（支持单个文件+打包文件）
+      - name: Upload .config Artifact
         uses: actions/upload-artifact@v4
         with:
           name: OpenWrt_config_${{ github.run_id }}
-          path: ${{ env.OPENWRT_DIR }}/.config  
+          path: |
+            /tmp/config_upload/*.config
+            /tmp/config_upload/*.tar.gz
+          if-no-files-found: error
 
       - name: Compile Firmware
         run: |
-          cd ${{ env.OPENWRT_DIR }}
+          cd $OPENWRT_DIR
           make -j$(nproc) || { make -j1 V=s; [ $? -ne 0 ] && exit 1; }
 
       - name: Package & Upload Firmware
         if: ${{ !cancelled() }}
         run: |
-          FIRMWARE_DIR=$(find ${{ env.OPENWRT_DIR }}/bin/targets/x86/64 -type d -name "generic" -print -quit)
-          [ -z "$FIRMWARE_DIR" ] && FIRMWARE_DIR=$(find ${{ env.OPENWRT_DIR }}/bin -type d -path "*x86*64*" | head -n1)
+          FIRMWARE_DIR=$(find $OPENWRT_DIR/bin/targets/x86/64 -type d -name "generic" -print -quit)
+          [ -z "$FIRMWARE_DIR" ] && FIRMWARE_DIR=$(find $OPENWRT_DIR/bin -type d -path "*x86*64*" | head -n1)
           [ -z "$FIRMWARE_DIR" ] && exit 1
           
           cd $FIRMWARE_DIR
@@ -129,5 +147,5 @@ jobs:
         run: |
           echo "Firmware compilation failed! Check build logs for details."
           ls -la /home/runner/work/
-          ls -la ${{ env.OPENWRT_DIR }}
+          ls -la $OPENWRT_DIR
           exit 1
