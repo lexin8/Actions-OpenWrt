@@ -1,80 +1,226 @@
-name: Build ImmortalWrt 24.10 (Official Spec)
+#=================================================
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: P3TERX
+# Blog: https://p3terx.com
+#=================================================
+
+name: fanchmwrt
 
 on:
+  repository_dispatch:
+  #  schedule:
+  #    - cron: 0 20 * * 2,4,6,0
+  watch:
+    types: started
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'false'
 
 env:
-  TARGET_ARCH: x86
-  TARGET_SUBARCH: 64
+  # 配置文件相关
+  CONFIG_FILE: istoreos.config
+  CONFIG_FILE2: fanchmwrt.config
+  # DIY脚本相关
+  DIY_P1_SH: fanchmwrt.sh
+  DIY_P2_SH: diy-part2.sh
+  DIY_P3_SH: diy-part3.sh
+  # 功能开关
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  UPLOAD_SOFTETHERVPN: false
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_RELEASE: true
+  UPLOAD_WETRANSFER: false
+  # 源码仓库相关
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-24.10
-  BUILD_DIR: immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: openwrt-23.05
+  REPO_BRANCH2: openwrt-24.10
+  DIY_SCRIPT: diy-script.sh
+  # 编译相关
+  CLASH_KERNEL: amd64
+  CACHE_TOOLCHAIN: true
+  FIRMWARE_RELEASE: true
+  FIRMWARE_TAG: X86_64
+  TZ: Asia/Shanghai
 
 jobs:
-  build:
+  Build:
     runs-on: ubuntu-22.04
+
     steps:
-      - name: 1. Init build environment (Official Script)
+      - name: Check Server Performance
         run: |
-          # 官方初始化脚本
-          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
-          # 清理空间
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /tmp/*
-          # 创建普通用户（免密码切换）
-          sudo useradd -m builduser -s /bin/bash
-          sudo chown -R builduser:builduser $GITHUB_WORKSPACE
-          # 关键：给 builduser 添加 sudo 免密码权限（避免 su 认证失败）
-          echo "builduser ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/builduser
+          echo "警告⚠"
+          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
+          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
+          echo "--------------------------CPU信息--------------------------"
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
+          echo "--------------------------内存信息--------------------------"
+          echo "已安装内存详细信息:"
+          echo -e "$(sudo lshw -short -C memory | grep GiB)\n"
+          echo "--------------------------硬盘信息--------------------------"
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
-      - name: 2. Clone source code (Official Command)
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          # 改用 sudo -u 免密码执行，替代 su -
-          sudo -u builduser git clone -b ${{ env.REPO_BRANCH }} --single-branch --filter=blob:none ${{ env.REPO_URL }} ${{ env.BUILD_DIR }}
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && ./scripts/feeds update -a && ./scripts/feeds install -a"
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
 
-      - name: 3. Configure build options
-        run: |
-          # 配置编译选项（免密码执行）
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && make defconfig"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-full=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_xl2tpd=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_ppp=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-mod-openssl=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-pki=y' >> .config"
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && make defconfig"
-          # 打包并上传 .config
-          cp ${{ env.BUILD_DIR }}/.config openwrt-config-24.10.config
-          tar -zcf openwrt-config-24.10.tar.gz openwrt-config-24.10.config
-
-      - name: 4. Upload .config archive
-        uses: actions/upload-artifact@v4
+      - name: Combine Disks
+        uses: easimon/maximize-build-space@master
         with:
-          name: openwrt-config-24.10
-          path: openwrt-config-24.10.tar.gz
+          swap-size-mb: 1024
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
 
-      - name: 5. Download dependencies
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone Source Code (fanchmwrt)
         run: |
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && make download -j1"
+          df -hT $GITHUB_WORKSPACE
+          git clone $REPO_URL2 openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
+          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
 
-      - name: 6. Build firmware (Single thread, Official Spec)
+      - name: Clone Source Code (immortalwrt)
         run: |
-          # 编译固件（免密码 + 单线程）
-          sudo -u builduser bash -c "cd ${{ env.BUILD_DIR }} && make -j1 V=s 2>&1 | tee build.log"
-          ls -lh ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/
+          df -hT $GITHUB_WORKSPACE
+          git clone $REPO_URL immortalwrt
+          cd immortalwrt
+          echo "IMMORTALWRT_PATH=$PWD" >> $GITHUB_ENV
+          COMMIT_AUTHOR_IMMORTAL=$(git show -s --date=short --format="作者: %an")
+          echo "COMMIT_AUTHOR_IMMORTAL=$COMMIT_AUTHOR_IMMORTAL" >> $GITHUB_ENV
+          COMMIT_DATE_IMMORTAL=$(git show -s --date=short --format="时间: %ci")
+          echo "COMMIT_DATE_IMMORTAL=$COMMIT_DATE_IMMORTAL" >> $GITHUB_ENV
+          COMMIT_MESSAGE_IMMORTAL=$(git show -s --date=short --format="内容: %s")
+          echo "COMMIT_MESSAGE_IMMORTAL=$COMMIT_MESSAGE_IMMORTAL" >> $GITHUB_ENV
+          COMMIT_HASH_IMMORTAL=$(git show -s --date=short --format="hash: %H")
+          echo "COMMIT_HASH_IMMORTAL=$COMMIT_HASH_IMMORTAL" >> $GITHUB_ENV
 
-      - name: 7. Upload build log
-        uses: actions/upload-artifact@v4
+      - name: Cache Toolchain
+        if: env.CACHE_TOOLCHAIN == 'true'
+        uses: HiGarfield/cachewrtbuild@main
         with:
-          name: build-log
-          path: ${{ env.BUILD_DIR }}/build.log
-        if: always()
+          ccache: false
+          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+          prefix: ${{ env.OPENWRT_PATH }}
 
-      - name: 8. Upload firmware
-        uses: actions/upload-artifact@v4
+      - name: Install Feeds (fanchmwrt)
+        run: |
+          cd $OPENWRT_PATH
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Install Feeds (immortalwrt)
+        run: |
+          cd $IMMORTALWRT_PATH
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Download Packages
+        id: package
+        run: |
+          cd $OPENWRT_PATH
+          make defconfig
+          make download -j8
+          # 清理空文件
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+          
+          # 基础配置
+          su - builduser -c "cd $BUILD_DIR && make defconfig"
+          
+          # 追加VPN相关组件配置
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-full=y' >> .config"
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_xl2tpd=y' >> .config"
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_ppp=y' >> .config"
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y' >> .config"
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-mod-openssl=y' >> .config"
+          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-pki=y' >> .config"
+          
+          # 重新生成配置
+          su - builduser -c "cd $BUILD_DIR && make defconfig"
+          
+          # 保存配置文件
+          cp $BUILD_DIR/.config $GITHUB_WORKSPACE/openwrt-config-24.10.config
+          tar -zcf $GITHUB_WORKSPACE/openwrt-config-24.10.tar.gz $GITHUB_WORKSPACE/openwrt-config-24.10.config
+
+      - name: Compile OpenWrt Firmware
+        id: compile
+        run: |
+          cd $OPENWRT_PATH
+          echo -e "使用 $(nproc) 线程编译"
+          # 尝试多线程编译，失败则降级单线程
+          make -j$(nproc) || make -j1 || make -j1 V=s
+          echo "::set-output name=status::success"
+
+      - name: Find Firmware Files
+        run: |
+          cd $OPENWRT_PATH/bin/
+          find . -name "*squashfs*"
+
+      - name: Organize Firmware Files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        run: |
+          # 进入固件目录
+          FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/ -name "*squashfs*" | head -n 1 | xargs dirname)
+          cd $FIRMWARE_DIR
+          
+          # 清理无用文件
+          rm -rf packages
+          find . -name "*ext4*" -delete
+          find . -name "*root*" -delete
+          
+          # 打包固件
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt.tar.gz
+          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
+          
+          # 保留仅打包文件
+          ls | grep -v $FIRMWARE_NAME | xargs rm -rf
+          
+          # 输出变量
+          echo "::set-output name=FIRMWARE::$FIRMWARE_DIR"
+          echo "::set-output name=status::success"
+          echo "固件打包完成：$(ls $FIRMWARE_DIR)"
+
+      - name: Upload Firmware to Artifact
+        uses: actions/upload-artifact@master
+        if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: immortalwrt-24.10-x86_64-firmware
-          path: |
-            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.img.gz
-            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.tar.gz
-            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.manifest
+          name: OpenWrt_firmware_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          path: ${{ steps.organize.outputs.FIRMWARE }}
