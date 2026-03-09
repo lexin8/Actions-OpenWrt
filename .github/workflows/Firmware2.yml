@@ -12,7 +12,6 @@ on:
         default: 'false'
 
 env:
-  CONFIG_FILE: fanchmwrt.config
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-23.05
@@ -45,7 +44,6 @@ jobs:
 
       - name: Clone Source Code
         run: |
-          # 克隆源码并命名为openwrt
           git clone --depth=1 -b $REPO_BRANCH $REPO_URL openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
@@ -57,7 +55,7 @@ jobs:
 
       - name: SSH Connection (Debug)
         uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true') || contains(github.event.action, 'ssh')
+        if: ${{ (github.event.inputs.ssh == 'true') || contains(github.event.action, 'ssh') }}
         env:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -65,20 +63,17 @@ jobs:
       - name: Load Build Configuration
         run: |
           cd $OPENWRT_PATH
-          if [ -f $GITHUB_WORKSPACE/$CONFIG_FILE ]; then
-            cp $GITHUB_WORKSPACE/$CONFIG_FILE .config
-          else
-            cat > .config <<EOF
-            CONFIG_TARGET_x86=y
-            CONFIG_TARGET_x86_64=y
-            CONFIG_TARGET_x86_64_DEVICE_generic=y
-            CONFIG_PACKAGE_luci=y
-            CONFIG_PACKAGE_luci-ssl=y
-            CONFIG_PACKAGE_strongswan-full=y
-            CONFIG_PACKAGE_xl2tpd=y
-            CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
-            EOF
-          fi
+          # 直接写入配置，移除条件判断
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-ssl=y
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
+          EOF
           make defconfig
 
       - name: Download Dependencies
@@ -100,7 +95,7 @@ jobs:
           make -j$(nproc) || { make -j1 V=s; [ $? -ne 0 ] && exit 1; }
 
       - name: Package & Upload Firmware
-        if: !cancelled()
+        if: ${{ !cancelled() }}
         run: |
           FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/targets/x86/64 -type d -name "generic" -print -quit)
           [ -z "$FIRMWARE_DIR" ] && FIRMWARE_DIR=$(find $OPENWRT_PATH/bin -type d -path "*x86*64*" | head -n1)
@@ -112,11 +107,18 @@ jobs:
           tar czvf $FIRMWARE_NAME *.img.gz *.vmdk *.qcow2 *.iso 2>/dev/null || exit 1
           
           echo "Uploading firmware: $FIRMWARE_NAME"
-          gh artifact upload "$FIRMWARE_NAME" --name "OpenWrt_firmware_${{ github.run_id }}" --clobber || \
-          actions/upload-artifact@master --name "OpenWrt_firmware_${{ github.run_id }}" --path "$FIRMWARE_NAME"
+          mkdir -p /tmp/firmware
+          cp $FIRMWARE_NAME /tmp/firmware/
+
+      - name: Upload Firmware Artifact
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@master
+        with:
+          name: OpenWrt_firmware_${{ github.run_id }}
+          path: /tmp/firmware/*.tar.gz
 
       - name: Compilation Failure Alert
-        if: failure()
+        if: ${{ failure() }}
         run: |
           echo "Firmware compilation failed! Check build logs for details."
           exit 1
