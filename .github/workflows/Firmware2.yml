@@ -1,4 +1,4 @@
-name: Build ImmortalWrt 24.10 with strongswan-full
+name: Firmware2
 
 on:
   workflow_dispatch:
@@ -8,70 +8,56 @@ env:
   TARGET_SUBARCH: 64
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
-  BUILD_DIR: openwrt
-  CONFIG_ARCHIVE: openwrt-config-24.10.tar.gz
+  BUILD_DIR: immortalwrt
 
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: 1. Install dependencies (full)
+      - name: 1. Init build environment (Official Script)
         run: |
-          sudo apt update -y && sudo apt full-upgrade -y
-          # 补充 ncurses 开发库（解决 scripts/config/conf 编译失败核心依赖）
-          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
-            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
-            g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev \
-            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev \
-            libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf \
-            python3 python3-pip python3-ply python3-setuptools qemu-utils rsync scons squashfs-tools \
-            subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev \
-            libncurses-dev ncurses-dev  # 关键补充：ncurses 开发库
-          sudo apt autoremove -y && sudo apt clean -y
+          # 严格使用官方初始化脚本（解决依赖缺失核心问题）
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          # 清理冗余文件释放空间（符合官方 25GB 磁盘要求）
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /tmp/*
-          # 临时调整编译参数，避免并行编译冲突
-          echo "MAKEFLAGS=-j1" >> $GITHUB_ENV
+          # 创建非 root 用户编译（遵循官方 "不要用 root/sudo" 规范）
+          sudo useradd -m builduser
+          sudo chown -R builduser:builduser $GITHUB_WORKSPACE
 
-      - name: 2. Clone source code
+      - name: 2. Clone source code (Official Command)
         run: |
-          git clone --depth=1 --branch=${{ env.REPO_BRANCH }} ${{ env.REPO_URL }} ${{ env.BUILD_DIR }}
-          cd ${{ env.BUILD_DIR }}
-          ./scripts/feeds update -a && ./scripts/feeds install -a
+          su - builduser -c "git clone -b ${{ env.REPO_BRANCH }} --single-branch --filter=blob:none ${{ env.REPO_URL }} ${{ env.BUILD_DIR }}"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && ./scripts/feeds update -a && ./scripts/feeds install -a"
 
       - name: 3. Configure build options
         run: |
-          cd ${{ env.BUILD_DIR }}
-          # 先单独编译 config/conf 工具（降低并行度，避免冲突）
-          make -j1 V=s scripts/config/conf
-          # 生成默认配置并追加指定组件
-          make defconfig
-          echo "CONFIG_PACKAGE_strongswan-full=y" >> .config
-          echo "CONFIG_PACKAGE_xl2tpd=y" >> .config
-          echo "CONFIG_PACKAGE_ppp=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-mod-openssl=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-pki=y" >> .config
-          make defconfig
-          grep -E "strongswan|xl2tpd|ppp" .config
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && make defconfig"
+          # 追加指定组件配置
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-full=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_xl2tpd=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_ppp=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-mod-openssl=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && echo 'CONFIG_PACKAGE_strongswan-pki=y' >> .config"
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && make defconfig"
+          # 上传 .config
+          cp ${{ env.BUILD_DIR }}/.config openwrt-config-24.10.config
+          tar -zcf openwrt-config-24.10.tar.gz openwrt-config-24.10.config
 
-      - name: 4. Download dependencies
-        run: |
-          cd ${{ env.BUILD_DIR }}
-          make download -j$(nproc)
-          find dl -size -1024c -exec rm -f {} \;
-
-      - name: 5. Package and upload .config
+      - name: 4. Upload .config archive
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-24.10-config
-          path: ${{ env.BUILD_DIR }}/.config
+          name: openwrt-config-24.10
+          path: openwrt-config-24.10.tar.gz
 
-      - name: 6. Build firmware
+      - name: 5. Download dependencies
+        run: su - builduser -c "cd ${{ env.BUILD_DIR }} && make download -j1"
+
+      - name: 6. Build firmware (Single thread, Official Spec)
         run: |
-          cd ${{ env.BUILD_DIR }}
-          # 编译固件时恢复并行，但保留 Verbose 输出便于排错
-          make -j$(nproc) V=s 2>&1 | tee build.log
-          ls -lh bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/
+          # 严格遵循官方 "非 root 用户 + 单线程编译" 要求
+          su - builduser -c "cd ${{ env.BUILD_DIR }} && make -j1 V=s 2>&1 | tee build.log"
+          ls -lh ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/
 
       - name: 7. Upload build log
         uses: actions/upload-artifact@v4
@@ -83,7 +69,7 @@ jobs:
       - name: 8. Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-firmware-24.10-${{ env.TARGET_ARCH }}-${{ env.TARGET_SUBARCH }}
+          name: immortalwrt-24.10-x86_64-firmware
           path: |
             ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.img.gz
             ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.tar.gz
