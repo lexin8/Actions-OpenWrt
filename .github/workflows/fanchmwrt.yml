@@ -154,6 +154,30 @@ jobs:
           find dl -size -1024c -exec rm -f {} \;
           echo "依赖包下载完成，共$(ls dl | wc -l)个包"
 
+      # ===================== 新增：导出并上传.config文件（编译前执行，不受编译结果影响） =====================
+      - name: 导出并上传.config配置文件
+        id: upload_config
+        run: |
+          cd openwrt
+          # 确保.config文件存在（make menuconfig自动生成）
+          if [ -f ".config" ]; then
+            # 重命名.config，添加时间戳便于识别
+            CONFIG_NAME="openwrt_config_$(date +%Y%m%d_%H%M%S).config"
+            cp .config $GITHUB_WORKSPACE/$CONFIG_NAME
+            echo "::set-output name=CONFIG_PATH::$GITHUB_WORKSPACE/$CONFIG_NAME"
+            echo "::set-output name=status::success"
+          else
+            echo ".config文件不存在"
+            echo "::set-output name=status::failed"
+          fi
+
+      - name: 上传.config到directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt_Config_File
+          path: ${{ steps.upload_config.outputs.CONFIG_PATH }}
+          retention-days: 7
+
       - name: 开始编译固件
         id: compile
         run: |
@@ -202,7 +226,9 @@ jobs:
         with:
           tag_name: build-${{ github.run_id }}
           name: OpenWrt Build ${{ github.run_id }} (default)
-          files: ${{ steps.organize.outputs.FIRMWARE }}/*
+          files: |
+            ${{ steps.organize.outputs.FIRMWARE }}/*
+            ${{ steps.upload_config.outputs.CONFIG_PATH }}
           body: |
             📅 编译时间: $(date +%Y-%m-%d %H:%M:%S)
             📝 源码版本: ${{ env.COMMIT_HASH }}
