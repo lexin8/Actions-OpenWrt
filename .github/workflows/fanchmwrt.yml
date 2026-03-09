@@ -98,13 +98,26 @@ jobs:
             exit 1
           fi
 
-      - name: Install Golang (Official Doc)
+      - name: Install Golang (Official Doc + Full Clean)
         run: |
           cd $OPENWRT_PATH
+          # ========== 新增：彻底清理缓存中的旧版Golang ==========
+          # 1. 清理feeds中的golang（基础）
           rm -rf feeds/packages/lang/golang
+          # 2. 清理工具链/目标目录/主机目录中的golang可执行文件和库
+          rm -rf staging_dir/toolchain-*/*/lib/go staging_dir/toolchain-*/*/bin/go staging_dir/toolchain-*/*/bin/gofmt
+          rm -rf staging_dir/target-*/*/usr/lib/go staging_dir/target-*/*/usr/bin/go
+          rm -rf staging_dir/host/bin/go staging_dir/host/lib/go staging_dir/host/usr/lib/go
+          # 3. 清理下载缓存中的旧版golang源码
+          rm -rf dl/go*
+          # ========== 保留官方文档的安装逻辑 ==========
           git clone https://github.com/sbwml/packages_lang_golang -b 26.x feeds/packages/lang/golang
-          ./scripts/feeds update golang
-          ./scripts/feeds install -a golang
+          # 强制更新并安装，确保覆盖旧配置
+          ./scripts/feeds update -f golang
+          ./scripts/feeds install -a -f golang
+          # 验证清理结果（可选，便于排查）
+          echo "=== Golang清理结果验证 ==="
+          find $OPENWRT_PATH -name "go" -type f -exec ls -l {} \; || echo "无残留的go可执行文件"
 
       - name: 运行一键部署脚本
         run: |
@@ -198,5 +211,3 @@ jobs:
           name: OpenWrt_firmware_default
           path: ${{ steps.organize.outputs.FIRMWARE }}
           retention-days: 7
-          
-      # 已完全删除 Upload to Release 步骤
