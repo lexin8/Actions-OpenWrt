@@ -21,7 +21,7 @@ jobs:
     
     steps:
       - name: 检查代码
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
 
       - name: 初始化编译环境
         run: |
@@ -37,7 +37,7 @@ jobs:
           ccache -o compression=true
 
       - name: 缓存 feeds
-        uses: actions/cache@v3
+        uses: actions/cache@v4  # 升级到 v4
         id: cache-feeds
         with:
           path: openwrt/feeds
@@ -47,7 +47,7 @@ jobs:
             feeds-
 
       - name: 缓存 dl 源码包
-        uses: actions/cache@v3
+        uses: actions/cache@v4  # 升级到 v4
         id: cache-dl
         with:
           path: openwrt/dl
@@ -57,7 +57,7 @@ jobs:
             dl-
 
       - name: 缓存 ccache
-        uses: actions/cache@v3
+        uses: actions/cache@v4  # 升级到 v4
         id: cache-ccache
         with:
           path: ${{ env.CCACHE_DIR }}
@@ -118,11 +118,7 @@ jobs:
           CONFIG_PACKAGE_kmod-pppol2tp=y
           CONFIG_PACKAGE_kmod-pptp=y
           CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-default=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-libipsec=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
-          CONFIG_PACKAGE_strongswan-mod-socket-default=y
-          CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
+          CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_xl2tpd=y
           CONFIG_PACKAGE_linux-atm=y
           CONFIG_PACKAGE_ppp=y
@@ -147,23 +143,41 @@ jobs:
           cd openwrt
           make defconfig
 
-      - name: 预下载关键包
-        run: |
-          cd openwrt
-          for pkg in strongswan xl2tpd kmod-ipsec kmod-pppol2tp; do
-            make package/$pkg/download -j$(nproc) 2>/dev/null || true
-          done
-          make toolchain/download -j$(nproc) 2>/dev/null || true
-
       - name: 下载所有依赖包
         run: |
           cd openwrt
           make download -j$(nproc)
           find dl -size -1024c -exec rm -f {} \;
 
+      - name: 导出并上传.config配置文件（编译前）
+        id: upload_config_before
+        run: |
+          cd openwrt
+          if [ -f ".config" ]; then
+            CONFIG_NAME="openwrt_config_before_$(date +%Y%m%d_%H%M%S).config"
+            cp .config $GITHUB_WORKSPACE/$CONFIG_NAME
+            echo "CONFIG_PATH=$GITHUB_WORKSPACE/$CONFIG_NAME" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ 编译前配置已保存：$CONFIG_NAME"
+          else
+            echo "⚠️ .config 文件不存在"
+            echo "status=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 上传编译前.config到artifact
+        uses: actions/upload-artifact@v4
+        if: steps.upload_config_before.outputs.status == 'success'
+        with:
+          name: OpenWrt_Config_Before
+          path: ${{ steps.upload_config_before.outputs.CONFIG_PATH }}
+          retention-days: 7
+
       - name: 编译固件
         run: |
           cd openwrt
+          # 启用 ccache
+          export CCACHE_DIR=$CCACHE_DIR
+          export USE_CCACHE=1
           make -j$(nproc) || make -j1 V=s
 
       - name: 整理固件
@@ -174,8 +188,9 @@ jobs:
           cp -rf $(find bin/targets/ -type f -name "*combined*" -o -name "*squashfs*" -o -name "*ext4*" -o -name "*efi*") artifact/ 2>/dev/null || true
 
       - name: 上传固件
-        uses: actions/upload-artifact@v4  # ⚠️ 关键修改：v3 → v4
+        uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-L2TP-IPsec
+          name: OpenWrt-L2TP-IPsec-x86-64
           path: openwrt/artifact/
-          if-no-files-found: warn  # 如果没有固件文件，给出警告而不是报错
+          if-no-files-found: warn
+          retention-days: 7
