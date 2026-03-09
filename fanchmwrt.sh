@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd openwrt || exit 1
+# 已移除：cd openwrt || exit 1（无需再切换目录，YAML中已确保在openwrt目录执行）
 
 if [ ! -d "./feeds/luci" ] || [ ! -f "./feeds.conf.default" ]; then
     ./scripts/feeds update -a
@@ -103,7 +103,6 @@ CONFIG_PACKAGE_luci-app-nikki=y
 # CONFIG_PACKAGE_luci-app-samba is not set
 # CONFIG_PACKAGE_luci-app-vlmcsd is not set
 # CONFIG_PACKAGE_luci-app-wol is not set
-# CONFIG_PACKAGE_luci-app-zerotier is not set
 # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
 EOF
 
