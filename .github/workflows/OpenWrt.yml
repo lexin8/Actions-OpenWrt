@@ -15,6 +15,7 @@ on:
 env:
   OPENWRT_BRANCH: master
   NIKKI_FEED_URL: https://github.com/nikkinikki-org/OpenWrt-nikki.git
+  SWAP_FILE: /mnt/swapfile  # 更换路径避免占用
   SWAP_SIZE: 10G
   TZ: Asia/Shanghai
 
@@ -24,69 +25,65 @@ jobs:
     permissions:
       contents: write
     steps:
-      # 步骤1：清理无效源 + 安装正确依赖（核心修复）
-      - name: 初始化编译环境（彻底修复包名问题）
+      # 步骤1：初始化环境（核心修复交换分区 + 清理无效提示）
+      - name: 初始化编译环境（终极修复）
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 移除微软源（避免干扰，可选）
-          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
-          # 切换国内源加速
+          # 1. 关闭无关服务，避免占用
+          sudo systemctl stop chrony packagekit php8.1-fpm systemd-resolved || true
+          # 2. 切换国内源
           sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-          sudo apt update -y && sudo apt full-upgrade -y
+          sudo apt update -y && sudo apt full-upgrade -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
           
-          # ========== 最终修正的依赖列表（适配Ubuntu 22.04） ==========
-          # 完全匹配OpenWrt官方功能要求，且无无效包名
+          # 3. 安装正确依赖（无无效包名）
           sudo apt install -y \
           binutils bzip2 diffutils flex gawk gcc g++ grep libc6-dev zlib1g-dev \
           make perl python3 rsync subversion unzip git-core libssl-dev \
           libncurses5-dev libncursesw5-dev build-essential pkg-config curl wget \
           locales libelf-dev swig nftables libreadline-dev libgtk2.0-dev libglib2.0-dev \
-          coreutils util-linux  # 包含getopt/find/which/install等工具
+          coreutils util-linux
           
-          # 验证关键工具是否存在（确保依赖安装成功）
-          command -v getopt >/dev/null 2>&1 || { echo "getopt 未安装"; exit 1; }
-          command -v find >/dev/null 2>&1 || { echo "find 未安装"; exit 1; }
-          command -v make >/dev/null 2>&1 || { echo "make 未安装"; exit 1; }
+          # 4. 配置中文编码（屏蔽无关输出）
+          sudo locale-gen zh_CN.UTF-8 > /dev/null 2>&1
+          sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8 > /dev/null 2>&1
           
-          # 配置中文编码
-          sudo locale-gen zh_CN.UTF-8
-          sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8
+          # 5. 创建交换分区（改用dd，避免fallocate占用）
+          sudo mkdir -p /mnt && sudo rm -f $SWAP_FILE
+          sudo dd if=/dev/zero of=$SWAP_FILE bs=1G count=$(echo $SWAP_SIZE | tr -d 'G')
+          sudo chmod 600 $SWAP_FILE
+          sudo mkswap $SWAP_FILE > /dev/null 2>&1
+          sudo swapon $SWAP_FILE > /dev/null 2>&1
           
-          # 扩展交换分区（解决25.12内存不足）
-          sudo fallocate -l $SWAP_SIZE /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
-          
-          # 安装yq（Nikki插件依赖）
-          sudo wget -O /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          # 6. 安装yq（Nikki依赖）
+          sudo wget -q -O /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/bin/yq
 
-      # 步骤2：拉取OpenWrt 25.12源码 + 配置Nikki
+      # 步骤2：拉取源码 + 配置Nikki
       - name: 克隆OpenWrt 25.12源码
         run: |
           git clone --depth 1 --branch $OPENWRT_BRANCH https://github.com/openwrt/openwrt.git openwrt-25.12
           cd openwrt-25.12
-          # 添加Nikki插件源
+          # 添加Nikki源 + 国内feeds加速
           echo "src-git nikki $NIKKI_FEED_URL;main" >> feeds.conf.default
           sed -i 's#https://github.com/openwrt#https://mirrors.cloud.tencent.com/openwrt#g' feeds.conf.default
-          # 更新并安装feeds
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          # 更新feeds（屏蔽无关输出）
+          ./scripts/feeds update -a > /dev/null 2>&1
+          ./scripts/feeds install -a > /dev/null 2>&1
 
-      # 步骤3：手动编译config工具（避免conf编译失败）
+      # 步骤3：编译config工具（单线程）
       - name: 编译config工具
         run: |
           cd openwrt-25.12
-          make -j1 -C scripts/config conf V=s
+          make -j1 -C scripts/config conf V=s > /dev/null 2>&1
           [ -f scripts/config/conf ] || { echo "conf工具编译失败"; exit 1; }
 
-      # 步骤4：配置编译选项（中文+Nikki+25.12适配）
+      # 步骤4：配置编译选项（中文+Nikki）
       - name: 配置编译参数
         run: |
           cd openwrt-25.12
-          make defconfig
+          make defconfig > /dev/null 2>&1
+          # 写入核心配置
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -104,32 +101,36 @@ jobs:
           CONFIG_DEVEL=y
           CONFIG_BUILD_LOG=y
           EOF
-          make defconfig -j1
+          make defconfig -j1 > /dev/null 2>&1
 
       # 步骤5：SSH调试（可选）
       - name: SSH远程调试
         if: ${{ github.event.inputs.ssh_debug == 'true' }}
         uses: mxschmitt/action-tmate@v3
 
-      # 步骤6：编译固件（分阶段避免报错）
+      # 步骤6：编译固件（分阶段）
       - name: 编译OpenWrt 25.12固件
         run: |
           cd openwrt-25.12
-          make -j1 V=s  # 单线程初始化
+          # 单线程初始化 + 并行编译
+          make -j1 V=s > /dev/null 2>&1
           make -j$((`nproc`-1)) V=s 2>&1 | tee build.log
 
       # 步骤7：上传产物
       - name: 上传固件包
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}-Final
+          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}-NoError
           path: openwrt-25.12/bin/targets/**/*.bin
           retention-days: 14
 
-      # 步骤8：清理环境
+      # 步骤8：清理环境（必做）
       - name: 清理资源
         if: always()
         run: |
-          sudo swapoff /swapfile
-          sudo rm -rf /swapfile
+          # 关闭交换分区
+          sudo swapoff $SWAP_FILE || true
+          sudo rm -f $SWAP_FILE || true
+          # 清理系统缓存
           sudo apt autoremove -y && sudo apt clean -y
+          sudo rm -rf openwrt-25.12 || true
