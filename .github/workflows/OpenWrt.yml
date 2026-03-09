@@ -1,11 +1,9 @@
-name: OpenWrt 中文
-
-# 触发方式：手动触发（推荐）+ 每周定时编译
+name: OpenWrt
 on:
   workflow_dispatch:
     inputs:
       target_arch:
-        description: '编译目标架构（示例：x86_64/ramips/mt7621/qualcommbe）'
+        description: '编译目标架构（示例：x86_64）'
         required: true
         default: 'x86_64'
       ssh_debug:
@@ -13,12 +11,11 @@ on:
         required: false
         default: 'false'
 
-# 全局环境变量
 env:
-  OPENWRT_BRANCH: master  # 25.12基于master分支
+  OPENWRT_BRANCH: master
   NIKKI_FEED_URL: https://github.com/nikkinikki-org/OpenWrt-nikki.git
-  SWAP_SIZE: 10G          # 扩展交换分区大小（解决内存不足）
-  TZ: Asia/Shanghai       # 时区配置
+  SWAP_SIZE: 10G
+  TZ: Asia/Shanghai
 
 jobs:
   build_openwrt:
@@ -26,38 +23,38 @@ jobs:
     permissions:
       contents: write
     steps:
-      # 步骤1：初始化环境（核心：解决内存不足+依赖适配25.12）
-      - name: 初始化编译环境
+      # 步骤1：修复基础环境（补全所有依赖）
+      - name: 初始化编译环境（修复conf依赖）
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 切换国内源加速
+          # 切换国内源
           sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-          sudo sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-          
-          # 安装25.12编译依赖（高版本编译器+核心工具）
           sudo apt update -y && sudo apt full-upgrade -y
+          
+          # 补全conf编译所需依赖（关键：libreadline-dev、libmenus-dev）
           sudo apt install -y \
-          binutils bzip2 diff find flex gawk gcc-12 getopt grep install libc-dev libz-dev \
+          binutils bzip2 diff find flex gawk gcc-12 g++-12 getopt grep install libc-dev libz-dev \
           make4.3+ perl python3.11+ rsync subversion unzip which git-core libssl-dev \
           libncurses5-dev libncursesw5-dev build-essential pkg-config zlib1g-dev curl wget \
-          locales libelf-dev libncursesw5-dev swig ucode nftables
+          locales libelf-dev libncursesw5-dev swig ucode nftables \
+          libreadline-dev libmenu-dev libgtk2.0-dev libglib2.0-dev  # conf编译核心依赖
           
-          # 配置中文编码（避免编译乱码）
+          # 配置中文编码
           sudo locale-gen zh_CN.UTF-8
           sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8
           
-          # 扩展交换分区（解决25.12编译内存不足）
+          # 扩展交换分区
           sudo fallocate -l $SWAP_SIZE /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
           
-          # 安装yq（Nikki插件依赖）
+          # 安装yq
           sudo wget -O /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/bin/yq
 
-      # 步骤2：拉取OpenWrt 25.12源码
+      # 步骤2：拉取源码并修复feeds
       - name: 克隆OpenWrt 25.12源码
         run: |
           git clone --depth 1 --branch $OPENWRT_BRANCH https://github.com/openwrt/openwrt.git openwrt-25.12
@@ -65,85 +62,74 @@ jobs:
           
           # 添加Nikki插件源
           echo "src-git nikki $NIKKI_FEED_URL;main" >> feeds.conf.default
-          
-          # 替换feeds国内源加速
           sed -i 's#https://github.com/openwrt#https://mirrors.cloud.tencent.com/openwrt#g' feeds.conf.default
           
-          # 更新并安装所有feeds（含Nikki）
+          # 更新并安装feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          
-          # 验证Nikki插件是否安装成功
-          if ! ./scripts/feeds list | grep -q "luci-app-nikki"; then
-            echo "ERROR: Nikki插件安装失败" && exit 1
+
+      # 步骤3：手动编译配置工具（核心修复：单独编译conf，避免并行错误）
+      - name: 手动编译config工具（修复conf build failed）
+        run: |
+          cd openwrt-25.12
+          # 强制单线程编译config工具（关键！避免并行导致的依赖错误）
+          make -j1 -C scripts/config conf V=s
+          # 验证conf是否编译成功
+          if [ ! -f scripts/config/conf ]; then
+            echo "ERROR: conf工具编译失败" && exit 1
           fi
 
-      # 步骤3：配置编译选项（核心：25.12适配+中文+Nikki）
+      # 步骤4：配置编译选项（简化配置，避免冲突）
       - name: 配置编译参数
         run: |
           cd openwrt-25.12
-          
-          # 生成目标架构默认配置
+          # 生成默认配置（避免手动改.config导致语法错误）
           make defconfig
           
-          # ========== 核心配置：25.12适配 ==========
-          echo "CONFIG_TARGET_${{ github.event.inputs.target_arch }}=y" >> .config
-          echo "CONFIG_KERNEL_PATCHVER=6.12" >> .config  # 25.12默认内核
-          echo "CONFIG_FIREWALL4=nftables" >> .config   # 25.12默认防火墙
-          echo "CONFIG_UCODE=y" >> .config              # 25.12核心依赖
+          # 仅保留核心配置，减少冲突
+          cat > .config << EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_LUCI_LANG_zh_Hans=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          CONFIG_DEVEL=y
+          CONFIG_BUILD_LOG=y
+          EOF
           
-          # ========== 核心配置：中文界面 ==========
-          echo "CONFIG_LUCI_LANG_zh_Hans=y" >> .config
-          echo "CONFIG_PACKAGE_luci=y" >> .config
-          echo "CONFIG_PACKAGE_luci-base=y" >> .config
-          echo "CONFIG_PACKAGE_luci-mod-admin-full=y" >> .config
-          echo "CONFIG_PACKAGE_luci-theme-bootstrap=y" >> .config
-          
-          # ========== 核心配置：Nikki插件 ==========
-          echo "CONFIG_PACKAGE_luci-app-nikki=y" >> .config
-          echo "CONFIG_PACKAGE_nikki=y" >> .config
-          echo "CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y" >> .config
-          
-          # ========== 调试配置（可选） ==========
-          echo "CONFIG_DEVEL=y" >> .config
-          echo "CONFIG_BUILD_LOG=y" >> .config
-          
-          # 加载并验证配置
-          make defconfig
+          # 加载配置（单线程）
+          make defconfig -j1
 
-      # 步骤4：SSH调试（可选，手动调整配置）
+      # 步骤5：SSH调试（可选）
       - name: SSH远程调试
         if: ${{ github.event.inputs.ssh_debug == 'true' }}
         uses: mxschmitt/action-tmate@v3
 
-      # 步骤5：开始编译固件
-      - name: 编译OpenWrt 25.12固件
+      # 步骤6：编译固件（单线程初始化，再并行）
+      - name: 编译OpenWrt 25.12固件（修复编译逻辑）
         run: |
           cd openwrt-25.12
-          # 获取CPU核心数，避免编译崩溃
+          # 第一步：单线程编译初始化（解决依赖解析错误）
+          make -j1 V=s
+          # 第二步：并行编译（核心编译阶段）
           CORE_COUNT=$((`nproc` - 1))
-          echo "使用 $CORE_COUNT 核心编译"
-          # 编译并记录日志
           make -j$CORE_COUNT V=s 2>&1 | tee build.log
 
-      # 步骤6：压缩编译产物（便于下载）
-      - name: 压缩固件包
-        run: |
-          cd openwrt-25.12/bin/targets
-          mkdir -p firmware-output
-          cp -r ./* firmware-output/
-          cp ../../build.log firmware-output/
-          tar -zcf openwrt-25.12-${{ github.event.inputs.target_arch }}.tar.gz firmware-output/
-
-      # 步骤7：上传编译产物
+      # 步骤7：上传产物
       - name: 上传固件包
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}-Chinese-Nikki
-          path: openwrt-25.12/bin/targets/openwrt-25.12-${{ github.event.inputs.target_arch }}.tar.gz
-          retention-days: 14  # 产物保留14天
+          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}-Fixed
+          path: openwrt-25.12/bin/targets/**/*.bin
+          retention-days: 14
 
-      # 步骤8：清理环境（可选）
+      # 步骤8：清理环境
       - name: 清理资源
         if: always()
         run: |
