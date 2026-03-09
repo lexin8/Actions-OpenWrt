@@ -91,7 +91,7 @@ CONFIG_PACKAGE_cfdisk=y
 CONFIG_PACKAGE_mount-utils=y
 CONFIG_PACKAGE_ntfs-3g=y
 
-CONFIG_PACKAGE_luci-app-passwall=y
+# CONFIG_PACKAGE_luci-app-passwall is not set
 CONFIG_PACKAGE_luci-app-homeproxy=y
 CONFIG_PACKAGE_sing-box=y
 
