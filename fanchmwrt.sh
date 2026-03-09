@@ -1,25 +1,29 @@
 #!/bin/bash
 set -e
 
-# 已移除：cd openwrt || exit 1（无需再切换目录，YAML中已确保在openwrt目录执行）
-
-if [ ! -d "./feeds/luci" ] || [ ! -f "./feeds.conf.default" ]; then
-    ./scripts/feeds update -a
-fi
+# 基础初始化：更新并安装 feeds（精简条件判断）
+[ ! -d "./feeds/luci" -o ! -f "./feeds.conf.default" ] && ./scripts/feeds update -a
 ./scripts/feeds install -a
 
+# 拉取 luci-app-homeproxy 及核心依赖 sing-box（核心逻辑）
 if [ ! -d "./package/luci-app-homeproxy" ]; then
-    git clone --depth 1 --branch openwrt-24.10 https://github.com/immortalwrt/luci.git package/immortalwrt-luci-tmp
-    mkdir -p package/luci-app-homeproxy
-    cp -rf package/immortalwrt-luci-tmp/applications/luci-app-homeproxy/* package/luci-app-homeproxy/
-    rm -rf package/immortalwrt-luci-tmp
+    # 1. 拉取 homeproxy 独立仓库（适配 openwrt-24.10）
+    git clone --depth 1 https://github.com/immortalwrt/homeproxy.git package/luci-app-homeproxy
+    # 2. 拉取 sing-box 依赖（homeproxy 必需，仅拉取目标目录）
+    if [ ! -d "./package/sing-box" ]; then
+        git clone --depth 1 --branch openwrt-24.10 https://github.com/immortalwrt/packages.git -n package/immortalwrt-tmp
+        cd package/immortalwrt-tmp && git sparse-checkout set net/sing-box && git checkout && cd -
+        cp -rf package/immortalwrt-tmp/net/sing-box package/ && rm -rf package/immortalwrt-tmp
+    fi
 fi
 
+# 拉取 luci-app-dockerman（精简逻辑）
 if [ ! -d "./package/luci-app-dockerman" ]; then
     git clone --depth 1 https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
     git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
 fi
 
+# 添加 passwall/nikki feeds（保留核心逻辑）
 grep -q "passwall_pkgs" feeds.conf.default || sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
 grep -q "passwall_luci" feeds.conf.default || sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
 grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
@@ -27,8 +31,7 @@ grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nik
 ./scripts/feeds update passwall_pkgs passwall_luci nikki
 ./scripts/feeds install -a -p nikki
 
-[ -f .config ] && cp .config .config.bak.$(date +%Y%m%d%H%M%S)
-
+# 写入编译配置（无备份，显式声明 homeproxy + sing-box 编译）
 cat > .config << 'EOF'
 CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
@@ -90,12 +93,14 @@ CONFIG_PACKAGE_ntfs-3g=y
 
 # CONFIG_PACKAGE_luci-app-passwall is not set
 CONFIG_PACKAGE_luci-app-homeproxy=y
+CONFIG_PACKAGE_sing-box=y
 
 CONFIG_PACKAGE_luci-app-libreswan=y
 CONFIG_PACKAGE_libreswan=y
 
 CONFIG_PACKAGE_luci-app-nikki=y
 
+# 禁用不必要的插件
 # CONFIG_DEFAULT_luci-app-arpbind is not set
 # CONFIG_PACKAGE_luci-app-autoreboot is not set
 # CONFIG_PACKAGE_luci-app-nlbwmon is not set
@@ -106,13 +111,10 @@ CONFIG_PACKAGE_luci-app-nikki=y
 # CONFIG_PACKAGE_luci-app-strongswan-swanctl is not set
 EOF
 
+# 编译前置配置（精简，静默执行）
 export CCACHE_DIR=$(pwd)/ccache
 export USE_CCACHE=1
-[ ! -d "$CCACHE_DIR" ] && mkdir -p "$CCACHE_DIR" && ccache -M 50G
+mkdir -p "$CCACHE_DIR" && ccache -M 50G > /dev/null 2>&1
 
 make defconfig
-
-make prereq 2>&1 | tee prereq.log
-if [ $? -ne 0 ]; then
-    exit 0
-fi
+make prereq 2>&1 | tee prereq.log || exit 0
