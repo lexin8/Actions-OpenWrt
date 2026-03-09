@@ -1,17 +1,7 @@
-#=================================================
-# https://github.com/P3TERX/Actions-OpenWrt
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: P3TERX
-# Blog: https://p3terx.com
-#=================================================
-
 name: fanchmwrt
 
 on:
   repository_dispatch:
-  #  schedule:
-  #    - cron: 0 20 * * 2,4,6,0
   watch:
     types: started
   workflow_dispatch:
@@ -39,10 +29,14 @@ env:
   REPO_BRANCH2: openwrt-24.10
   CACHE_TOOLCHAIN: true
   TZ: Asia/Shanghai
+  GOLANG_REPO: https://github.com/sbwml/packages_lang_golang
+  GOLANG_BRANCH: 26.x
 
 jobs:
   Build:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
 
     steps:
       - name: Check Server Performance
@@ -67,26 +61,36 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          sudo -E apt-get -y install $(curl -fsSL is.gd/depends_ubuntu_2204)
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache
+          if [ ! -d "/usr/local/go" ]; then
+            wget https://dl.google.com/go/go1.24.0.linux-amd64.tar.gz -O /tmp/go.tar.gz
+            sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+            echo "PATH=/usr/local/go/bin:$PATH" >> $GITHUB_ENV
+          fi
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
+          mkdir -p $GITHUB_WORKSPACE/openwrt/ccache
+          echo "CCACHE_DIR=$GITHUB_WORKSPACE/openwrt/ccache" >> $GITHUB_ENV
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
 
       - name: Combine Disks
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 1024
+          swap-size-mb: 4096
           temp-reserve-mb: 100
           root-reserve-mb: 1024
 
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Clone Source Code
         run: |
           df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL2 openwrt
+          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -98,13 +102,27 @@ jobs:
           COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
 
-      - name: Cache Toolchain
+      - name: Cache OpenWrt Build Files
         if: env.CACHE_TOOLCHAIN == 'true'
         uses: HiGarfield/cachewrtbuild@main
         with:
-          ccache: false
-          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+          ccache: true
+          mixkey: ${{ env.REPO_BRANCH2 }}-${{ hashFiles(env.CONFIG_FILE2, env.DIY_P1_SH) }}
           prefix: ${{ env.OPENWRT_PATH }}
+          paths: |
+            staging_dir/toolchain
+            staging_dir/target
+            dl
+            build_dir
+            feeds/packages/lang/golang
+            ccache
+
+      - name: Upgrade Golang to 1.24+
+        run: |
+          cd $OPENWRT_PATH
+          rm -rf feeds/packages/lang/golang
+          git clone --depth 1 $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
+          ./scripts/feeds install -a golang
 
       - name: 运行一键部署脚本
         run: |
@@ -115,7 +133,7 @@ jobs:
         id: softethervpn
         if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
         run: |
-          git clone https://github.com/lexin8/Actions-OpenWrt lexin8
+          git clone --depth 1 https://github.com/lexin8/Actions-OpenWrt lexin8
           cd openwrt/feeds/packages/net/
           rm -rf softethervpn*
           cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
@@ -133,17 +151,21 @@ jobs:
         run: |
           cd openwrt
           make defconfig
-          make download -j8
+          make download -j$(nproc)
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
+          echo "依赖包下载完成，共$(ls dl | wc -l)个包"
 
       - name: 开始编译固件
         id: compile
         run: |
           cd openwrt
-          echo -e "$(nproc) thread compile"
-          make -j$(nproc) || make -j1 || make -j1 V=s
+          export CCACHE_DIR=$GITHUB_WORKSPACE/openwrt/ccache
+          export USE_CCACHE=1
+          echo -e "$(nproc) thread compile (启用ccache缓存)"
+          make -j$(nproc) CCACHE=1 || make -j1 CCACHE=1 V=s
           echo "::set-output name=status::success"
+          echo "编译完成，耗时: $(date +%s -d @0)-$(date +%s) 秒"
 
       - name: 搜索固件
         run: |
@@ -158,20 +180,34 @@ jobs:
           cd $(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
           ls
           rm -rf packages
-          # ls | grep -v combined | xargs rm
-          # tar zcvf `date +%Y.%m.%d`_OpenWrt.tar.gz *img.gz
           find . -name "*ext4*" |xargs rm -rf
           find . -name "*root*" |xargs rm -rf
-          tar czvf `date +%Y.%m.%d.%H`_OpenWrt.tar.gz config.buildinfo *.img.gz
-          # ls | grep -v .gz | xargs rm
-          ls | grep -v OpenWrt.tar.gz | xargs rm
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_${{ env.REPO_BRANCH2 }}.tar.gz
+          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
+          ls | grep -v $FIRMWARE_NAME | xargs rm -rf
           ls
           echo "::set-output name=FIRMWARE::$PWD"
+          echo "::set-output name=FIRMWARE_NAME::$FIRMWARE_NAME"
           echo "::set-output name=status::success"
 
       - name: 上传到 directory
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
           path: ${{ steps.organize.outputs.FIRMWARE }}
+          retention-days: 7
+
+      - name: Upload to Release
+        if: env.UPLOAD_RELEASE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_id }}
+          name: OpenWrt Build ${{ github.run_id }} (${{ env.REPO_BRANCH2 }})
+          files: ${{ steps.organize.outputs.FIRMWARE }}/*
+          body: |
+            📅 编译时间: $(date +%Y-%m-%d %H:%M:%S)
+            📝 源码版本: ${{ env.COMMIT_HASH }}
+            📌 分支: ${{ env.REPO_BRANCH2 }}
+          draft: false
+          prerelease: false
