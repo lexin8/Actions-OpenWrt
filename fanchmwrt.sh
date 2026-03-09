@@ -6,7 +6,7 @@ set -e
 ./scripts/feeds install -a
 
 # 拉取 luci-app-homeproxy 及核心依赖 sing-box（核心逻辑）
-if [ ! -d "./package/luci-app-homeproxy" ]; then
+if [ ! -d "./package/luci-app-softethervpn" ]; then
     # 1. 拉取 homeproxy 独立仓库（适配 openwrt-24.10）
     git clone --depth 1 https://github.com/immortalwrt/homeproxy.git package/luci-app-homeproxy
     # 2. 拉取 sing-box 依赖（homeproxy 必需，仅拉取目标目录）
@@ -24,6 +24,17 @@ fi
 grep -q "passwall_pkgs" feeds.conf.default || sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
 grep -q "passwall_luci" feeds.conf.default || sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
 grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+
+# ========== 新增：添加 kenzo 源（编译 luci-app-softethervpn 核心） ==========
+# 1. 检查 kenzo 源是否已存在，不存在则添加
+grep -q "kenzo" feeds.conf.default || sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+grep -q "small" feeds.conf.default || sed -i '$a src-git small https://github.com/kenzok8/small' feeds.conf.default
+
+# 2. 更新 kenzo/small 源并安装 softethervpn 相关包
+./scripts/feeds update kenzo small
+./scripts/feeds install -a -p kenzo
+./scripts/feeds install luci-app-softethervpn softethervpn  # 强制安装主程序+luci插件
+# ========== kenzo 源添加结束 ==========
 
 ./scripts/feeds update passwall_pkgs passwall_luci nikki
 ./scripts/feeds install -a -p nikki
@@ -61,7 +72,7 @@ CONFIG_PACKAGE_sing-box=y
 CONFIG_PACKAGE_luci-app-libreswan=y
 CONFIG_PACKAGE_libreswan=y
 CONFIG_PACKAGE_luci-app-softethervpn=y
-
+CONFIG_PACKAGE_softethervpn=y
 
 # 禁用不必要的插件
 # CONFIG_DEFAULT_luci-app-arpbind is not set
@@ -80,4 +91,8 @@ export USE_CCACHE=1
 mkdir -p "$CCACHE_DIR" && ccache -M 50G > /dev/null 2>&1
 
 make defconfig
+# ========== 你指定的位置：补充 softethervpn 依赖检查 ==========
+# 检查 softethervpn 依赖是否安装，确保编译不报错
+./scripts/feeds install -f softethervpn luci-app-softethervpn
+# ========== 依赖检查结束 ==========
 make prereq 2>&1 | tee prereq.log || exit 0
