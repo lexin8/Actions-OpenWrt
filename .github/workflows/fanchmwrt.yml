@@ -107,6 +107,7 @@ jobs:
       - name: Install Golang
         run: |
           cd $OPENWRT_PATH
+          ./scripts/feeds install -a
           rm -rf feeds/packages/lang/golang
           rm -rf staging_dir/toolchain-*/*/lib/go
           rm -rf staging_dir/toolchain-*/*/bin/go
