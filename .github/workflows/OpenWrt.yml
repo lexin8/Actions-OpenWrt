@@ -2,10 +2,6 @@ name: Build OpenWrt with L2TP/IPsec Server
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, master ]
-  schedule:
-    - cron: '0 0 1 * *'
 
 env:
   REPO_URL: https://github.com/openwrt/openwrt
