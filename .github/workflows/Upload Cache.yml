@@ -8,6 +8,8 @@ env:
   TZ: Asia/Shanghai
   CACHE_RELEASE_TAG: openwrt-base-cache
   CACHE_FILE_NAME: openwrt-base-cache.tar.gz
+  CCACHE_DIR: ${{ github.workspace }}/openwrt/ccache
+  CCACHE_MAXSIZE: 100G
 
 jobs:
   Build-Base-Env-And-Upload:
@@ -25,9 +27,10 @@ jobs:
           sudo -E apt-get -y update
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache
           sudo timedatectl set-timezone "$TZ"
-          mkdir -p $GITHUB_WORKSPACE/openwrt/ccache
-          echo "CCACHE_DIR=$GITHUB_WORKSPACE/openwrt/ccache" >> $GITHUB_ENV
-          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE
+          ccache -o compression=true
+          ccache -s
 
       - name: Expand Disk Space
         uses: easimon/maximize-build-space@master
@@ -54,29 +57,32 @@ jobs:
       - name: Build Base Toolchain
         run: |
           cd $OPENWRT_PATH
-          export CCACHE_DIR=$GITHUB_WORKSPACE/openwrt/ccache
+          export CCACHE_DIR=$CCACHE_DIR
           export USE_CCACHE=1
-          make toolchain/install -j$(nproc) CCACHE=1 || make toolchain/install -j1 V=s
+          make toolchain/install -j$(nproc) CCACHE=1 V=s || make toolchain/install -j1 V=s
+          ccache -s
+
+      - name: Build Common Plugins
+        run: |
+          cd $OPENWRT_PATH
+          export CCACHE_DIR=$CCACHE_DIR
+          export USE_CCACHE=1
+          make package/base-files/compile -j$(nproc) CCACHE=1
+          make package/firewall/compile -j$(nproc) CCACHE=1
+          make package/luci-base/compile -j$(nproc) CCACHE=1
+          ccache -s
 
       - name: Package Base Cache
         run: |
-          cd $OPENWRT_PATH
-          # 关键修复1：检查并创建缺失目录（避免tar报错）
-          mkdir -p staging_dir/toolchain staging_dir/target dl build_dir/toolchain feeds
-          # 关键修复2：移除ccache目录（工具链阶段无有效缓存，无需打包）
-          tar czvf $GITHUB_WORKSPACE/$CACHE_FILE_NAME \
-            staging_dir/toolchain \
-            staging_dir/target \
-            dl \
-            build_dir/toolchain \
-            feeds
-          # 验证缓存文件生成
-          if [ -f "$GITHUB_WORKSPACE/$CACHE_FILE_NAME" ]; then
-            ls -lh $GITHUB_WORKSPACE/$CACHE_FILE_NAME
-          else
-            echo "缓存打包失败！"
-            exit 1
-          fi
+          cd $GITHUB_WORKSPACE
+          mkdir -p cache-tmp/staging_dir cache-tmp/dl cache-tmp/build_dir cache-tmp/ccache
+          cp -rf $OPENWRT_PATH/staging_dir/toolchain cache-tmp/staging_dir/
+          cp -rf $OPENWRT_PATH/dl cache-tmp/
+          cp -rf $OPENWRT_PATH/build_dir/toolchain cache-tmp/build_dir/
+          cp -rf $CCACHE_DIR/* cache-tmp/ccache/
+          tar czvf $CACHE_FILE_NAME -C cache-tmp .
+          ls -lh $CACHE_FILE_NAME
+          rm -rf cache-tmp
 
       - name: Upload Cache to Release
         uses: softprops/action-gh-release@v2
