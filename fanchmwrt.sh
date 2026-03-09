@@ -35,8 +35,8 @@ grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nik
 cat > .config << 'EOF'
 CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
-CONFIG_TARGET_KERNEL_PARTSIZE=100
-CONFIG_TARGET_ROOTFS_PARTSIZE=2048
+CONFIG_TARGET_KERNEL_PARTSIZE=60
+CONFIG_TARGET_ROOTFS_PARTSIZE=600
 CONFIG_TARGET_ROOTFS_TARGZ=y
 # CONFIG_VMDK_IMAGES is not set
 # CONFIG_PACKAGE_igmpproxy is not set
@@ -91,7 +91,7 @@ CONFIG_PACKAGE_cfdisk=y
 CONFIG_PACKAGE_mount-utils=y
 CONFIG_PACKAGE_ntfs-3g=y
 
-# CONFIG_PACKAGE_luci-app-passwall is not set
+CONFIG_PACKAGE_luci-app-passwall=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
 CONFIG_PACKAGE_sing-box=y
 
