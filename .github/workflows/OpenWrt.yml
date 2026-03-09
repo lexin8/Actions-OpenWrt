@@ -98,6 +98,25 @@ jobs:
           CONFIG_PACKAGE_luci-app-ipsec=y
           CONFIG_PACKAGE_luci-proto-ppp=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
+                    # strongSwan 核心
+          CONFIG_PACKAGE_strongswan-charon=y
+          CONFIG_PACKAGE_strongswan-starter=y
+          # 必要模块
+          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+          CONFIG_PACKAGE_strongswan-mod-socket-default=y
+          CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
+          CONFIG_PACKAGE_strongswan-mod-ikev1=y
+          CONFIG_PACKAGE_strongswan-mod-gcm=y
+          CONFIG_PACKAGE_strongswan-mod-hmac=y
+          CONFIG_PACKAGE_strongswan-mod-md5=y
+          CONFIG_PACKAGE_strongswan-mod-sha1=y
+          CONFIG_PACKAGE_strongswan-mod-sha2=y
+          CONFIG_PACKAGE_strongswan-mod-aes=y
+          # 禁用 openssl 模块避免崩溃
+          # CONFIG_PACKAGE_strongswan-mod-openssl is not set
+          # L2TP
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
           EOF
 
       - name: 生成默认配置
