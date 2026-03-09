@@ -25,14 +25,14 @@ if [ ! -d "./package/luci-app-dockerman" ]; then
 fi
 
 # 添加Passwall源（避免重复添加）
-grep -q "passwall_pkgs" feeds.conf.default || sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
-grep -q "passwall_luci" feeds.conf.default || sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
+# grep -q "passwall_pkgs" feeds.conf.default || sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
+# grep -q "passwall_luci" feeds.conf.default || sed -i '2i src-git passwall_luci https://github.com/Openwrt-Passwall/openwrt-passwall.git;main' feeds.conf.default
 grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
 
 # 仅更新新增的feeds
 ./scripts/feeds update passwall_pkgs passwall_luci nikki
-./scripts/feeds install -a -p passwall_pkgs
-./scripts/feeds install -a -p passwall_luci
+# ./scripts/feeds install -a -p passwall_pkgs
+# ./scripts/feeds install -a -p passwall_luci
 ./scripts/feeds install -a -p nikki
 
 # 备份原有配置（如有）
