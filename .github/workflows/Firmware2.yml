@@ -144,26 +144,34 @@ jobs:
           # 生成默认配置
           make defconfig
           
+      - name: Download Packages
+        id: package
+        run: |
+          cd $OPENWRT_PATH
+          make defconfig
+          cat >> .config <<EOF
+          
           # 设置目标平台为 x86/64
-          echo "CONFIG_TARGET_x86=y" >> .config
-          echo "CONFIG_TARGET_x86_64=y" >> .config
-          echo "CONFIG_TARGET_x86_64_DEVICE_generic=y" >> .config
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
           
           # 添加基础系统组件
-          echo "CONFIG_PACKAGE_luci=y" >> .config
-          echo "CONFIG_PACKAGE_luci-ssl=y" >> .config
-          echo "CONFIG_PACKAGE_luci-app-firewall=y" >> .config
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-ssl=y
+          CONFIG_PACKAGE_luci-app-firewall=y
           
           # 添加VPN相关组件 (L2TP/IPsec with strongSwan)
-          echo "CONFIG_PACKAGE_strongswan-full=y" >> .config
-          echo "CONFIG_PACKAGE_xl2tpd=y" >> .config
-          echo "CONFIG_PACKAGE_ppp=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-mod-openssl=y" >> .config
-          echo "CONFIG_PACKAGE_strongswan-pki=y" >> .config
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
+          CONFIG_PACKAGE_strongswan-mod-openssl=y
+          CONFIG_PACKAGE_strongswan-pki=y
           
           # 可选：添加L2TP配置界面
-          echo "CONFIG_PACKAGE_luci-app-pptp-server=y" >> .config
+          CONFIG_PACKAGE_luci-app-pptp-server=y
+          EOF
           
           # 重新生成配置
           make defconfig
@@ -172,6 +180,7 @@ jobs:
           make download -j8
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
+          make defconfig
 
       - name: Upload .config to Artifact (Pre-build)
         uses: actions/upload-artifact@master
