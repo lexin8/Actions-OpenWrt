@@ -93,21 +93,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone Source Code (fanchmwrt)
-        run: |
-          df -hT $GITHUB_WORKSPACE
-          git clone $REPO_URL2 openwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
       - name: Clone Source Code (immortalwrt)
         run: |
           df -hT $GITHUB_WORKSPACE
@@ -180,7 +165,7 @@ jobs:
         if: success()
         with:
           name: OpenWrt_config_prebuild_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-          path: ${{ env.OPENWRT_PATH }}/.config
+          path: ${{ github.workspace }}/immortalwrt/.config
 
       - name: Compile OpenWrt Firmware
         id: compile
