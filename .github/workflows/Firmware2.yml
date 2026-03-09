@@ -1,112 +1,79 @@
-name: Generate & Upload x86_64 .config
+name: Build ImmortalWrt 24.10 with strongswan-full
+
 on:
-  workflow_dispatch:  # 仅手动触发，确保配置可控
-    inputs:
-      custom_config:
-        description: '上传自定义.config（可选，不上传则生成默认x86_64配置）'
-        required: false
-        type: file
-      enable_rtl8188eu:
-        description: '是否启用rtl8188eu驱动（默认禁用，适配源码补丁逻辑）'
-        required: false
-        default: 'false'
-        type: boolean
+  workflow_dispatch:
+
+env:
+  TARGET_ARCH: x86
+  TARGET_SUBARCH: 64
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_BRANCH: openwrt-24.10
+  BUILD_DIR: openwrt
+  CONFIG_ARCHIVE: openwrt-config-24.10.tar.gz
 
 jobs:
-  generate_x86_64_config:
+  build:
     runs-on: ubuntu-22.04
     steps:
-      # 步骤1：拉取ImmortalWRT源码（24.10分支）
-      - name: Checkout ImmortalWRT Source
-        uses: actions/checkout@v4
-        with:
-          repository: immortalwrt/immortalwrt
-          ref: openwrt-24.10
-          fetch-depth: 1
-          path: immortalwrt
-
-      # 步骤2：安装编译依赖（生成.config必需）
-      - name: Install Dependencies
+      - name: 1. Install dependencies
         run: |
-          sudo apt update && sudo apt install -y build-essential git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev
-          cd immortalwrt
+          sudo apt update -y && sudo apt full-upgrade -y
+          sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev \
+            libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev \
+            libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf \
+            python3 python3-pip python3-ply python3-setuptools qemu-utils rsync scons squashfs-tools \
+            subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo apt autoremove -y && sudo apt clean -y
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /tmp/*
+
+      - name: 2. Clone source code
+        run: |
+          git clone --depth=1 --branch=${{ env.REPO_BRANCH }} ${{ env.REPO_URL }} ${{ env.BUILD_DIR }}
+          cd ${{ env.BUILD_DIR }}
           ./scripts/feeds update -a && ./scripts/feeds install -a
 
-      # 步骤3：适配x86_64补丁（禁用rtl8188eu默认编译，或手动启用）
-      - name: Patch x86_64 rtl8188eu Driver
+      - name: 3. Configure build options
         run: |
-          cd immortalwrt
-          # 适配源码中010-disable-default-build-x86.patch逻辑
-          if [ "${{ github.event.inputs.enable_rtl8188eu }}" = "true" ]; then
-            # 启用rtl8188eu x86_64编译
-            sed -i 's/CONFIG_PLATFORM_I386_PC = n/CONFIG_PLATFORM_I386_PC = y/' package/kernel/rtl8188eu/Makefile
-          else
-            # 保持禁用（源码默认补丁逻辑）
-            sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/' package/kernel/rtl8188eu/Makefile
-          fi
+          cd ${{ env.BUILD_DIR }}
+          make defconfig
+          echo "CONFIG_PACKAGE_strongswan-full=y" >> .config
+          echo "CONFIG_PACKAGE_strongswan-eap-mschapv2=y" >> .config
+          echo "CONFIG_PACKAGE_strongswan-ikev2=y" >> .config
+          make defconfig
+          grep -E "strongswan-full|strongswan" .config
 
-      # 步骤4：生成x86_64默认.config（未上传自定义配置时）
-      - name: Generate Default x86_64 .config
-        if: ${{ !github.event.inputs.custom_config }}
-        run: |
-          cd immortalwrt
-          # 加载x86_64官方默认配置
-          make defconfig TARGET=x86 SUBTARGET=x86_64
-          
-          # 优化x86_64核心配置（适配源码中x86_64补丁）
-          # 1. 启用x86_64 ELF重定位相关（适配darwin_scripts_include.patch）
-          ./scripts/config set CONFIG_TARGET_X86_64 y
-          ./scripts/config set CONFIG_TARGET_X86_64_GENERIC y
-          # 2. 启用x86_64常见硬件驱动
-          ./scripts/config set CONFIG_PACKAGE_kmod-e1000e y  # Intel千兆网卡（x86_64主流）
-          ./scripts/config set CONFIG_PACKAGE_kmod-igb y
-          ./scripts/config set CONFIG_PACKAGE_kmod-usb2 y
-          ./scripts/config set CONFIG_PACKAGE_kmod-usb3 y
-          # 3. 启用x86_64文件系统
-          ./scripts/config set CONFIG_TARGET_ROOTFS_SQUASHFS y
-          ./scripts/config set CONFIG_TARGET_ROOTFS_EXT4 y
-          # 4. 禁用不必要的x86子架构
-          ./scripts/config set CONFIG_TARGET_X86_GENERIC n
-          ./scripts/config set CONFIG_TARGET_X86_GEODE n
-          ./scripts/config set CONFIG_TARGET_X86_LEGACY n
-          
-          # 补全配置依赖，确保语法合法
-          make olddefconfig
-          # 备份x86_64专属.config
-          cp .config ../x86_64_default.config
-
-      # 步骤5：使用自定义.config（上传时覆盖）
-      - name: Use Custom x86_64 .config
-        if: ${{ github.event.inputs.custom_config }}
-        run: |
-          # 移动自定义配置到源码目录
-          mv ${{ github.event.inputs.custom_config }} ./immortalwrt/.config
-          cd immortalwrt
-          # 补全依赖（仅补全，不修改核心配置）
-          make olddefconfig
-          cp .config ../x86_64_custom.config
-
-      # 步骤6：上传x86_64 .config（保留90天）
-      - name: Upload x86_64 .config
+      - name: 4. Package and upload .config
         uses: actions/upload-artifact@v4
         with:
-          name: x86_64-config
-          path: |
-            ./x86_64_*.config
-            ./immortalwrt/.config
-          retention-days: 90
+          name: openwrt-24.10-config
+          path: ${{ env.BUILD_DIR }}/.config
 
-      # 步骤7：可选：推送.config到仓库（方便后续编译直接使用）
-      - name: Push x86_64 .config to Repository
+      - name: 5. Download dependencies
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          # 克隆当前仓库
-          git clone https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ./repo
-          cd ./repo
-          # 复制生成的x86_64 .config
-          cp ../immortalwrt/.config ./x86_64.config
-          # 提交并推送
-          git add ./x86_64.config
-          git commit -m "Update x86_64 .config $(date +%Y%m%d_%H%M%S)" || echo "No changes to commit"
-          git push
+          cd ${{ env.BUILD_DIR }}
+          make download -j$(nproc)
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 6. Build firmware
+        run: |
+          cd ${{ env.BUILD_DIR }}
+          make -j$(nproc) V=s 2>&1 | tee build.log
+          ls -lh bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/
+
+      - name: 7. Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: ${{ env.BUILD_DIR }}/build.log
+        if: always()
+
+      - name: 8. Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-firmware-24.10-${{ env.TARGET_ARCH }}-${{ env.TARGET_SUBARCH }}
+          path: |
+            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.img.gz
+            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.tar.gz
+            ${{ env.BUILD_DIR }}/bin/targets/${{ env.TARGET_ARCH }}/${{ env.TARGET_SUBARCH }}/*.manifest
