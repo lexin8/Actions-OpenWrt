@@ -45,7 +45,7 @@ env:
   DIY_SCRIPT: diy-script.sh
   # 编译相关
   CLASH_KERNEL: amd64
-  CACHE_TOOLCHAIN: true
+  CACHE_TOOLCHAIN: false
   FIRMWARE_RELEASE: true
   FIRMWARE_TAG: X86_64
   TZ: Asia/Shanghai
@@ -123,20 +123,6 @@ jobs:
           COMMIT_HASH_IMMORTAL=$(git show -s --date=short --format="hash: %H")
           echo "COMMIT_HASH_IMMORTAL=$COMMIT_HASH_IMMORTAL" >> $GITHUB_ENV
 
-      - name: Cache Toolchain
-        if: env.CACHE_TOOLCHAIN == 'true'
-        uses: HiGarfield/cachewrtbuild@main
-        with:
-          ccache: false
-          mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
-          prefix: ${{ env.OPENWRT_PATH }}
-
-      - name: Install Feeds (fanchmwrt)
-        run: |
-          cd $OPENWRT_PATH
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
       - name: Install Feeds (immortalwrt)
         run: |
           cd $IMMORTALWRT_PATH
@@ -189,14 +175,16 @@ jobs:
           
           # 保存配置文件
           cp .config $GITHUB_WORKSPACE/openwrt-config-x86-64.config
+          
+          # 同时保存为config.buildinfo格式
+          cp .config $OPENWRT_PATH/bin/config.buildinfo 2>/dev/null || true
 
-
-          - name: Upload .config to Artifact
-            uses: actions/upload-artifact@master
-            if: steps.package.outputs.status == 'success' && !cancelled()
-            with:
-            name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-            path: ${{ github.workspace }}/openwrt-config-x86-64.config
+      - name: Upload .config to Artifact
+        uses: actions/upload-artifact@master
+        if: steps.package.outputs.status == 'success' && !cancelled()
+        with:
+          name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          path: ${{ github.workspace }}/openwrt-config-x86-64.config
 
       - name: Compile OpenWrt Firmware
         id: compile
@@ -210,7 +198,7 @@ jobs:
       - name: Find Firmware Files
         run: |
           cd $OPENWRT_PATH/bin/
-          find . -name "*squashfs*" -o -name "*combined*" -o -name "*ext4*"
+          find . -name "*squashfs*" -o -name "*combined*" -o -name "*ext4*" -o -name "*config.buildinfo*"
 
       - name: Organize Firmware Files
         id: organize
@@ -228,6 +216,9 @@ jobs:
           # 清理无用文件
           rm -rf packages
           find . -name "*root*" -delete
+          
+          # 将配置文件复制到固件目录
+          cp $GITHUB_WORKSPACE/openwrt-config-x86-64.config ./config.buildinfo
           
           # 打包固件
           FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_x86-64.tar.gz
@@ -247,6 +238,13 @@ jobs:
         with:
           name: OpenWrt_firmware_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
           path: ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
+
+      - name: Upload Config to Artifact
+        uses: actions/upload-artifact@master
+        if: steps.package.outputs.status == 'success' && !cancelled()
+        with:
+          name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          path: ${{ github.workspace }}/openwrt-config-x86-64.config
 
       - name: Upload Firmware to Release
         uses: softprops/action-gh-release@v1
@@ -277,6 +275,8 @@ jobs:
             默认密码: password
             
             **注意**: 首次使用请修改默认密码并配置防火墙规则。
-          files: ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
+          files: |
+            ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
+            ${{ github.workspace }}/openwrt-config-x86-64.config
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
