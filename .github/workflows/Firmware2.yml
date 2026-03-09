@@ -43,15 +43,19 @@ jobs:
         uses: actions/checkout@main
 
       - name: Clone Source Code
+        id: clone
         run: |
-          git clone --depth=1 -b $REPO_BRANCH $REPO_URL openwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          echo "OPENWRT_DIR=/home/runner/work/openwrt" >> $GITHUB_ENV
+          mkdir -p ${{ env.OPENWRT_DIR }}
+          git clone --depth=1 -b $REPO_BRANCH $REPO_URL ${{ env.OPENWRT_DIR }}
+          echo "源码克隆完成，目录：${{ env.OPENWRT_DIR }}"
+          ls -la ${{ env.OPENWRT_DIR }}
 
       - name: Install Feeds
         run: |
-          cd $OPENWRT_PATH
+          cd ${{ env.OPENWRT_DIR }}
           ./scripts/feeds update -a && ./scripts/feeds install -a
+          ls -la ${{ env.OPENWRT_DIR }}/feeds/
 
       - name: SSH Connection (Debug)
         uses: P3TERX/ssh2actions@v1.0.0
@@ -60,11 +64,10 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
 
-      - name: Load Build Configuration
+      - name: Generate Build Configuration
         run: |
-          cd $OPENWRT_PATH
-          # 直接写入配置，移除条件判断
-          cat > .config <<EOF
+          cd ${{ env.OPENWRT_DIR }}
+          cat > ${{ env.OPENWRT_DIR }}/.config <<EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_DEVICE_generic=y
@@ -75,30 +78,33 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
           EOF
           make defconfig
+          echo "验证.config文件："
+          ls -la ${{ env.OPENWRT_DIR }}/.config
+          cat ${{ env.OPENWRT_DIR }}/.config | head -20
 
       - name: Download Dependencies
         run: |
-          cd $OPENWRT_PATH
+          cd ${{ env.OPENWRT_DIR }}
           make download -j$(nproc) || make download -j1
           find dl -size -1024c -exec rm -f {} \;
           make defconfig
 
       - name: Upload .config File
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: OpenWrt_config_${{ github.run_id }}
-          path: ${{ env.OPENWRT_PATH }}/.config
+          path: ${{ env.OPENWRT_DIR }}/.config  
 
       - name: Compile Firmware
         run: |
-          cd $OPENWRT_PATH
+          cd ${{ env.OPENWRT_DIR }}
           make -j$(nproc) || { make -j1 V=s; [ $? -ne 0 ] && exit 1; }
 
       - name: Package & Upload Firmware
         if: ${{ !cancelled() }}
         run: |
-          FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/targets/x86/64 -type d -name "generic" -print -quit)
-          [ -z "$FIRMWARE_DIR" ] && FIRMWARE_DIR=$(find $OPENWRT_PATH/bin -type d -path "*x86*64*" | head -n1)
+          FIRMWARE_DIR=$(find ${{ env.OPENWRT_DIR }}/bin/targets/x86/64 -type d -name "generic" -print -quit)
+          [ -z "$FIRMWARE_DIR" ] && FIRMWARE_DIR=$(find ${{ env.OPENWRT_DIR }}/bin -type d -path "*x86*64*" | head -n1)
           [ -z "$FIRMWARE_DIR" ] && exit 1
           
           cd $FIRMWARE_DIR
@@ -109,10 +115,11 @@ jobs:
           echo "Uploading firmware: $FIRMWARE_NAME"
           mkdir -p /tmp/firmware
           cp $FIRMWARE_NAME /tmp/firmware/
+          ls -la /tmp/firmware/
 
       - name: Upload Firmware Artifact
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         with:
           name: OpenWrt_firmware_${{ github.run_id }}
           path: /tmp/firmware/*.tar.gz
@@ -121,4 +128,6 @@ jobs:
         if: ${{ failure() }}
         run: |
           echo "Firmware compilation failed! Check build logs for details."
+          ls -la /home/runner/work/
+          ls -la ${{ env.OPENWRT_DIR }}
           exit 1
