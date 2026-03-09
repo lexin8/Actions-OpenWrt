@@ -25,8 +25,7 @@ env:
   UPLOAD_COWTRANSFER: true
   UPLOAD_RELEASE: true
   UPLOAD_WETRANSFER: false
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH2: openwrt-24.10
+  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
   CACHE_TOOLCHAIN: true
   TZ: Asia/Shanghai
   GOLANG_REPO: https://github.com/sbwml/packages_lang_golang
@@ -90,7 +89,7 @@ jobs:
       - name: Clone Source Code
         run: |
           df -hT $GITHUB_WORKSPACE
-          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
+          git clone --depth 1 $REPO_URL openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
@@ -107,7 +106,7 @@ jobs:
         uses: HiGarfield/cachewrtbuild@main
         with:
           ccache: true
-          mixkey: ${{ env.REPO_BRANCH2 }}-${{ hashFiles(env.CONFIG_FILE2, env.DIY_P1_SH) }}
+          mixkey: default-${{ hashFiles(env.CONFIG_FILE2, env.DIY_P1_SH) }}
           prefix: ${{ env.OPENWRT_PATH }}
           paths: |
             staging_dir/toolchain
@@ -181,7 +180,7 @@ jobs:
           rm -rf packages
           find . -name "*ext4*" |xargs rm -rf
           find . -name "*root*" |xargs rm -rf
-          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_${{ env.REPO_BRANCH2 }}.tar.gz
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_default.tar.gz
           tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
           ls | grep -v $FIRMWARE_NAME | xargs rm -rf
           ls
@@ -193,7 +192,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_firmware_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
+          name: OpenWrt_firmware_default_${{ steps.compile.outputs.DEVICE_NAME }}_${{ steps.compile.outputs.FILE_DATE }}
           path: ${{ steps.organize.outputs.FIRMWARE }}
           retention-days: 7
 
@@ -202,11 +201,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_id }}
-          name: OpenWrt Build ${{ github.run_id }} (${{ env.REPO_BRANCH2 }})
+          name: OpenWrt Build ${{ github.run_id }} (default)
           files: ${{ steps.organize.outputs.FIRMWARE }}/*
           body: |
             📅 编译时间: $(date +%Y-%m-%d %H:%M:%S)
             📝 源码版本: ${{ env.COMMIT_HASH }}
-            📌 分支: ${{ env.REPO_BRANCH2 }}
+            📌 分支: 默认分支
           draft: false
           prerelease: false
