@@ -190,6 +190,14 @@ jobs:
           # 保存配置文件
           cp .config $GITHUB_WORKSPACE/openwrt-config-x86-64.config
 
+
+          - name: Upload .config to Artifact
+            uses: actions/upload-artifact@master
+            if: steps.package.outputs.status == 'success' && !cancelled()
+            with:
+            name: OpenWrt_config_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+            path: ${{ github.workspace }}/openwrt-config-x86-64.config
+
       - name: Compile OpenWrt Firmware
         id: compile
         run: |
