@@ -193,7 +193,7 @@ jobs:
           rm -rf packages
           find . -name "*ext4*" | xargs rm -rf
           find . -name "*root*" | xargs rm -rf
-          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_default.tar.gz
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt.tar.gz
           tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
           ls | grep -v $FIRMWARE_NAME | xargs rm -rf
           echo "FIRMWARE_FILE=$PWD/$FIRMWARE_NAME" >> $GITHUB_OUTPUT
