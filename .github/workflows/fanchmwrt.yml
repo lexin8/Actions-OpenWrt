@@ -133,11 +133,10 @@ jobs:
         id: softethervpn
         if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
         run: |
-          git clone --depth 1 https://github.com/lexin8/Actions-OpenWrt lexin8
-          cd openwrt/feeds/packages/net/
+          cd ${{ github.workspace }}/openwrt/feeds/packages/net/
           rm -rf softethervpn*
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn .
-          cp -r ~/work/Actions-OpenWrt/Actions-OpenWrt/lexin8/softethervpn5 .
+          cp -r ${{ github.workspace }}/softethervpn .
+          cp -r ${{ github.workspace }}/softethervpn5 .
 
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
