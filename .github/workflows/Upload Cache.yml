@@ -1,4 +1,4 @@
-name: Build Base Env & Upload Cache
+name: Upload Cache
 
 on:
   workflow_dispatch:
@@ -61,14 +61,22 @@ jobs:
       - name: Package Base Cache
         run: |
           cd $OPENWRT_PATH
+          # 关键修复1：检查并创建缺失目录（避免tar报错）
+          mkdir -p staging_dir/toolchain staging_dir/target dl build_dir/toolchain feeds
+          # 关键修复2：移除ccache目录（工具链阶段无有效缓存，无需打包）
           tar czvf $GITHUB_WORKSPACE/$CACHE_FILE_NAME \
             staging_dir/toolchain \
             staging_dir/target \
             dl \
             build_dir/toolchain \
-            feeds \
-            ccache
-          ls -lh $GITHUB_WORKSPACE/$CACHE_FILE_NAME
+            feeds
+          # 验证缓存文件生成
+          if [ -f "$GITHUB_WORKSPACE/$CACHE_FILE_NAME" ]; then
+            ls -lh $GITHUB_WORKSPACE/$CACHE_FILE_NAME
+          else
+            echo "缓存打包失败！"
+            exit 1
+          fi
 
       - name: Upload Cache to Release
         uses: softprops/action-gh-release@v2
