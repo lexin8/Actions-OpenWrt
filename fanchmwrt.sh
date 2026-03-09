@@ -17,11 +17,8 @@ if [ ! -d "./package/luci-app-homeproxy" ]; then
     fi
 fi
 
-# 拉取 luci-app-dockerman（精简逻辑）
-if [ ! -d "./package/luci-app-dockerman" ]; then
-    git clone --depth 1 https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
-    git clone --depth 1 https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
-fi
+# 【关键修改1：删除 luci-app-dockerman 拉取逻辑】
+# 原脚本中拉取 luci-lib-docker/luci-app-dockerman 的代码已移除
 
 # 添加 passwall/nikki feeds（保留核心逻辑）
 grep -q "passwall_pkgs" feeds.conf.default || sed -i '1i src-git passwall_pkgs https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git;main' feeds.conf.default
@@ -31,7 +28,7 @@ grep -q "nikki" feeds.conf.default || echo "src-git nikki https://github.com/nik
 ./scripts/feeds update passwall_pkgs passwall_luci nikki
 ./scripts/feeds install -a -p nikki
 
-# 写入编译配置（无备份，显式声明 homeproxy + sing-box 编译）
+# 写入编译配置（【关键修改2：删除所有 Docker 相关编译项】）
 cat > .config << 'EOF'
 CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
@@ -56,49 +53,14 @@ CONFIG_PACKAGE_ddns-scripts-cloudflare=y
 CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
 CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-udpxy=y
-CONFIG_PACKAGE_coreutils=y
-CONFIG_PACKAGE_coreutils-base64=y
-CONFIG_PACKAGE_curl=y
-CONFIG_PACKAGE_wget=y
-
-CONFIG_PACKAGE_dockerd=y
-CONFIG_PACKAGE_docker=y
-CONFIG_PACKAGE_docker-compose=y
-CONFIG_PACKAGE_luci-lib-docker=y
-CONFIG_PACKAGE_luci-app-dockerman=y
-
-CONFIG_PACKAGE_kmod-ppp=y
-CONFIG_PACKAGE_kmod-ppp-generic=y
-CONFIG_PACKAGE_kmod-ppp-l2tp=y
-CONFIG_PACKAGE_kmod-tun=y
-CONFIG_PACKAGE_kmod-br-netfilter=y
-CONFIG_PACKAGE_kmod-ipt-nat=y
-CONFIG_PACKAGE_kmod-ipt-extra=y
-CONFIG_PACKAGE_kmod-nf-nat-pptp=y
-CONFIG_PACKAGE_ppp=y
-CONFIG_PACKAGE_ppp-mod-l2tp=y
-CONFIG_PACKAGE_ipset=y
-CONFIG_PACKAGE_iptables-mod-extra=y
-CONFIG_PACKAGE_sysctl=y
-
-CONFIG_PACKAGE_luci-app-diskman=y
-CONFIG_PACKAGE_blockd=y
-CONFIG_PACKAGE_blkid=y
-CONFIG_PACKAGE_e2fsprogs=y
-CONFIG_PACKAGE_parted=y
-CONFIG_PACKAGE_lsblk=y
-CONFIG_PACKAGE_cfdisk=y
-CONFIG_PACKAGE_mount-utils=y
-CONFIG_PACKAGE_ntfs-3g=y
 
 # CONFIG_PACKAGE_luci-app-passwall is not set
+CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
 CONFIG_PACKAGE_sing-box=y
-
 CONFIG_PACKAGE_luci-app-libreswan=y
 CONFIG_PACKAGE_libreswan=y
 
-CONFIG_PACKAGE_luci-app-nikki=y
 
 # 禁用不必要的插件
 # CONFIG_DEFAULT_luci-app-arpbind is not set
