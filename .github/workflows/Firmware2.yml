@@ -1,345 +1,112 @@
-name: Build OpenWrt Firmware2
-
+name: Generate & Upload x86_64 .config
 on:
-  repository_dispatch:
-  workflow_dispatch:
+  workflow_dispatch:  # 仅手动触发，确保配置可控
     inputs:
-      ssh:
-        description: 'SSH connection to Actions (true/false)'
+      custom_config:
+        description: '上传自定义.config（可选，不上传则生成默认x86_64配置）'
+        required: false
+        type: file
+      enable_rtl8188eu:
+        description: '是否启用rtl8188eu驱动（默认禁用，适配源码补丁逻辑）'
         required: false
         default: 'false'
-      target_device:
-        description: 'Target device (leave empty for default)'
-        required: false
-        default: ''
-
-env:
-  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
-  TZ: Asia/Shanghai
-  COMPILE_THREADS: $(nproc)  # 自动检测CPU线程数
+        type: boolean
 
 jobs:
-  build_openwrt:
+  generate_x86_64_config:
     runs-on: ubuntu-22.04
-    if: github.event.repository.owner.id == github.event.sender.id
-
     steps:
-      # 1. 服务器性能检查
-      - name: Check Server Performance
-        run: |
-          echo "=================================================="
-          echo "             服务器性能检查报告"
-          echo "=================================================="
-          echo "警告⚠"
-          echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
-          echo -e "已知CPU型号(降序): 7763，8370C，8272CL，8171M，E5-2673\n"
-          
-          echo "--------------------------CPU信息--------------------------"
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-          echo "CPU核心数量: $(nproc)"
-          echo -e "CPU型号信息:$(cat /proc/cpuinfo | grep -m1 name | awk -F: '{print $2}')\n"
-          
-          echo "--------------------------内存信息--------------------------"
-          if command -v lshw &> /dev/null; then
-            echo "已安装内存详细信息:"
-            sudo lshw -short -C memory | grep GiB || echo "无法获取内存详细信息"
-          else
-            echo "内存总量: $(free -h | grep Mem | awk '{print $2}')"
-            echo "可用内存: $(free -h | grep Mem | awk '{print $7}')"
-          fi
-          echo ""
-          
-          echo "--------------------------硬盘信息--------------------------"
-          echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v [1-9] | wc -l)"
-          df -hT
-          echo "=================================================="
-
-      # 2. 最大化编译空间
-      - name: Maximize Build Space
-        uses: easimon/maximize-build-space@master
-        with:
-          swap-size-mb: 1024
-          temp-reserve-mb: 100
-          root-reserve-mb: 1024
-          remove-dotnet: true
-          remove-android: true
-          remove-haskell: true
-          remove-codeql: true
-
-      # 3. 初始化编译环境
-      - name: Initialization Environment
-        env:
-          DEBIAN_FRONTEND: noninteractive
-        run: |
-          echo "开始清理无用软件包..."
-          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          
-          echo "更新软件源..."
-          sudo -E apt-get -y update
-          
-          echo "安装编译依赖..."
-          # 使用curl获取依赖列表，如果失败则使用本地列表
-          curl -fsSL is.gd/depends_ubuntu_2204 -o /tmp/depends.txt || true
-          if [ -s /tmp/depends.txt ]; then
-            sudo -E apt-get -y install $(cat /tmp/depends.txt)
-          else
-            # 本地依赖列表（备用）
-            sudo -E apt-get -y install ack antlr3 asciidoc autoconf automake autopoint binutils bison \
-              build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk \
-              gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 \
-              libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev \
-              libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build \
-              p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons \
-              squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-          fi
-          
-          echo "系统优化..."
-          sudo -E systemctl daemon-reload
-          sudo -E apt-get -y autoremove --purge
-          sudo -E apt-get -y clean
-          sudo timedatectl set-timezone "$TZ"
-          
-          echo "创建工作目录..."
-          sudo mkdir -p /workdir
-          sudo chown $USER:$GROUPS /workdir
-          
-          echo "环境初始化完成！"
-
-      # 4. 检出代码
-      - name: Checkout Repository
+      # 步骤1：拉取ImmortalWRT源码（24.10分支）
+      - name: Checkout ImmortalWRT Source
         uses: actions/checkout@v4
-
-      # 5. 克隆主源码（默认分支）
-      - name: Clone Source Code
-        run: |
-          echo "当前磁盘使用情况:"
-          df -hT $GITHUB_WORKSPACE
-          
-          echo "克隆源码中: $REPO_URL (默认分支)"
-          git clone --depth 1 $REPO_URL openwrt
-          
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          
-          # 获取当前分支信息
-          CURRENT_BRANCH=$(git branch --show-current)
-          echo "CURRENT_BRANCH=$CURRENT_BRANCH" >> $GITHUB_ENV
-          
-          # 获取提交信息
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-          
-          echo "源码信息:"
-          echo "分支: $CURRENT_BRANCH"
-          echo "$COMMIT_AUTHOR"
-          echo "$COMMIT_DATE"
-          echo "$COMMIT_MESSAGE"
-          echo "$COMMIT_HASH"
-          
-          ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-
-      # 6. 添加第三方插件源
-      - name: Add Custom Feeds
-        run: |
-          cd $OPENWRT_PATH
-          echo "添加第三方插件源..."
-          
-          # Passwall
-          git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall package/openwrt-passwall
-          git clone --depth 1 https://github.com/Openwrt-Passwall/openwrt-passwall-packages package/openwrt-passwall-packages
-          
-          # Homeproxy
-          git clone --depth 1 https://github.com/immortalwrt/homeproxy package/homeproxy
-          
-          # Nikki
-          git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki package/OpenWrt-nikki
-          
-          # 移除冲突插件
-          rm -rf package/lean/luci-app-passwall package/lean/luci-app-homeproxy 2>/dev/null || true
-          
-          echo "插件源添加完成！"
-
-      # 7. 更新并安装feeds
-      - name: Update and Install Feeds
-        run: |
-          cd $OPENWRT_PATH
-          echo "更新feeds..."
-          ./scripts/feeds update -a
-          echo "安装feeds..."
-          ./scripts/feeds install -a
-
-      # 8. 配置编译项
-      - name: Configure Compilation Options
-        run: |
-          cd $OPENWRT_PATH
-          
-          # 如果指定了设备，尝试应用设备配置
-          if [ -n "${{ github.event.inputs.target_device }}" ]; then
-            echo "CONFIG_TARGET_${{ github.event.inputs.target_device }}=y" >> .config
-          fi
-          
-          # 生成默认配置
-          make defconfig
-          
-          # 禁用不需要的插件
-          echo "配置禁用插件..."
-          for pkg in arpbind autoreboot nlbwmon samba4 samba vlmcsd wol zerotier strongswan-swanctl; do
-            sed -i "/CONFIG_PACKAGE_luci-app-${pkg}/d" .config
-            echo "# CONFIG_PACKAGE_luci-app-${pkg} is not set" >> .config
-          done
-          
-          # 启用所需插件
-          echo "配置启用插件..."
-          for pkg in luci-app-nikki luci-app-passwall luci-i18n-passwall-zh-cn luci-app-homeproxy \
-                     ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns \
-                     luci-i18n-ddns-zh-cn luci-app-omcproxy luci-app-udpxy udpxy; do
-            sed -i "/CONFIG_PACKAGE_${pkg}/d" .config
-            echo "CONFIG_PACKAGE_${pkg}=y" >> .config
-          done
-          
-          # 最终配置确认
-          make defconfig
-          
-          # 保存配置差异供查看
-          ./scripts/diffconfig.sh > seed.config
-          
-          echo "配置完成！配置已保存为 seed.config"
-          echo "当前分支: ${{ env.CURRENT_BRANCH }}"
-
-      # 9. 上传配置文件
-      - name: Upload Config File
-        uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt_Config_${{ env.CURRENT_BRANCH }}
-          path: ${{ env.OPENWRT_PATH }}/seed.config
-          retention-days: 7
+          repository: immortalwrt/immortalwrt
+          ref: openwrt-24.10
+          fetch-depth: 1
+          path: immortalwrt
 
-      # 10. SSH调试连接
-      - name: SSH to Actions (Debug)
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: ${{ github.event.inputs.ssh == 'true' }}
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      # 11. 下载依赖包
-      - name: Download Dependencies
+      # 步骤2：安装编译依赖（生成.config必需）
+      - name: Install Dependencies
         run: |
-          cd $OPENWRT_PATH
-          echo "下载编译依赖..."
-          make download -j$(nproc)
-          find dl -size -1024c -exec rm -f {} \;
-          echo "依赖下载完成！"
+          sudo apt update && sudo apt install -y build-essential git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev
+          cd immortalwrt
+          ./scripts/feeds update -a && ./scripts/feeds install -a
 
-      # 12. 编译固件
-      - name: Compile Firmware
-        id: compile
+      # 步骤3：适配x86_64补丁（禁用rtl8188eu默认编译，或手动启用）
+      - name: Patch x86_64 rtl8188eu Driver
         run: |
-          cd $OPENWRT_PATH
-          echo "=================================================="
-          echo "开始编译 OpenWrt 固件"
-          echo "源码分支: ${{ env.CURRENT_BRANCH }}"
-          echo "CPU核心数: $(nproc)"
-          echo "使用线程数: ${{ env.COMPILE_THREADS }}"
-          echo "=================================================="
-          
-          # 记录开始时间
-          START_TIME=$(date +%s)
-          
-          # 首次编译尝试
-          make -j${{ env.COMPILE_THREADS }} || {
-            EXIT_CODE=$?
-            echo "⚠ 首次编译失败，退出代码: $EXIT_CODE"
-            echo "尝试单线程编译以查看详细错误..."
-            make -j1 V=s
-            exit $EXIT_CODE
-          }
-          
-          # 计算编译时间
-          END_TIME=$(date +%s)
-          DURATION=$((END_TIME - START_TIME))
-          HOURS=$((DURATION / 3600))
-          MINUTES=$(( (DURATION % 3600) / 60 ))
-          SECONDS=$((DURATION % 60))
-          
-          echo "=================================================="
-          echo "编译完成！"
-          echo "编译耗时: ${HOURS}h ${MINUTES}m ${SECONDS}s"
-          echo "=================================================="
-          
-          # 提取设备名称和编译时间
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | head -1)
-          echo "DEVICE_NAME=${DEVICE_NAME:-unknown}" >> $GITHUB_ENV
-          echo "FILE_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-          echo "status=success" >> $GITHUB_OUTPUT
-
-      # 13. 检查磁盘使用情况
-      - name: Check Disk Usage
-        if: ${{ !cancelled() }}
-        run: |
-          echo "=================================================="
-          echo "编译后磁盘使用情况"
-          echo "=================================================="
-          echo "=== 整体磁盘使用情况 ==="
-          df -h
-          echo "=== 编译目录大小 ==="
-          du -sh $OPENWRT_PATH
-          echo "=== Bin目录详情 ==="
-          ls -la $OPENWRT_PATH/bin/targets/ 2>/dev/null || echo "Bin目录不存在"
-          echo "=== 固件文件列表 ==="
-          find $OPENWRT_PATH/bin/targets -type f -name "*.bin" -o -name "*.img" -o -name "*.gz" 2>/dev/null | head -20
-
-      # 14. 上传固件产物
-      - name: Upload Firmware
-        uses: actions/upload-artifact@v4
-        if: ${{ steps.compile.outputs.status == 'success' && !cancelled() }}
-        with:
-          name: OpenWrt_Firmware_${{ env.CURRENT_BRANCH }}_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}
-          path: |
-            ${{ env.OPENWRT_PATH }}/bin/targets/*/*
-            !${{ env.OPENWRT_PATH }}/bin/targets/*/packages
-          retention-days: 7
-
-      # 15. 上传日志（编译失败时）
-      - name: Upload Logs on Failure
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenWrt_Compile_Logs_${{ env.CURRENT_BRANCH }}_${{ env.FILE_DATE }}
-          path: |
-            ${{ env.OPENWRT_PATH }}/logs/
-            ${{ env.OPENWRT_PATH }}/.config
-            ${{ env.OPENWRT_PATH }}/feeds.conf
-            ${{ env.OPENWRT_PATH }}/seed.config
-          retention-days: 7
-
-      # 16. 编译完成通知
-      - name: Compilation Complete Notification
-        if: ${{ always() }}
-        run: |
-          echo "=================================================="
-          echo "               编译工作流完成"
-          echo "=================================================="
-          echo "源码分支: ${{ env.CURRENT_BRANCH }}"
-          echo "提交信息: ${{ env.COMMIT_MESSAGE }}"
-          echo "提交作者: ${{ env.COMMIT_AUTHOR }}"
-          echo "提交时间: ${{ env.COMMIT_DATE }}"
-          echo "提交HASH: ${{ env.COMMIT_HASH }}"
-          echo "------------------------------------------"
-          echo "状态: ${{ steps.compile.outputs.status }}"
-          if [ "${{ steps.compile.outputs.status }}" == "success" ]; then
-            echo "✅ 固件编译成功！"
-            echo "固件名称: OpenWrt_Firmware_${{ env.CURRENT_BRANCH }}_${{ env.DEVICE_NAME }}_${{ env.FILE_DATE }}"
-            echo "可在 Actions 页面下载固件"
+          cd immortalwrt
+          # 适配源码中010-disable-default-build-x86.patch逻辑
+          if [ "${{ github.event.inputs.enable_rtl8188eu }}" = "true" ]; then
+            # 启用rtl8188eu x86_64编译
+            sed -i 's/CONFIG_PLATFORM_I386_PC = n/CONFIG_PLATFORM_I386_PC = y/' package/kernel/rtl8188eu/Makefile
           else
-            echo "❌ 固件编译失败"
-            echo "请检查上传的日志文件"
+            # 保持禁用（源码默认补丁逻辑）
+            sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/' package/kernel/rtl8188eu/Makefile
           fi
-          echo "=================================================="
+
+      # 步骤4：生成x86_64默认.config（未上传自定义配置时）
+      - name: Generate Default x86_64 .config
+        if: ${{ !github.event.inputs.custom_config }}
+        run: |
+          cd immortalwrt
+          # 加载x86_64官方默认配置
+          make defconfig TARGET=x86 SUBTARGET=x86_64
+          
+          # 优化x86_64核心配置（适配源码中x86_64补丁）
+          # 1. 启用x86_64 ELF重定位相关（适配darwin_scripts_include.patch）
+          ./scripts/config set CONFIG_TARGET_X86_64 y
+          ./scripts/config set CONFIG_TARGET_X86_64_GENERIC y
+          # 2. 启用x86_64常见硬件驱动
+          ./scripts/config set CONFIG_PACKAGE_kmod-e1000e y  # Intel千兆网卡（x86_64主流）
+          ./scripts/config set CONFIG_PACKAGE_kmod-igb y
+          ./scripts/config set CONFIG_PACKAGE_kmod-usb2 y
+          ./scripts/config set CONFIG_PACKAGE_kmod-usb3 y
+          # 3. 启用x86_64文件系统
+          ./scripts/config set CONFIG_TARGET_ROOTFS_SQUASHFS y
+          ./scripts/config set CONFIG_TARGET_ROOTFS_EXT4 y
+          # 4. 禁用不必要的x86子架构
+          ./scripts/config set CONFIG_TARGET_X86_GENERIC n
+          ./scripts/config set CONFIG_TARGET_X86_GEODE n
+          ./scripts/config set CONFIG_TARGET_X86_LEGACY n
+          
+          # 补全配置依赖，确保语法合法
+          make olddefconfig
+          # 备份x86_64专属.config
+          cp .config ../x86_64_default.config
+
+      # 步骤5：使用自定义.config（上传时覆盖）
+      - name: Use Custom x86_64 .config
+        if: ${{ github.event.inputs.custom_config }}
+        run: |
+          # 移动自定义配置到源码目录
+          mv ${{ github.event.inputs.custom_config }} ./immortalwrt/.config
+          cd immortalwrt
+          # 补全依赖（仅补全，不修改核心配置）
+          make olddefconfig
+          cp .config ../x86_64_custom.config
+
+      # 步骤6：上传x86_64 .config（保留90天）
+      - name: Upload x86_64 .config
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-config
+          path: |
+            ./x86_64_*.config
+            ./immortalwrt/.config
+          retention-days: 90
+
+      # 步骤7：可选：推送.config到仓库（方便后续编译直接使用）
+      - name: Push x86_64 .config to Repository
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          # 克隆当前仓库
+          git clone https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} ./repo
+          cd ./repo
+          # 复制生成的x86_64 .config
+          cp ../immortalwrt/.config ./x86_64.config
+          # 提交并推送
+          git add ./x86_64.config
+          git commit -m "Update x86_64 .config $(date +%Y%m%d_%H%M%S)" || echo "No changes to commit"
+          git push
