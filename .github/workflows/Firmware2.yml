@@ -143,7 +143,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-
       - name: SSH connection to Actions
         uses: P3TERX/ssh2actions@v1.0.0
         if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
@@ -155,29 +154,41 @@ jobs:
         id: package
         run: |
           cd $OPENWRT_PATH
+          
+          # 生成默认配置
           make defconfig
+          
+          # 设置目标平台为 x86/64
+          echo "CONFIG_TARGET_x86=y" >> .config
+          echo "CONFIG_TARGET_x86_64=y" >> .config
+          echo "CONFIG_TARGET_x86_64_DEVICE_generic=y" >> .config
+          
+          # 添加基础系统组件
+          echo "CONFIG_PACKAGE_luci=y" >> .config
+          echo "CONFIG_PACKAGE_luci-ssl=y" >> .config
+          echo "CONFIG_PACKAGE_luci-app-firewall=y" >> .config
+          
+          # 添加VPN相关组件 (L2TP/IPsec with strongSwan)
+          echo "CONFIG_PACKAGE_strongswan-full=y" >> .config
+          echo "CONFIG_PACKAGE_xl2tpd=y" >> .config
+          echo "CONFIG_PACKAGE_ppp=y" >> .config
+          echo "CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y" >> .config
+          echo "CONFIG_PACKAGE_strongswan-mod-openssl=y" >> .config
+          echo "CONFIG_PACKAGE_strongswan-pki=y" >> .config
+          
+          # 可选：添加L2TP配置界面
+          echo "CONFIG_PACKAGE_luci-app-pptp-server=y" >> .config
+          
+          # 重新生成配置
+          make defconfig
+          
+          # 下载软件包
           make download -j8
-          # 清理空文件
           find dl -size -1024c -exec ls -l {} \;
           find dl -size -1024c -exec rm -f {} \;
           
-          # 基础配置
-          su - builduser -c "cd $BUILD_DIR && make defconfig"
-          
-          # 追加VPN相关组件配置
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-full=y' >> .config"
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_xl2tpd=y' >> .config"
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_ppp=y' >> .config"
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y' >> .config"
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-mod-openssl=y' >> .config"
-          su - builduser -c "cd $BUILD_DIR && echo 'CONFIG_PACKAGE_strongswan-pki=y' >> .config"
-          
-          # 重新生成配置
-          su - builduser -c "cd $BUILD_DIR && make defconfig"
-          
           # 保存配置文件
-          cp $BUILD_DIR/.config $GITHUB_WORKSPACE/openwrt-config-24.10.config
-          tar -zcf $GITHUB_WORKSPACE/openwrt-config-24.10.tar.gz $GITHUB_WORKSPACE/openwrt-config-24.10.config
+          cp .config $GITHUB_WORKSPACE/openwrt-config-x86-64.config
 
       - name: Compile OpenWrt Firmware
         id: compile
@@ -186,36 +197,40 @@ jobs:
           echo -e "使用 $(nproc) 线程编译"
           # 尝试多线程编译，失败则降级单线程
           make -j$(nproc) || make -j1 || make -j1 V=s
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Find Firmware Files
         run: |
           cd $OPENWRT_PATH/bin/
-          find . -name "*squashfs*"
+          find . -name "*squashfs*" -o -name "*combined*" -o -name "*ext4*"
 
       - name: Organize Firmware Files
         id: organize
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         run: |
-          # 进入固件目录
-          FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/ -name "*squashfs*" | head -n 1 | xargs dirname)
+          # 查找固件目录
+          FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/targets/x86/64 -type d 2>/dev/null | head -n1)
+          
+          if [ -z "$FIRMWARE_DIR" ]; then
+            FIRMWARE_DIR=$(find $OPENWRT_PATH/bin/ -name "*squashfs*" | head -n 1 | xargs dirname)
+          fi
+          
           cd $FIRMWARE_DIR
           
           # 清理无用文件
           rm -rf packages
-          find . -name "*ext4*" -delete
           find . -name "*root*" -delete
           
           # 打包固件
-          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt.tar.gz
-          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt_x86-64.tar.gz
+          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz *.vmdk *.qcow2 2>/dev/null || true
           
           # 保留仅打包文件
-          ls | grep -v $FIRMWARE_NAME | xargs rm -rf
+          ls | grep -v $FIRMWARE_NAME | xargs rm -rf 2>/dev/null || true
           
           # 输出变量
-          echo "::set-output name=FIRMWARE::$FIRMWARE_DIR"
-          echo "::set-output name=status::success"
+          echo "FIRMWARE=$FIRMWARE_DIR" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
           echo "固件打包完成：$(ls $FIRMWARE_DIR)"
 
       - name: Upload Firmware to Artifact
@@ -223,4 +238,37 @@ jobs:
         if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
           name: OpenWrt_firmware_${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
-          path: ${{ steps.organize.outputs.FIRMWARE }}
+          path: ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
+
+      - name: Upload Firmware to Release
+        uses: softprops/action-gh-release@v1
+        if: env.UPLOAD_RELEASE == 'true' && steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          tag_name: ${{ env.FIRMWARE_TAG }}_${{ github.run_id }}
+          name: OpenWrt Firmware ${{ env.FIRMWARE_TAG }} (Build ${{ github.run_id }})
+          body: |
+            ## OpenWrt 固件编译完成
+            
+            ### 版本信息
+            - 平台: x86-64
+            - 编译时间: ${{ env.COMMIT_DATE }}
+            - 源码版本: ${{ env.COMMIT_HASH }}
+            - 源码作者: ${{ env.COMMIT_AUTHOR }}
+            
+            ### 包含组件
+            - Luci Web界面
+            - Luci SSL支持
+            - Luci 防火墙
+            - **strongSwan Full (L2TP/IPsec VPN服务器)**
+            - xl2tpd (L2TP守护进程)
+            - PPP协议支持
+            
+            ### 说明
+            固件已包含完整的L2TP over IPsec VPN服务端组件，可直接配置使用。
+            默认登录IP: 192.168.1.1
+            默认密码: password
+            
+            **注意**: 首次使用请修改默认密码并配置防火墙规则。
+          files: ${{ steps.organize.outputs.FIRMWARE }}/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
