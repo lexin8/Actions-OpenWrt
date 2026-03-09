@@ -140,7 +140,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-ipsec=y
           CONFIG_PACKAGE_luci-proto-ppp=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
-		  EOF
+          EOF
 
       - name: 生成默认配置
         run: |
