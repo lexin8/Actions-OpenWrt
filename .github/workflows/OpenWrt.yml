@@ -4,158 +4,63 @@ on:
   workflow_dispatch:
     inputs:
       target_arch:
-        description: '编译目标架构（示例：x86_64）'
+        description: '目标架构（如 x86_64）'
         required: true
         default: 'x86_64'
-      ssh_debug:
-        description: '是否开启SSH调试（true/false）'
-        required: false
-        default: 'false'
 
 env:
   OPENWRT_BRANCH: master
-  NIKKI_FEED_URL: https://github.com/nikkinikki-org/OpenWrt-nikki.git
   SWAP_SIZE: 10G
-  TZ: Asia/Shanghai
 
 jobs:
-  build_openwrt:
+  build:
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write
     steps:
-      # 步骤1：修复环境依赖（核心：修正所有错误包名）
-      - name: 初始化编译环境（修复包名错误）
-        env:
-          DEBIAN_FRONTEND: noninteractive
+      - name: 安装官方要求的依赖（修正版）
         run: |
-          # 切换国内源加速
-          sudo sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-          sudo apt update -y && sudo apt full-upgrade -y
-          
-          # ========== 修正后的依赖包列表（适配Ubuntu 22.04） ==========
-          sudo apt install -y \
-          binutils bzip2 diffutils flex gawk gcc-12 g++-12 grep libc6-dev zlib1g-dev \
-          make perl python3.11 rsync subversion unzip git-core libssl-dev \
-          libncurses5-dev libncursesw5-dev build-essential pkg-config curl wget \
-          locales libelf-dev swig nftables \
-          libreadline-dev libgtk2.0-dev libglib2.0-dev coreutils util-linux \
-          git libncurses-dev libssl-dev build-essential cmake
-          
-          # 验证关键工具版本（满足OpenWrt 25.12要求）
-          echo "验证make版本（≥4.1）："
-          make --version | head -1
-          if [ $(echo "$(make --version | head -1 | awk '{print $3}' | cut -d. -f1-2) >= 4.1" | bc -l) -ne 1 ]; then
-            sudo apt install -y make --reinstall
-          fi
-          
-          echo "验证Python版本（≥3.7）："
-          python3 --version
-          if [ $(echo "$(python3 --version | awk '{print $2}' | cut -d. -f1-2) >= 3.7" | bc -l) -ne 1 ]; then
-            sudo apt install -y python3.11 --reinstall
-          fi
-          
-          # 配置中文编码
-          sudo locale-gen zh_CN.UTF-8
-          sudo update-locale LC_ALL=zh_CN.UTF-8 LANG=zh_CN.UTF-8
-          
-          # 扩展交换分区（解决内存不足）
+          sudo apt update -y
+          sudo apt install -y binutils bzip2 diffutils flex gawk gcc g++ getopt grep libc6-dev zlib1g-dev make perl python3 rsync subversion unzip git-core libssl-dev libncurses5-dev libncursesw5-dev build-essential pkg-config curl wget coreutils util-linux
+          # 扩展交换分区（25.12 编译内存需求高）
           sudo fallocate -l $SWAP_SIZE /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
-          
-          # 安装yq（Nikki插件依赖）
-          sudo wget -O /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/bin/yq
 
-      # 步骤2：拉取OpenWrt 25.12源码
-      - name: 克隆OpenWrt 25.12源码
+      - name: 拉取 25.12 源码（官方流程）
         run: |
-          git clone --depth 1 --branch $OPENWRT_BRANCH https://github.com/openwrt/openwrt.git openwrt-25.12
+          git clone --branch $OPENWRT_BRANCH https://github.com/openwrt/openwrt.git openwrt-25.12
           cd openwrt-25.12
-          
-          # 添加Nikki插件源
-          echo "src-git nikki $NIKKI_FEED_URL;main" >> feeds.conf.default
-          # 替换feeds国内源加速
-          sed -i 's#https://github.com/openwrt#https://mirrors.cloud.tencent.com/openwrt#g' feeds.conf.default
-          
-          # 更新并安装所有feeds（含Nikki）
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          
-          # 验证Nikki插件是否安装成功
-          if ! ./scripts/feeds list | grep -q "luci-app-nikki"; then
-            echo "ERROR: Nikki插件安装失败" && exit 1
-          fi
+          # 添加 Nikki 插件源（如需）
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main" >> feeds.conf.default
+          ./scripts/feeds update nikki && ./scripts/feeds install -a
 
-      # 步骤3：手动编译config工具（修复conf build failed）
-      - name: 手动编译config工具
+      - name: 配置编译选项（官方 menuconfig）
         run: |
           cd openwrt-25.12
-          # 单线程编译conf工具（核心修复）
-          make -j1 -C scripts/config conf V=s
-          # 验证conf是否编译成功
-          if [ ! -f scripts/config/conf ]; then
-            echo "ERROR: conf工具编译失败" && exit 1
-          fi
-
-      # 步骤4：配置编译选项（简化且兼容25.12）
-      - name: 配置编译参数
-        run: |
-          cd openwrt-25.12
-          # 生成目标架构默认配置
+          # 生成默认配置 + 启用中文 + Nikki
           make defconfig
-          
-          # 核心配置：中文+Nikki+25.12适配
-          cat > .config << EOF
+          cat >> .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_LUCI_LANG_zh_Hans=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-mod-admin-full=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_FIREWALL4=nftables
-          CONFIG_UCODE=y
-          CONFIG_DEVEL=y
-          CONFIG_BUILD_LOG=y
           EOF
-          
-          # 加载配置（单线程避免冲突）
-          make defconfig -j1
+          make defconfig
 
-      # 步骤5：SSH调试（可选）
-      - name: SSH远程调试
-        if: ${{ github.event.inputs.ssh_debug == 'true' }}
-        uses: mxschmitt/action-tmate@v3
-
-      # 步骤6：编译固件（分阶段编译）
-      - name: 编译OpenWrt 25.12固件
+      - name: 编译固件（官方流程 + 25.12 适配）
         run: |
           cd openwrt-25.12
-          # 第一步：单线程初始化（解决依赖解析）
-          make -j1 V=s
-          # 第二步：并行编译（核心阶段）
-          CORE_COUNT=$((`nproc` - 1))
-          make -j$CORE_COUNT V=s 2>&1 | tee build.log
+          make -j1 V=s  # 单线程初始化
+          make -j$(nproc -1) V=s  # 并行编译
 
-      # 步骤7：上传编译产物
-      - name: 上传固件包
+      - name: 上传固件
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}-Final
+          name: OpenWrt-25.12-${{ github.event.inputs.target_arch }}
           path: openwrt-25.12/bin/targets/**/*.bin
-          retention-days: 14
-
-      # 步骤8：清理环境
-      - name: 清理资源
-        if: always()
-        run: |
-          sudo swapoff /swapfile
-          sudo rm -rf /swapfile
-          sudo apt autoremove -y && sudo apt clean -y
+          retention-days: 7
