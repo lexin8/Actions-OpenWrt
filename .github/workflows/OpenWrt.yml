@@ -7,8 +7,6 @@ env:
   REPO_URL: https://github.com/openwrt/openwrt
   REPO_BRANCH: openwrt-23.05
   TZ: Asia/Shanghai
-  CCACHE_DIR: /home/runner/work/ccache
-  CCACHE_MAXSIZE: 2G
 
 jobs:
   build:
@@ -23,51 +21,19 @@ jobs:
         run: |
           sudo -E rm -rf /etc/apt/sources.list.d
           sudo -E apt-get update
-          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          # 移除 ccache 相关安装（彻底删除缓存依赖）
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev libpam0g-dev liblzma-dev libev-dev
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-
-      - name: 缓存 feeds
-        uses: actions/cache@v4  # 升级到 v4
-        id: cache-feeds
-        with:
-          path: openwrt/feeds
-          key: feeds-${{ env.REPO_BRANCH }}-${{ github.run_id }}
-          restore-keys: |
-            feeds-${{ env.REPO_BRANCH }}-
-            feeds-
-
-      - name: 缓存 dl 源码包
-        uses: actions/cache@v4  # 升级到 v4
-        id: cache-dl
-        with:
-          path: openwrt/dl
-          key: dl-${{ env.REPO_BRANCH }}-${{ hashFiles('openwrt/feeds.conf.default') }}
-          restore-keys: |
-            dl-${{ env.REPO_BRANCH }}-
-            dl-
-
-      - name: 缓存 ccache
-        uses: actions/cache@v4  # 升级到 v4
-        id: cache-ccache
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ env.REPO_BRANCH }}-${{ github.run_id }}
-          restore-keys: |
-            ccache-${{ env.REPO_BRANCH }}-
-            ccache-
 
       - name: 克隆源代码
         run: |
           git clone $REPO_URL -b $REPO_BRANCH --depth=1 openwrt
           cd openwrt
 
-      - name: 更新 feeds
+      - name: 更新 feeds（无缓存，从头下载）
         run: |
           cd openwrt
           ./scripts/feeds update -a
@@ -139,7 +105,7 @@ jobs:
           cd openwrt
           make defconfig
 
-      - name: 下载所有依赖包
+      - name: 下载所有依赖包（无缓存，从头下载）
         run: |
           cd openwrt
           make download -j$(nproc)
@@ -168,12 +134,10 @@ jobs:
           path: ${{ steps.upload_config_before.outputs.CONFIG_PATH }}
           retention-days: 7
 
-      - name: 编译固件
+      - name: 编译固件（禁用ccache，纯源码编译）
         run: |
           cd openwrt
-          # 启用 ccache
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
+          # 彻底禁用ccache，无缓存编译
           make -j$(nproc) || make -j1 V=s
 
       - name: 整理固件
