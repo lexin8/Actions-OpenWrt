@@ -62,8 +62,8 @@ CONFIG_PACKAGE_strongswan-swanctl=y
 CONFIG_PACKAGE_swanmon=y
 CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
 
-# CONFIG_PACKAGE_luci-app-nikki is not set
-# CONFIG_PACKAGE_luci-app-homeproxy is not set
+CONFIG_PACKAGE_luci-app-nikki=y
+CONFIG_PACKAGE_luci-app-homeproxy=y
 
 # 禁用不需要的插件（官方 is not set 格式，# 开头 + 配置项 + is not set 结尾）
 # CONFIG_DEFAULT_luci-app-arpbind is not set
