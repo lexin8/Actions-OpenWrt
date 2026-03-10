@@ -61,16 +61,17 @@ CONFIG_PACKAGE_strongswan-swanctl=y
 CONFIG_PACKAGE_swanmon=y
 CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
 
-CONFIG_PACKAGE_luci-app-nikki=y
-CONFIG_PACKAGE_luci-app-homeproxy=y
+# CONFIG_PACKAGE_luci-app-nikki is not set
+# CONFIG_PACKAGE_luci-app-homeproxy is not set
 
-CONFIG_DEFAULT_luci-app-arpbind=n
-CONFIG_PACKAGE_luci-app-autoreboot=n
-CONFIG_PACKAGE_luci-app-nlbwmon=n
-CONFIG_PACKAGE_luci-app-samba4=n
-CONFIG_PACKAGE_luci-app-samba=n
-CONFIG_PACKAGE_luci-app-vlmcsd=n
-CONFIG_PACKAGE_luci-app-wol=n
+# 禁用不需要的插件（官方 is not set 格式，# 开头 + 配置项 + is not set 结尾）
+# CONFIG_DEFAULT_luci-app-arpbind is not set
+# CONFIG_PACKAGE_luci-app-autoreboot is not set
+# CONFIG_PACKAGE_luci-app-nlbwmon is not set
+# CONFIG_PACKAGE_luci-app-samba4 is not set
+# CONFIG_PACKAGE_luci-app-samba is not set
+# CONFIG_PACKAGE_luci-app-vlmcsd is not set
+# CONFIG_PACKAGE_luci-app-wol is not set
 EOF
 
 make defconfig
