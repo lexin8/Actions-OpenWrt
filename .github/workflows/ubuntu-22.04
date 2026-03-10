@@ -1,0 +1,18 @@
+jobs:
+  ssh:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360  # 拉满6小时上限
+    steps:
+      - name: 启动 SSH 服务（支持重连）
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true  # 仅自己能连接，更安全
+
+      - name: 核心：保持任务运行（断开SSH也不终止）
+        run: |
+          echo "SSH 已启动，断开连接后任务仍会运行..."
+          while true; do
+            # 每60秒输出一次日志，避免被判定为无响应
+            echo "任务运行中... $(date)"
+            sleep 60
+          done
