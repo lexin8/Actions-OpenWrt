@@ -29,6 +29,9 @@ CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
 CONFIG_TARGET_KERNEL_PARTSIZE=60
 CONFIG_TARGET_ROOTFS_PARTSIZE=600
+# 持久化 /var
+CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+
 CONFIG_TARGET_ROOTFS_TARGZ=y
 # CONFIG_VMDK_IMAGES is not set
 
@@ -64,6 +67,7 @@ CONFIG_PACKAGE_strongswan-swanctl=y
 CONFIG_PACKAGE_swanmon=y
 CONFIG_PACKAGE_strongswan-charon=y
 CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+
 
 # 缺失的加密模块（必须添加）
 CONFIG_PACKAGE_strongswan-mod-nonce=y
