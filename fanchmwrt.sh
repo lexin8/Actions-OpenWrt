@@ -18,6 +18,7 @@ EOF
     strongswan strongswan-swanctl swanmon \
     luci-app-strongswan-swanctl \
     homeproxy luci-app-homeproxy \
+    sing-box golang \
     luci-app-nikki \
     ddns-scripts luci-app-ddns \
     luci-app-udpxy \
