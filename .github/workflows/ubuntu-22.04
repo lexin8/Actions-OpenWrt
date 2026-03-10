@@ -1,18 +1,46 @@
+name: 6小时持久SSH连接
+on:
+  # 手动触发（推荐）
+  workflow_dispatch:
+  # 可选：定时触发（如需自动启动）
+  # schedule:
+  #   - cron: "0 0 * * *"
+
 jobs:
-  ssh:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 360  # 拉满6小时上限
+  ssh-runner:
+    # 指定运行环境（Ubuntu最新版）
+    runs-on: ubuntu-latest
+    # 拉满6小时超时上限（GitHub硬限制）
+    timeout-minutes: 360
     steps:
-      - name: 启动 SSH 服务（支持重连）
+      # 步骤1：检出代码（必填基础步骤）
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 步骤2：启动SSH服务（最稳定的tmate方案）
+      - name: 启动持久SSH连接
         uses: mxschmitt/action-tmate@v3
         with:
-          limit-access-to-actor: true  # 仅自己能连接，更安全
+          # 仅自己能连接（安全关键！避免他人接入）
+          limit-access-to-actor: true
+          # 可选：设置SSH密码（增强安全）
+          # tmate-options: "-o password=你的自定义密码"
 
-      - name: 核心：保持任务运行（断开SSH也不终止）
+      # 步骤3：核心逻辑——保持任务运行6小时（断开SSH也不终止）
+      - name: 保持任务持续运行
         run: |
-          echo "SSH 已启动，断开连接后任务仍会运行..."
+          echo "✅ SSH已启动，任务将持续运行6小时"
+          echo "📌 断开SSH连接后任务仍会后台运行"
+          echo "🕒 当前时间：$(date)"
+          echo "⏰ 预计结束时间：$(date -d '+6 hours')"
+          
+          # 死循环保持运行，每5分钟输出日志（避免被判定为无响应）
           while true; do
-            # 每60秒输出一次日志，避免被判定为无响应
-            echo "任务运行中... $(date)"
-            sleep 60
+            # 输出运行状态（方便日志查看）
+            echo "🔄 任务运行中... 剩余时间：$(( (360 - $(date +%M) - $(date +%H)*60) )) 分钟"
+            # 每5分钟执行一次，降低资源占用
+            sleep 300
           done
+          
+          # 兜底：如果循环意外退出，用sleep撑满剩余时间
+          sleep 21600  # 6小时 = 360分钟 = 21600秒
