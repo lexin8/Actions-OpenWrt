@@ -6,6 +6,7 @@ echo "src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;o
 +net/softethervpn \
 +net/softethervpn5 \
 +libs/openssl \
++sing-box \
 +libs/readline \
 +libs/ncurses \
 +libs/zlib \
