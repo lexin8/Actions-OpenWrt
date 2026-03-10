@@ -3,8 +3,8 @@ set -e
 
 # 配置 feeds
 cat > feeds.conf.default << 'EOF'
-src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;openwrt-24.10
-src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10
+src-git packages https://github.com/immortalwrt/packages.git;openwrt-24.10
+src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10
 src-git homeproxy https://github.com/immortalwrt/homeproxy.git
 EOF
 
@@ -19,6 +19,7 @@ EOF
     luci-app-strongswan-swanctl \
     homeproxy luci-app-homeproxy \
     luci-app-nikki \
+    sing-box golang \
     ddns-scripts luci-app-ddns \
     luci-app-udpxy \
     openssl readline ncurses zlib
