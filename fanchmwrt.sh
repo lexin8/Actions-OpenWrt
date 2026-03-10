@@ -69,12 +69,8 @@ CONFIG_PACKAGE_strongswan-swanctl=y
 CONFIG_PACKAGE_swanmon=y
 CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
 
-CONFIG_PACKAGE_sing-box=y
-CONFIG_PACKAGE_sing-box-full=n
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
-CONFIG_PACKAGE_luci-app-libreswan=y
-CONFIG_PACKAGE_libreswan=y
 
 CONFIG_DEFAULT_luci-app-arpbind=n
 CONFIG_PACKAGE_luci-app-autoreboot=n
