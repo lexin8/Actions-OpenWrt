@@ -16,10 +16,11 @@ echo "src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;o
 
 echo "src-git immortalwrt_luci https://github.com/immortalwrt/luci;openwrt-24.10 \
 +applications/luci-app-softethervpn \
-+applications/luci-app-homeproxy \
 +applications/luci-app-strongswan-swanctl \
 +modules/luci-base \
 +modules/luci-lib-nixio" >> feeds.conf.default
+
+echo "src-git homeproxy https://github.com/immortalwrt/homeproxy.git" >> feeds.conf.default
 
 # 更新并全量安装Feeds
 ./scripts/feeds update -a
@@ -64,6 +65,7 @@ CONFIG_PACKAGE_swanmon=y
 CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
 
 CONFIG_PACKAGE_luci-app-nikki=y
+CONFIG_PACKAGE_homeproxy=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
 
 # 禁用不需要的插件（官方 is not set 格式，# 开头 + 配置项 + is not set 结尾）
