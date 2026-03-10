@@ -149,21 +149,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # ========== 修改3：优化Golang安装逻辑（增加网络容错+缩进规范） ==========
-      - name: Install Golang
-        run: |
-          cd $OPENWRT_PATH
-          # 删除原有golang目录（强制清理）
-          rm -rf feeds/packages/lang/golang || true
-          # 克隆golang 1.26（添加ghproxy代理，解决网络问题）
-          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang || git clone --depth 1 https://ghproxy.com/$GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
-          # 强制更新golang feeds
-          ./scripts/feeds update -f golang
-          ./scripts/feeds install -a -f golang
-          # 验证golang版本
-          cd feeds/packages/lang/golang
-          echo "Golang feeds版本: $(cat Makefile | grep PKG_VERSION | head -n1 | awk -F '=' '{print $2}')"
-
       - name: 运行一键部署脚本
         run: |
           cd $OPENWRT_PATH
@@ -190,6 +175,21 @@ jobs:
         run: |
           cd openwrt
           make defconfig
+
+      # ========== 修改3：优化Golang安装逻辑（增加网络容错+缩进规范） ==========
+      - name: Install Golang
+        run: |
+          cd $OPENWRT_PATH
+          # 删除原有golang目录（强制清理）
+          rm -rf feeds/packages/lang/golang || true
+          # 克隆golang 1.26（添加ghproxy代理，解决网络问题）
+          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang || git clone --depth 1 https://ghproxy.com/$GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
+          # 强制更新golang feeds
+          ./scripts/feeds update -f golang
+          ./scripts/feeds install -a -f golang
+          # 验证golang版本
+          cd feeds/packages/lang/golang
+          echo "Golang feeds版本: $(cat Makefile | grep PKG_VERSION | head -n1 | awk -F '=' '{print $2}')"
 
       - name: 下载 package（使用缓存）
         run: |
