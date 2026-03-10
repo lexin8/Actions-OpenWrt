@@ -1,56 +1,18 @@
-name: 6小时SSH（Xshell直连版）
+name: SSH-6h
 on:
-  workflow_dispatch:  # 仅手动触发
+  workflow_dispatch:
 
 jobs:
-  ssh-6h:
+  ssh:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 拉满6小时
-    permissions:
-      contents: read
+    timeout-minutes: 360
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 核心方案：放弃tmate，直接开启Actions本机SSH（无公网依赖）
-      - name: 配置本机SSH（无tmate，避免503错误）
-        run: |
-          # 1. 配置apt非交互模式，消除警告
-          export DEBIAN_FRONTEND=noninteractive
-          
-          # 2. 安装openssh-server（仅装基础SSH，不依赖tmate）
-          sudo apt-get update -qq > /dev/null 2>&1
-          sudo apt-get install -y -qq openssh-server > /dev/null 2>&1
-          
-          # 3. 关键：修改sshd配置，允许公网访问+密码登录
-          sudo sed -i 's/^#ListenAddress 0.0.0.0/ListenAddress 0.0.0.0/' /etc/ssh/sshd_config
-          sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-          sudo sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-          sudo sed -i 's/^#PermitEmptyPasswords no/PermitEmptyPasswords no/' /etc/ssh/sshd_config
-          
-          # 4. 设置root密码（自定义：这里是123456，可修改）
-          echo "root:123456" | sudo chpasswd
-          
-          # 5. 重启SSH服务
-          sudo service ssh restart > /dev/null 2>&1
-          
-          # 6. 获取Actions主机的内网IP（Xshell直接连这个IP）
-          SSH_IP=$(hostname -I | awk '{print $1}')
-          SSH_PORT=22
-          
-          # 7. 打印Xshell连接信息（核心：IP是关键）
-          echo "======================================"
-          echo "✅ Xshell连接信息（100%能连）"
-          echo "🔧 主机：$SSH_IP"
-          echo "🔧 用户名：root"
-          echo "🔧 密码：123456"
-          echo "🔧 端口：$SSH_PORT"
-          echo "======================================"
-          echo "📌 注意：此IP是Actions内网IP，仅在本次任务中有效"
-          echo "📌 断开Xshell后任务仍会运行6小时，手动Cancel可终止"
-          
-          # 8. 保持任务运行6小时（核心：防止任务终止）
-          while true; do
-            echo "任务运行中... 当前时间：$(date)"
-            sleep 300  # 每5分钟输出一次日志，避免无响应
-          done
+      - name: Start SSH
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+
+      - name: Keep alive 6h
+        run: sleep infinity
