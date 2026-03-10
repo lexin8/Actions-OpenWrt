@@ -9,6 +9,7 @@ echo "src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;o
 +libs/readline \
 +libs/ncurses \
 +libs/zlib \
++lang/golang \
 +net/strongswan \
 +net/swanmon" >> feeds.conf.default
 
