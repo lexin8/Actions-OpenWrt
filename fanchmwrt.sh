@@ -62,7 +62,19 @@ CONFIG_PACKAGE_luci-app-softethervpn=y
 CONFIG_PACKAGE_strongswan=y
 CONFIG_PACKAGE_strongswan-swanctl=y
 CONFIG_PACKAGE_swanmon=y
-CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
+CONFIG_PACKAGE_strongswan-charon=y
+CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+
+# 缺失的加密模块（必须添加）
+CONFIG_PACKAGE_strongswan-mod-nonce=y
+CONFIG_PACKAGE_strongswan-mod-sha1=y
+CONFIG_PACKAGE_strongswan-mod-sha2=y
+CONFIG_PACKAGE_strongswan-mod-aes=y
+CONFIG_PACKAGE_strongswan-mod-hmac=y
+CONFIG_PACKAGE_strongswan-mod-gmp=y
+CONFIG_PACKAGE_strongswan-mod-pem=y
+CONFIG_PACKAGE_strongswan-mod-x509=y
+CONFIG_PACKAGE_strongswan-mod-vici=y
 
 # HomeProxy / Nikki
 CONFIG_PACKAGE_luci-app-nikki=y
