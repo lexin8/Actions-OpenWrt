@@ -1,0 +1,268 @@
+name: fanchmwrt
+
+on:
+  repository_dispatch:
+  watch:
+    types: started
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'false'
+      clean_cache:
+        description: '清理缓存并重新编译'
+        required: true
+        default: 'false'
+
+env:
+  CONFIG_FILE: istoreos.config
+  CONFIG_FILE2: fanchmwrt.config
+  DIY_P1_SH: fanchmwrt.sh
+  DIY_P2_SH: l2tp.sh
+  DIY_P3_SH: diy-part3.sh
+  SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: false
+  UPLOAD_FIRMWARE: true
+  ENABLE_L2TP_COMPONENTS: false
+  UPLOAD_SOFTETHERVPN: true
+  UPLOAD_COWTRANSFER: true
+  UPLOAD_RELEASE: false
+  UPLOAD_WETRANSFER: false
+  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
+  TZ: Asia/Shanghai
+  GOLANG_REPO: https://github.com/sbwml/packages_lang_golang
+  GOLANG_BRANCH: 26.x
+  CCACHE_DIR: ${{ github.workspace }}/ccache
+  CCACHE_MAXSIZE: 5G
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Check Server Performance
+        run: |
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+
+      - name: Combine Disks
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 4096
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: builddir
+
+      - name: Clone Source Code
+        run: |
+          git clone --depth 1 $REPO_URL openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
+          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
+          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
+          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
+          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
+          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
+          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+
+      # ===== 缓存配置开始 =====
+      - name: 缓存 feeds
+        uses: actions/cache@v4
+        id: cache-feeds
+        with:
+          path: openwrt/feeds
+          key: feeds-${{ hashFiles('openwrt/feeds.conf.default') }}-${{ github.run_id }}
+          restore-keys: |
+            feeds-${{ hashFiles('openwrt/feeds.conf.default') }}-
+            feeds-
+
+      - name: 缓存 dl 源码包
+        uses: actions/cache@v4
+        id: cache-dl
+        with:
+          path: openwrt/dl
+          key: dl-${{ hashFiles('openwrt/feeds.conf.default', 'openwrt/.config') }}-${{ github.run_id }}
+          restore-keys: |
+            dl-${{ hashFiles('openwrt/feeds.conf.default') }}-
+            dl-
+
+      - name: 缓存 toolchain 编译工具链
+        uses: actions/cache@v4
+        id: cache-toolchain
+        with:
+          path: |
+            openwrt/staging_dir
+            openwrt/build_dir/toolchain-*
+          key: toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}-${{ github.run_id }}
+          restore-keys: |
+            toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}-
+            toolchain-
+
+      - name: 缓存 ccache 编译缓存
+        uses: actions/cache@v4
+        id: cache-ccache
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.ref }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ github.ref }}-
+            ccache-
+      # ===== 缓存配置结束 =====
+
+      - name: 配置 ccache
+        run: |
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE
+          ccache -o compression=true
+          ccache -s
+
+      - name: 更新 feeds（使用缓存）
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Install Golang
+        run: |
+          cd $OPENWRT_PATH
+          rm -rf feeds/packages/lang/golang
+          git clone $GOLANG_REPO -b $GOLANG_BRANCH feeds/packages/lang/golang
+          ./scripts/feeds update -f golang
+          ./scripts/feeds install -a -f golang
+
+      - name: 运行一键部署脚本
+        run: |
+          cd $OPENWRT_PATH
+          chmod +x $GITHUB_WORKSPACE/builddir/$DIY_P1_SH
+          $GITHUB_WORKSPACE/builddir/$DIY_P1_SH
+
+      - name: softethervpn
+        id: softethervpn
+        if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
+        run: |
+          cd ${{ github.workspace }}/openwrt/feeds/packages/net/
+          rm -rf softethervpn*
+          cp -r ${{ github.workspace }}/builddir/softethervpn .
+          cp -r ${{ github.workspace }}/builddir/softethervpn5 .
+
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: 生成配置
+        run: |
+          cd openwrt
+          make defconfig
+
+      - name: 下载 package（使用缓存）
+        run: |
+          cd openwrt
+          # 只下载缺失的包
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: 导出并上传.config配置文件
+        id: upload_config
+        run: |
+          cd openwrt
+          if [ -f ".config" ]; then
+            CONFIG_NAME="openwrt_config_$(date +%Y%m%d_%H%M%S).config"
+            cp .config $GITHUB_WORKSPACE/$CONFIG_NAME
+            echo "CONFIG_PATH=$GITHUB_WORKSPACE/$CONFIG_NAME" >> $GITHUB_OUTPUT
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 上传.config到directory
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt_Config_File
+          path: ${{ steps.upload_config.outputs.CONFIG_PATH }}
+          retention-days: 7
+
+      - name: 开始编译固件（使用ccache加速）
+        id: compile
+        run: |
+          cd openwrt
+          export CCACHE_DIR=$CCACHE_DIR
+          export USE_CCACHE=1
+          export CCACHE_COMPRESS=1
+          export CCACHE_MAXSIZE=$CCACHE_MAXSIZE
+          export PATH="/usr/lib/ccache:$PATH"
+          
+          # 显示缓存统计
+          ccache -s
+          
+          # 编译
+          make -j$(nproc) V=s || make -j1 V=s
+          
+          # 显示编译后缓存统计
+          ccache -s
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: 清理不必要的文件
+        run: |
+          cd openwrt
+          # 清理编译中间文件，但保留ccache缓存
+          rm -rf build_dir/target-* build_dir/host
+          # 保留toolchain和dl供下次使用
+          echo "清理完成"
+
+      - name: 搜索固件
+        run: |
+          cd openwrt/bin/
+          find . -name "*squashfs*"
+
+      - name: Organize files
+        id: organize
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+        run: |
+          cd openwrt/bin/
+          FIRMWARE_DIR=$(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
+          cd $FIRMWARE_DIR
+          rm -rf packages
+          find . -name "*ext4*" | xargs rm -rf
+          find . -name "*root*" | xargs rm -rf
+          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt.tar.gz
+          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
+          ls | grep -v $FIRMWARE_NAME | xargs rm -rf
+          echo "FIRMWARE_FILE=$PWD/$FIRMWARE_NAME" >> $GITHUB_OUTPUT
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: 上传固件压缩包
+        uses: actions/upload-artifact@v4
+        if: steps.organize.outputs.status == 'success' && !cancelled()
+        with:
+          name: OpenWrt_Firmware
+          path: ${{ steps.organize.outputs.FIRMWARE_FILE }}
+          retention-days: 7

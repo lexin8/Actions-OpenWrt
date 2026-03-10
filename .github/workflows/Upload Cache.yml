@@ -1,0 +1,95 @@
+name: Upload Cache
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-openwrt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout OpenWrt Source
+        uses: actions/checkout@v4
+        with:
+          repository: coolsnowwolf/lede
+          path: openwrt
+          fetch-depth: 0
+
+      - name: Restore OpenWrt Prebuilt Cache
+        id: restore-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            openwrt/dl/
+            openwrt/staging_dir/
+            openwrt/build_dir/
+          key: |
+            ${{ runner.os }}-openwrt-cache-
+            ${{ hashFiles('openwrt/.config') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt-cache-
+
+      - name: Fix Cache File Permissions
+        run: |
+          sudo chmod -R 755 openwrt/dl openwrt/staging_dir openwrt/build_dir
+          sudo chown -R $USER:$USER openwrt/
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt update && sudo apt install -y \
+            build-essential libncurses5-dev libssl-dev git wget curl \
+            subversion python3 unzip flex bison ccache
+
+      - name: Update & Install Feeds
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Load Custom .config
+        run: |
+          cd openwrt
+          cp ../config.seed .config
+          make defconfig
+
+      - name: Build OpenWrt Firmware
+        run: |
+          cd openwrt
+          make -j4 download world
+        env:
+          CONFIG_BUILD_TOOLCHAIN: n
+          CCACHE_DIR: $HOME/.ccache
+          CCACHE_COMPRESS: 1
+
+      - name: Save OpenWrt Prebuilt Cache
+        uses: actions/cache/save@v4
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            openwrt/dl/
+            openwrt/staging_dir/
+            openwrt/build_dir/
+          key: ${{ steps.restore-cache.outputs.cache-primary-key }}
+
+      - name: Upload Firmware Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt-Firmware-${{ github.run_id }}
+          path: openwrt/bin/targets/
+          retention-days: 30
+
+      - name: Restore CCACHE Cache
+        id: restore-ccache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-openwrt-ccache-${{ hashFiles('openwrt/.config') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt-ccache-
+
+      - name: Save CCACHE Cache
+        uses: actions/cache/save@v4
+        if: steps.restore-ccache.outputs.cache-hit != 'true'
+        with:
+          path: ~/.ccache
+          key: ${{ steps.restore-ccache.outputs.cache-primary-key }}

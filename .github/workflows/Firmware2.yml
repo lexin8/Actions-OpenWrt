@@ -1,0 +1,117 @@
+name: SoftEther + L2TP
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'Enable SSH debug (true/false)'
+        required: true
+        default: 'false'
+
+env:
+  OPENWRT_REPO: https://github.com/openwrt/openwrt
+  OPENWRT_BRANCH: master
+  OPENWRT_BUILD_DIR: /home/runner/openwrt-build
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: Build OpenWrt for x86-64
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: 检查代码
+        uses: actions/checkout@v4
+
+      - name: 初始化编译环境
+        run: |
+          sudo -E rm -rf /etc/apt/sources.list.d
+          sudo -E apt-get update
+          # 移除 ccache 相关安装（彻底删除缓存依赖）
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev libpam0g-dev liblzma-dev libev-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+
+
+      - name: Clone OpenWrt Source Code
+        run: |
+          mkdir -p "${OPENWRT_BUILD_DIR}"
+          git clone --depth 1 --branch "${OPENWRT_BRANCH}" "${OPENWRT_REPO}" "${OPENWRT_BUILD_DIR}"
+          cd "${OPENWRT_BUILD_DIR}"
+          ./scripts/feeds update -a
+          echo "src-git kenzo https://github.com/kenzok8/openwrt-packages.git" >> feeds.conf.default
+          echo "src-git small https://github.com/kenzok8/small.git" >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          ./scripts/feeds install -y strongswan xl2tpd softethervpn5 luci-app-softether luci-app-ipsec-server
+
+      - name: SSH Debug (Optional)
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: ${{ github.event.inputs.ssh == 'true' }}
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+      - name: Configure Build Options
+        run: |
+          cd "${OPENWRT_BUILD_DIR}"
+          cat > .config <<EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_DEVICE_generic=y
+          CONFIG_TARGET_ROOTFS_SQUASHFS=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-ssl=y
+          CONFIG_PACKAGE_luci-lang-zh-cn=y
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-charon=y
+          CONFIG_PACKAGE_strongswan-ipsec=y
+          CONFIG_PACKAGE_strongswan-mod-aes=y
+          CONFIG_PACKAGE_strongswan-mod-des=y
+          CONFIG_PACKAGE_strongswan-mod-gmpdh=y
+          CONFIG_PACKAGE_strongswan-mod-hmac=y
+          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+          CONFIG_PACKAGE_strongswan-mod-md5=y
+          CONFIG_PACKAGE_strongswan-mod-mgf1=y
+          CONFIG_PACKAGE_strongswan-mod-pubkey=y
+          CONFIG_PACKAGE_strongswan-mod-random=y
+          CONFIG_PACKAGE_strongswan-mod-sha1=y
+          CONFIG_PACKAGE_strongswan-mod-socket-default=y
+          CONFIG_PACKAGE_strongswan-mod-stroke=y
+          CONFIG_PACKAGE_strongswan-mod-updown=y
+          CONFIG_PACKAGE_strongswan-mod-x509=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_KMOD_IPSEC=y
+          CONFIG_KMOD_IPSEC4=y
+          CONFIG_KMOD_CRYPTO_HMAC=y
+          CONFIG_KMOD_CRYPTO_AES=y
+          CONFIG_KMOD_CRYPTO_SHA1=y
+          CONFIG_KMOD_IPTABLES_IPSEC=y
+
+          CONFIG_CCACHE=y
+          CONFIG_BUILD_LOG=y
+          EOF
+          make defconfig
+          make download -j8
+
+      - name: Build OpenWrt Firmware
+        run: |
+          cd "${OPENWRT_BUILD_DIR}"
+          make -j$(nproc) || make -j1 V=s
+          ls -lh bin/targets/x86/64/
+
+      - name: Organize Build Artifacts
+        run: |
+          mkdir -p /tmp/openwrt-artifacts
+          cp "${OPENWRT_BUILD_DIR}/bin/targets/x86/64/"*squashfs*.img.gz /tmp/openwrt-artifacts/ || true
+          cp "${OPENWRT_BUILD_DIR}/.config" /tmp/openwrt-artifacts/openwrt-build.config || true
+          cp "${OPENWRT_BUILD_DIR}/build.log" /tmp/openwrt-artifacts/ || true
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt-23.05-VPN-Official
+          path: /tmp/openwrt-artifacts/
+          retention-days: 7
