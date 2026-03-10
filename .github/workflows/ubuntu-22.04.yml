@@ -1,47 +1,50 @@
-
-name: 6小时持久SSH连接
+name: 6小时SSH
 on:
-  # 手动触发（推荐）
-  workflow_dispatch:
-  # 可选：定时触发（如需自动启动）
-  # schedule:
-  #   - cron: "0 0 * * *"
+  workflow_dispatch:  # 仅手动触发
 
 jobs:
-  ssh-runner:
-    # 指定运行环境（Ubuntu最新版）
+  ssh-6h:
     runs-on: ubuntu-latest
-    # 拉满6小时超时上限（GitHub硬限制）
-    timeout-minutes: 360
+    timeout-minutes: 360  # 拉满6小时
+    permissions:
+      contents: read
     steps:
-      # 步骤1：检出代码（必填基础步骤）
-      - name: Checkout code
+      - name: 检出代码
         uses: actions/checkout@v4
 
-      # 步骤2：启动SSH服务（最稳定的tmate方案）
-      - name: 启动持久SSH连接
-        uses: mxschmitt/action-tmate@v3
-        with:
-          # 仅自己能连接（安全关键！避免他人接入）
-          limit-access-to-actor: true
-          # 可选：设置SSH密码（增强安全）
-          # tmate-options: "-o password=你的自定义密码"
-
-      # 步骤3：核心逻辑——保持任务运行6小时（断开SSH也不终止）
-      - name: 保持任务持续运行
+      # 核心修复：自定义tmate配置，强制开启密码认证（Xshell直连）
+      - name: 安装并配置tmate（支持密码+密钥）
         run: |
-          echo "✅ SSH已启动，任务将持续运行6小时"
-          echo "📌 断开SSH连接后任务仍会后台运行"
-          echo "🕒 当前时间：$(date)"
-          echo "⏰ 预计结束时间：$(date -d '+6 hours')"
+          # 安装tmate
+          sudo apt update && sudo apt install -y tmate openssh-server
           
-          # 死循环保持运行，每5分钟输出日志（避免被判定为无响应）
+          # 配置sshd，开启密码认证（关键！）
+          sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+          
+          # 设置root密码（自定义：这里设为 123456，你可以改成自己的）
+          echo "root:123456" | sudo chpasswd
+          
+          # 重启sshd服务
+          sudo service ssh restart
+          
+          # 启动tmate并后台运行，输出连接信息
+          nohup tmate -F > tmate.log 2>&1 &
+          sleep 10  # 等待tmate启动
+          
+          # 打印连接信息（包含Xshell可直接用的账号密码）
+          echo "======================================"
+          echo "✅ Xshell连接信息（复制到Xshell即可）"
+          echo "🔧 主机：$(cat tmate.log | grep 'ssh ' | head -n1 | awk '{print $2}' | cut -d'@' -f2)"
+          echo "🔧 用户名：root"
+          echo "🔧 密码：123456"
+          echo "🔧 端口：22"
+          echo "======================================"
+          echo "📌 Web SSH链接：$(cat tmate.log | grep 'Web SSH' | head -n1 | awk '{print $3}')"
+          
+          # 保持任务运行6小时
           while true; do
-            # 输出运行状态（方便日志查看）
-            echo "🔄 任务运行中... 剩余时间：$(( (360 - $(date +%M) - $(date +%H)*60) )) 分钟"
-            # 每5分钟执行一次，降低资源占用
+            echo "任务运行中... $(date)"
             sleep 300
           done
-          
-          # 兜底：如果循环意外退出，用sleep撑满剩余时间
-          sleep 21600  # 6小时 = 360分钟 = 21600秒
