@@ -1,4 +1,4 @@
-name: 6小时SSH
+name: 6小时SSH（Xshell直连版）
 on:
   workflow_dispatch:  # 仅手动触发
 
@@ -12,36 +12,55 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # 核心修复：自定义tmate配置，强制开启密码认证（Xshell直连）
-      - name: 安装并配置tmate（支持密码+密钥）
+      # 核心修复：使用最新tmate，强制获取有效连接地址
+      - name: 安装最新tmate并配置（解决主机名无效问题）
         run: |
-          # 安装tmate
+          # 卸载系统旧版tmate
+          sudo apt remove -y tmate
+          sudo apt autoremove -y
+          
+          # 安装最新tmate（官方源，支持自动获取公网地址）
+          curl -fsSL https://tmate.io/tmate-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/tmate-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/tmate-archive-keyring.gpg] https://deb.tmate.io/ stable main" | sudo tee /etc/apt/sources.list.d/tmate.list
           sudo apt update && sudo apt install -y tmate openssh-server
           
-          # 配置sshd，开启密码认证（关键！）
+          # 配置sshd开启密码认证（Xshell直连核心）
           sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
           sudo sed -i 's/^PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
           sudo sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-          
-          # 设置root密码（自定义：这里设为 123456，你可以改成自己的）
-          echo "root:123456" | sudo chpasswd
-          
-          # 重启sshd服务
+          echo "root:123456" | sudo chpasswd  # 密码可自行修改
           sudo service ssh restart
           
-          # 启动tmate并后台运行，输出连接信息
+          # 启动tmate并等待获取连接信息（关键：延长等待时间）
+          echo "启动tmate，等待获取连接地址..."
           nohup tmate -F > tmate.log 2>&1 &
-          sleep 10  # 等待tmate启动
+          sleep 20  # 延长等待时间，确保tmate完成公网连接
           
-          # 打印连接信息（包含Xshell可直接用的账号密码）
+          # 提取有效连接信息（修复主机名=session问题）
+          TMATE_SSH=$(grep -E 'ssh .+@.+\.tmate\.io' tmate.log | head -n1 | awk '{print $2}')
+          TMATE_WEB=$(grep -E 'https://tmate.io/t/.+' tmate.log | head -n1 | awk '{print $3}')
+          
+          # 解析主机和用户名
+          if [ -n "$TMATE_SSH" ]; then
+              TMATE_HOST=$(echo $TMATE_SSH | cut -d'@' -f2)
+              TMATE_USER=$(echo $TMATE_SSH | cut -d'@' -f1)
+          else
+              # 兜底：若tmate未输出，使用本地SSH（Actions内网地址）
+              TMATE_HOST=$(hostname -I | awk '{print $1}')
+              TMATE_USER="root"
+              echo "⚠️ tmate公网地址获取失败，使用内网地址连接"
+          fi
+          
+          # 打印最终连接信息
           echo "======================================"
           echo "✅ Xshell连接信息（复制到Xshell即可）"
-          echo "🔧 主机：$(cat tmate.log | grep 'ssh ' | head -n1 | awk '{print $2}' | cut -d'@' -f2)"
-          echo "🔧 用户名：root"
+          echo "🔧 主机：$TMATE_HOST"
+          echo "🔧 用户名：$TMATE_USER（优先用root，密码123456）"
+          echo "🔧 备用用户名：root"
           echo "🔧 密码：123456"
           echo "🔧 端口：22"
           echo "======================================"
-          echo "📌 Web SSH链接：$(cat tmate.log | grep 'Web SSH' | head -n1 | awk '{print $3}')"
+          echo "📌 Web SSH链接：$TMATE_WEB"
           
           # 保持任务运行6小时
           while true; do
