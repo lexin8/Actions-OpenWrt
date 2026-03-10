@@ -1,14 +1,6 @@
 #!/bin/bash
 set -e
 
-# 清理冲突组件
-rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns} 
-rm -rf feeds/packages/utils/v2dat 
-rm -rf feeds/packages/lang/golang
-
-# 替换Golang 1.26
-git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
-
 # 添加Feeds源
 echo "src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;openwrt-24.10 \
 +net/softethervpn \
