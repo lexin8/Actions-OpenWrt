@@ -1,27 +1,16 @@
-name: Build 21.02
+name: fanchmwrt+kenzo
 
 on:
   workflow_dispatch:
-    inputs:
-      ssh:
-        description: 'SSH for debug (true/false)'
-        required: true
-        default: 'false'
 
 env:
   TZ: Asia/Shanghai
-  # 21.02 分支配置（保留 strongswan-full）
-  OPENWRT_REPO: https://github.com/openwrt/openwrt
-  OPENWRT_BRANCH: openwrt-21.02
-  IMMORTALWRT_REPO: https://github.com/immortalwrt/immortalwrt
-  IMMORTALWRT_BRANCH: openwrt-21.02
-  # 简化工作目录（避免路径冲突）
-  OPENWRT_DIR: /home/runner/openwrt
-  IMMORTALWRT_DIR: /home/runner/immortalwrt
 
 jobs:
   build:
+    name: Build fanchmwrt Firmware
     runs-on: ubuntu-22.04
+
     steps:
       - name: Check Server Performance
         run: |
@@ -41,101 +30,130 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
+          echo "export TERM=linux" >> ~/.bashrc
 
-      # 3. 拉取 OpenWrt 源码
-      - name: Pull OpenWrt Source Code
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 1024
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone source & setup feeds
         run: |
-          echo "=== Create OpenWrt Directory ==="
-          mkdir -p $OPENWRT_DIR
-          
-          echo "=== Clone OpenWrt Repository ==="
-          git clone --depth=1 -b $OPENWRT_BRANCH $OPENWRT_REPO $OPENWRT_DIR
-          
-          echo "=== Update & Install Feeds ==="
-          cd $OPENWRT_DIR
+          git clone https://github.com/fanchmwrt/fanchmwrt -b main openwrt
+          cd openwrt
+          # 插入 kenzo 和 small 源到最前面
+          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
+          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+
+      - name: Update & clean
+        run: |
+          cd openwrt
           ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          rm -rf feeds/luci/applications/luci-app-mosdns
+          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns}
+          rm -rf feeds/packages/utils/v2dat
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
 
-      # 4. 拉取 ImmortalWrt 源码
-      - name: Pull ImmortalWrt Source Code
+      - name: Install all feeds
+        run: cd openwrt && ./scripts/feeds install -a
+
+      - name: Generate config
         run: |
-          echo "=== Create ImmortalWrt Directory ==="
-          mkdir -p $IMMORTALWRT_DIR
-          
-          echo "=== Clone ImmortalWrt Repository ==="
-          git clone --depth=1 -b $IMMORTALWRT_BRANCH $IMMORTALWRT_REPO $IMMORTALWRT_DIR
-          
-          echo "=== Update & Install Feeds ==="
-          cd $IMMORTALWRT_DIR
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      # 5. SSH 调试（可选）
-      - name: SSH Debug (Optional)
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: ${{ github.event.inputs.ssh == 'true' }}
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      # 6. 编译 OpenWrt 固件（核心步骤）
-      - name: Compile OpenWrt Firmware
-        run: |
-          echo "=== Configure OpenWrt ==="
-          cd $OPENWRT_DIR
-          echo "$COMMON_CONFIG" > .config
+          cd openwrt
+          export TERM=linux
           make defconfig
           
-          echo "=== Download Dependencies (Single Thread) ==="
-          make download -j1 V=s
-          # 清理无效小文件
-          find dl -size -1024c -exec rm -f {} \;
-          
-          echo "=== Compile Firmware ==="
-          export CCACHE_DIR=/home/runner/.ccache
-          export USE_CCACHE=1
-          # 多线程优先，失败则单线程兜底
-          make -j$(nproc) V=s || make -j1 V=s
-          
-          echo "=== Organize Artifacts ==="
-          mkdir -p /tmp/openwrt_firmware
-          cp bin/targets/x86/64/*squashfs*.img.gz /tmp/openwrt_firmware/ || true
-          cp .config /tmp/openwrt_firmware/openwrt_2102_config.config
+          cat > .config << 'EOF'
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=60
+          CONFIG_TARGET_ROOTFS_PARTSIZE=600
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          CONFIG_TARGET_IMAGES_GZIP=y
 
-      # 7. 上传 OpenWrt 产物
-      - name: Upload OpenWrt Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenWrt_21.02_Firmware
-          path: /tmp/openwrt_firmware/
-          retention-days: 7
+          CONFIG_KERNEL_IP_FORWARD=y
+          CONFIG_KERNEL_NETFILTER=y
+          CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
+          CONFIG_KERNEL_PPP=y
+          CONFIG_KERNEL_PPP_ASYNC=y
+          CONFIG_KERNEL_PPP_SYNC_TTY=y
+          CONFIG_KERNEL_PPP_L2TP=y
+          CONFIG_KERNEL_TUN=y
+          CONFIG_KERNEL_BRIDGE_NETFILTER=y
 
-      # 8. 编译 ImmortalWrt 固件（核心步骤）
-      - name: Compile ImmortalWrt Firmware
-        run: |
-          echo "=== Configure ImmortalWrt ==="
-          cd $IMMORTALWRT_DIR
-          echo "$COMMON_CONFIG" > .config
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+
+          CONFIG_PACKAGE_libopenssl=y
+          CONFIG_PACKAGE_libreadline=y
+          CONFIG_PACKAGE_libncurses=y
+          CONFIG_PACKAGE_zlib=y
+          CONFIG_PACKAGE_softethervpn=y
+          CONFIG_PACKAGE_softethervpn5=y
+          CONFIG_PACKAGE_luci-app-softethervpn=y
+
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-swanctl=y
+          CONFIG_PACKAGE_swanmon=y
+          CONFIG_PACKAGE_strongswan-charon=y
+          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+          CONFIG_PACKAGE_strongswan-mod-nonce=y
+          CONFIG_PACKAGE_strongswan-mod-sha1=y
+          CONFIG_PACKAGE_strongswan-mod-sha2=y
+          CONFIG_PACKAGE_strongswan-mod-aes=y
+          CONFIG_PACKAGE_strongswan-mod-hmac=y
+          CONFIG_PACKAGE_strongswan-mod-gmp=y
+          CONFIG_PACKAGE_strongswan-mod-pem=y
+          CONFIG_PACKAGE_strongswan-mod-x509=y
+          CONFIG_PACKAGE_strongswan-mod-vici=y
+
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          CONFIG_PACKAGE_homeproxy=y
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_sing-box=y
+          # CONFIG_PACKAGE_luci-app-arpbind is not set
+          # CONFIG_PACKAGE_luci-app-autoreboot is not set
+          # CONFIG_PACKAGE_luci-app-nlbwmon is not set
+          # CONFIG_PACKAGE_luci-app-samba4 is not set
+          # CONFIG_PACKAGE_luci-app-samba is not set
+          # CONFIG_PACKAGE_luci-app-vlmcsd is not set
+          # CONFIG_PACKAGE_luci-app-wol is not set
+          EOF
+
           make defconfig
-          
-          echo "=== Download Dependencies (Single Thread) ==="
-          make download -j1 V=s
-          find dl -size -1024c -exec rm -f {} \;
-          
-          echo "=== Compile Firmware ==="
-          export CCACHE_DIR=/home/runner/.ccache
-          export USE_CCACHE=1
-          make -j$(nproc) V=s || make -j1 V=s
-          
-          echo "=== Organize Artifacts ==="
-          mkdir -p /tmp/immortalwrt_firmware
-          cp bin/targets/x86/64/*squashfs*.img.gz /tmp/immortalwrt_firmware/ || true
-          cp .config /tmp/immortalwrt_firmware/immortalwrt_2102_config.config
 
-      # 9. 上传 ImmortalWrt 产物
-      - name: Upload ImmortalWrt Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Download packages
+        run: |
+          cd openwrt
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
+
+      - name: Build firmware
+        run: |
+          cd openwrt
+          make -j$(nproc) || make -j1 V=s
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@main
         with:
-          name: ImmortalWrt_21.02_Firmware
-          path: /tmp/immortalwrt_firmware/
-          retention-days: 7
+          name: fanchmwrt-x86-64-Firmware
+          path: openwrt/bin/targets/x86/64/*.img.gz
+          if-no-files-found: warn
