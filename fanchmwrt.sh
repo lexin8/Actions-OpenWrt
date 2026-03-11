@@ -100,7 +100,7 @@ CONFIG_PACKAGE_luci-app-homeproxy=y
 # CONFIG_PACKAGE_luci-app-samba is not set
 # CONFIG_PACKAGE_luci-app-vlmcsd is not set
 # CONFIG_PACKAGE_luci-app-wol is not set
-EOF
+
 EOF
 
 make defconfig
