@@ -51,10 +51,10 @@ jobs:
         run: |
           git clone https://github.com/fanchmwrt/fanchmwrt openwrt
           cd openwrt
-          # 插入 kenzo 和 small 源到最前面
           sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+          echo "src-git packages_official https://github.com/openwrt/packages.git;openwrt-24.10" >> feeds.conf.default
 
       - name: Update & clean
         run: |
@@ -66,6 +66,88 @@ jobs:
           rm -rf feeds/packages/lang/golang
           git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
 
+      - name: Force packages from official source
+        run: |
+          cd openwrt
+          # 删除所有其他源中的 softethervpn
+          rm -rf feeds/kenzo/softethervpn* 2>/dev/null || true
+          rm -rf feeds/small/softethervpn* 2>/dev/null || true
+          rm -rf feeds/packages/net/softethervpn* 2>/dev/null || true
+          
+          # 删除所有其他源中的 strongswan 相关组件
+          rm -rf feeds/kenzo/strongswan* 2>/dev/null || true
+          rm -rf feeds/small/strongswan* 2>/dev/null || true
+          rm -rf feeds/packages/net/strongswan* 2>/dev/null || true
+          rm -rf feeds/packages/utils/strongswan* 2>/dev/null || true
+          
+          # 从官方源复制 softethervpn
+          if [ -d "feeds/packages_official/net/softethervpn" ]; then
+            mkdir -p feeds/packages/net/softethervpn
+            cp -r feeds/packages_official/net/softethervpn/* feeds/packages/net/softethervpn/
+          fi
+          if [ -d "feeds/packages_official/net/softethervpn5" ]; then
+            mkdir -p feeds/packages/net/softethervpn5
+            cp -r feeds/packages_official/net/softethervpn5/* feeds/packages/net/softethervpn5/
+          fi
+          
+          # 从官方源复制 strongswan 相关组件
+          if [ -d "feeds/packages_official/net/strongswan" ]; then
+            mkdir -p feeds/packages/net/strongswan
+            cp -r feeds/packages_official/net/strongswan/* feeds/packages/net/strongswan/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-swanctl" ]; then
+            mkdir -p feeds/packages/net/strongswan-swanctl
+            cp -r feeds/packages_official/net/strongswan-swanctl/* feeds/packages/net/strongswan-swanctl/
+          fi
+          if [ -d "feeds/packages_official/net/swanmon" ]; then
+            mkdir -p feeds/packages/net/swanmon
+            cp -r feeds/packages_official/net/swanmon/* feeds/packages/net/swanmon/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-charon" ]; then
+            mkdir -p feeds/packages/net/strongswan-charon
+            cp -r feeds/packages_official/net/strongswan-charon/* feeds/packages/net/strongswan-charon/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-kernel-netlink" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-kernel-netlink
+            cp -r feeds/packages_official/net/strongswan-mod-kernel-netlink/* feeds/packages/net/strongswan-mod-kernel-netlink/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-nonce" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-nonce
+            cp -r feeds/packages_official/net/strongswan-mod-nonce/* feeds/packages/net/strongswan-mod-nonce/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-sha1" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-sha1
+            cp -r feeds/packages_official/net/strongswan-mod-sha1/* feeds/packages/net/strongswan-mod-sha1/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-sha2" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-sha2
+            cp -r feeds/packages_official/net/strongswan-mod-sha2/* feeds/packages/net/strongswan-mod-sha2/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-aes" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-aes
+            cp -r feeds/packages_official/net/strongswan-mod-aes/* feeds/packages/net/strongswan-mod-aes/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-hmac" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-hmac
+            cp -r feeds/packages_official/net/strongswan-mod-hmac/* feeds/packages/net/strongswan-mod-hmac/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-gmp" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-gmp
+            cp -r feeds/packages_official/net/strongswan-mod-gmp/* feeds/packages/net/strongswan-mod-gmp/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-pem" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-pem
+            cp -r feeds/packages_official/net/strongswan-mod-pem/* feeds/packages/net/strongswan-mod-pem/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-x509" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-x509
+            cp -r feeds/packages_official/net/strongswan-mod-x509/* feeds/packages/net/strongswan-mod-x509/
+          fi
+          if [ -d "feeds/packages_official/net/strongswan-mod-vici" ]; then
+            mkdir -p feeds/packages/net/strongswan-mod-vici
+            cp -r feeds/packages_official/net/strongswan-mod-vici/* feeds/packages/net/strongswan-mod-vici/
+          fi
+
       - name: Install all feeds
         run: cd openwrt && ./scripts/feeds install -a
 
@@ -74,7 +156,6 @@ jobs:
           cd openwrt
           export TERM=linux
           make defconfig
-          
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -83,7 +164,6 @@ jobs:
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
-
           CONFIG_KERNEL_IP_FORWARD=y
           CONFIG_KERNEL_NETFILTER=y
           CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
@@ -93,13 +173,11 @@ jobs:
           CONFIG_KERNEL_PPP_L2TP=y
           CONFIG_KERNEL_TUN=y
           CONFIG_KERNEL_BRIDGE_NETFILTER=y
-
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
-
           CONFIG_PACKAGE_libopenssl=y
           CONFIG_PACKAGE_libreadline=y
           CONFIG_PACKAGE_libncurses=y
@@ -107,7 +185,6 @@ jobs:
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
-
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-swanctl=y
           CONFIG_PACKAGE_swanmon=y
@@ -122,7 +199,6 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-pem=y
           CONFIG_PACKAGE_strongswan-mod-x509=y
           CONFIG_PACKAGE_strongswan-mod-vici=y
-
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
@@ -137,7 +213,6 @@ jobs:
           # CONFIG_PACKAGE_luci-app-vlmcsd is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
           EOF
-
           make defconfig
 
       - name: Download packages
@@ -156,4 +231,5 @@ jobs:
         with:
           name: fanchmwrt-x86-64-Firmware
           path: openwrt/bin/targets/x86/64/*.img.gz
+          if-no-files-found: warn
           if-no-files-found: warn
