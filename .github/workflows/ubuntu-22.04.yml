@@ -33,20 +33,11 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          
-          # 安装编译依赖
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
-          
-          # 安装 Go（用于修复 yq 依赖）
-          sudo -E apt-get -y install golang-go
-          
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          
-          # 验证 Go 安装
-          go version
 
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
@@ -208,28 +199,6 @@ jobs:
           
           # 安装 HomeProxy/Sing-Box
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-
-      - name: Stage2 - Fix yq dependencies
-        run: |
-          cd openwrt
-          
-          # 确保 yq 包存在
-          if [ ! -d "feeds/packages/utils/yq" ]; then
-            ./scripts/feeds install yq
-          fi
-          
-          # 进入 yq 源码目录手动修复依赖
-          cd feeds/packages/utils/yq
-          
-          # 使用系统 Go（刚安装的）修复依赖
-          export GO111MODULE=on
-          export GOPROXY=https://proxy.golang.org,direct
-          
-          # 手动添加缺失的依赖
-          go get github.com/pkg/diff/intern@v0.0.0-20210226163009-20ebb0f2a09e
-          go get github.com/mattn/go-isatty@v0.0.20
-          
-          cd $OPENWRT_PATH
 
       - name: Stage2 - Config
         run: |
