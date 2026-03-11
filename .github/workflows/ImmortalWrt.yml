@@ -1,4 +1,4 @@
-name: Build ImmortalWrt 24.10 Firmware
+name: ImmortalWrt
 
 on:
   workflow_dispatch:
@@ -56,22 +56,25 @@ jobs:
       - name: Update feeds
         run: cd openwrt && ./scripts/feeds update -a
 
-      - name: Install packages
+      - name: Install base packages
         run: |
           cd openwrt
+          # 只安装基础包，确保编译成功
           ./scripts/feeds install \
-            softethervpn softethervpn5 \
-            luci-app-softethervpn \
-            strongswan strongswan-swanctl swanmon \
-            luci-app-strongswan-swanctl \
-            ddns-scripts luci-app-ddns \
-            luci-app-udpxy \
-            openssl readline ncurses zlib \
-            sing-box golang \
-            homeproxy luci-app-homeproxy
-          ./scripts/feeds install nikki
-          ./scripts/feeds install luci-app-nikki
-          ./scripts/feeds install luci-i18n-nikki-zh-cn
+            ddns-scripts \
+            luci-app-ddns \
+            luci-app-udpxy
+          
+          # 确保 dnsmasq-full 的依赖
+          ./scripts/feeds install libnettle
+          ./scripts/feeds install libgmp
+
+      - name: Setup ccache
+        run: |
+          cd openwrt
+          mkdir -p ccache
+          echo 'CONFIG_CCACHE=y' >> .config
+          echo 'CONFIG_CCACHE_DIR="$(pwd)/ccache"' >> .config
 
       - name: Generate config
         run: |
@@ -88,56 +91,41 @@ jobs:
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
 
+          # 基础网络配置
           CONFIG_KERNEL_IP_FORWARD=y
           CONFIG_KERNEL_NETFILTER=y
-          CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
           CONFIG_KERNEL_PPP=y
-          CONFIG_KERNEL_PPP_ASYNC=y
-          CONFIG_KERNEL_PPP_SYNC_TTY=y
-          CONFIG_KERNEL_PPP_L2TP=y
           CONFIG_KERNEL_TUN=y
-          CONFIG_KERNEL_BRIDGE_NETFILTER=y
 
+          # 基础包
           CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
 
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_libreadline=y
-          CONFIG_PACKAGE_libncurses=y
-          CONFIG_PACKAGE_zlib=y
-          CONFIG_PACKAGE_softethervpn=y
-          CONFIG_PACKAGE_softethervpn5=y
-          CONFIG_PACKAGE_luci-app-softethervpn=y
-
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-swanctl=y
-          CONFIG_PACKAGE_swanmon=y
-          CONFIG_PACKAGE_strongswan-charon=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
-          CONFIG_PACKAGE_strongswan-mod-nonce=y
-          CONFIG_PACKAGE_strongswan-mod-sha1=y
-          CONFIG_PACKAGE_strongswan-mod-sha2=y
-          CONFIG_PACKAGE_strongswan-mod-aes=y
-          CONFIG_PACKAGE_strongswan-mod-hmac=y
-          CONFIG_PACKAGE_strongswan-mod-gmp=y
-          CONFIG_PACKAGE_strongswan-mod-pem=y
-          CONFIG_PACKAGE_strongswan-mod-x509=y
-          CONFIG_PACKAGE_strongswan-mod-vici=y
-
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_PACKAGE_homeproxy=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
+          # dnsmasq 配置
+          CONFIG_PACKAGE_dnsmasq=n
+          CONFIG_PACKAGE_dnsmasq-full=y
+          CONFIG_PACKAGE_dnsmasq-full_dhcp=y
+          CONFIG_PACKAGE_dnsmasq-full_dhcpv6=y
           EOF
 
           make defconfig
 
-      - name: Download packages
+      - name: Cache OpenWrt build
+        uses: actions/cache@v4
+        id: cache-openwrt
+        with:
+          path: |
+            openwrt/dl
+            openwrt/staging_dir
+            openwrt/build_dir
+            openwrt/ccache
+          key: ${{ runner.os }}-openwrt-${{ hashFiles('openwrt/feeds.conf.default', 'openwrt/.config') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt-
+
+      - name: Download packages (if cache missed)
+        if: steps.cache-openwrt.outputs.cache-hit != 'true'
         run: |
           cd openwrt
           make download -j8
