@@ -1,4 +1,4 @@
-name: ImmortalWrt 顺序编译
+name: ImmortalWrt 极速二阶段编译
 
 on:
   workflow_dispatch:
@@ -90,10 +90,12 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # ========== 阶段1：基础编译 ==========
-      - name: Stage1 - Base Config
+      # ========== 第一阶段：基础 + DDNS + UDPXY + SoftEtherVPN + StrongSwan ==========
+      - name: Stage1 - Base + DDNS + SoftEtherVPN + StrongSwan
         run: |
           cd openwrt
+          
+          # 基础配置
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -111,33 +113,8 @@ jobs:
           CONFIG_KERNEL_PPP_L2TP=y
           CONFIG_KERNEL_TUN=y
           CONFIG_KERNEL_BRIDGE_NETFILTER=y
-          EOF
-          make defconfig
-
-      - name: Stage1 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage1 - Compile
-        run: |
-          cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          ccache -s
-          make -j$(nproc) V=s || make -j1 V=s
-          ccache -s
-
-      - name: Stage1 - Cleanup
-        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
-
-      # ========== 阶段2：DDNS/UDPXY ==========
-      - name: Stage2 - Install DDNS/UDPXY
-        run: |
-          cd openwrt
-          ./scripts/feeds install ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns luci-app-udpxy
-
-      - name: Stage2 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
+          
+          # DDNS/UDPXY
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
@@ -147,62 +124,13 @@ jobs:
           CONFIG_PACKAGE_libreadline=y
           CONFIG_PACKAGE_libncurses=y
           CONFIG_PACKAGE_zlib=y
-          EOF
-          make defconfig
-
-      - name: Stage2 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage2 - Compile
-        run: |
-          cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
-
-      - name: Stage2 - Cleanup
-        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
-
-      # ========== 阶段3：SoftEtherVPN ==========
-      - name: Stage3 - Install SoftEtherVPN
-        run: |
-          cd openwrt
-          ./scripts/feeds install softethervpn softethervpn5 luci-app-softethervpn
-
-      - name: Stage3 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
+          
+          # SoftEtherVPN
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
-          EOF
-          make defconfig
-
-      - name: Stage3 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage3 - Compile
-        run: |
-          cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
-
-      - name: Stage3 - Cleanup
-        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
-
-      # ========== 阶段4：StrongSwan ==========
-      - name: Stage4 - Install StrongSwan
-        run: |
-          cd openwrt
-          ./scripts/feeds install strongswan strongswan-swanctl swanmon strongswan-charon \
-            strongswan-mod-kernel-netlink strongswan-mod-nonce strongswan-mod-sha1 \
-            strongswan-mod-sha2 strongswan-mod-aes strongswan-mod-hmac strongswan-mod-gmp \
-            strongswan-mod-pem strongswan-mod-x509 strongswan-mod-vici luci-app-strongswan-swanctl
-
-      - name: Stage4 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
+          
+          # StrongSwan
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-swanctl=y
           CONFIG_PACKAGE_swanmon=y
@@ -219,29 +147,42 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-vici=y
           CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           EOF
+          
           make defconfig
-
-      - name: Stage4 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage4 - Compile
-        run: |
-          cd openwrt
+          make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          ccache -s
           make -j$(nproc) V=s || make -j1 V=s
+          ccache -s
 
-      - name: Stage4 - Cleanup
-        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
+      - name: Stage1 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
 
-      # ========== 阶段5：Nikki ==========
-      - name: Stage5 - Add Nikki Feed
+      - name: Stage1 - Upload Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage1-firmware
+          path: stage1-firmware.tar.gz
+          retention-days: 30
+
+      # ========== 第二阶段：Nikki + HomeProxy + Sing-Box ==========
+      - name: Stage2 - Add Nikki Feed
         run: |
           cd openwrt
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
 
-      - name: Stage5 - Config
+      - name: Stage2 - Config
         run: |
           cd openwrt
           cat >> .config << 'EOF'
@@ -251,27 +192,43 @@ jobs:
           EOF
           make defconfig
 
-      - name: Stage5 - Download
+      - name: Stage2 - Download
         run: cd openwrt && make download -j$(nproc)
 
-      - name: Stage5 - Compile
+      - name: Stage2 - Compile
         run: |
           cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: Stage5 - Cleanup
-        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
+      - name: Stage2 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
+          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
 
-      # ========== 阶段6：HomeProxy/Sing-Box ==========
-      - name: Stage6 - Add Small Feed
+      - name: Stage2 - Upload Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage2-firmware
+          path: stage2-firmware.tar.gz
+          retention-days: 30
+
+      # ========== 第三阶段：HomeProxy/Sing-Box ==========
+      - name: Stage3 - Add Small Feed
         run: |
           cd openwrt
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
 
-      - name: Stage6 - Config
+      - name: Stage3 - Config
         run: |
           cd openwrt
           cat >> .config << 'EOF'
@@ -281,38 +238,39 @@ jobs:
           EOF
           make defconfig
 
-      - name: Stage6 - Download
+      - name: Stage3 - Download
         run: cd openwrt && make download -j$(nproc)
 
-      - name: Stage6 - Compile
+      - name: Stage3 - Compile
         run: |
           cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      # ========== 打包最终固件 ==========
-      - name: Package Final Firmware
-        id: package
+      - name: Stage3 - Package Firmware
+        if: always()
         run: |
           cd openwrt/bin/targets/x86/64
-          mkdir -p $GITHUB_WORKSPACE/final-firmware
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/final-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/final-firmware/config.txt
+          mkdir -p $GITHUB_WORKSPACE/stage3-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage3-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage3-firmware/config-stage3.txt
           cd $GITHUB_WORKSPACE
-          FINAL_NAME="${{ env.FIRMWARE_NAME }}-full-$(date +%Y%m%d-%H%M%S).tar.gz"
-          tar -czvf $FINAL_NAME -C final-firmware .
-          echo "firmware-path=$GITHUB_WORKSPACE/$FINAL_NAME" >> $GITHUB_OUTPUT
+          tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
+          echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
 
-      - name: Upload Final Firmware
+      - name: Stage3 - Upload Firmware
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: immortalwrt-full-firmware
-          path: ${{ steps.package.outputs.firmware-path }}
+          name: immortalwrt-stage3-firmware
+          path: stage3-firmware.tar.gz
           retention-days: 30
 
       - name: Completion
         run: |
           echo "=========================================="
-          echo "✅ 所有6个阶段编译成功！"
-          echo "📦 最终固件已上传"
+          echo "✅ 编译完成！"
+          echo "📦 Stage1 固件已上传（基础 + DDNS + SoftEtherVPN + StrongSwan）"
+          echo "📦 Stage2 固件已上传（Nikki）"
+          echo "📦 Stage3 固件已上传（HomeProxy + Sing-Box）"
           echo "=========================================="
