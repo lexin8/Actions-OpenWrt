@@ -1,4 +1,4 @@
-name: ImmortalWrt 全自动分阶段编译
+name: ImmortalWrt 顺序编译
 
 on:
   workflow_dispatch:
@@ -57,37 +57,24 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Cache Feeds
-        uses: actions/cache@v4
-        with:
-          path: openwrt/feeds
-          key: feeds-${{ hashFiles('openwrt/feeds.conf.default') }}
-
       - name: Cache DL
         uses: actions/cache@v4
         with:
           path: openwrt/dl
           key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
 
-      - name: Cache Toolchain
-        uses: actions/cache@v4
-        with:
-          path: |
-            openwrt/staging_dir
-            openwrt/build_dir/toolchain-*
-          key: toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}
-
       - name: Cache CCache
         uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ github.run_id }}
+          restore-keys: |
+            ccache-
 
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
+          ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
 
       - name: Fix Toolchain Compilation
@@ -103,6 +90,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      # ========== 阶段1：基础编译 ==========
       - name: Stage1 - Base Config
         run: |
           cd openwrt
@@ -126,35 +114,29 @@ jobs:
           EOF
           make defconfig
 
-      - name: Download Packages
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage1 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: Compile Stage1
+      - name: Stage1 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          rm -rf build_dir/target-* build_dir/host
 
-      - name: Save Stage1 Cache
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage1-cache-${{ github.run_id }}
+      - name: Stage1 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: Stage2 - DDNS/UDPXY
+      # ========== 阶段2：DDNS/UDPXY ==========
+      - name: Stage2 - Install DDNS/UDPXY
         run: |
           cd openwrt
           ./scripts/feeds install ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns luci-app-udpxy
+
+      - name: Stage2 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -167,51 +149,59 @@ jobs:
           CONFIG_PACKAGE_zlib=y
           EOF
           make defconfig
-          make download -j$(nproc)
+
+      - name: Stage2 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage2 - Compile
+        run: |
+          cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-          rm -rf build_dir/target-* build_dir/host
 
-      - name: Save Stage2 Cache
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage2-cache-${{ github.run_id }}
+      - name: Stage2 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: Stage3 - SoftEtherVPN
+      # ========== 阶段3：SoftEtherVPN ==========
+      - name: Stage3 - Install SoftEtherVPN
         run: |
           cd openwrt
           ./scripts/feeds install softethervpn softethervpn5 luci-app-softethervpn
+
+      - name: Stage3 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
           EOF
           make defconfig
-          make download -j$(nproc)
+
+      - name: Stage3 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage3 - Compile
+        run: |
+          cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-          rm -rf build_dir/target-* build_dir/host
 
-      - name: Save Stage3 Cache
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage3-cache-${{ github.run_id }}
+      - name: Stage3 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: Stage4 - StrongSwan
+      # ========== 阶段4：StrongSwan ==========
+      - name: Stage4 - Install StrongSwan
         run: |
           cd openwrt
           ./scripts/feeds install strongswan strongswan-swanctl swanmon strongswan-charon \
             strongswan-mod-kernel-netlink strongswan-mod-nonce strongswan-mod-sha1 \
             strongswan-mod-sha2 strongswan-mod-aes strongswan-mod-hmac strongswan-mod-gmp \
             strongswan-mod-pem strongswan-mod-x509 strongswan-mod-vici luci-app-strongswan-swanctl
+
+      - name: Stage4 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-swanctl=y
@@ -230,62 +220,77 @@ jobs:
           CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           EOF
           make defconfig
-          make download -j$(nproc)
+
+      - name: Stage4 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage4 - Compile
+        run: |
+          cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-          rm -rf build_dir/target-* build_dir/host
 
-      - name: Save Stage4 Cache
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage4-cache-${{ github.run_id }}
+      - name: Stage4 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: Stage5 - Nikki
+      # ========== 阶段5：Nikki ==========
+      - name: Stage5 - Add Nikki Feed
         run: |
           cd openwrt
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
+
+      - name: Stage5 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           EOF
           make defconfig
-          make download -j$(nproc)
+
+      - name: Stage5 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage5 - Compile
+        run: |
+          cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-          rm -rf build_dir/target-* build_dir/host
 
-      - name: Save Stage5 Cache
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage5-cache-${{ github.run_id }}
+      - name: Stage5 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: Stage6 - HomeProxy/Sing-Box
+      # ========== 阶段6：HomeProxy/Sing-Box ==========
+      - name: Stage6 - Add Small Feed
         run: |
           cd openwrt
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+
+      - name: Stage6 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
           EOF
           make defconfig
-          make download -j$(nproc)
+
+      - name: Stage6 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage6 - Compile
+        run: |
+          cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
+      # ========== 打包最终固件 ==========
       - name: Package Final Firmware
         id: package
         run: |
