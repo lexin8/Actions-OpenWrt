@@ -1,46 +1,26 @@
 #!/bin/bash
 set -e
 
+# 1. 配置 feeds（只用你需要的三个源）
 cat > feeds.conf.default << 'EOF'
 src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git
 src-git kenzo https://github.com/kenzok8/openwrt-packages
 src-git small https://github.com/kenzok8/small
-src-git immortalwrt_packages https://github.com/immortalwrt/packages.git;openwrt-24.10
-src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10
 EOF
 
+# 2. 更新 feeds
 ./scripts/feeds update -a
 
+# 3. 清理冲突
 rm -rf feeds/luci/applications/luci-app-mosdns
 rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,smartdns} \
        feeds/packages/utils/v2dat \
        feeds/packages/lang/golang
-
-rm -rf feeds/kenzo/luci-app-nikki 2>/dev/null || true
-rm -rf feeds/small/luci-app-nikki 2>/dev/null || true
-rm -rf feeds/immortalwrt_packages/luci-app-nikki 2>/dev/null || true
-rm -rf feeds/immortalwrt_luci/luci-app-nikki 2>/dev/null || true
-rm -rf feeds/immortalwrt_packages/net/sing-box
-
+rm -rf feeds/kenzo/luci-app-nikki feeds/small/luci-app-nikki 2>/dev/null || true
 git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
+./scripts/feeds install -a
 
-./scripts/feeds install \
-    softethervpn softethervpn5 \
-    luci-app-softethervpn \
-    strongswan strongswan-swanctl swanmon \
-    luci-app-strongswan-swanctl \
-    ddns-scripts luci-app-ddns \
-    luci-app-udpxy \
-    openssl readline ncurses zlib
-
-./scripts/feeds install sing-box
-./scripts/feeds install golang
-./scripts/feeds install homeproxy
-./scripts/feeds install luci-app-homeproxy
-./scripts/feeds install nikki
-./scripts/feeds install luci-app-nikki
-./scripts/feeds install luci-i18n-nikki-zh-cn
-
+# 6. 写入配置
 cat > .config << 'EOF'
 CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
@@ -91,7 +71,6 @@ CONFIG_PACKAGE_strongswan-mod-vici=y
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_homeproxy=y
 CONFIG_PACKAGE_luci-app-homeproxy=y
-
 # 禁用不需要的插件（保留所有注释项）
 # CONFIG_PACKAGE_luci-app-arpbind is not set
 # CONFIG_PACKAGE_luci-app-autoreboot is not set
@@ -100,7 +79,6 @@ CONFIG_PACKAGE_luci-app-homeproxy=y
 # CONFIG_PACKAGE_luci-app-samba is not set
 # CONFIG_PACKAGE_luci-app-vlmcsd is not set
 # CONFIG_PACKAGE_luci-app-wol is not set
-
 EOF
 
 make defconfig
