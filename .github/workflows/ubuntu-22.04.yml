@@ -1,4 +1,4 @@
-name: fanchmwrt 全自动分阶段编译
+name: fanchmwrt 顺序编译
 
 on:
   workflow_dispatch:
@@ -13,23 +13,33 @@ env:
   CCACHE_MAXSIZE: 5G
 
 jobs:
-  stage1:
-    name: 阶段1 - 基础编译
+  build:
     runs-on: ubuntu-22.04
-    outputs:
-      status: ${{ steps.compile.outputs.status }}
+    permissions:
+      contents: write
+      packages: read
+
     steps:
-      - name: 检查服务器性能
+      - name: Check Server Performance
         run: |
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          df -hT
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
-      - name: 初始化环境
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get update
-          sudo apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl subversion libelf-dev autoconf automake libtool autopoint swig pkg-config ccache
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
 
-      - name: 最大化磁盘空间
+      - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
           swap-size-mb: 1024
@@ -37,63 +47,45 @@ jobs:
           remove-dotnet: true
           remove-android: true
 
-      - name: 克隆主源码
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone fanchmwrt Source
         run: |
           git clone --depth 1 $REPO_URL openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: 缓存 feeds
+      - name: Cache DL
         uses: actions/cache@v4
-        id: cache-feeds
-        with:
-          path: openwrt/feeds
-          key: feeds-${{ hashFiles('openwrt/feeds.conf.default') }}
-
-      - name: 缓存 dl 源码包
-        uses: actions/cache@v4
-        id: cache-dl
         with:
           path: openwrt/dl
           key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
 
-      - name: 缓存 toolchain
+      - name: Cache CCache
         uses: actions/cache@v4
-        id: cache-toolchain
-        with:
-          path: |
-            openwrt/staging_dir
-            openwrt/build_dir/toolchain-*
-          key: toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}
-
-      - name: 缓存 ccache
-        uses: actions/cache@v4
-        id: cache-ccache
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ github.run_id }}
+          restore-keys: |
+            ccache-
 
-      - name: 配置 ccache
+      - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
+          ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
 
-      - name: 阶段1 - 基础配置
+      - name: Update Feeds
         run: |
           cd openwrt
-          
-          # 更新 feeds
           ./scripts/feeds update -a
-          
-          # 安装 Go 1.26
-          rm -rf feeds/packages/lang/golang
-          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
-          
           ./scripts/feeds install -a
-          
-          # 基础配置
+
+      # ========== 阶段1：基础编译 ==========
+      - name: Stage1 - Base Config
+        run: |
+          cd openwrt
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -112,73 +104,31 @@ jobs:
           CONFIG_KERNEL_TUN=y
           CONFIG_KERNEL_BRIDGE_NETFILTER=y
           EOF
-          
           make defconfig
 
-      - name: 下载软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage1 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: 编译固件 - 阶段1
-        id: compile
+      - name: Stage1 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export CCACHE_COMPRESS=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: 清理中间文件
+      - name: Stage1 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
+
+      # ========== 阶段2：DDNS/UDPXY ==========
+      - name: Stage2 - Install DDNS/UDPXY
         run: |
           cd openwrt
-          rm -rf build_dir/target-* build_dir/host
+          ./scripts/feeds install ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns luci-app-udpxy
 
-      - name: 保存阶段1缓存
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage1-cache-${{ github.run_id }}
-
-  stage2:
-    name: 阶段2 - 添加 DDNS/UDPXY
-    needs: stage1
-    if: success()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 恢复阶段1缓存
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage1-cache-${{ github.run_id }}
-          fail-on-cache-miss: true
-
-      - name: 配置 ccache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-          ccache -s
-
-      - name: 阶段2 - 添加 DDNS 和 UDPXY
+      - name: Stage2 - Config
         run: |
           cd openwrt
-          
-          # 安装需要的包
-          ./scripts/feeds install ddns-scripts ddns-scripts-cloudflare ddns-scripts_cloudflare.com-v4 luci-app-ddns luci-app-udpxy libopenssl libreadline libncurses zlib
-          
-          # 更新配置
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -190,214 +140,60 @@ jobs:
           CONFIG_PACKAGE_libncurses=y
           CONFIG_PACKAGE_zlib=y
           EOF
-          
           make defconfig
 
-      - name: 下载新增软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage2 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: 编译固件 - 阶段2
+      - name: Stage2 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: 清理中间文件
-        run: |
-          cd openwrt
-          rm -rf build_dir/target-* build_dir/host
+      - name: Stage2 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: 保存阶段2缓存
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage2-cache-${{ github.run_id }}
-
-  stage3:
-    name: 阶段3 - 添加 Nikki
-    needs: stage2
-    if: success()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 恢复阶段2缓存
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage2-cache-${{ github.run_id }}
-          fail-on-cache-miss: true
-
-      - name: 配置 ccache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-          ccache -s
-
-      - name: 添加 Nikki 源
-        run: |
-          cd openwrt
-          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
-          ./scripts/feeds update nikki
-
-      - name: 阶段3 - 添加 Nikki 配置
-        run: |
-          cd openwrt
-          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-          
-          cat >> .config << 'EOF'
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          EOF
-          
-          make defconfig
-
-      - name: 下载新增软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
-
-      - name: 编译固件 - 阶段3
-        run: |
-          cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
-          make -j$(nproc) V=s || make -j1 V=s
-
-      - name: 清理中间文件
-        run: |
-          cd openwrt
-          rm -rf build_dir/target-* build_dir/host
-
-      - name: 保存阶段3缓存
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage3-cache-${{ github.run_id }}
-
-  stage4:
-    name: 阶段4 - 添加 SoftEtherVPN
-    needs: stage3
-    if: success()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 恢复阶段3缓存
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage3-cache-${{ github.run_id }}
-          fail-on-cache-miss: true
-
-      - name: 配置 ccache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-          ccache -s
-
-      - name: 添加 Kenzo 源
-        run: |
-          cd openwrt
-          echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> feeds.conf.default
-          ./scripts/feeds update kenzo
-
-      - name: 阶段4 - 添加 SoftEtherVPN 配置
+      # ========== 阶段3：SoftEtherVPN ==========
+      - name: Stage3 - Install SoftEtherVPN
         run: |
           cd openwrt
           ./scripts/feeds install softethervpn softethervpn5 luci-app-softethervpn
-          
+
+      - name: Stage3 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
           EOF
-          
           make defconfig
 
-      - name: 下载新增软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage3 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: 编译固件 - 阶段4
+      - name: Stage3 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: 清理中间文件
-        run: |
-          cd openwrt
-          rm -rf build_dir/target-* build_dir/host
+      - name: Stage3 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      - name: 保存阶段4缓存
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage4-cache-${{ github.run_id }}
-
-  stage5:
-    name: 阶段5 - 添加 StrongSwan
-    needs: stage4
-    if: success()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 恢复阶段4缓存
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage4-cache-${{ github.run_id }}
-          fail-on-cache-miss: true
-
-      - name: 配置 ccache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-          ccache -s
-
-      - name: 添加 Small 源
-        run: |
-          cd openwrt
-          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
-          ./scripts/feeds update small
-
-      - name: 阶段5 - 添加 StrongSwan 配置
+      # ========== 阶段4：StrongSwan ==========
+      - name: Stage4 - Install StrongSwan
         run: |
           cd openwrt
           ./scripts/feeds install strongswan strongswan-swanctl swanmon strongswan-charon \
             strongswan-mod-kernel-netlink strongswan-mod-nonce strongswan-mod-sha1 \
             strongswan-mod-sha2 strongswan-mod-aes strongswan-mod-hmac strongswan-mod-gmp \
             strongswan-mod-pem strongswan-mod-x509 strongswan-mod-vici luci-app-strongswan-swanctl
-          
+
+      - name: Stage4 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-swanctl=y
@@ -415,118 +211,100 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-vici=y
           CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           EOF
-          
           make defconfig
 
-      - name: 下载新增软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage4 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: 编译固件 - 阶段5
+      - name: Stage4 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: 清理中间文件
+      - name: Stage4 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
+
+      # ========== 阶段5：Nikki ==========
+      - name: Stage5 - Add Nikki Feed
         run: |
           cd openwrt
-          rm -rf build_dir/target-* build_dir/host
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+          ./scripts/feeds update nikki
+          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
 
-      - name: 保存阶段5缓存
-        uses: actions/cache/save@v4
-        if: success()
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage5-cache-${{ github.run_id }}
-
-  stage6:
-    name: 阶段6 - 添加 HomeProxy/Sing-Box
-    needs: stage5
-    if: success()
-    runs-on: ubuntu-22.04
-    steps:
-      - name: 恢复阶段5缓存
-        uses: actions/cache/restore@v4
-        id: restore-cache
-        with:
-          path: |
-            openwrt
-            ${{ env.CCACHE_DIR }}
-          key: stage5-cache-${{ github.run_id }}
-          fail-on-cache-miss: true
-
-      - name: 配置 ccache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
-          ccache -s
-
-      - name: 阶段6 - 添加 HomeProxy 和 Sing-Box 配置
+      - name: Stage5 - Config
         run: |
           cd openwrt
+          cat >> .config << 'EOF'
+          CONFIG_PACKAGE_nikki=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          EOF
+          make defconfig
+
+      - name: Stage5 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage5 - Compile
+        run: |
+          cd openwrt
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          make -j$(nproc) V=s || make -j1 V=s
+
+      - name: Stage5 - Cleanup
+        run: cd openwrt && rm -rf build_dir/target-* build_dir/host
+
+      # ========== 阶段6：HomeProxy/Sing-Box ==========
+      - name: Stage6 - Add Small Feed
+        run: |
+          cd openwrt
+          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
+          ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-          
+
+      - name: Stage6 - Config
+        run: |
+          cd openwrt
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
           EOF
-          
           make defconfig
 
-      - name: 下载新增软件包
-        run: |
-          cd openwrt
-          make download -j$(nproc)
+      - name: Stage6 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: 编译固件 - 阶段6
+      - name: Stage6 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export PATH="/usr/lib/ccache:$PATH"
-          
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: 打包最终固件
+      # ========== 打包最终固件 ==========
+      - name: Package Final Firmware
         id: package
         run: |
           cd openwrt/bin/targets/x86/64
-          
           mkdir -p $GITHUB_WORKSPACE/final-firmware
           cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/final-firmware/ 2>/dev/null || true
-          
-          # 复制最新配置
           cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/final-firmware/config.txt
-          
-          echo "编译阶段: 6 (最终完整版)" > $GITHUB_WORKSPACE/final-firmware/build-info.txt
-          echo "编译时间: $(date '+%Y-%m-%d %H:%M:%S')" >> $GITHUB_WORKSPACE/final-firmware/build-info.txt
-          echo "源码版本: $(cd $GITHUB_WORKSPACE/openwrt && git rev-parse --short HEAD)" >> $GITHUB_WORKSPACE/final-firmware/build-info.txt
-          
           cd $GITHUB_WORKSPACE
           FINAL_NAME="${{ env.FIRMWARE_NAME }}-full-$(date +%Y%m%d-%H%M%S).tar.gz"
           tar -czvf $FINAL_NAME -C final-firmware .
-          
           echo "firmware-path=$GITHUB_WORKSPACE/$FINAL_NAME" >> $GITHUB_OUTPUT
 
-      - name: 上传最终固件
+      - name: Upload Final Firmware
         uses: actions/upload-artifact@v4
         with:
           name: fanchmwrt-full-firmware
           path: ${{ steps.package.outputs.firmware-path }}
           retention-days: 30
 
-      - name: 输出完成信息
+      - name: Completion
         run: |
           echo "=========================================="
           echo "✅ 所有6个阶段编译成功！"
-          echo "📦 最终完整固件已上传到 Artifacts"
+          echo "📦 最终固件已上传"
           echo "=========================================="
