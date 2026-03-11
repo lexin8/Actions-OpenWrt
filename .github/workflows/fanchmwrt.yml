@@ -150,13 +150,31 @@ jobs:
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
-          make -j$(nproc) V=s
+          make -j$(nproc) V=s || make -j1 V=s
           ccache -s
+
+      - name: Stage1 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+
+      - name: Stage1 - Upload Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage1-firmware
+          path: stage1-firmware.tar.gz
+          retention-days: 30
 
       - name: Stage1 - Cleanup
         run: cd openwrt && rm -rf build_dir/target-* build_dir/host
 
-      # ========== 第二阶段：Nikki + HomeProxy + Sing-Box（第三方包一起编译）==========
+      # ========== 第二阶段：Nikki + HomeProxy + Sing-Box ==========
       - name: Stage2 - Add Third-party Packages Config
         run: |
           cd openwrt
@@ -180,31 +198,30 @@ jobs:
         run: |
           cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s
+          make -j$(nproc) V=s || make -j1 V=s
 
-      # ========== 打包最终固件 ==========
-      - name: Package Final Firmware
-        id: package
+      - name: Stage2 - Package Firmware
+        if: always()
         run: |
           cd openwrt/bin/targets/x86/64
-          mkdir -p $GITHUB_WORKSPACE/final-firmware
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/final-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/final-firmware/config.txt
+          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
           cd $GITHUB_WORKSPACE
-          FINAL_NAME="${{ env.FIRMWARE_NAME }}-full-$(date +%Y%m%d-%H%M%S).tar.gz"
-          tar -czvf $FINAL_NAME -C final-firmware .
-          echo "firmware-path=$GITHUB_WORKSPACE/$FINAL_NAME" >> $GITHUB_OUTPUT
+          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
 
-      - name: Upload Final Firmware
+      - name: Stage2 - Upload Firmware
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-full-firmware
-          path: ${{ steps.package.outputs.firmware-path }}
+          name: stage2-firmware
+          path: stage2-firmware.tar.gz
           retention-days: 30
 
       - name: Completion
         run: |
           echo "=========================================="
-          echo "✅ 所有2个阶段编译成功！"
-          echo "📦 最终固件已上传"
+          echo "✅ 编译完成！"
+          echo "📦 Stage1 固件已上传（如果生成）"
+          echo "📦 Stage2 固件已上传（如果生成）"
           echo "=========================================="
