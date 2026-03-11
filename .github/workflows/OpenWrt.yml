@@ -55,6 +55,7 @@ jobs:
           sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           echo "src-git packages_official https://github.com/openwrt/packages.git;openwrt-24.10" >> feeds.conf.default
+          echo "src-git luci_official https://github.com/openwrt/luci.git;openwrt-24.10" >> feeds.conf.default
 
       - name: Update & clean
         run: |
@@ -79,6 +80,11 @@ jobs:
           rm -rf feeds/small/strongswan* 2>/dev/null || true
           rm -rf feeds/packages/net/strongswan* 2>/dev/null || true
           rm -rf feeds/packages/utils/strongswan* 2>/dev/null || true
+          
+          # 删除所有其他源中的 luci-app-strongswan-swanctl
+          rm -rf feeds/kenzo/luci-app-strongswan-swanctl* 2>/dev/null || true
+          rm -rf feeds/small/luci-app-strongswan-swanctl* 2>/dev/null || true
+          rm -rf feeds/luci/applications/luci-app-strongswan-swanctl* 2>/dev/null || true
           
           # 从官方源复制 softethervpn
           if [ -d "feeds/packages_official/net/softethervpn" ]; then
@@ -147,6 +153,12 @@ jobs:
             mkdir -p feeds/packages/net/strongswan-mod-vici
             cp -r feeds/packages_official/net/strongswan-mod-vici/* feeds/packages/net/strongswan-mod-vici/
           fi
+          
+          # 从官方源复制 luci-app-strongswan-swanctl
+          if [ -d "feeds/luci_official/applications/luci-app-strongswan-swanctl" ]; then
+            mkdir -p feeds/luci/applications/luci-app-strongswan-swanctl
+            cp -r feeds/luci_official/applications/luci-app-strongswan-swanctl/* feeds/luci/applications/luci-app-strongswan-swanctl/
+          fi
 
       - name: Install all feeds
         run: cd openwrt && ./scripts/feeds install -a
@@ -199,6 +211,7 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-pem=y
           CONFIG_PACKAGE_strongswan-mod-x509=y
           CONFIG_PACKAGE_strongswan-mod-vici=y
+          CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
@@ -231,5 +244,4 @@ jobs:
         with:
           name: fanchmwrt-x86-64-Firmware
           path: openwrt/bin/targets/x86/64/*.img.gz
-          if-no-files-found: warn
           if-no-files-found: warn
