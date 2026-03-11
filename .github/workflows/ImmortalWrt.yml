@@ -113,6 +113,8 @@ jobs:
           CONFIG_KERNEL_PPP_L2TP=y
           CONFIG_KERNEL_TUN=y
           CONFIG_KERNEL_BRIDGE_NETFILTER=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-app-argon-config=y
           
           # DDNS/UDPXY
           CONFIG_PACKAGE_ddns-scripts=y
@@ -130,23 +132,6 @@ jobs:
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
           CONFIG_PACKAGE_luci-app-dockerman=y
-          
-          # StrongSwan
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-swanctl=y
-          CONFIG_PACKAGE_swanmon=y
-          CONFIG_PACKAGE_strongswan-charon=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
-          CONFIG_PACKAGE_strongswan-mod-nonce=y
-          CONFIG_PACKAGE_strongswan-mod-sha1=y
-          CONFIG_PACKAGE_strongswan-mod-sha2=y
-          CONFIG_PACKAGE_strongswan-mod-aes=y
-          CONFIG_PACKAGE_strongswan-mod-hmac=y
-          CONFIG_PACKAGE_strongswan-mod-gmp=y
-          CONFIG_PACKAGE_strongswan-mod-pem=y
-          CONFIG_PACKAGE_strongswan-mod-x509=y
-          CONFIG_PACKAGE_strongswan-mod-vici=y
-          CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           EOF
           
           make defconfig
