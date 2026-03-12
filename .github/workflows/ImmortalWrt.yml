@@ -121,17 +121,30 @@ jobs:
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_lsblk=y
           CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_kmod-ppp=y
-          CONFIG_PACKAGE_kmod-ppp-generic=y
-          CONFIG_PACKAGE_kmod-pppox=y
-          CONFIG_PACKAGE_kmod-ppp-async=y
-          CONFIG_PACKAGE_kmod-ppp-synctty=y
-          CONFIG_PACKAGE_kmod-l2tp=y
-          CONFIG_PACKAGE_kmod-l2tp-ip=y
-          CONFIG_PACKAGE_kmod-l2tp-ppp=y
-          CONFIG_PACKAGE_kmod-l2tp-core=y
           CONFIG_PACKAGE_kmod-iproute2=y
           CONFIG_PACKAGE_kmod-netlink=y
+          CONFIG_PACKAGE_iproute2=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_nftables=y
+          CONFIG_PACKAGE_openssl=y
+          CONFIG_PACKAGE_docker-ce=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_bridge-utils=y
+
+          # ========== 可选（宿主机拨号时启用） ==========
+          # CONFIG_PACKAGE_kmod-ppp=y
+          # CONFIG_PACKAGE_kmod-ppp-generic=y
+          # CONFIG_PACKAGE_kmod-pppox=y
+          # CONFIG_PACKAGE_ppp=y
+          # CONFIG_PACKAGE_pppoe=y
+
+          # ========== 排除冲突组件 ==========
+          # CONFIG_PACKAGE_kmod-l2tp is not set
+          # CONFIG_PACKAGE_kmod-l2tp-ip is not set
+          # CONFIG_PACKAGE_kmod-l2tp-ppp is not set
+          # CONFIG_PACKAGE_kmod-l2tp-core is not set
+          # CONFIG_PACKAGE_kmod-ppp-async is not set
+          # CONFIG_PACKAGE_kmod-ppp-synctty is not set
           
           # DDNS/UDPXY
           CONFIG_PACKAGE_ddns-scripts=y
