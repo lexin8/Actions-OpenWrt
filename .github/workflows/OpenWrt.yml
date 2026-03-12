@@ -171,8 +171,8 @@ jobs:
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=600
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
@@ -197,27 +197,11 @@ jobs:
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-swanctl=y
-          CONFIG_PACKAGE_swanmon=y
-          CONFIG_PACKAGE_strongswan-charon=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
-          CONFIG_PACKAGE_strongswan-mod-nonce=y
-          CONFIG_PACKAGE_strongswan-mod-sha1=y
-          CONFIG_PACKAGE_strongswan-mod-sha2=y
-          CONFIG_PACKAGE_strongswan-mod-aes=y
-          CONFIG_PACKAGE_strongswan-mod-hmac=y
-          CONFIG_PACKAGE_strongswan-mod-gmp=y
-          CONFIG_PACKAGE_strongswan-mod-pem=y
-          CONFIG_PACKAGE_strongswan-mod-x509=y
-          CONFIG_PACKAGE_strongswan-mod-vici=y
-          CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
           # CONFIG_PACKAGE_luci-app-arpbind is not set
           # CONFIG_PACKAGE_luci-app-autoreboot is not set
           # CONFIG_PACKAGE_luci-app-nlbwmon is not set
