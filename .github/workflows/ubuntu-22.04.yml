@@ -80,6 +80,13 @@ jobs:
       - name: Clean Conflicts & Force Go 1.26
         run: |
           cd openwrt
+          cat > feeds.conf << 'EOF'
+          src-git packages https://git.openwrt.org/feed/packages.git
+          src-git luci https://git.openwrt.org/project/luci.git
+          src-git routing https://git.openwrt.org/feed/routing.git
+          src-git telephony https://git.openwrt.org/feed/telephony.git
+          src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages.git
+          EOF
           
           # 更新 feeds
           ./scripts/feeds update -a
