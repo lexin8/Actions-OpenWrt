@@ -5,13 +5,12 @@ on:
 
 env:
   TZ: Asia/Shanghai
-  # 统一配置避免硬编码
+  # 修复：取消嵌套映射，改用独立变量（符合GitHub Actions YAML规范）
   OPENWRT_SRC: https://github.com/fanchmwrt/fanchmwrt
-  FEEDS:
-    kenzo: https://github.com/kenzok8/openwrt-packages
-    small: https://github.com/kenzok8/small
-    nikki: https://github.com/nikkinikki-org/OpenWrt-nikki.git
-    jell: https://github.com/kenzok8/jell
+  FEED_JELL: https://github.com/kenzok8/jell
+  FEED_KENZO: https://github.com/kenzok8/openwrt-packages
+  FEED_SMALL: https://github.com/kenzok8/small
+  FEED_NIKKI: https://github.com/nikkinikki-org/OpenWrt-nikki.git
 
 jobs:
   build-firmware:
@@ -78,10 +77,10 @@ jobs:
           > feeds.conf.default
 
           # 2. 按优先级添加源（jell优先保证ipsec插件正确）
-          echo "src-git jell ${{ env.FEEDS.jell }}" >> feeds.conf.default
-          echo "src-git kenzo ${{ env.FEEDS.kenzo }}" >> feeds.conf.default
-          echo "src-git small ${{ env.FEEDS.small }}" >> feeds.conf.default
-          echo "src-git nikki ${{ env.FEEDS.nikki }}" >> feeds.conf.default
+          echo "src-git jell ${{ env.FEED_JELL }}" >> feeds.conf.default
+          echo "src-git kenzo ${{ env.FEED_KENZO }}" >> feeds.conf.default
+          echo "src-git small ${{ env.FEED_SMALL }}" >> feeds.conf.default
+          echo "src-git nikki ${{ env.FEED_NIKKI }}" >> feeds.conf.default
 
           # 3. 更新feeds（强制刷新+忽略错误）
           ./scripts/feeds update -a -f --force-remove > feeds_update.log 2>&1 || true
