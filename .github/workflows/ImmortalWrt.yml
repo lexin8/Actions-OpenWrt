@@ -107,72 +107,19 @@ jobs:
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
 
-          # ===================== 内核网络核心配置 =====================
-          CONFIG_KERNEL_IP_FORWARD=y
-          CONFIG_KERNEL_NETFILTER=y
-          CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
-          CONFIG_KERNEL_PPP=y
-          CONFIG_KERNEL_PPP_ASYNC=y
-          CONFIG_KERNEL_PPP_SYNC_TTY=y
-          CONFIG_KERNEL_PPP_L2TP=y
-          CONFIG_KERNEL_TUN=y
-          CONFIG_KERNEL_BRIDGE_NETFILTER=y
-          CONFIG_KERNEL_INET_ESP=y
-          CONFIG_KERNEL_INET6_ESP=y
-          CONFIG_KERNEL_XFRM=y
-          CONFIG_KERNEL_XFRM_USER=y
-          CONFIG_KERNEL_XFRM_ALGO=y
-          CONFIG_KERNEL_XFRM_IPCOMP=y
-
-          # ===================== L2TP/PPP 拨号内核配置（仅保留基础依赖） =====================
-          CONFIG_L2TP=y
-          CONFIG_L2TP_V3=y
-          CONFIG_PPPOL2TP=y
-          CONFIG_L2TP_ETH=y
-          CONFIG_L2TP_IP=y
-          CONFIG_PPP=y
-          CONFIG_PPP_MULTILINK=y
-          CONFIG_PPP_FILTER=y
-          CONFIG_PPP_MPPE_MPPC=y
-          CONFIG_PPP_ASYNC=y
-          CONFIG_PPP_SYNC_TTY=y
-          CONFIG_PPP_GENERIC=y
 
           # ===================== 基础工具与依赖库 =====================
           CONFIG_PACKAGE_fdisk=y
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_lsblk=y
           CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_kmod-iproute2=y
-          CONFIG_PACKAGE_kmod-netlink=y
-          CONFIG_PACKAGE_iproute2=y
-          CONFIG_PACKAGE_iptables=y
-          CONFIG_PACKAGE_nftables=y
-          CONFIG_PACKAGE_openssl=y
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_libreadline=y
-          CONFIG_PACKAGE_libncurses=y
-          CONFIG_PACKAGE_zlib=y
-          CONFIG_PACKAGE_bridge-utils=y
 
-          # ===================== PPP/L2TP 拨号工具（仅保留基础依赖，删除xl2tpd） =====================
-          CONFIG_PACKAGE_kmod-ppp=y
-          CONFIG_PACKAGE_kmod-ppp-generic=y
-          CONFIG_PACKAGE_kmod-pppox=y
-          CONFIG_PACKAGE_ppp=y
-          CONFIG_PACKAGE_pppoe=y
-          CONFIG_PACKAGE_kmod-pppoe=y
-          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
-          # 以下4行已删除：避免xl2tpd占用1701端口
-          # CONFIG_PACKAGE_kmod-l2tp is not set
-          # CONFIG_PACKAGE_kmod-l2tp-eth is not set
-          # CONFIG_PACKAGE_kmod-l2tp-ip is not set
-          # CONFIG_PACKAGE_xl2tpd is not set
 
           # ===================== 功能组件 =====================
           # 主题与UI配置
           CONFIG_PACKAGE_luci-theme-argon=y
           CONFIG_PACKAGE_luci-app-argon-config=y
+          CONFIG_PACKAGE_luci-app-ipsec-vpnd=y
 
           # DDNS 动态域名
           CONFIG_PACKAGE_ddns-scripts=y
@@ -182,11 +129,6 @@ jobs:
 
           # 多媒体/网络转发
           CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_luci-app-libreswan=y
-
-          # Docker 管理（核心保留）
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_containerd=y
           EOF
           
           make defconfig
