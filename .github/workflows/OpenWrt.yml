@@ -1,174 +1,140 @@
-name: fanchmwrt+kenzo
+name: fanchmwrt+kenzo (L2TP/IPsec PSK)
 
 on:
   workflow_dispatch:
 
 env:
   TZ: Asia/Shanghai
+  # 统一配置避免硬编码
+  OPENWRT_SRC: https://github.com/fanchmwrt/fanchmwrt
+  FEEDS:
+    kenzo: https://github.com/kenzok8/openwrt-packages
+    small: https://github.com/kenzok8/small
+    nikki: https://github.com/nikkinikki-org/OpenWrt-nikki.git
+    jell: https://github.com/kenzok8/jell
 
 jobs:
-  build:
-    name: Build fanchmwrt Firmware
+  build-firmware:
+    name: Build OpenWrt Firmware (x86_64)
     runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+        working-directory: openwrt
 
     steps:
-      - name: Check Server Performance
+      - name: 📊 Check Server Resources
         run: |
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
-          echo "CPU核心数量: $(nproc)"
-          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+          echo "CPU核心数: $(nproc)"
+          echo "内存信息: $(free -h | grep Mem)"
+          echo "磁盘空间: $(df -h | grep /home)"
+          echo "系统版本: $(lsb_release -d)"
 
-      - name: Initialization Environment
+      - name: 🧰 Initialize Build Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          sudo -E apt-get -y update
-          # 新增softethervpn编译依赖
-          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libreadline-dev libncurses-dev libssl-dev zlib1g-dev
-          sudo systemctl daemon-reload
-          sudo apt-get -y autoremove --purge
-          sudo apt-get -y clean
+          # 升级系统+清理旧依赖
+          sudo apt update && sudo apt upgrade -y
+          sudo apt purge -y azure-cli ghc* zulu* llvm* firefox dotnet* powershell openjdk* mongodb* moby*
+          sudo apt autoremove -y && sudo apt clean
+
+          # 安装全量编译依赖（按OpenWrt官方清单+IPsec补充）
+          sudo apt install -y \
+            build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
+            file wget qemu-utils curl subversion libelf-dev autoconf automake libtool autopoint \
+            device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev \
+            libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libgmp-dev libgcrypt-dev python3-setuptools
+
+          # 设置时区+终端环境
           sudo timedatectl set-timezone "$TZ"
           echo "export TERM=linux" >> ~/.bashrc
+          source ~/.bashrc
 
-      - name: Maximize build space
+      - name: 📦 Maximize Disk Space
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 1024
-          temp-reserve-mb: 100
-          root-reserve-mb: 1024
+          swap-size-mb: 4096  # 足够应对IPsec编译
+          temp-reserve-mb: 200
+          root-reserve-mb: 2048
           remove-dotnet: true
           remove-android: true
           remove-haskell: true
           remove-codeql: true
           remove-docker-images: true
 
-      - name: Checkout
-        uses: actions/checkout@main
-
-      - name: Clone source & setup feeds
+      - name: 📥 Clone OpenWrt Source
         run: |
-          git clone https://github.com/fanchmwrt/fanchmwrt openwrt
+          git clone --depth=1 ${{ env.OPENWRT_SRC }} openwrt
           cd openwrt
-          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
-          echo "src-git packages_official https://github.com/openwrt/packages.git;openwrt-24.10" >> feeds.conf.default
-          echo "src-git luci_official https://github.com/openwrt/luci.git;openwrt-24.10" >> feeds.conf.default
+          # 初始化Git避免feeds报错
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
-      # ============= 新增修复步骤：解决 libdeflate-gzip 循环依赖问题 =============
-      - name: Fix libdeflate circular dependency
+      - name: 🗂️ Configure Feeds (标准化+防冲突)
         run: |
-          cd openwrt
-          
-          # 创建主机工具目录
-          mkdir -p staging_dir/host/bin
-          
-          # 方法1：创建软链接，使用系统自带的 gzip 替代 libdeflate-gzip
-          # 这样在编译 ncurses 时就不会报错 "libdeflate-gzip: No such file or directory"
-          ln -sf /bin/gzip staging_dir/host/bin/libdeflate-gzip
-          
-          # 方法2：如果软链接不行，创建一个包装脚本
-          cat > staging_dir/host/bin/libdeflate-gzip-wrapper << 'EOF'
-          #!/bin/bash
-          exec /bin/gzip "$@"
-          EOF
-          chmod +x staging_dir/host/bin/libdeflate-gzip-wrapper
-          
-          # 确保 libdeflate-gzip 命令可用（优先使用包装脚本）
-          if [ ! -f staging_dir/host/bin/libdeflate-gzip ]; then
-            cp staging_dir/host/bin/libdeflate-gzip-wrapper staging_dir/host/bin/libdeflate-gzip
-          fi
-          
-          # 预下载 ncurses 源码包，避免后续解压问题
-          echo "预下载 ncurses 源码包..."
-          make package/libs/ncurses/download V=s || true
-          
-          # 检查下载是否成功
-          if [ -f dl/ncurses-*.tar.gz ]; then
-            echo "ncurses 源码包下载成功"
-            ls -la dl/ncurses-*.tar.gz
-          else
-            echo "警告：ncurses 源码包下载失败，将尝试手动下载"
-            # 手动下载 ncurses
-            wget -P dl/ https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.4.tar.gz || true
-          fi
-          
-          # 显示修复结果
-          echo "修复完成，libdeflate-gzip 位置:"
-          which libdeflate-gzip || echo "libdeflate-gzip 不在 PATH 中"
-          ls -la staging_dir/host/bin/libdeflate-gzip
-      # ============= 修复步骤结束 =============
+          # 1. 彻底清空原有feeds，避免残留冲突
+          > feeds.conf.default
 
-      - name: Update & clean
+          # 2. 按优先级添加源（jell优先保证ipsec插件正确）
+          echo "src-git jell ${{ env.FEEDS.jell }}" >> feeds.conf.default
+          echo "src-git kenzo ${{ env.FEEDS.kenzo }}" >> feeds.conf.default
+          echo "src-git small ${{ env.FEEDS.small }}" >> feeds.conf.default
+          echo "src-git nikki ${{ env.FEEDS.nikki }}" >> feeds.conf.default
+
+          # 3. 更新feeds（强制刷新+忽略错误）
+          ./scripts/feeds update -a -f --force-remove > feeds_update.log 2>&1 || true
+
+          # 4. 清理冲突包（仅保留必要清理）
+          rm -rf feeds/*/mosdns* feeds/*/alist* feeds/*/adguardhome* feeds/*/xray* feeds/*/v2ray* feeds/*/sing* feeds/*/smartdns*
+          rm -rf feeds/packages/lang/golang && git clone --depth=1 -b 1.26 https://github.com/kenzok8/golang feeds/packages/lang/golang
+
+          # 5. 显式安装核心插件（指定源避免拉取错误版本）
+          ./scripts/feeds install -p jell -y luci-app-ipsec-vpnd luci-i18n-ipsec-vpnd-zh-cn
+          ./scripts/feeds install -p kenzo -y luci-app-nikki luci-i18n-nikki-zh-cn
+          ./scripts/feeds install -p small -y homeproxy luci-app-homeproxy
+
+          # 6. 安装所有依赖（静默模式）
+          ./scripts/feeds install -a -y
+
+      - name: ⚙️ Generate Build Config
         run: |
-          cd openwrt
-          ./scripts/feeds update -a
-          rm -rf feeds/luci/applications/luci-app-mosdns
-          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns}
-          rm -rf feeds/packages/utils/v2dat
-          rm -rf feeds/packages/lang/golang
-          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
-
-      - name: Fix softethervpn source and config
-        run: |
-          cd openwrt
-
-          # 1. 先确保官方feeds更新完成
-          ./scripts/feeds update packages_official
-
-          # 2. 清理所有第三方 softethervpn
-          rm -rf feeds/kenzo/softethervpn* feeds/small/softethervpn* feeds/packages/net/softethervpn*
-
-          # 3. 重新拉取官方softethervpn（确保源码完整）
-          if [ ! -d "feeds/packages_official/net/softethervpn" ]; then
-            git clone https://github.com/openwrt/packages -b openwrt-24.10 tmp_packages
-            mkdir -p feeds/packages_official/net/softethervpn
-            cp -r tmp_packages/net/softethervpn/* feeds/packages_official/net/softethervpn/
-            rm -rf tmp_packages
-          fi
-
-          # 4. 复制到packages目录（确保编译能找到）
-          mkdir -p feeds/packages/net/softethervpn
-          cp -r feeds/packages_official/net/softethervpn/* feeds/packages/net/softethervpn/
-
-          # 5. 修复启动脚本配置路径（兼容不同命名的init文件）
-          INIT_FILES=$(find feeds/packages/net/softethervpn -name "*.init")
-          for INIT in $INIT_FILES; do
-            sed -i 's|/usr/local/vpnserver/config|/etc/softethervpn/config|g' "$INIT"
-            sed -i 's|/var/lib/softethervpn|/etc/softethervpn|g' "$INIT"
-          done
-
-          # 6. 修复Makefile，确保配置目录被创建
-          sed -i '/define Package\/softethervpn\/install/a \t$(INSTALL_DIR) $(1)/etc/softethervpn' feeds/packages/net/softethervpn/Makefile
-          # 确保softethervpn5也被处理
-          if [ -f "feeds/packages/net/softethervpn/Makefile" ]; then
-            sed -i 's|PKG_NAME:=softethervpn|PKG_NAME:=softethervpn\nPKG_FIXUP:=autoreconf|g' feeds/packages/net/softethervpn/Makefile
-          fi
-
-      - name: Install feeds (include softethervpn)
-        run: |
-          cd openwrt
-          # 显式安装softethervpn相关包
-          ./scripts/feeds install -p packages_official softethervpn
-          ./scripts/feeds install -a
-
-      - name: Generate correct config
-        run: |
-          cd openwrt
-          export TERM=linux
+          # 生成默认配置
           make defconfig
+
+          # 写入核心配置（按功能分类，清晰易维护）
           cat > .config << 'EOF'
+          # 目标架构
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+
+          # 分区大小
           CONFIG_TARGET_KERNEL_PARTSIZE=100
           CONFIG_TARGET_ROOTFS_PARTSIZE=700
-          CONFIG_TARGET_ROOTFS_EXT4FS=n
+
+          # 固件格式
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
+
+          # 内核核心配置（IPsec/L2TP必需）
+          CONFIG_KERNEL_IP_FORWARD=y
+          CONFIG_KERNEL_NETFILTER=y
+          CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
+          CONFIG_KERNEL_PPP=y
+          CONFIG_KERNEL_PPP_ASYNC=y
+          CONFIG_KERNEL_PPP_SYNC_TTY=y
+          CONFIG_KERNEL_PPP_L2TP=y
+          CONFIG_KERNEL_TUN=y
+          CONFIG_KERNEL_BRIDGE_NETFILTER=y
+          CONFIG_KERNEL_CRYPTO_AES=y
+          CONFIG_KERNEL_CRYPTO_HMAC=y
+          CONFIG_KERNEL_CRYPTO_SHA256=y
+          CONFIG_KERNEL_CRYPTO_MD5=y
+
+          # 基础工具
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
@@ -178,17 +144,45 @@ jobs:
           CONFIG_PACKAGE_libreadline=y
           CONFIG_PACKAGE_libncurses=y
           CONFIG_PACKAGE_zlib=y
-          # 关键修复：只选一个主包（softethervpn5是新版，优先选这个）
-          CONFIG_PACKAGE_softethervpn5=y
-          CONFIG_PACKAGE_softethervpn-config=y
-          CONFIG_PACKAGE_luci-app-softethervpn=y
+
+          # L2TP/IPsec PSK核心（jell仓库）
+          CONFIG_PACKAGE_luci-app-ipsec-vpnd=y
+          CONFIG_PACKAGE_luci-i18n-ipsec-vpnd-zh-cn=y
+
+          # IPsec依赖包（强制使用feeds内版本）
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-charon=y
+          CONFIG_PACKAGE_strongswan-mod-aes=y
+          CONFIG_PACKAGE_strongswan-mod-gcm=y
+          CONFIG_PACKAGE_strongswan-mod-hmac=y
+          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+          CONFIG_PACKAGE_strongswan-mod-md5=y
+          CONFIG_PACKAGE_strongswan-mod-sha2=y
+          CONFIG_PACKAGE_strongswan-mod-socket-default=y
+          CONFIG_PACKAGE_strongswan-mod-stroke=y
+          CONFIG_PACKAGE_strongswan-mod-updown=y
+          CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
+          CONFIG_PACKAGE_xl2tpd=y
+
+          # 内核模块依赖
+          CONFIG_PACKAGE_kmod-crypto-aes=y
+          CONFIG_PACKAGE_kmod-crypto-hmac=y
+          CONFIG_PACKAGE_kmod-ipsec4=y
+          CONFIG_PACKAGE_kmod-ipsec6=y
+
+          # 保留功能
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
-          # 禁用冲突包
-          # CONFIG_PACKAGE_softethervpn is not set
+
+          # 禁用无关包（减少编译量+避免冲突）
+          CONFIG_PACKAGE_softethervpn=n
+          CONFIG_PACKAGE_softethervpn5=n
+          CONFIG_PACKAGE_luci-app-softethervpn=n
+          CONFIG_PACKAGE_olsrd=n
+          CONFIG_PACKAGE_luci-app-olsr=n
           # CONFIG_PACKAGE_luci-app-arpbind is not set
           # CONFIG_PACKAGE_luci-app-autoreboot is not set
           # CONFIG_PACKAGE_luci-app-nlbwmon is not set
@@ -196,36 +190,67 @@ jobs:
           # CONFIG_PACKAGE_luci-app-samba is not set
           # CONFIG_PACKAGE_luci-app-vlmcsd is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
+
+          # 编译优化
+          CONFIG_DEVEL=y
+          CONFIG_BUILD_LOG=y
+          CONFIG_CCACHE=y
           EOF
-          # 验证配置是否生效
-          cat .config | grep -E "softethervpn|SOFTETHERVPN"
+
+          # 验证配置+补全依赖
           make defconfig
+          # 检查关键包是否配置成功
+          grep -E "luci-app-ipsec-vpnd|strongswan|xl2tpd" .config
 
-      - name: Download packages
+      - name: 📥 Download Packages (前置下载避免编译中断)
         run: |
-          cd openwrt
-          make download -j8
-          find dl -size -1024c -exec ls -l {} \;
-          # 检查softethervpn源码是否下载成功
-          ls -l dl/ | grep softethervpn || echo "softethervpn源码未下载，将自动编译时下载"
+          # 创建下载日志
+          mkdir -p logs
+          # 分步下载（先核心依赖，再全部）
+          make package/strongswan/download V=s -j1 > logs/strongswan_download.log 2>&1
+          make package/xl2tpd/download V=s -j1 > logs/xl2tpd_download.log 2>&1
+          make package/luci-app-ipsec-vpnd/download V=s -j1 > logs/ipsec_download.log 2>&1
+          # 多线程下载剩余包（失败重试）
+          make download -j$(nproc) || make download -j1 > logs/all_download.log 2>&1
 
-      - name: Build firmware
+          # 检查缺失包
+          find dl -size -1024c -name "*.tar.*" -o -name "*.zip" | tee logs/missing_packages.log
+
+      - name: 🔨 Build Firmware (分步编译+防报错)
         run: |
-          cd openwrt
-          # 先确保主机工具编译正常
-          echo "检查 libdeflate-gzip 是否可用"
-          staging_dir/host/bin/libdeflate-gzip --version || echo "使用系统 gzip"
-          
-          # 先单线程编译softethervpn确保依赖解决
-          make package/softethervpn/compile V=s || make package/softethervpn/compile V=s -j1
-          # 再整体编译
-          make -j$(nproc) || make -j1 V=s
+          # 1. 预编译核心依赖（单线程避免冲突）
+          make package/libopenssl/compile V=s -j1 > logs/libopenssl_compile.log 2>&1
+          make package/strongswan/compile V=s -j1 > logs/strongswan_compile.log 2>&1
+          make package/xl2tpd/compile V=s -j1 > logs/xl2tpd_compile.log 2>&1
 
-      - name: Upload firmware
-        uses: actions/upload-artifact@main
+          # 2. 编译IPsec插件
+          make package/luci-app-ipsec-vpnd/compile V=s -j1 > logs/ipsec_compile.log 2>&1
+
+          # 3. 编译保留功能包
+          make package/luci-app-nikki/compile V=s -j1 > logs/nikki_compile.log 2>&1
+          make package/luci-app-homeproxy/compile V=s -j1 > logs/homeproxy_compile.log 2>&1
+
+          # 4. 整体编译（自动降级线程数）
+          make -j$(($(nproc)-1)) || make -j1 V=s > logs/full_compile.log 2>&1
+
+          # 检查编译产物
+          ls -lh bin/targets/x86/64/*.img.gz || echo "固件编译失败，查看日志：logs/full_compile.log"
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-x86-64-Firmware
+          name: openwrt-x86_64-firmware
           path: |
             openwrt/bin/targets/x86/64/*.img.gz
-            openwrt/bin/packages/x86_64/base/softethervpn*ipk
+            openwrt/bin/packages/x86_64/luci/luci-app-ipsec-vpnd*ipk
+            openwrt/logs/*.log  # 上传日志方便排查
+          retention-days: 7
           if-no-files-found: warn
+
+      - name: 🚨 Upload Error Logs (编译失败时)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-error-logs
+          path: openwrt/logs/*.log
+          retention-days: 7
