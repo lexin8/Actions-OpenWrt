@@ -1,124 +1,98 @@
-name: fanchmwrt+kenzo (L2TP/IPsec PSK)
+name: fanchmwrt+kenzo
 
 on:
   workflow_dispatch:
 
 env:
   TZ: Asia/Shanghai
-  # 修复：取消嵌套映射，改用独立变量（符合GitHub Actions YAML规范）
-  OPENWRT_SRC: https://github.com/fanchmwrt/fanchmwrt
-  FEED_JELL: https://github.com/kenzok8/jell
-  FEED_KENZO: https://github.com/kenzok8/openwrt-packages
-  FEED_SMALL: https://github.com/kenzok8/small
-  FEED_NIKKI: https://github.com/nikkinikki-org/OpenWrt-nikki.git
 
 jobs:
-  build-firmware:
-    name: Build OpenWrt Firmware (x86_64)
+  build:
+    name: Build fanchmwrt Firmware
     runs-on: ubuntu-22.04
-    defaults:
-      run:
-        shell: bash
-        working-directory: openwrt
 
     steps:
-      - name: 📊 Check Server Resources
+      - name: Check Server Performance
         run: |
-          echo "CPU核心数: $(nproc)"
-          echo "内存信息: $(free -h | grep Mem)"
-          echo "磁盘空间: $(df -h | grep /home)"
-          echo "系统版本: $(lsb_release -d)"
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
-      - name: 🧰 Initialize Build Environment
+      - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          # 升级系统+清理旧依赖
-          sudo apt update && sudo apt upgrade -y
-          sudo apt purge -y azure-cli ghc* zulu* llvm* firefox dotnet* powershell openjdk* mongodb* moby*
-          sudo apt autoremove -y && sudo apt clean
-
-          # 安装全量编译依赖（按OpenWrt官方清单+IPsec补充）
-          sudo apt install -y \
-            build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
-            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
-            file wget qemu-utils curl subversion libelf-dev autoconf automake libtool autopoint \
-            device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev \
-            libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libgmp-dev libgcrypt-dev python3-setuptools
-
-          # 设置时区+终端环境
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          # 新增luci-app-ipsec-vpnd编译依赖（libgmp-dev/libgcrypt-dev）
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libgmp-dev libgcrypt-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
           echo "export TERM=linux" >> ~/.bashrc
-          source ~/.bashrc
 
-      - name: 📦 Maximize Disk Space
+      - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 4096  # 足够应对IPsec编译
-          temp-reserve-mb: 200
-          root-reserve-mb: 2048
+          swap-size-mb: 2048  # 增大swap适配ipsec编译
+          temp-reserve-mb: 100
+          root-reserve-mb: 1024
           remove-dotnet: true
           remove-android: true
           remove-haskell: true
           remove-codeql: true
           remove-docker-images: true
 
-      - name: 📥 Clone OpenWrt Source
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone source & setup feeds
         run: |
-          git clone --depth=1 ${{ env.OPENWRT_SRC }} openwrt
+          git clone https://github.com/fanchmwrt/fanchmwrt openwrt
           cd openwrt
-          # 初始化Git避免feeds报错
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: 🗂️ Configure Feeds (标准化+防冲突)
-        run: |
-          # 1. 彻底清空原有feeds，避免残留冲突
+          # 清空原有feeds避免冲突
           > feeds.conf.default
+          # 保留原有第三方源
+          echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> feeds.conf.default
+          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+          # 添加jell仓库（核心：luci-app-ipsec-vpnd所在仓库）
+          echo "src-git jell https://github.com/kenzok8/jell" >> feeds.conf.default
 
-          # 2. 按优先级添加源（jell优先保证ipsec插件正确）
-          echo "src-git jell ${{ env.FEED_JELL }}" >> feeds.conf.default
-          echo "src-git kenzo ${{ env.FEED_KENZO }}" >> feeds.conf.default
-          echo "src-git small ${{ env.FEED_SMALL }}" >> feeds.conf.default
-          echo "src-git nikki ${{ env.FEED_NIKKI }}" >> feeds.conf.default
-
-          # 3. 更新feeds（强制刷新+忽略错误）
-          ./scripts/feeds update -a -f --force-remove > feeds_update.log 2>&1 || true
-
-          # 4. 清理冲突包（仅保留必要清理）
-          rm -rf feeds/*/mosdns* feeds/*/alist* feeds/*/adguardhome* feeds/*/xray* feeds/*/v2ray* feeds/*/sing* feeds/*/smartdns*
-          rm -rf feeds/packages/lang/golang && git clone --depth=1 -b 1.26 https://github.com/kenzok8/golang feeds/packages/lang/golang
-
-          # 5. 显式安装核心插件（指定源避免拉取错误版本）
-          ./scripts/feeds install -p jell -y luci-app-ipsec-vpnd luci-i18n-ipsec-vpnd-zh-cn
-          ./scripts/feeds install -p kenzo -y luci-app-nikki luci-i18n-nikki-zh-cn
-          ./scripts/feeds install -p small -y homeproxy luci-app-homeproxy
-
-          # 6. 安装所有依赖（静默模式）
-          ./scripts/feeds install -a -y
-
-      - name: ⚙️ Generate Build Config
+      - name: Update & clean feeds
         run: |
-          # 生成默认配置
-          make defconfig
+          cd openwrt
+          # 更新所有feeds（包括新增的jell仓库）
+          ./scripts/feeds update -a -f
+          # 保留原有清理逻辑
+          rm -rf feeds/luci/applications/luci-app-mosdns
+          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns}
+          rm -rf feeds/packages/utils/v2dat
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
+          # 显式安装jell仓库的luci-app-ipsec-vpnd插件
+          ./scripts/feeds install -p jell luci-app-ipsec-vpnd
+          ./scripts/feeds install -p jell luci-i18n-ipsec-vpnd-zh-cn
 
-          # 写入核心配置（按功能分类，清晰易维护）
+      - name: Install all feeds
+        run: cd openwrt && ./scripts/feeds install -a
+
+      - name: Generate config
+        run: |
+          cd openwrt
+          export TERM=linux
+          make defconfig
           cat > .config << 'EOF'
-          # 目标架构
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-
-          # 分区大小
           CONFIG_TARGET_KERNEL_PARTSIZE=100
           CONFIG_TARGET_ROOTFS_PARTSIZE=700
-
-          # 固件格式
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
-
-          # 内核核心配置（IPsec/L2TP必需）
+          # IPsec必需的内核配置
           CONFIG_KERNEL_IP_FORWARD=y
           CONFIG_KERNEL_NETFILTER=y
           CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
@@ -131,8 +105,6 @@ jobs:
           CONFIG_KERNEL_CRYPTO_AES=y
           CONFIG_KERNEL_CRYPTO_HMAC=y
           CONFIG_KERNEL_CRYPTO_SHA256=y
-          CONFIG_KERNEL_CRYPTO_MD5=y
-
           # 基础工具
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -143,12 +115,10 @@ jobs:
           CONFIG_PACKAGE_libreadline=y
           CONFIG_PACKAGE_libncurses=y
           CONFIG_PACKAGE_zlib=y
-
-          # L2TP/IPsec PSK核心（jell仓库）
+          # luci-app-ipsec-vpnd核心配置（jell仓库）
           CONFIG_PACKAGE_luci-app-ipsec-vpnd=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpnd-zh-cn=y
-
-          # IPsec依赖包（强制使用feeds内版本）
+          # IPsec依赖包
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-charon=y
           CONFIG_PACKAGE_strongswan-mod-aes=y
@@ -162,26 +132,18 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-updown=y
           CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
           CONFIG_PACKAGE_xl2tpd=y
-
           # 内核模块依赖
           CONFIG_PACKAGE_kmod-crypto-aes=y
           CONFIG_PACKAGE_kmod-crypto-hmac=y
           CONFIG_PACKAGE_kmod-ipsec4=y
           CONFIG_PACKAGE_kmod-ipsec6=y
-
-          # 保留功能
+          # 原有保留包
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
-
-          # 禁用无关包（减少编译量+避免冲突）
-          CONFIG_PACKAGE_softethervpn=n
-          CONFIG_PACKAGE_softethervpn5=n
-          CONFIG_PACKAGE_luci-app-softethervpn=n
-          CONFIG_PACKAGE_olsrd=n
-          CONFIG_PACKAGE_luci-app-olsr=n
+          # 禁用无关包
           # CONFIG_PACKAGE_luci-app-arpbind is not set
           # CONFIG_PACKAGE_luci-app-autoreboot is not set
           # CONFIG_PACKAGE_luci-app-nlbwmon is not set
@@ -189,67 +151,32 @@ jobs:
           # CONFIG_PACKAGE_luci-app-samba is not set
           # CONFIG_PACKAGE_luci-app-vlmcsd is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
-
-          # 编译优化
-          CONFIG_DEVEL=y
-          CONFIG_BUILD_LOG=y
-          CONFIG_CCACHE=y
           EOF
-
-          # 验证配置+补全依赖
           make defconfig
-          # 检查关键包是否配置成功
-          grep -E "luci-app-ipsec-vpnd|strongswan|xl2tpd" .config
 
-      - name: 📥 Download Packages (前置下载避免编译中断)
+      - name: Download packages
         run: |
-          # 创建下载日志
-          mkdir -p logs
-          # 分步下载（先核心依赖，再全部）
-          make package/strongswan/download V=s -j1 > logs/strongswan_download.log 2>&1
-          make package/xl2tpd/download V=s -j1 > logs/xl2tpd_download.log 2>&1
-          make package/luci-app-ipsec-vpnd/download V=s -j1 > logs/ipsec_download.log 2>&1
-          # 多线程下载剩余包（失败重试）
-          make download -j$(nproc) || make download -j1 > logs/all_download.log 2>&1
+          cd openwrt
+          # 预下载ipsec相关包
+          make package/luci-app-ipsec-vpnd/download V=s -j1
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
 
-          # 检查缺失包
-          find dl -size -1024c -name "*.tar.*" -o -name "*.zip" | tee logs/missing_packages.log
-
-      - name: 🔨 Build Firmware (分步编译+防报错)
+      - name: Build firmware
         run: |
-          # 1. 预编译核心依赖（单线程避免冲突）
-          make package/libopenssl/compile V=s -j1 > logs/libopenssl_compile.log 2>&1
-          make package/strongswan/compile V=s -j1 > logs/strongswan_compile.log 2>&1
-          make package/xl2tpd/compile V=s -j1 > logs/xl2tpd_compile.log 2>&1
+          cd openwrt
+          # 先编译ipsec核心依赖保证编译成功
+          make package/strongswan/compile V=s -j1
+          make package/xl2tpd/compile V=s -j1
+          make package/luci-app-ipsec-vpnd/compile V=s -j1
+          # 整体编译（出错时单线程输出详细日志）
+          make -j$(nproc) || make -j1 V=s
 
-          # 2. 编译IPsec插件
-          make package/luci-app-ipsec-vpnd/compile V=s -j1 > logs/ipsec_compile.log 2>&1
-
-          # 3. 编译保留功能包
-          make package/luci-app-nikki/compile V=s -j1 > logs/nikki_compile.log 2>&1
-          make package/luci-app-homeproxy/compile V=s -j1 > logs/homeproxy_compile.log 2>&1
-
-          # 4. 整体编译（自动降级线程数）
-          make -j$(($(nproc)-1)) || make -j1 V=s > logs/full_compile.log 2>&1
-
-          # 检查编译产物
-          ls -lh bin/targets/x86/64/*.img.gz || echo "固件编译失败，查看日志：logs/full_compile.log"
-
-      - name: 📤 Upload Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload firmware
+        uses: actions/upload-artifact@main
         with:
-          name: openwrt-x86_64-firmware
+          name: fanchmwrt-x86-64-Firmware
           path: |
             openwrt/bin/targets/x86/64/*.img.gz
             openwrt/bin/packages/x86_64/luci/luci-app-ipsec-vpnd*ipk
-            openwrt/logs/*.log  # 上传日志方便排查
-          retention-days: 7
           if-no-files-found: warn
-
-      - name: 🚨 Upload Error Logs (编译失败时)
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-error-logs
-          path: openwrt/logs/*.log
-          retention-days: 7
