@@ -26,7 +26,7 @@ jobs:
 
       - name: Clone OpenWrt 25.12 Source Code
         run: |
-          git clone --depth=1 --single-branch --branch openwrt-25.05 https://git.openwrt.org/openwrt/openwrt.git openwrt
+          git clone --depth=1 --single-branch --branch openwrt-25.12 https://git.openwrt.org/openwrt/openwrt.git openwrt
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
