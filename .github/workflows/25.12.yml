@@ -35,6 +35,7 @@ jobs:
         run: |
           git clone --depth=1 --single-branch --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt
           cd openwrt
+          echo "src/gz nikki https://nikkinikki.pages.dev/packages/$(. /etc/openwrt_release; echo $DISTRIB_ARCH)/nikki" >> /etc/opkg/customfeeds.conf
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -57,6 +58,8 @@ jobs:
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-softether=y
           CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_NFTABLES=y
           CONFIG_NF_TABLES=y
           CONFIG_PACKAGE_iptables-nft=y
