@@ -1,0 +1,79 @@
+name: OpenWrt(25.12)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-openwrt:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Initialize System Environment
+        run: |
+          sudo apt update -y
+          sudo apt full-upgrade -y
+          sudo apt install -y \
+            binutils bzip2 diff find flex gawk gcc-12 getopt grep install libc-dev libz-dev \
+            make python3 rsync subversion unzip which git-core libssl-dev libncurses5-dev \
+            zlib1g-dev gawk flex gettext wget curl swig rsync build-essential clang llvm \
+            kmod cpio bc libelf-dev genisoimage xorriso libssl-dev libffi-dev python3-dev
+          sudo fallocate -l 16G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+
+      - name: Clone OpenWrt 25.12 Source Code
+        run: |
+          git clone --depth=1 --single-branch --branch openwrt-25.05 https://git.openwrt.org/openwrt/openwrt.git openwrt
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Apply Aligned CONFIG Configuration
+        run: |
+          cd openwrt
+          cat > .config << 'EOF'
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_luci-app-softether=y
+          CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
+          CONFIG_NFTABLES=y
+          CONFIG_NF_TABLES=y
+          CONFIG_PACKAGE_iptables-nft=y
+          CONFIG_PACKAGE_iptables-mod-nft=y
+          EOF
+          make defconfig
+          make prereq
+
+      - name: Compile OpenWrt 25.12 Firmware
+        run: |
+          cd openwrt
+          CORE_TOTAL=$(nproc --all)
+          CORE_USE=$((CORE_TOTAL / 2))
+          [ $CORE_USE -lt 1 ] && CORE_USE=1
+          echo "Using $CORE_USE cores (total: $CORE_TOTAL) for 25.12 compilation"
+          make -j$CORE_USE || make -j1 V=s
+
+      - name: Upload Firmware Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-25.12-x86_64-firmware
+          path: |
+            openwrt/bin/targets/x86/64/*.tar.gz
+            openwrt/bin/targets/x86/64/*.img.gz
+            openwrt/bin/targets/x86/64/*.bin
+            openwrt/bin/targets/x86/64/*.manifest
+          retention-days: 7
