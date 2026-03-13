@@ -93,6 +93,10 @@ jobs:
           CONFIG_PACKAGE_softethervpn=y
           CONFIG_PACKAGE_softethervpn5=y
           CONFIG_PACKAGE_luci-app-softethervpn=y
+          CONFIG_NFTABLES=y
+          CONFIG_NF_TABLES=y
+          CONFIG_PACKAGE_iptables-nft=y
+          CONFIG_PACKAGE_iptables-mod-nft=y
 
 
           CONFIG_PACKAGE_luci-app-nikki=y
