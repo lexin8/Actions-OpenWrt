@@ -1,4 +1,4 @@
-name: OpenWrt(25.12)
+name: OpenWrt (25.12)
 
 on:
   workflow_dispatch:
@@ -15,10 +15,11 @@ jobs:
           sudo apt update -y
           sudo apt full-upgrade -y
           sudo apt install -y \
-            binutils bzip2 diff find flex gawk gcc-12 getopt grep install libc-dev libz-dev \
-            make python3 rsync subversion unzip which git-core libssl-dev libncurses5-dev \
-            zlib1g-dev gawk flex gettext wget curl swig rsync build-essential clang llvm \
-            kmod cpio bc libelf-dev genisoimage xorriso libssl-dev libffi-dev python3-dev
+            binutils bzip2 diffutils findutils gawk gcc-12 grep libc-dev libz-dev \
+            make python3 rsync subversion unzip git-core libssl-dev libncurses5-dev \
+            zlib1g-dev flex gettext wget curl swig rsync build-essential clang llvm \
+            kmod cpio bc libelf-dev genisoimage xorriso libffi-dev python3-dev debianutils \
+            file time
           sudo fallocate -l 16G /swapfile
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
@@ -26,7 +27,7 @@ jobs:
 
       - name: Clone OpenWrt 25.12 Source Code
         run: |
-          git clone --depth=1 --single-branch --branch openwrt-25.12 https://git.openwrt.org/openwrt/openwrt.git openwrt
+          git clone --depth=1 --single-branch --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
