@@ -37,7 +37,7 @@ jobs:
           cd openwrt
           # 添加nikki软件源（但这里的/etc/opkg/customfeeds.conf是编译环境中的文件，应该用正确的配置方式）
           # 建议使用feeds.conf.default或package目录来添加外部源
-          echo "src-git nikki https://github.com/nikkinikki-org/openwrt-nikki.git" >> feeds.conf.default
+          # echo "src-git nikki https://github.com/nikkinikki-org/openwrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
