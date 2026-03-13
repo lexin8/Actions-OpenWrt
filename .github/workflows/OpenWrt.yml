@@ -51,10 +51,10 @@ jobs:
         run: |
           git clone https://github.com/fanchmwrt/fanchmwrt openwrt
           cd openwrt
-          # 插入 kenzo 和 small 源到最前面
-          sed -i '1i src-git kenzo https://github.com/kenzok8/openwrt-packages' feeds.conf.default
-          sed -i '2i src-git small https://github.com/kenzok8/small' feeds.conf.default
-          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+          # 插入 nikki 源到最前面
+          sed -i '1i src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git' feeds.conf.default
+          echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> feeds.conf.default
+          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
 
       - name: Update & clean
         run: |
@@ -78,8 +78,8 @@ jobs:
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=60
-          CONFIG_TARGET_ROOTFS_PARTSIZE=600
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
