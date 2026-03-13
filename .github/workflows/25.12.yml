@@ -35,7 +35,9 @@ jobs:
         run: |
           git clone --depth=1 --single-branch --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt
           cd openwrt
-          echo "src/gz nikki https://nikkinikki.pages.dev/packages/$(. /etc/openwrt_release; echo $DISTRIB_ARCH)/nikki" >> /etc/opkg/customfeeds.conf
+          # 添加nikki软件源（但这里的/etc/opkg/customfeeds.conf是编译环境中的文件，应该用正确的配置方式）
+          # 建议使用feeds.conf.default或package目录来添加外部源
+          echo "src-git nikki https://github.com/nikkinikki-org/openwrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -43,6 +45,7 @@ jobs:
         run: |
           cd openwrt
           cat > .config << 'EOF'
+          # Target Configuration
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
@@ -51,22 +54,62 @@ jobs:
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          
+          # Base LuCI Configuration (Web Interface)
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-lib-ipkg=y
+          
+          # LuCI Applications
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-softether=y
           CONFIG_PACKAGE_luci-app-strongswan-swanctl=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          
+          # Additional LuCI Applications (Recommended)
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-opkg=y
+          CONFIG_PACKAGE_luci-app-upnp=y
+          CONFIG_PACKAGE_luci-app-statistics=y
+          CONFIG_PACKAGE_luci-app-samba4=y
+          
+          # LuCI Themes
+          CONFIG_PACKAGE_luci-theme-material=y
+          CONFIG_PACKAGE_luci-theme-openwrt-2020=y
+          
+          # Network Configuration
           CONFIG_NFTABLES=y
           CONFIG_NF_TABLES=y
           CONFIG_PACKAGE_iptables-nft=y
           CONFIG_PACKAGE_iptables-mod-nft=y
+          
+          # Web Server
+          CONFIG_PACKAGE_uhttpd=y
+          CONFIG_PACKAGE_uhttpd-mod-ubus=y
+          
+          # USB Support (for storage)
+          CONFIG_PACKAGE_kmod-usb-core=y
+          CONFIG_PACKAGE_kmod-usb-storage=y
+          CONFIG_PACKAGE_kmod-usb3=y
+          
+          # Filesystem Support
+          CONFIG_PACKAGE_kmod-fs-ext4=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_kmod-fs-ntfs=y
           EOF
+          
           make defconfig
           make prereq
+          
+          # Show configuration summary
+          echo "=== Configuration Summary ==="
+          ./scripts/diffconfig.sh
 
       - name: Compile OpenWrt 25.12 Firmware
         run: |
