@@ -1,0 +1,73 @@
+name: OpenWrt SSH (Ubuntu 22.04)
+
+on:
+  workflow_dispatch:  # 手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04  # 明确指定 Ubuntu 22.04
+    timeout-minutes: 366   # 超时设置为366分钟（6小时+1分钟），避免提前终止
+
+    steps:
+      - name: 1. 系统环境初始化
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          # 清理无用包，更新系统
+          sudo apt clean && sudo apt update -y && sudo apt upgrade -y
+          # 安装 SSH 服务（Ubuntu 22.04 默认可能未安装）
+          sudo apt install -y openssh-server sudo curl
+          # 启用 SSH 服务并设置开机自启
+          sudo systemctl enable ssh && sudo systemctl start ssh
+          # 检查 SSH 服务状态
+          sudo systemctl status ssh --no-pager
+
+      - name: 2. 配置 SSH 允许 root 登录
+        run: |
+          # 设置 root 密码（替换为你自己的密码，建议复杂）
+          echo "root:YourSecurePassword123!" | sudo chpasswd
+          # 修改 SSH 配置（Ubuntu 22.04 关键差异点）
+          sudo sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+          sudo sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          # 重启 SSH 服务使配置生效
+          sudo systemctl restart ssh
+          # 验证 SSH 配置
+          sudo sshd -t
+
+      - name: 3. 配置 SSH 公钥登录（可选，更安全）
+        run: |
+          # 创建 root 的 .ssh 目录
+          sudo mkdir -p /root/.ssh
+          # 添加你的 SSH 公钥（替换为你本地的 id_rsa.pub 内容）
+          echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCyxxxxxxx 你的备注" | sudo tee /root/.ssh/authorized_keys
+          # 设置正确的权限（Ubuntu 22.04 对权限要求严格）
+          sudo chmod 700 /root/.ssh
+          sudo chmod 600 /root/.ssh/authorized_keys
+          sudo chown root:root /root/.ssh -R
+          # 重启 SSH 服务
+          sudo systemctl restart ssh
+
+      - name: 4. 输出 SSH 连接信息 + 6小时保活
+        run: |
+          # 获取公网 IP（Ubuntu 22.04 优先用 curl 而非 wget）
+          IP=$(curl -4 -s icanhazip.com)
+          # 打印连接信息
+          echo "======================================"
+          echo "✅ SSH 连接信息（Ubuntu 22.04）："
+          echo "🔌 IP 地址: $IP"
+          echo "👤 用户名: root"
+          echo "🔑 密码: YourSecurePassword123!（你设置的密码）"
+          echo "⚡ 端口: 22"
+          echo "⏰ 会话将保持 6 小时，超时自动关闭"
+          echo "======================================"
+          # 6小时保活核心逻辑（21600秒 = 6小时）
+          END_TIME=$((SECONDS + 21600))
+          while [ $SECONDS -lt $END_TIME ]; do
+            # 每30秒输出心跳，防止 Actions 因空闲终止
+            echo "🟢 SSH 会话保活中... 剩余时间: $((END_TIME - SECONDS)) 秒"
+            sleep 30
+          done
+          # 6小时后自动清理
+          echo "⏳ 6小时时长已到，关闭 SSH 会话"
+          sudo systemctl stop ssh
