@@ -90,7 +90,7 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # ========== 第一阶段：基础 + DDNS + UDPXY + Docker（移除冲突VPN组件） ==========
+      # ========== 第一阶段：基础 + DDNS + UDPXY + Docker ==========
       - name: Stage1 - Base + DDNS + UDPXY + Docker
         run: |
           cd openwrt
@@ -123,27 +123,31 @@ jobs:
           CONFIG_KERNEL_XFRM_USER=y
           CONFIG_KERNEL_XFRM_ALGO=y
           CONFIG_KERNEL_XFRM_IPCOMP=y
-
-          # ===================== L2TP/PPP 拨号内核配置（仅保留基础依赖） =====================
-          CONFIG_L2TP=y
-          CONFIG_L2TP_V3=y
-          CONFIG_PPPOL2TP=y
-          CONFIG_L2TP_ETH=y
-          CONFIG_L2TP_IP=y
-          CONFIG_PPP=y
-          CONFIG_PPP_MULTILINK=y
-          CONFIG_PPP_FILTER=y
-          CONFIG_PPP_MPPE_MPPC=y
-          CONFIG_PPP_ASYNC=y
-          CONFIG_PPP_SYNC_TTY=y
-          CONFIG_PPP_GENERIC=y
-
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_libc6=y
+          CONFIG_PACKAGE_libgcc1=y
+          CONFIG_KERNEL_MODULES=y
+          CONFIG_KERNEL_MODULES_LOAD=y
+          CONFIG_KMOD_docker=y
+          CONFIG_KMOD_ipt_nat=y
+          CONFIG_KMOD_ipt_nat6=y
+          CONFIG_KMOD_udp_tunnel=y
+          CONFIG_KMOD_capability=y
+          CONFIG_PACKAGE_sudo=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_vim=y
+          CONFIG_PACKAGE_openssh-server=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_KMOD_nft_nat=y
+          CONFIG_PACKAGE_zlib=y
+          CONFIG_PACKAGE_libpthread=y
           # ===================== 基础工具与依赖库 =====================
           CONFIG_PACKAGE_fdisk=y
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_lsblk=y
           CONFIG_PACKAGE_e2fsprogs=y
-
 
           # ===================== 功能组件 =====================
           # 主题与UI配置
@@ -158,10 +162,9 @@ jobs:
 
           # 多媒体/网络转发
           CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_luci-app-libreswan=y
 
           # Docker 管理（核心保留）
-          CONFIG_PACKAGE_luci-app-dockerman=y
+          # CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_containerd=y
           EOF
           
