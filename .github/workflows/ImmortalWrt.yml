@@ -26,7 +26,6 @@ jobs:
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -39,7 +38,6 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
@@ -56,7 +54,6 @@ jobs:
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-
       - name: Cache DL
         uses: actions/cache@v4
         with:
@@ -70,26 +67,22 @@ jobs:
           key: ccache-${{ github.run_id }}
           restore-keys: |
             ccache-
-
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
           ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
-
       - name: Fix Toolchain Compilation
         run: |
           export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
           echo "工具链修复完成"
-
       - name: Update Feeds
         run: |
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
       # ========== 第一阶段：基础 + DDNS + UDPXY + Docker ==========
       - name: Stage1 - Base + DDNS + UDPXY + Docker
         run: |
@@ -106,7 +99,6 @@ jobs:
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-
           # ===================== 内核网络核心配置 =====================
           CONFIG_KERNEL_IP_FORWARD=y
           CONFIG_KERNEL_NETFILTER=y
@@ -136,7 +128,6 @@ jobs:
           CONFIG_KMOD_capability=y
           CONFIG_PACKAGE_sudo=y
           CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_luci-app-docker=y
           CONFIG_PACKAGE_vim=y
           CONFIG_PACKAGE_openssh-server=y
           CONFIG_PACKAGE_luci-app-firewall=y
@@ -148,23 +139,19 @@ jobs:
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_lsblk=y
           CONFIG_PACKAGE_e2fsprogs=y
-
           # ===================== 功能组件 =====================
           # 主题与UI配置
           CONFIG_PACKAGE_luci-theme-argon=y
           CONFIG_PACKAGE_luci-app-argon-config=y
-
           # DDNS 动态域名
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_luci-app-ddns=y
-
           # 多媒体/网络转发
           CONFIG_PACKAGE_luci-app-udpxy=y
-
           # Docker 管理（核心保留）
-          # CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_containerd=y
           CONFIG_PACKAGE_luci-app-libreswan=y
           EOF
@@ -175,7 +162,6 @@ jobs:
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-
       - name: Stage1 - Package Firmware
         if: always()
         run: |
@@ -186,7 +172,6 @@ jobs:
           cd $GITHUB_WORKSPACE
           tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
           echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
-
       - name: Stage1 - Upload Firmware
         if: always()
         uses: actions/upload-artifact@v4
@@ -202,7 +187,6 @@ jobs:
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-
       - name: Stage2 - Config
         run: |
           cd openwrt
@@ -212,7 +196,6 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           EOF
           make defconfig
-
       - name: Stage2 - Download
         run: cd openwrt && make download -j$(nproc)
 
@@ -221,7 +204,6 @@ jobs:
           cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-
       - name: Stage2 - Package Firmware
         if: always()
         run: |
@@ -232,7 +214,6 @@ jobs:
           cd $GITHUB_WORKSPACE
           tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
           echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
-
       - name: Stage2 - Upload Firmware
         if: always()
         uses: actions/upload-artifact@v4
@@ -248,7 +229,6 @@ jobs:
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-
       - name: Stage3 - Config
         run: |
           cd openwrt
@@ -258,7 +238,6 @@ jobs:
           CONFIG_PACKAGE_sing-box=y
           EOF
           make defconfig
-
       - name: Stage3 - Download
         run: cd openwrt && make download -j$(nproc)
 
@@ -267,7 +246,6 @@ jobs:
           cd openwrt
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-
       - name: Stage3 - Package Firmware
         if: always()
         run: |
@@ -278,7 +256,6 @@ jobs:
           cd $GITHUB_WORKSPACE
           tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
           echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
-
       - name: Stage3 - Upload Firmware
         if: always()
         uses: actions/upload-artifact@v4
