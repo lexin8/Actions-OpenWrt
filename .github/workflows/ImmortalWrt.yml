@@ -79,6 +79,7 @@ jobs:
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
           echo "工具链修复完成"
+          
       - name: Update Feeds
         run: |
           cd openwrt
@@ -197,7 +198,6 @@ jobs:
           # ===================== 防火墙与NAT =====================
           CONFIG_PACKAGE_luci-app-firewall=y
           CONFIG_KMOD_nft_nat=y
-          CONFIG_PACKAGE_luci-app-libreswan=y
           
           # ===================== 功能组件 =====================
           # 主题与UI配置
@@ -215,11 +215,31 @@ jobs:
           EOF
           
           make defconfig
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Upload OpenWRT Config
+        if: always()
+        run: |
+          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+      - name: Upload Config Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-config
+          path: openwrt-config.tar.gz
+          retention-days: 7
+          
+      - name: make OpenWRT   
+        run: |
+          cd openwrt
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
+          
       - name: Stage1 - Package Firmware
         if: always()
         run: |
