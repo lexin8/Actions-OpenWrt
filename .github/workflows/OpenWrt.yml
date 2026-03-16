@@ -47,34 +47,34 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           
-          # 基础系统组件
           CONFIG_PACKAGE_bash=y
           CONFIG_PACKAGE_coreutils=y
           CONFIG_PACKAGE_procps-ng=y
           CONFIG_PACKAGE_iproute2=y
-          
-          # L2TP/IPsec核心组件
-          CONFIG_PACKAGE_strongswan=y
+
+          CONFIG_PACKAGE_ipsec-tools=y
           CONFIG_PACKAGE_xl2tpd=y
           CONFIG_PACKAGE_ppp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
-          
-          # IPsec/L2TP内核模块
+
           CONFIG_PACKAGE_kmod-ipsec=y
           CONFIG_PACKAGE_kmod-ipsec4=y
           CONFIG_PACKAGE_kmod-ipt-ipsec=y
-          CONFIG_PACKAGE_kmod-nft-ipsec=y
           CONFIG_PACKAGE_kmod-ppp=y
           CONFIG_PACKAGE_kmod-pppol2tp=y
-          
-          # 网络诊断工具
-          CONFIG_PACKAGE_ping=y
-          CONFIG_PACKAGE_traceroute=y
-          CONFIG_PACKAGE_netcat=y
-          CONFIG_PACKAGE_tcpdump=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_logread-full=y
+
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
+          CONFIG_PACKAGE_libipsec0=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_iptables-mod-conntrack=y
+
+          CONFIG_KERNEL_IPSEC=y
+          CONFIG_KERNEL_XFRM_USER=y
+          CONFIG_KERNEL_L2TP=y
+          CONFIG_KERNEL_L2TP_IP=y
+          CONFIG_KERNEL_L2TP_ETH=y
           
           # 可选：Docker（如需容器化部署L2TP）
           CONFIG_PACKAGE_docker=y
