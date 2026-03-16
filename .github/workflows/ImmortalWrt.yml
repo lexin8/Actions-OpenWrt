@@ -118,14 +118,18 @@ jobs:
           CONFIG_KERNEL_XFRM_IPCOMP=y
           
           # ===================== PPP相关模块 =====================
+          CONFIG_PACKAGE_kmod-ipsec=y
+          CONFIG_PACKAGE_kmod-ipsec4=y
+          CONFIG_PACKAGE_kmod-ipt-ipsec=y
+          CONFIG_PACKAGE_kmod-nft-ipsec=y
           CONFIG_PACKAGE_kmod-ppp=y
-          CONFIG_PACKAGE_kmod-pppox=y
           CONFIG_PACKAGE_kmod-pppol2tp=y
-          CONFIG_PACKAGE_kmod-tun=y
-          CONFIG_PACKAGE_ppp=y
-          CONFIG_PACKAGE_ppp-mod-pppoe=y
-          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
-          CONFIG_PACKAGE_ppp-mod-radius=y
+          CONFIG_PACKAGE_ping=y
+          CONFIG_PACKAGE_traceroute=y
+          CONFIG_PACKAGE_netcat=y
+          CONFIG_PACKAGE_tcpdump=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_logread-full=y
           
           # ===================== Docker相关 =====================
           CONFIG_PACKAGE_docker=y
@@ -141,18 +145,6 @@ jobs:
           CONFIG_KMOD_capability=y
           CONFIG_PACKAGE_docker-compose=y
           
-          # ===================== SSH服务 =====================
-          # openssh-server已移除，避免端口冲突
-          # CONFIG_PACKAGE_openssh-server is not set
-          
-          # ===================== 基础工具与依赖库 =====================
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_vim=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_cfdisk=y
-          CONFIG_PACKAGE_lsblk=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_zlib=y
           CONFIG_PACKAGE_libpthread=y
           
           # ===================== 防火墙与NAT =====================
