@@ -9,6 +9,7 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: v24.10.4
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -51,7 +52,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
       - name: Cache DL
