@@ -99,25 +99,83 @@ jobs:
           # 基础配置（核心：保留strongswan-full，移除冲突组件）
           cat > .config << 'EOF'
           # ===================== 核心系统架构与分区 =====================
+          # ==============================================
+          # 目标平台配置（x86_64 Generic）
+          # ==============================================
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
           CONFIG_TARGET_ROOTFS_PARTSIZE=700
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_DEVEL=y
-          CONFIG_BROKEN=y
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-full=y
-          # 固件优化（减小体积+开启核心功能）
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
+
+          # ==============================================
+          # 编译优化（减小体积+性能调优）
+          # ==============================================
           CONFIG_DEFAULT_TARGET_OPTIMIZATION="-O2 -mtune=generic -march=x86-64"
           CONFIG_STRIP_KERNEL_EXPORTS=y
           CONFIG_USE_MKLIBS=y
+
+          # ==============================================
+          # 核心开关（strongswan-full 必需）
+          # ==============================================
+          CONFIG_DEVEL=y
+          CONFIG_BROKEN=y
+
+          # ==============================================
+          # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
+          # ==============================================
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-full=y
+
+          # ==============================================
+          # L2TP 专用组件
+          # ==============================================
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_ppp-mod-l2tp=y
+          CONFIG_PACKAGE_ppp-mod-pppoe=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+
+          # ==============================================
+          # 网络转发/NAT/加密（必需）
+          # ==============================================
+          # 防火墙（24.10 默认 firewall4/nftables）
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
+          CONFIG_KMOD_nft_nat=y
+
+          # iptables 兼容（nftables 底层）
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_iptables-mod-conntrack=y
+          CONFIG_PACKAGE_iptables-mod-ipsec=y
+          CONFIG_PACKAGE_iptables-mod-nat-extra=y
+          CONFIG_PACKAGE_kmod-ipt-nat=y
+          CONFIG_PACKAGE_kmod-ipt-ipsec=y
+          CONFIG_PACKAGE_kmod-nf-nat=y
+
+          # 加密内核模块
+          CONFIG_PACKAGE_kmod-crypto-aead=y
+          CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=y
+          CONFIG_PACKAGE_kmod-crypto-manager=y
+          CONFIG_PACKAGE_kmod-crypto-sha1=y
+          CONFIG_PACKAGE_kmod-crypto-sha256=y
+
+          # IPsec/L2TP 内核支持
+          CONFIG_KERNEL_IPSEC=y
+          CONFIG_KERNEL_XFRM_USER=y
+          CONFIG_KERNEL_L2TP=y
+          CONFIG_KERNEL_L2TP_IP=y
+          CONFIG_KERNEL_L2TP_ETH=y
+          CONFIG_KERNEL_CRYPTO_CHACHA20POLY1305=y
+
+          # ==============================================
           # 基础系统工具（必需）
+          # ==============================================
           CONFIG_PACKAGE_bash=y
           CONFIG_PACKAGE_coreutils=y
           CONFIG_PACKAGE_procps-ng=y
@@ -126,60 +184,15 @@ jobs:
           CONFIG_PACKAGE_netcat=y
           CONFIG_PACKAGE_wget=y
 
-          # PPP 协议栈（L2TP 依赖）
-          CONFIG_PACKAGE_xl2tpd=y
-          CONFIG_PACKAGE_ppp=y
-          CONFIG_PACKAGE_ppp-mod-l2tp=y
-          CONFIG_PACKAGE_ppp-mod-pppoe=y
-          CONFIG_PACKAGE_ppp-mod-pptp=y
-          CONFIG_PACKAGE_ppp-mod-ipv6=y  # 可选，支持 IPv6 则保留
-
           # ==============================================
-          # 网络转发/NAT（让 L2TP 客户端访问公网，必须）
+          # Docker 相关（完整支持）
           # ==============================================
-          # iptables NAT 模块
-          CONFIG_PACKAGE_iptables=y
-          CONFIG_PACKAGE_iptables-mod-nat-extra=y
-          CONFIG_PACKAGE_kmod-ipt-nat=y
-          CONFIG_PACKAGE_kmod-nf-nat=y
-          CONFIG_PACKAGE_kmod-ipt-ipsec=y
-          # 加密算法内核模块
-          CONFIG_PACKAGE_kmod-crypto-aead=y
-          CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=y
-          CONFIG_PACKAGE_kmod-crypto-manager=y
-          CONFIG_PACKAGE_kmod-crypto-sha1=y
-          CONFIG_PACKAGE_kmod-crypto-sha256=y
-          # ========== 防火墙/网络转发 ==========
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_nftables=y
-          CONFIG_PACKAGE_iptables-mod-conntrack=y
-          CONFIG_PACKAGE_iptables-mod-ipsec=y
-          CONFIG_PACKAGE_iptables=y
-          CONFIG_PACKAGE_iptables-mod-nat-extra=y
-          CONFIG_PACKAGE_kmod-ipt-nat=y
-          # ========== Web 管理界面 ==========
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-compat=y
-          # ========== 内核编译项 ==========
-          CONFIG_KERNEL_IPSEC=y
-          CONFIG_KERNEL_XFRM_USER=y
-          CONFIG_KERNEL_L2TP=y
-          CONFIG_KERNEL_L2TP_IP=y
-          CONFIG_KERNEL_L2TP_ETH=y
-          CONFIG_KERNEL_CRYPTO_CHACHA20POLY1305=y
-          # ========== 禁用不必要组件 ==========
-          CONFIG_DISABLE_IPV6=y
-          CONFIG_DISABLE_IPV6_MODULES=y
-          CONFIG_PACKAGE_kmod-bluetooth=n
-          CONFIG_PACKAGE_kmod-sound-core=n
-          # 禁用冲突组件（关键：防止和strongswan-full冲突）
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          # ===================== Docker相关 =====================
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_docker-compose=y
           CONFIG_PACKAGE_libc6=y
           CONFIG_PACKAGE_libgcc1=y
+          CONFIG_PACKAGE_libpthread=y
           CONFIG_KERNEL_MODULES=y
           CONFIG_KERNEL_MODULES_LOAD=y
           CONFIG_KMOD_docker=y
@@ -187,20 +200,37 @@ jobs:
           CONFIG_KMOD_ipt_nat6=y
           CONFIG_KMOD_udp_tunnel=y
           CONFIG_KMOD_capability=y
-          CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_libpthread=y
-          # ===================== 防火墙与NAT =====================
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_KMOD_nft_nat=y
-          # ===================== 功能组件 =====================
+
+          # ==============================================
+          # Web 管理界面（LuCI）
+          # ==============================================
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-compat=y
           CONFIG_PACKAGE_luci-theme-argon=y
           CONFIG_PACKAGE_luci-app-argon-config=y
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          CONFIG_PACKAGE_luci-app-firewall=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-dockerman=y
+
+          # ==============================================
+          # DDNS 组件
+          # ==============================================
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+
+          # ==============================================
+          # 禁用不必要组件（减小体积）
+          # ==============================================
+          CONFIG_DISABLE_IPV6=y
+          CONFIG_DISABLE_IPV6_MODULES=y
+          CONFIG_PACKAGE_kmod-bluetooth=n
+          CONFIG_PACKAGE_kmod-sound-core=n
+
+          # 禁用冲突组件（防止和 strongswan 冲突）
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           
           # 修复：先执行feeds install，再执行defconfig
