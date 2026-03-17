@@ -8,7 +8,8 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_BRANCH: openwrt-24.10  # 修复：改用开发分支，而非tag
+  REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: master
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -53,7 +54,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt  # 修复：使用分支而非tag
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
