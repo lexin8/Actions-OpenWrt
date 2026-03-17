@@ -9,7 +9,7 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: v24.10.5
+  REPO_BRANCH2: openwrt-23.05
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -54,7 +54,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
@@ -92,32 +92,6 @@ jobs:
           ./scripts/feeds install -a
           
       # ========== 第一阶段：基础 + DDNS + UDPXY + Docker + strongswan-full ==========
-      - name: Stage1 - Replace strongSwan with master version
-        run: |
-          cd openwrt
-          
-          # 备份原有的 strongswan 包
-          if [ -d feeds/packages/net/strongswan ]; then
-            echo "备份原有 strongswan 包..."
-            mv feeds/packages/net/strongswan feeds/packages/net/strongswan.bak
-          fi
-          
-          # 从 master 分支拉取最新的 strongswan 包
-          echo "从 master 分支拉取 strongswan 包..."
-          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
-          cp -r temp-packages/net/strongswan feeds/packages/net/
-          
-          # 清理临时文件
-          rm -rf temp-packages
-          
-          # 更新 feeds 索引
-          ./scripts/feeds update -i
-          ./scripts/feeds install strongswan
-          
-          echo "strongSwan 包已替换为 master 版本"
-          echo "当前 strongSwan 版本信息："
-          cat feeds/packages/net/strongswan/Makefile | grep "PKG_VERSION:="
-          
       - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
         run: |
           cd openwrt
@@ -138,28 +112,24 @@ jobs:
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
-
           # ==============================================
           # 编译优化（减小体积+性能调优）
           # ==============================================
           CONFIG_DEFAULT_TARGET_OPTIMIZATION="-O2 -mtune=generic -march=x86-64"
           CONFIG_STRIP_KERNEL_EXPORTS=y
           CONFIG_USE_MKLIBS=y
-
           # ==============================================
           # 核心开关（strongswan-full 必需）
           # ==============================================
           CONFIG_DEVEL=y
           CONFIG_BROKEN=y
-
           # ==============================================
           # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
           # ==============================================
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_CRYPTO_WOLFSSL=y
-          CONFIG_CRYPTO_EC=y
-
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
           # ==============================================
           # L2TP 专用组件
           # ==============================================
@@ -168,7 +138,6 @@ jobs:
           CONFIG_PACKAGE_ppp-mod-l2tp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pptp=y
-
           # ==============================================
           # 网络转发/NAT/加密（必需）
           # ==============================================
@@ -176,7 +145,6 @@ jobs:
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           CONFIG_KMOD_nft_nat=y
-
           # ==============================================
           # Web 管理界面（LuCI）
           # ==============================================
@@ -188,14 +156,12 @@ jobs:
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-dockerman=y
-
           # ==============================================
           # DDNS 组件
           # ==============================================
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
-
           # 禁用冲突组件（防止和 strongswan 冲突）
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
@@ -255,19 +221,6 @@ jobs:
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           
-      - name: Stage2 - Ensure strongSwan master version
-        run: |
-          cd openwrt
-          # 确保使用的是 master 版本的 strongswan
-          if [ -d feeds/packages/net/strongswan ]; then
-            rm -rf feeds/packages/net/strongswan
-          fi
-          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
-          cp -r temp-packages/net/strongswan feeds/packages/net/
-          rm -rf temp-packages
-          ./scripts/feeds update -i
-          ./scripts/feeds install strongswan
-          
       - name: Stage2 - Config (保留strongswan-full)
         run: |
           cd openwrt
@@ -320,19 +273,6 @@ jobs:
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-          
-      - name: Stage3 - Ensure strongSwan master version
-        run: |
-          cd openwrt
-          # 确保使用的是 master 版本的 strongswan
-          if [ -d feeds/packages/net/strongswan ]; then
-            rm -rf feeds/packages/net/strongswan
-          fi
-          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
-          cp -r temp-packages/net/strongswan feeds/packages/net/
-          rm -rf temp-packages
-          ./scripts/feeds update -i
-          ./scripts/feeds install strongswan
           
       - name: Stage3 - Config (保留strongswan-full)
         run: |
