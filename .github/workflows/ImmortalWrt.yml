@@ -54,7 +54,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
@@ -113,7 +113,7 @@ jobs:
           # 核心开关（strongswan-full 必需）
           # ==============================================
           CONFIG_DEVEL=y
-          CONFIG_BROKEN=n
+          CONFIG_BROKEN=y
           # ==============================================
           # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
           # ==============================================
