@@ -195,7 +195,7 @@ jobs:
           # ==============================================
           # 禁用冲突组件（防止和 strongswan 冲突）
           # ==============================================
-          CONFIG_PACKAGE_libwolfssl=n
+          # CONFIG_PACKAGE_libwolfssl is not set
           CONFIG_PACKAGE_wolfssl=n
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
