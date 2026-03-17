@@ -92,6 +92,32 @@ jobs:
           ./scripts/feeds install -a
           
       # ========== 第一阶段：基础 + DDNS + UDPXY + Docker + strongswan-full ==========
+      - name: Stage1 - Replace strongSwan with master version
+        run: |
+          cd openwrt
+          
+          # 备份原有的 strongswan 包
+          if [ -d feeds/packages/net/strongswan ]; then
+            echo "备份原有 strongswan 包..."
+            mv feeds/packages/net/strongswan feeds/packages/net/strongswan.bak
+          fi
+          
+          # 从 master 分支拉取最新的 strongswan 包
+          echo "从 master 分支拉取 strongswan 包..."
+          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
+          cp -r temp-packages/net/strongswan feeds/packages/net/
+          
+          # 清理临时文件
+          rm -rf temp-packages
+          
+          # 更新 feeds 索引
+          ./scripts/feeds update -i
+          ./scripts/feeds install strongswan
+          
+          echo "strongSwan 包已替换为 master 版本"
+          echo "当前 strongSwan 版本信息："
+          cat feeds/packages/net/strongswan/Makefile | grep "PKG_VERSION:="
+          
       - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
         run: |
           cd openwrt
@@ -150,7 +176,6 @@ jobs:
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           CONFIG_KMOD_nft_nat=y
-
 
           # ==============================================
           # Web 管理界面（LuCI）
@@ -230,6 +255,19 @@ jobs:
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           
+      - name: Stage2 - Ensure strongSwan master version
+        run: |
+          cd openwrt
+          # 确保使用的是 master 版本的 strongswan
+          if [ -d feeds/packages/net/strongswan ]; then
+            rm -rf feeds/packages/net/strongswan
+          fi
+          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
+          cp -r temp-packages/net/strongswan feeds/packages/net/
+          rm -rf temp-packages
+          ./scripts/feeds update -i
+          ./scripts/feeds install strongswan
+          
       - name: Stage2 - Config (保留strongswan-full)
         run: |
           cd openwrt
@@ -282,6 +320,19 @@ jobs:
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+          
+      - name: Stage3 - Ensure strongSwan master version
+        run: |
+          cd openwrt
+          # 确保使用的是 master 版本的 strongswan
+          if [ -d feeds/packages/net/strongswan ]; then
+            rm -rf feeds/packages/net/strongswan
+          fi
+          git clone --depth 1 https://github.com/immortalwrt/packages.git -b master temp-packages
+          cp -r temp-packages/net/strongswan feeds/packages/net/
+          rm -rf temp-packages
+          ./scripts/feeds update -i
+          ./scripts/feeds install strongswan
           
       - name: Stage3 - Config (保留strongswan-full)
         run: |
