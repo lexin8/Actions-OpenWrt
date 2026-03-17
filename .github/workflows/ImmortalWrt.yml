@@ -35,8 +35,8 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
-          sudo systemctl daemon-reload
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
@@ -91,13 +91,17 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-      # ========== 第一阶段：基础 + strongswan-full 手机兼容版（L2TP/PSK + IKEv2/PSK）==========
-      - name: Stage1 - Base + strongswan-full + L2TP/IPsec & IKEv2 PSK
+      # ========== 第一阶段：基础 + DDNS + UDPXY + Docker + strongswan-full ==========
+      - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
         run: |
           cd openwrt
           
+          # 基础配置（核心：保留strongswan-full，移除冲突组件）
           cat > .config << 'EOF'
           # ===================== 核心系统架构与分区 =====================
+          # ==============================================
+          # 目标平台配置（x86_64 Generic）
+          # ==============================================
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
@@ -107,88 +111,34 @@ jobs:
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_TARGET_ROOTFS_SQUASHFS=y
-
-          # 编译优化
-          CONFIG_DEFAULT_TARGET_OPTIMIZATION="-O2 -mtune=generic -march=x86-64"
-          CONFIG_STRIP_KERNEL_EXPORTS=y
-          CONFIG_USE_MKLIBS=y
-
+          # ==============================================
+          # 核心开关（strongswan-full 必需）
+          # ==============================================
           CONFIG_DEVEL=y
           CONFIG_BROKEN=y
-
-          # ===================== SSL 全局强制 OpenSSL（永不编译失败）=====================
-          CONFIG_DEFAULT_SSL_LIB_OPENSSL=y
-          CONFIG_DEFAULT_SSL_LIB_WOLFSSL=n
-          CONFIG_DEFAULT_SSL_LIB_MBEDTLS=n
-
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_libopenssl-conf=y
-          CONFIG_OPENSSL_OPTIMIZE_SPEED=y
-
-          # ===================== StrongSwan-full 手机兼容（L2TP/PSK + IKEv2/PSK）=====================
+          # ==============================================
+          # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
+          # ==============================================
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_strongswan-charon=y
-          CONFIG_PACKAGE_strongswan-ipsec=y
-          CONFIG_PACKAGE_strongswan-swanctl=y
-          CONFIG_PACKAGE_strongswan-pki=y
-          CONFIG_PACKAGE_strongswan-mod-aes=y
-          CONFIG_PACKAGE_strongswan-mod-gcm=y
-          CONFIG_PACKAGE_strongswan-mod-sha1=y
-          CONFIG_PACKAGE_strongswan-mod-sha2=y
-          CONFIG_PACKAGE_strongswan-mod-prf=y
-          CONFIG_PACKAGE_strongswan-mod-hmac=y
-          CONFIG_PACKAGE_strongswan-mod-random=y
-          CONFIG_PACKAGE_strongswan-mod-pubkey=y
-          CONFIG_PACKAGE_strongswan-mod-x509=y
-          CONFIG_PACKAGE_strongswan-mod-pem=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
-          CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
-          CONFIG_PACKAGE_strongswan-mod-xauth-eap=y
-          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
-          CONFIG_PACKAGE_strongswan-mod-eap-tls=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
-          CONFIG_PACKAGE_strongswan-mod-socket-default=y
-          CONFIG_PACKAGE_strongswan-mod-updown=y
-          CONFIG_PACKAGE_strongswan-mod-vici=y
-          CONFIG_PACKAGE_strongswan-mod-stroke=y
-          CONFIG_PACKAGE_strongswan-mod-attr=y
-          CONFIG_PACKAGE_strongswan-mod-dhcp=y
-          CONFIG_PACKAGE_strongswan-mod-farp=y
-          CONFIG_PACKAGE_strongswan-mod-unity=y
-
-          # 加密库绑定 OpenSSL
-          CONFIG_STRONGSWAN_CRYPTO_OPENSSL=y
-          CONFIG_STRONGSWAN_CRYPTO_WOLFSSL=n
-          CONFIG_STRONGSWAN_CRYPTO_MBEDTLS=n
-
-          # ===================== L2TP/IPsec PSK 手机必备 =====================
+          # ==============================================
+          # L2TP 专用组件
+          # ==============================================
           CONFIG_PACKAGE_xl2tpd=y
           CONFIG_PACKAGE_ppp=y
           CONFIG_PACKAGE_ppp-mod-l2tp=y
-          CONFIG_PACKAGE_ppp-mod-chap=y
-          CONFIG_PACKAGE_ppp-mod-mschap=y
-          CONFIG_PACKAGE_ppp-mod-mschapv2=y
-          CONFIG_PACKAGE_ppp-mod-pap=y
-
-          # ===================== 内核模块 =====================
-          CONFIG_PACKAGE_kmod-ppp=y
-          CONFIG_PACKAGE_kmod-pppol2tp=y
-          CONFIG_PACKAGE_kmod-ipsec=y
-          CONFIG_PACKAGE_kmod-ipsec4=y
-          CONFIG_PACKAGE_kmod-xfrm-ipsec=y
-          CONFIG_PACKAGE_kmod-tun=y
-          CONFIG_PACKAGE_kmod-inet-diag=y
-          CONFIG_PACKAGE_kmod-nft-tproxy=y
-          CONFIG_PACKAGE_kmod-nft-socket=y
-
-          # 防火墙
+          CONFIG_PACKAGE_ppp-mod-pppoe=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+          # ==============================================
+          # 网络转发/NAT/加密（必需）
+          # ==============================================
+          # 防火墙（24.10 默认 firewall4/nftables）
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
-          CONFIG_PACKAGE_kmod-nft-nat=y
-
-          # LuCI
+          CONFIG_KMOD_nft_nat=y
+          # ==============================================
+          # Web 管理界面（LuCI）
+          # ==============================================
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-compat=y
           CONFIG_PACKAGE_luci-theme-argon=y
@@ -197,19 +147,15 @@ jobs:
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-dockerman=y
-
-          # DDNS
+          # ==============================================
+          # DDNS 组件
+          # ==============================================
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
-
-          # 禁用冲突
-          CONFIG_PACKAGE_libwolfssl=n
-          CONFIG_PACKAGE_wolfssl=n
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           
+          # 修复：先执行feeds install，再执行defconfig
           ./scripts/feeds install -a
           make defconfig
           
@@ -255,7 +201,7 @@ jobs:
           path: stage1-firmware.tar.gz
           retention-days: 30
 
-      # ========== 第二阶段：Nikki ==========
+      # ========== 第二阶段：Nikki + 保留strongswan-full ==========
       - name: Stage2 - Add Nikki Feed
         run: |
           cd openwrt
@@ -263,15 +209,20 @@ jobs:
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           
-      - name: Stage2 - Config
+      - name: Stage2 - Config (保留strongswan-full)
         run: |
           cd openwrt
           cat >> .config << 'EOF'
+          # 保留strongswan-full配置（关键：防止被覆盖）
           CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-minimal=n
+          # 添加Nikki组件
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          # 禁用冲突组件
           CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           make defconfig
           
@@ -303,7 +254,7 @@ jobs:
           path: stage2-firmware.tar.gz
           retention-days: 30
 
-      # ========== 第三阶段：HomeProxy + Sing-Box ==========
+      # ========== 第三阶段：HomeProxy/Sing-Box + 保留strongswan-full ==========
       - name: Stage3 - Add Small Feed
         run: |
           cd openwrt
@@ -311,15 +262,20 @@ jobs:
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
           
-      - name: Stage3 - Config
+      - name: Stage3 - Config (保留strongswan-full)
         run: |
           cd openwrt
           cat >> .config << 'EOF'
+          # 保留strongswan-full配置
           CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-minimal=n
+          # 添加HomeProxy/Sing-Box组件
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
+          # 禁用冲突组件
           CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           make defconfig
           
@@ -355,6 +311,7 @@ jobs:
         run: |
           echo "=========================================="
           echo "✅ 编译完成！"
-          echo "📦 已支持：L2TP/IPsec PSK + IKEv2 PSK（全平台手机）"
-          echo "📦 无 wolfSSL 冲突，OpenSSL 全局稳定编译"
+          echo "📦 Stage1 固件已上传（基础 + DDNS + UDPXY + Docker + strongswan-full）"
+          echo "📦 Stage2 固件已上传（Nikki + strongswan-full）"
+          echo "📦 Stage3 固件已上传（HomeProxy + Sing-Box + strongswan-full）"
           echo "=========================================="
