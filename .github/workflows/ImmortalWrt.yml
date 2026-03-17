@@ -9,7 +9,7 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: v24.10.5
+  REPO_BRANCH2: openwrt-23.05
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -54,7 +54,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
@@ -99,9 +99,6 @@ jobs:
           # 基础配置（核心：保留strongswan-full，移除冲突组件）
           cat > .config << 'EOF'
           # ===================== 核心系统架构与分区 =====================
-          # ==============================================
-          # 目标平台配置（x86_64 Generic）
-          # ==============================================
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
@@ -111,16 +108,19 @@ jobs:
           CONFIG_TARGET_ROOTFS_TARGZ=y
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_TARGET_ROOTFS_SQUASHFS=y
           # ==============================================
           # 核心开关（strongswan-full 必需）
           # ==============================================
           CONFIG_DEVEL=y
-          CONFIG_BROKEN=y
+          CONFIG_BROKEN=n
           # ==============================================
           # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
           # ==============================================
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
           # ==============================================
           # L2TP 专用组件
           # ==============================================
@@ -132,10 +132,32 @@ jobs:
           # ==============================================
           # 网络转发/NAT/加密（必需）
           # ==============================================
-          # 防火墙（24.10 默认 firewall4/nftables）
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_nftables=y
-          CONFIG_KMOD_nft_nat=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_KMOD_IP_TABLES=y
+          CONFIG_KMOD_IP_NAT=y
+          CONFIG_KMOD_IP_CONNTRACK=y
+          CONFIG_KMOD_IP_CONNTRACK_MARK=y
+          CONFIG_KMOD_NETFILTER_XT_MATCH_STATE=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack-extra=y
+          CONFIG_KMOD_CRYPTO_AES=y
+          CONFIG_KMOD_CRYPTO_CBC=y
+          CONFIG_KMOD_CRYPTO_HMAC=y
+          CONFIG_KMOD_CRYPTO_SHA256=y
+          CONFIG_KMOD_XFRM=y
+          CONFIG_KMOD_XFRM_USER=y
+          CONFIG_KMOD_XFRM_MODE_TUNNEL=y
+          CONFIG_KMOD_XFRM_MODE_TRANSPORT=y
+          CONFIG_KMOD_IPSEC=y
+          CONFIG_KMOD_IPSEC_MB=y
+          CONFIG_KMOD_NETFILTER_XT_MATCH_IPSEC=y
+          CONFIG_KMOD_l2tp=y
+          CONFIG_KMOD_l2tp-ip=y
+          CONFIG_KMOD_l2tp-eth=y
+          CONFIG_KMOD_pppol2tp=y
+          CONFIG_KMOD_crypto-rng=y
+          CONFIG_PACKAGE_iptables-mod-ipsec=y
           # ==============================================
           # Web 管理界面（LuCI）
           # ==============================================
@@ -147,16 +169,39 @@ jobs:
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers=y
+          CONFIG_PACKAGE_luci-app-strongswan=y
           # ==============================================
           # DDNS 组件
           # ==============================================
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          CONFIG_PACKAGE_wget-ssl=y
+          # ==============================================
+          # StrongSwan 强化模块
+          # ==============================================
+          CONFIG_PACKAGE_strongswan-mod-xauth=y
+          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
+          CONFIG_PACKAGE_strongswan-ikev2=y
+          CONFIG_PACKAGE_strongswan-eap=y
+          CONFIG_PACKAGE_strongswan-eap-identity=y
+          CONFIG_PACKAGE_strongswan-psk=y
+          # ==============================================
+          # 调试/工具组件
+          # ==============================================
+          CONFIG_PACKAGE_ipsec-tools=y
+          CONFIG_PACKAGE_ntpclient=y
+          # ==============================================
+          # 禁用冲突组件（防止和 strongswan 冲突）
+          # ==============================================
+          CONFIG_PACKAGE_libwolfssl=n
+          CONFIG_PACKAGE_wolfssl=n
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          CONFIG_PACKAGE_openconnect=n
+          CONFIG_PACKAGE_openswan=n
           EOF
-          
-          # 修复：先执行feeds install，再执行defconfig
-          ./scripts/feeds install -a
           make defconfig
           
       - name: Upload OpenWRT Config
