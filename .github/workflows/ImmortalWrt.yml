@@ -130,6 +130,10 @@ jobs:
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+          CONFIG_STRONGSWAN_CRYPTO_OPENSSL=y
+          CONFIG_STRONGSWAN_CRYPTO_WOLFSSL=n
+          CONFIG_STRONGSWAN_CRYPTO_MBEDTLS=n
+
           # ==============================================
           # L2TP 专用组件
           # ==============================================
@@ -163,6 +167,8 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           # 禁用冲突组件（防止和 strongswan 冲突）
+          CONFIG_PACKAGE_libwolfssl=n
+          CONFIG_PACKAGE_wolfssl=n
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
