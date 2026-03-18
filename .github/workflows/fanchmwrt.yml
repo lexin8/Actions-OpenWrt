@@ -55,33 +55,79 @@ jobs:
 
       - name: Clone Source Codes
         run: |
-          # 克隆fanchmwrt作为主源码
-          git clone --depth 1 $REPO_URL2 openwrt
-          # 克隆immortalwrt官方源码用于提取strongswan组件
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt-official
+          set -e  # 错误立即退出，便于定位问题
           
-          # 复制strongswan相关组件到fanchmwrt源码中
-          # 复制软件包目录
-          mkdir -p openwrt/package/feeds/packages/strongswan
-          cp -rf immortalwrt-official/package/feeds/packages/strongswan/* openwrt/package/feeds/packages/strongswan/
+          # ===================== 清理旧目录（避免冲突） =====================
+          echo "🧹 清理旧目录..."
+          rm -rf openwrt immortalwrt-packages immortalwrt-official || true
           
-          # 复制luci-app-strongswan（如果有）
-          if [ -d "immortalwrt-official/package/feeds/luci/luci-app-strongswan" ]; then
-              mkdir -p openwrt/package/feeds/luci/luci-app-strongswan
-              cp -rf immortalwrt-official/package/feeds/luci/luci-app-strongswan/* openwrt/package/feeds/luci/luci-app-strongswan/
+          # ===================== 1. 克隆 fanchmwrt 主源码（指定分支） =====================
+          echo "🔄 克隆 fanchmwrt 源码（$REPO_BRANCH2 分支）..."
+          for i in {1..3}; do
+              git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt && break
+              echo "⚠️ 第 $i 次克隆失败，重试..."
+              rm -rf openwrt || true
+              sleep 5
+          done
+          
+          # ===================== 2. 克隆 immortalwrt/packages 仓库（获取正确的 strongswan） =====================
+          echo "🔄 克隆 immortalwrt/packages 仓库（openwrt-24.10 分支）..."
+          IMMORTALWRT_PACKAGES_URL="https://github.com/immortalwrt/packages"
+          IMMORTALWRT_PACKAGES_BRANCH="openwrt-24.10"
+          for i in {1..3}; do
+              git clone --depth 1 $IMMORTALWRT_PACKAGES_URL -b $IMMORTALWRT_PACKAGES_BRANCH immortalwrt-packages && break
+              echo "⚠️ 第 $i 次克隆失败，重试..."
+              rm -rf immortalwrt-packages || true
+              sleep 5
+          done
+          
+          # ===================== 3. 复制 strongswan（正确路径：net/strongswan） =====================
+          echo "🔄 复制 strongswan 核心组件..."
+          SRC_STRONGSWAN="immortalwrt-packages/net/strongswan"
+          DST_STRONGSWAN="openwrt/package/feeds/packages/strongswan"
+          
+          if [ -d "$SRC_STRONGSWAN" ]; then
+              mkdir -p "$DST_STRONGSWAN"
+              cp -rf "$SRC_STRONGSWAN"/* "$DST_STRONGSWAN/"
+              echo "✅ strongswan 核心组件复制完成"
+          else
+              echo "❌ 错误：未找到 $SRC_STRONGSWAN 目录，请检查分支是否正确"
+              exit 1
           fi
           
-          # 复制ipsec-vpnserver-manyusers（如果有）
-          if [ -d "immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers" ]; then
-              mkdir -p openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers
-              cp -rf immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers/* openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers/
+          # ===================== 4. 克隆 immortalwrt 主仓库（获取 luci 相关组件） =====================
+          echo "🔄 克隆 immortalwrt 主仓库（获取 luci 组件）..."
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt-official || true
+          
+          # 复制 luci-app-strongswan（如果存在）
+          SRC_LUCI_STRONGSWAN="immortalwrt-official/package/feeds/luci/luci-app-strongswan"
+          DST_LUCI_STRONGSWAN="openwrt/package/feeds/luci/luci-app-strongswan"
+          if [ -d "$SRC_LUCI_STRONGSWAN" ]; then
+              mkdir -p "$DST_LUCI_STRONGSWAN"
+              cp -rf "$SRC_LUCI_STRONGSWAN"/* "$DST_LUCI_STRONGSWAN/"
+              echo "✅ luci-app-strongswan 复制完成"
+          else
+              echo "⚠️ 未找到 luci-app-strongswan，跳过"
           fi
           
-          # 清理临时源码
-          rm -rf immortalwrt-official
+          # 复制 ipsec-vpnserver-manyusers（如果存在）
+          SRC_IPSEC_VPN="immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers"
+          DST_IPSEC_VPN="openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers"
+          if [ -d "$SRC_IPSEC_VPN" ]; then
+              mkdir -p "$DST_IPSEC_VPN"
+              cp -rf "$SRC_IPSEC_VPN"/* "$DST_IPSEC_VPN/"
+              echo "✅ luci-app-ipsec-vpnserver-manyusers 复制完成"
+          else
+              echo "⚠️ 未找到 luci-app-ipsec-vpnserver-manyusers，跳过"
+          fi
+          
+          # ===================== 5. 清理临时文件 + 设置环境变量 =====================
+          echo "🧹 清理临时仓库..."
+          rm -rf immortalwrt-packages immortalwrt-official || true
           
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          echo "✅ 所有组件复制完成！"
           
       - name: Cache DL
         uses: actions/cache@v4
