@@ -59,7 +59,7 @@ jobs:
 
       - name: Clone source code
         run: |
-          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH ${{ github.workspace }}/openwrt
+          git clone --depth 1 $REPO_URL2  ${{ github.workspace }}/openwrt
           echo "OPENWRT_PATH=${{ github.workspace }}/openwrt" >> $GITHUB_ENV
           ls -l ${{ github.workspace }}/openwrt
 
