@@ -1,4 +1,4 @@
-name: fanchmwrt 二阶段编译
+name: docker
 
 on:
   workflow_dispatch:
@@ -7,13 +7,21 @@ on:
 
 env:
   TZ: Asia/Shanghai
-  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
-  FIRMWARE_NAME: fanchmwrt-x86-64
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: openwrt-23.05
+  FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: .config
+  UPLOAD_FIRMWARE: true
+  FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
+
 
 jobs:
-  build:
+  Build:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -25,7 +33,7 @@ jobs:
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
+          
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -38,7 +46,7 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-
+          
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
@@ -50,188 +58,84 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone fanchmwrt Source
+      - name: Clone source code
         run: |
-          git clone --depth 1 $REPO_URL openwrt
+          git clone --depth 1 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Cache DL
-        uses: actions/cache@v4
-        with:
-          path: openwrt/dl
-          key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
-
-      - name: Cache CCache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ github.run_id }}
-          restore-keys: |
-            ccache-
-
-      - name: Setup CCache
+      - name: Add immortalwrt feeds (仅追加两条源，保留原有配置)
         run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE -o compression=true
-          ccache -s
-
-      # ===== 核心逻辑：清理冲突 + 强制 Go 1.26 =====
-      - name: Clean Conflicts & Force Go 1.26
-        run: |
-          cd openwrt
-          cat > feeds.conf << 'EOF'
-          src-git packages https://git.openwrt.org/feed/packages.git
-          src-git luci https://git.openwrt.org/project/luci.git
-          src-git routing https://git.openwrt.org/feed/routing.git
-          src-git telephony https://git.openwrt.org/feed/telephony.git
-          src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages.git
+          cd $OPENWRT_PATH
+          # 备份原有 feeds 配置
+          cp $FEEDS_CONF $FEEDS_CONF.bak
+          # 仅在文件末尾追加两条 immortalwrt 源（无缩进）
+          cat >> $FEEDS_CONF << EOF
+          # 新增：immortalwrt 源（修复 dockerman 依赖）
+          src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100
+          src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99
           EOF
-          
+          # 查看最终 feeds 配置（验证是否追加成功）
+          cat $FEEDS_CONF
           # 更新 feeds
+          ./scripts/feeds clean
           ./scripts/feeds update -a
-          
-          # 删除可能冲突的包
-          rm -rf feeds/luci/applications/luci-app-mosdns
-          rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,sing*,smartdns}
-          rm -rf feeds/packages/utils/v2dat
-          rm -rf feeds/packages/lang/golang
-          
-          # 强制安装 kenzok8 的 Go 1.26
-          git clone https://github.com/kenzok8/golang -b 1.26 feeds/packages/lang/golang
-          
-          # 安装所有 feeds
-          ./scripts/feeds install -a
+          # 卸载冲突包，安装 immortalwrt 兼容版本
+          ./scripts/feeds uninstall luci-app-dockerman docker docker-compose golang luci-lib-docker
+          ./scripts/feeds install -p immortalwrt_luci luci-app-dockerman luci-lib-docker
+          ./scripts/feeds install -p immortalwrt_pkgs docker docker-compose golang
 
-      # ========== 第一阶段：基础 + DDNS + UDPXY + SoftEtherVPN + StrongSwan ==========
-      - name: Stage1 - Base + DDNS + SoftEtherVPN + StrongSwan
+      - name: Configure firmware (配置内容严格对齐)
         run: |
-          cd openwrt
-          
-          # 基础配置
-          cat > .config << 'EOF'
+          cd $OPENWRT_PATH
+          # 写入最小化配置（所有行无缩进，严格对齐）
+          cat > $CONFIG_FILE << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=700
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_TARGZ=y
-          CONFIG_TARGET_IMAGES_GZIP=y
-          CONFIG_KERNEL_IP_FORWARD=y
-          CONFIG_KERNEL_NETFILTER=y
-          CONFIG_KERNEL_NETFILTER_XT_MATCH_POLICY=y
-          CONFIG_KERNEL_PPP=y
-          CONFIG_KERNEL_PPP_ASYNC=y
-          CONFIG_KERNEL_PPP_SYNC_TTY=y
-          CONFIG_KERNEL_PPP_L2TP=y
-          CONFIG_KERNEL_TUN=y
-          CONFIG_KERNEL_BRIDGE_NETFILTER=y
-          
-          # DDNS/UDPXY
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_libreadline=y
-          CONFIG_PACKAGE_libncurses=y
-          CONFIG_PACKAGE_zlib=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_BOARD="x86"
+          CONFIG_TARGET_SUBTARGET="64"
+          CONFIG_TARGET_PROFILE="Generic"
+          CONFIG_TARGET_ARCH_PACKAGES="x86_64"
+          # 基础系统
+          CONFIG_BUSYBOX_CUSTOM=y
+          CONFIG_CLEAN_IPKG=y
+          # Luci 基础
+          CONFIG_LUCI=y
+          CONFIG_LUCI_LANG_zh_Hans=y
+          # dockerman 及依赖
           CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          # 关闭不必要的功能（减小固件体积）
+          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=n
+          CONFIG_PACKAGE_ip6tables=n
+          CONFIG_PACKAGE_odhcp6c=n
+          CONFIG_PACKAGE_odhcpd-ipv6only=n
           EOF
-          
+          # 加载配置
           make defconfig
+
+      - name: Download packages
+        run: |
+          cd $OPENWRT_PATH
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: make OpenWRT   
+        run: |
+          cd $OPENWRT_PATH
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
 
-      - name: Stage1 - Package Firmware
-        if: always()
-        run: |
-          cd openwrt/bin/targets/x86/64
-          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
-          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
-
-      - name: Stage1 - Upload Firmware
-        if: always()
+      - name: Upload firmware directory
+        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-stage1-firmware
-          path: stage1-firmware.tar.gz
-          retention-days: 30
-
-      # ========== 第二阶段：Nikki + HomeProxy + Sing-Box ==========
-      - name: Stage2 - Add kenzok8 Small Feeds (包含Nikki)
-        run: |
-          cd openwrt
-          
-          # 只添加 kenzok8 的 small 源（已包含 Nikki + homeproxy + sing-box）
-          echo "src-git kenzo https://github.com/kenzok8/openwrt-packages" >> feeds.conf.default
-          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
-          
-          # 更新 feeds
-          ./scripts/feeds update -a
-          
-          # 安装 kenzok8 源的 Nikki 相关包
-          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-          
-          # 安装 HomeProxy/Sing-Box
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-
-      - name: Stage2 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
-          # Nikki (kenzok8 源)
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          
-          # HomeProxy & Sing-Box
-          CONFIG_PACKAGE_homeproxy=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
-          EOF
-          make defconfig
-
-      - name: Stage2 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage2 - Compile
-        run: |
-          cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
-
-      - name: Stage2 - Package Firmware
-        if: always()
-        run: |
-          cd openwrt/bin/targets/x86/64
-          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
-          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
-
-      - name: Stage2 - Upload Firmware
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: fanchmwrt-stage2-firmware
-          path: stage2-firmware.tar.gz
-          retention-days: 30
-
-      - name: Completion
-        run: |
-          echo "=========================================="
-          echo "✅ 编译完成！"
-          echo "📦 Stage1 固件已上传（基础 + DDNS + SoftEtherVPN + StrongSwan）"
-          echo "📦 Stage2 固件已上传（Nikki + HomeProxy + Sing-Box）"
-          echo "=========================================="
+          name: OpenWrt_firmware_x86_64_dockerman
+          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/
