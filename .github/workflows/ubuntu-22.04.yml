@@ -19,7 +19,6 @@ env:
   UPLOAD_FIRMWARE: true
   FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
 
-
 jobs:
   Build:
     runs-on: ubuntu-22.04
@@ -60,35 +59,36 @@ jobs:
 
       - name: Clone source code
         run: |
-          git clone --depth 1 $REPO_URL2 openwrt
-          cd openwrt
-          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH ${{ github.workspace }}/openwrt
+          echo "OPENWRT_PATH=${{ github.workspace }}/openwrt" >> $GITHUB_ENV
+          ls -l ${{ github.workspace }}/openwrt
 
       - name: Add immortalwrt feeds (仅追加两条源，保留原有配置)
         run: |
           cd $OPENWRT_PATH
-          # 备份原有 feeds 配置
           cp $FEEDS_CONF $FEEDS_CONF.bak
-          # 仅在文件末尾追加两条 immortalwrt 源（无缩进）
+          # 追加immortalwrt源（优先级最高）
           cat >> $FEEDS_CONF << EOF
-          # 新增：immortalwrt 源（修复 dockerman 依赖）
+          # 新增：immortalwrt 源（修复docker相关依赖）
           src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100
           src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99
           EOF
-          # 查看最终 feeds 配置（验证是否追加成功）
           cat $FEEDS_CONF
-          # 更新 feeds
+          # 更新feeds
           ./scripts/feeds clean
           ./scripts/feeds update -a
-          # 卸载冲突包，安装 immortalwrt 兼容版本
-          ./scripts/feeds uninstall luci-app-dockerman docker docker-compose golang luci-lib-docker
-          ./scripts/feeds install -p immortalwrt_luci luci-app-dockerman luci-lib-docker
-          ./scripts/feeds install -p immortalwrt_pkgs docker docker-compose golang
+          
+          # 核心修改：卸载原有冲突包，从immortalwrt源安装指定包
+          ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang
+          # 从immortalwrt_luci源安装luci相关包
+          ./scripts/feeds install -p immortalwrt_luci luci-base luci-app-dockerman luci-lib-docker
+          # 从immortalwrt_pkgs源安装系统级包
+          ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang
 
       - name: Configure firmware (配置内容严格对齐)
         run: |
           cd $OPENWRT_PATH
-          # 写入最小化配置（所有行无缩进，严格对齐）
+          # 写入配置（包含所有指定包）
           cat > $CONFIG_FILE << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -100,21 +100,24 @@ jobs:
           # 基础系统
           CONFIG_BUSYBOX_CUSTOM=y
           CONFIG_CLEAN_IPKG=y
-          # Luci 基础
+          # Luci基础及指定包
           CONFIG_LUCI=y
           CONFIG_LUCI_LANG_zh_Hans=y
-          # dockerman 及依赖
-          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-base=y
+          # Docker相关指定包
           CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_dockerd=y
           CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_ucode-mod-socket=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-lib-docker=y
-          # 关闭不必要的功能（减小固件体积）
+          # 关闭不必要功能
           CONFIG_PACKAGE_dnsmasq_full_dhcpv6=n
           CONFIG_PACKAGE_ip6tables=n
           CONFIG_PACKAGE_odhcp6c=n
           CONFIG_PACKAGE_odhcpd-ipv6only=n
           EOF
-          # 加载配置
           make defconfig
 
       - name: Download packages
@@ -138,4 +141,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: OpenWrt_firmware_x86_64_dockerman
-          path: ${{ env.OPENWRT_PATH }}/bin/targets/x86/64/
+          path: ${{ env.FIRMWARE_OUTPUT_PATH }}/
