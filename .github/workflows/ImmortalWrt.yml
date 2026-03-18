@@ -8,6 +8,7 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
   REPO_BRANCH2: openwrt-23.05
   FIRMWARE_NAME: immortalwrt-x86-64
@@ -54,7 +55,8 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH2 openwrt
+          git clone --depth 1 $REPO_URL2 openwrt
+          # git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
@@ -113,7 +115,7 @@ jobs:
           # 核心开关（strongswan-full 必需）
           # ==============================================
           CONFIG_DEVEL=y
-          CONFIG_BROKEN=n
+          CONFIG_BROKEN=y
           # ==============================================
           # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
           # ==============================================
