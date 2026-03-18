@@ -11,6 +11,10 @@ env:
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
   REPO_BRANCH2: openwrt-23.05
+  # 添加 strongswan 相关仓库信息
+  STRONGSWAN_REPO: https://github.com/immortalwrt/packages
+  STRONGSWAN_BRANCH: openwrt-24.10
+  STRONGSWAN_PATH: net/strongswan
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -53,87 +57,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone Source Codes
+      - name: Clone ImmortalWrt Source
         run: |
-          set -e  # 错误立即退出，便于定位问题
-          
-          # ===================== 清理旧目录（避免冲突） =====================
-          echo "🧹 清理旧目录..."
-          rm -rf openwrt immortalwrt-packages immortalwrt-official || true
-          
-          # ===================== 1. 克隆 fanchmwrt 主源码（指定分支） =====================
-          echo "🔄 克隆 fanchmwrt 源码（$REPO_BRANCH2 分支）..."
-          for i in {1..3}; do
-              git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt && break
-              echo "⚠️ 第 $i 次克隆失败，重试..."
-              rm -rf openwrt || true
-              sleep 5
-          done
-          
-          # 验证克隆是否成功（关键：检查scripts/feeds是否存在）
-          if [ ! -f "openwrt/scripts/feeds" ]; then
-              echo "❌ 错误：fanchmwrt 克隆失败，未找到 scripts/feeds 文件"
-              exit 1
-          fi
-          
-          # ===================== 2. 克隆 immortalwrt/packages 仓库（获取正确的 strongswan） =====================
-          echo "🔄 克隆 immortalwrt/packages 仓库（openwrt-24.10 分支）..."
-          IMMORTALWRT_PACKAGES_URL="https://github.com/immortalwrt/packages"
-          IMMORTALWRT_PACKAGES_BRANCH="openwrt-24.10"
-          for i in {1..3}; do
-              git clone --depth 1 $IMMORTALWRT_PACKAGES_URL -b $IMMORTALWRT_PACKAGES_BRANCH immortalwrt-packages && break
-              echo "⚠️ 第 $i 次克隆失败，重试..."
-              rm -rf immortalwrt-packages || true
-              sleep 5
-          done
-          
-          # ===================== 3. 复制 strongswan（正确路径：net/strongswan） =====================
-          echo "🔄 复制 strongswan 核心组件..."
-          SRC_STRONGSWAN="immortalwrt-packages/net/strongswan"
-          DST_STRONGSWAN="openwrt/package/feeds/packages/strongswan"
-          
-          if [ -d "$SRC_STRONGSWAN" ]; then
-              mkdir -p "$DST_STRONGSWAN"
-              cp -rf "$SRC_STRONGSWAN"/* "$DST_STRONGSWAN/"
-              echo "✅ strongswan 核心组件复制完成"
-          else
-              echo "❌ 错误：未找到 $SRC_STRONGSWAN 目录，请检查分支是否正确"
-              exit 1
-          fi
-          
-          # ===================== 4. 克隆 immortalwrt 主仓库（获取 luci 相关组件） =====================
-          echo "🔄 克隆 immortalwrt 主仓库（获取 luci 组件）..."
-          git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt-official || true
-          
-          # 复制 luci-app-strongswan（如果存在）
-          SRC_LUCI_STRONGSWAN="immortalwrt-official/package/feeds/luci/luci-app-strongswan"
-          DST_LUCI_STRONGSWAN="openwrt/package/feeds/luci/luci-app-strongswan"
-          if [ -d "$SRC_LUCI_STRONGSWAN" ]; then
-              mkdir -p "$DST_LUCI_STRONGSWAN"
-              cp -rf "$SRC_LUCI_STRONGSWAN"/* "$DST_LUCI_STRONGSWAN/"
-              echo "✅ luci-app-strongswan 复制完成"
-          else
-              echo "⚠️ 未找到 luci-app-strongswan，跳过"
-          fi
-          
-          # 复制 ipsec-vpnserver-manyusers（如果存在）
-          SRC_IPSEC_VPN="immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers"
-          DST_IPSEC_VPN="openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers"
-          if [ -d "$SRC_IPSEC_VPN" ]; then
-              mkdir -p "$DST_IPSEC_VPN"
-              cp -rf "$SRC_IPSEC_VPN"/* "$DST_IPSEC_VPN/"
-              echo "✅ luci-app-ipsec-vpnserver-manyusers 复制完成"
-          else
-              echo "⚠️ 未找到 luci-app-ipsec-vpnserver-manyusers，跳过"
-          fi
-          
-          # ===================== 5. 清理临时文件 + 设置环境变量 =====================
-          echo "🧹 清理临时仓库..."
-          rm -rf immortalwrt-packages immortalwrt-official || true
-          
+          git clone --depth 1 $REPO_URL2 openwrt
+          # git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          echo "✅ 所有组件复制完成！"
+          
+      # ========== 新增：拉取 strongswan 包 ==========
+      - name: Pull StrongSwan from ImmortalWrt Packages
+        run: |
+          cd $OPENWRT_PATH
+          # 创建 packages/net 目录（如果不存在）
+          mkdir -p packages/net
+          # 克隆 strongswan 目录
+          git clone --depth 1 -b $STRONGSWAN_BRANCH $STRONGSWAN_REPO temp-packages
+          # 将 strongswan 移动到正确位置
+          mv temp-packages/$STRONGSWAN_PATH packages/net/
+          # 清理临时文件
+          rm -rf temp-packages
+          # 验证是否成功拉取
+          ls -la packages/net/strongswan || echo "⚠️ StrongSwan 拉取失败，请检查仓库路径"
           
       - name: Cache DL
         uses: actions/cache@v4
@@ -157,7 +101,6 @@ jobs:
           
       - name: Fix Toolchain Compilation
         run: |
-          cd openwrt  # 必须进入openwrt目录
           export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
@@ -165,7 +108,7 @@ jobs:
           
       - name: Update Feeds (提前同步，关键修复)
         run: |
-          cd openwrt  # 强制进入openwrt目录（核心修复）
+          cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
@@ -284,6 +227,7 @@ jobs:
           
       - name: Upload OpenWRT Config
         if: always()
+        id: upload-config
         run: |
           tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
           echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
@@ -307,6 +251,7 @@ jobs:
           
       - name: Stage1 - Package Firmware
         if: always()
+        id: stage1-package
         run: |
           cd openwrt/bin/targets/x86/64
           mkdir -p $GITHUB_WORKSPACE/stage1-firmware
@@ -360,6 +305,7 @@ jobs:
           
       - name: Stage2 - Package Firmware
         if: always()
+        id: stage2-package
         run: |
           cd openwrt/bin/targets/x86/64
           mkdir -p $GITHUB_WORKSPACE/stage2-firmware
@@ -413,6 +359,7 @@ jobs:
           
       - name: Stage3 - Package Firmware
         if: always()
+        id: stage3-package
         run: |
           cd openwrt/bin/targets/x86/64
           mkdir -p $GITHUB_WORKSPACE/stage3-firmware
