@@ -10,7 +10,6 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: openwrt-23.05
   STRONGSWAN_REPO: https://github.com/immortalwrt/packages
   STRONGSWAN_BRANCH: openwrt-24.10
   STRONGSWAN_PATH: net/strongswan
@@ -33,8 +32,8 @@ jobs:
         run: |
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-          
+          echo "硬盘使用情况:" && df -hT
+
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -48,11 +47,11 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          
+
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 4096  # 增大交换空间，避免编译内存不足
+          swap-size-mb: 4096
           root-reserve-mb: 2048
           remove-dotnet: true
           remove-android: true
@@ -65,7 +64,7 @@ jobs:
           git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt || git clone --depth 1 -b $REPO_BRANCH $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          
+
       - name: Replace StrongSwan with Full Version
         run: |
           cd $OPENWRT_PATH
@@ -86,7 +85,7 @@ jobs:
           chmod +x package/custom/strongswan/files/ipsec.init
           # 验证文件
           ls -la package/custom/strongswan/Makefile && echo "✅ StrongSwan Makefile 修复完成"
-          
+
       - name: Add Feeds (immortalwrt + nikki + fix docker/yq)
         run: |
           cd $OPENWRT_PATH
@@ -112,7 +111,7 @@ jobs:
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
           ./scripts/feeds install -a
-          
+
       - name: Cache DL
         uses: actions/cache@v4
         with:
@@ -128,23 +127,27 @@ jobs:
           key: ccache-${{ github.run_id }}
           restore-keys: |
             ccache-
-            
+
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
           ccache -M $CCACHE_MAXSIZE -o compression=true -o cache_dir=$CCACHE_DIR
           ccache -s
-          
+
       - name: Fix Compilation Flags (StrongSwan 兼容)
         run: |
           cd $OPENWRT_PATH
-          # 修复 StrongSwan 编译的 Fortify 冲突
-          echo "CFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> .bashrc
-          echo "CXXFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> .bashrc
-          echo "LDFLAGS=-L/usr/lib/x86_64-linux-gnu -lssp" >> .bashrc
-          source .bashrc
+          # 修复编译参数：通过 GITHUB_ENV 传递，避免 .bashrc 错误
+          echo "CFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> $GITHUB_ENV
+          echo "CXXFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> $GITHUB_ENV
+          echo "LDFLAGS=-L/usr/lib/x86_64-linux-gnu -lssp" >> $GITHUB_ENV
+          # 验证参数
+          echo "CFLAGS=${{ env.CFLAGS }}"
+          echo "CXXFLAGS=${{ env.CXXFLAGS }}"
+          echo "LDFLAGS=${{ env.LDFLAGS }}"
           echo "✅ 编译参数修复完成"
-          
+        shell: /usr/bin/bash -e {0}
+
       - name: Stage1 - Base + Strongswan + Docker + DDNS + UDPXY
         run: |
           cd $OPENWRT_PATH
@@ -219,150 +222,3 @@ jobs:
           CONFIG_PACKAGE_openswan=n
           EOF
           make defconfig
-          
-      - name: Upload OpenWRT Config
-        if: always()
-        id: upload-config
-        run: |
-          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
-          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Upload Config Artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwrt-config
-          path: openwrt-config.tar.gz
-          retention-days: 7
-          
-      - name: Compile Stage1 Firmware
-        run: |
-          cd $OPENWRT_PATH
-          # 预下载依赖
-          make download -j$(nproc)
-          # 启用 CCACHE 加速编译
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          ccache -s
-          # 先尝试多核编译，失败则单核
-          make -j$(($(nproc)-1)) V=s || make -j1 V=s
-          ccache -s
-          
-      - name: Package Stage1 Firmware
-        if: always()
-        id: stage1-package
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
-          # 复制固件文件
-          cp -v $FIRMWARE_OUTPUT_PATH/*.img.gz $FIRMWARE_OUTPUT_PATH/*.manifest $FIRMWARE_OUTPUT_PATH/config.buildinfo $FIRMWARE_OUTPUT_PATH/sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
-          # 复制配置文件
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
-          # 打包
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
-          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Upload Stage1 Firmware
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: immortalwrt-stage1-firmware
-          path: stage1-firmware.tar.gz
-          retention-days: 30
-
-      - name: Stage2 - Add Nikki
-        run: |
-          cd $OPENWRT_PATH
-          # 追加 Nikki 配置，保留 StrongSwan
-          cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_dockerd=y
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          # 强制禁用冲突组件
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          CONFIG_PACKAGE_wolfssl=n
-          EOF
-          make defconfig
-          
-      - name: Compile Stage2 Firmware
-        run: |
-          cd $OPENWRT_PATH
-          make download -j$(nproc)
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(($(nproc)-1)) V=s || make -j1 V=s
-          
-      - name: Package Stage2 Firmware
-        if: always()
-        id: stage2-package
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
-          cp -v $FIRMWARE_OUTPUT_PATH/*.img.gz $FIRMWARE_OUTPUT_PATH/*.manifest $FIRMWARE_OUTPUT_PATH/config.buildinfo $FIRMWARE_OUTPUT_PATH/sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
-          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Upload Stage2 Firmware
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: immortalwrt-stage2-firmware
-          path: stage2-firmware.tar.gz
-          retention-days: 30
-
-      - name: Stage3 - Add HomeProxy/Sing-Box
-        run: |
-          cd $OPENWRT_PATH
-          # 追加 HomeProxy 配置
-          cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_homeproxy=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
-          # 禁用冲突
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          CONFIG_PACKAGE_wolfssl=n
-          EOF
-          make defconfig
-          
-      - name: Compile Stage3 Firmware
-        run: |
-          cd $OPENWRT_PATH
-          make download -j$(nproc)
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(($(nproc)-1)) V=s || make -j1 V=s
-          
-      - name: Package Stage3 Firmware
-        if: always()
-        id: stage3-package
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/stage3-firmware
-          cp -v $FIRMWARE_OUTPUT_PATH/*.img.gz $FIRMWARE_OUTPUT_PATH/*.manifest $FIRMWARE_OUTPUT_PATH/config.buildinfo $FIRMWARE_OUTPUT_PATH/sha256sums $GITHUB_WORKSPACE/stage3-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage3-firmware/config-stage3.txt
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
-          echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Upload Stage3 Firmware
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: immortalwrt-stage3-firmware
-          path: stage3-firmware.tar.gz
-          retention-days: 30
-
-      - name: Completion
-        run: |
-          echo "=========================================="
-          echo "✅ 编译完成！"
-          echo "📦 Stage1：基础 + 完整版 Strongswan + Docker/Dockerman + DDNS + UDPXY"
-          echo "📦 Stage2：Stage1 + Nikki"
-          echo "📦 Stage3：Stage2 + HomeProxy + Sing-Box"
-          echo "🔑 StrongSwan 特性：完整 ipsec 命令 + init.d 服务 + L2TP/IPsec 兼容安卓/iOS"
-          echo "=========================================="
