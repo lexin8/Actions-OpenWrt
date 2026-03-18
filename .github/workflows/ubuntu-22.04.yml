@@ -105,8 +105,7 @@ jobs:
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ github.run_id }}
-          restore-keys:
-            - ccache-
+          restore-keys: ccache-
             
       - name: Setup CCache
         run: |
