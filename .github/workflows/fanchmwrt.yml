@@ -56,7 +56,7 @@ jobs:
       - name: Clone Source Codes
         run: |
           # 克隆fanchmwrt作为主源码
-          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
+          git clone --depth 1 $REPO_URL2 openwrt
           # 克隆immortalwrt官方源码用于提取strongswan组件
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt-official
           
