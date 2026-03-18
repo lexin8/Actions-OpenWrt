@@ -7,9 +7,8 @@ on:
 
 env:
   TZ: Asia/Shanghai
-  # 核心源码配置
+  # 核心源码配置（使用 ImmortalWrt 官方源，版本统一）
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
   # 编译配置
   FIRMWARE_NAME: immortalwrt-x86-64
@@ -41,7 +40,7 @@ jobs:
           # 清理冗余包
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-          # 更新源并安装全量编译依赖（兼容所有组件）
+          # 更新源并安装全量编译依赖
           sudo -E apt-get -y update
           sudo -E apt-get -y install \
             build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git \
@@ -64,63 +63,70 @@ jobs:
 
       - name: Clone Source Code
         run: |
-          git clone --depth 1 $REPO_URL2 ${{ github.workspace }}/openwrt
+          # 改用官方 ImmortalWrt 源，避免第三方源的包缺失
+          git clone --depth 1 -b $REPO_BRANCH $REPO_URL ${{ github.workspace }}/openwrt
           echo "OPENWRT_PATH=${{ github.workspace }}/openwrt" >> $GITHUB_ENV
           ls -la ${{ github.workspace }}/openwrt
           
-      # 核心：标准化 Feeds 整合（统一逻辑）
-      - name: Integrate Custom Feeds (ImmortalWrt + Third-party)
+      # 核心修复：标准化 Feeds 配置（仅保留必要源，避免无效包）
+      - name: Integrate Custom Feeds (Clean Version)
         run: |
           cd $OPENWRT_PATH
-          # 备份原始 feeds 配置
+          # 备份并清空原有 feeds
           cp $FEEDS_CONF $FEEDS_CONF.bak
-          # 清空原有 feeds 避免冲突，重新写入标准化源
           > $FEEDS_CONF
+          # 仅保留稳定的核心源 + 必要第三方源（移除冗余源）
           cat >> $FEEDS_CONF << 'EOF'
-          # ImmortalWrt 核心源（优先级最高，解决 Docker/YQ/Strongswan 依赖）
           src-git core https://github.com/immortalwrt/packages.git;openwrt-24.10
           src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10
-          # 第三方源
-          src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git
-          src-git small https://github.com/kenzok8/small.git
+          src-git routing https://git.openwrt.org/feed/routing.git;openwrt-24.10
+          src-git small https://github.com/kenzok8/small.git;master
           EOF
           
-          # 更新 Feeds 索引（强制刷新）
+          # 彻底清理 feeds 缓存
           ./scripts/feeds clean -a
+          # 更新 feeds（强制刷新，避免缓存）
           ./scripts/feeds update -a -f
           
-          # 关键：卸载冲突包（统一处理 YQ/Docker/Strongswan 冲突）
+          # 卸载冲突/无效包（重点：移除已废弃的包）
+          invalid_pkgs=(
+            "bmx7" "bmx7-dnsupdate" "bmx7-json" "babeld" "olsrd" "olsrd-mod-nameservice" 
+            "olsrd-mod-txtinfo" "kmod-batman-adv" "cpufreq" "prometheus-node-exporter-lua"
+            "luci-app-bmx7" "luci-app-babeld" "luci-app-olsr" "luci-app-olsr-services" "luci-app-olsr-viz"
+            "luci-proto-batman-adv"
+          )
           conflict_pkgs=(
             "luci-base" "docker" "ttyd" "dockerd" "docker-compose" "ucode-mod-socket"
             "luci-app-dockerman" "luci-lib-docker" "golang" "yq" "strongswan"
           )
+          
+          for pkg in "${invalid_pkgs[@]}"; do
+            ./scripts/feeds uninstall $pkg || true
+          done
           for pkg in "${conflict_pkgs[@]}"; do
             ./scripts/feeds uninstall $pkg || true
           done
           
-          # 修复 YQ 依赖（使用 ImmortalWrt 适配版）
+          # 修复 YQ 依赖
           rm -rf feeds/core/utils/yq
           mkdir -p feeds/core/utils/yq
           wget -q -O feeds/core/utils/yq/Makefile \
             https://raw.githubusercontent.com/immortalwrt/packages/openwrt-24.10/utils/yq/Makefile
           
-          # 标准化安装所有依赖包（按源分类）
-          # 1. ImmortalWrt Luci 源：Docker 面板 + 基础 Luci
+          # 仅安装需要的包（取消 feeds install -a，避免安装无效包）
+          # 1. 核心功能包
           ./scripts/feeds install -p luci \
             luci-base luci-app-dockerman luci-lib-docker luci-theme-argon luci-app-argon-config \
-            luci-app-firewall luci-app-ddns luci-app-udpxy
-          # 2. ImmortalWrt Core 源：Docker 运行时 + YQ + Strongswan
+            luci-app-firewall luci-app-ddns luci-app-udpxy luci-compat
+          # 2. 系统依赖包
           ./scripts/feeds install -p core \
             docker ttyd dockerd docker-compose ucode-mod-socket golang yq \
             strongswan strongswan-full strongswan-mod-xauth strongswan-mod-eap-mschapv2 \
-            xl2tpd ppp ppp-mod-l2tp iptables-mod-ipsec ipsec-tools ntpclient
-          # 3. 第三方源：Nikki + HomeProxy
-          ./scripts/feeds install -p nikki nikki luci-app-nikki luci-i18n-nikki-zh-cn
+            xl2tpd ppp ppp-mod-l2tp iptables-mod-ipsec ipsec-tools ntpclient ddns-scripts ddns-scripts-cloudflare wget-ssl
+          # 3. 第三方功能包
           ./scripts/feeds install -p small homeproxy luci-app-homeproxy sing-box
-          # 4. 全量安装兜底（确保依赖完整）
-          ./scripts/feeds install -a
           
-      # 缓存优化（加速编译）
+      # 缓存优化
       - name: Cache Downloaded Packages
         uses: actions/cache@v4
         with:
@@ -143,7 +149,7 @@ jobs:
           ccache -M $CCACHE_MAXSIZE -o compression=true -o cache_dir=$CCACHE_DIR
           ccache -s
           
-      # 编译配置（标准化 + 全功能）
+      # 修复配置文件：禁用所有无效包，避免语法错误
       - name: Configure Firmware Features
         run: |
           cd $OPENWRT_PATH
@@ -166,6 +172,24 @@ jobs:
           CONFIG_BUSYBOX_CUSTOM=y
           CONFIG_CLEAN_IPKG=y
           CONFIG_LUCI_LANG_zh_Hans=y
+          
+          # ===================== 禁用所有无效/废弃包（核心修复）=====================
+          CONFIG_PACKAGE_bmx7=n
+          CONFIG_PACKAGE_bmx7-dnsupdate=n
+          CONFIG_PACKAGE_bmx7-json=n
+          CONFIG_PACKAGE_babeld=n
+          CONFIG_PACKAGE_olsrd=n
+          CONFIG_PACKAGE_olsrd-mod-nameservice=n
+          CONFIG_PACKAGE_olsrd-mod-txtinfo=n
+          CONFIG_PACKAGE_kmod-batman-adv=n
+          CONFIG_PACKAGE_cpufreq=n
+          CONFIG_PACKAGE_prometheus-node-exporter-lua=n
+          CONFIG_PACKAGE_luci-app-bmx7=n
+          CONFIG_PACKAGE_luci-app-babeld=n
+          CONFIG_PACKAGE_luci-app-olsr=n
+          CONFIG_PACKAGE_luci-app-olsr-services=n
+          CONFIG_PACKAGE_luci-app-olsr-viz=n
+          CONFIG_PACKAGE_luci-proto-batman-adv=n
           
           # ===================== Docker 核心 =====================
           CONFIG_PACKAGE_docker=y
@@ -199,10 +223,6 @@ jobs:
           CONFIG_PACKAGE_ntpclient=y
           
           # ===================== 第三方功能 =====================
-          # Nikki
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           # HomeProxy
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
@@ -231,7 +251,9 @@ jobs:
           CONFIG_PACKAGE_odhcp6c=n
           CONFIG_PACKAGE_odhcpd-ipv6only=n
           EOF
-          # 生成配置（自动补全依赖）
+          
+          # 关键：先清理配置缓存，再生成 defconfig
+          rm -rf tmp/
           make defconfig
           
       # 下载依赖包
@@ -248,7 +270,7 @@ jobs:
         run: |
           cd $OPENWRT_PATH
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          # 先尝试多线程编译，失败则单线程
+          # 先尝试多线程编译，失败则单线程（带详细日志便于排查）
           make -j$(nproc) V=s || make -j1 V=s
           # 输出编译统计
           ccache -s
@@ -259,7 +281,7 @@ jobs:
         if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt_x86_64_Full (Docker+Strongswan+Nikki+HomeProxy)
+          name: OpenWrt_x86_64_Full (Docker+Strongswan+HomeProxy)
           path: ${{ env.FIRMWARE_OUTPUT_PATH }}/
           retention-days: 90
           
@@ -270,7 +292,6 @@ jobs:
           echo "📦 包含功能："
           echo "  - Docker/Dockerman + 适配版 YQ"
           echo "  - Strongswan (L2TP/IPsec/IKEv2)"
-          echo "  - Luci-app-nikki (第三方源)"
           echo "  - HomeProxy + Sing-Box"
           echo "  - DDNS/UDPXY/Argon 主题"
           echo "💾 固件存储路径：${{ env.FIRMWARE_OUTPUT_PATH }}"
