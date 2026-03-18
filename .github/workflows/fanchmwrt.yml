@@ -33,7 +33,7 @@ jobs:
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo "硬盘使用情况:" && df -hT
-
+          
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -47,7 +47,7 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-
+          
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
@@ -61,10 +61,10 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt || git clone --depth 1 -b $REPO_BRANCH $REPO_URL2 openwrt
+          git clone --depth 1 -b $REPO_BRANCH $REPO_URL openwrt || git clone --depth 1 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-
+          
       - name: Replace StrongSwan with Full Version
         run: |
           cd $OPENWRT_PATH
@@ -85,41 +85,109 @@ jobs:
           chmod +x package/custom/strongswan/files/ipsec.init
           # 验证文件
           ls -la package/custom/strongswan/Makefile && echo "✅ StrongSwan Makefile 修复完成"
-
-      - name: Add Feeds (immortalwrt + nikki + fix docker/yq)
+          
+      - name: Configure Feeds
         run: |
           cd $OPENWRT_PATH
-          cp $FEEDS_CONF $FEEDS_CONF.bak
-          # 清理原有 feeds 避免冲突
-          echo "src-git immortalwrt_core https://github.com/immortalwrt/immortalwrt.git;$REPO_BRANCH package" > $FEEDS_CONF
-          echo "src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100" >> $FEEDS_CONF
-          echo "src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99" >> $FEEDS_CONF
-          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> $FEEDS_CONF
-          echo "src-git small https://github.com/kenzok8/small" >> $FEEDS_CONF
-          # 更新 feeds 并修复依赖
+          # 创建正确的 feeds.conf
+          cat > feeds.conf << 'EOF'
+          src-git packages https://github.com/immortalwrt/packages.git;openwrt-24.10
+          src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10
+          src-git routing https://github.com/openwrt/routing.git;openwrt-24.10
+          src-git telephony https://github.com/openwrt/telephony.git;openwrt-24.10
+          src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git;main
+          src-git small https://github.com/kenzok8/small;master
+          EOF
+          echo "✅ feeds.conf 创建完成"
+          
+      - name: Update Feeds
+        run: |
+          cd $OPENWRT_PATH
           ./scripts/feeds clean
           ./scripts/feeds update -a
-          # 卸载冲突组件
-          ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq strongswan
-          # 修复 yq 依赖
-          rm -rf feeds/packages/utils/yq
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/immortalwrt/packages/openwrt-24.10/utils/yq/Makefile
-          # 重新安装核心组件
-          ./scripts/feeds install -p immortalwrt_luci luci-base luci-app-dockerman luci-lib-docker
-          ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
-          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-          ./scripts/feeds install -a
-
+          echo "✅ feeds 更新完成"
+          
+      - name: Install Feeds (Priority Order)
+        run: |
+          cd $OPENWRT_PATH
+          
+          # 1. 先安装基础 packages (包含 golang)
+          echo "安装基础 packages..."
+          ./scripts/feeds install -a -p packages
+          
+          # 2. 验证 golang 是否安装成功
+          if [ -f "feeds/packages/lang/golang/golang-package.mk" ]; then
+            echo "✅ golang 安装成功"
+          else
+            echo "❌ golang 安装失败，尝试手动安装"
+            ./scripts/feeds install -p packages golang
+          fi
+          
+          # 3. 安装 luci
+          echo "安装 luci..."
+          ./scripts/feeds install -a -p luci
+          
+          # 4. 安装 routing
+          echo "安装 routing..."
+          ./scripts/feeds install -a -p routing
+          
+          # 5. 安装 telephony
+          echo "安装 telephony..."
+          ./scripts/feeds install -a -p telephony
+          
+          # 6. 安装 nikki（现在应该可以了）
+          echo "安装 nikki..."
+          ./scripts/feeds install -p nikki nikki
+          ./scripts/feeds install -p nikki luci-app-nikki
+          ./scripts/feeds install -p nikki luci-i18n-nikki-zh-cn
+          
+          # 7. 安装 small 包
+          echo "安装 small 包..."
+          ./scripts/feeds install -p small homeproxy
+          ./scripts/feeds install -p small luci-app-homeproxy
+          ./scripts/feeds install -p small sing-box
+          
+          # 8. 安装 Docker 相关
+          echo "安装 Docker 相关..."
+          ./scripts/feeds install docker
+          ./scripts/feeds install dockerd
+          ./scripts/feeds install docker-compose
+          ./scripts/feeds install luci-app-dockerman
+          ./scripts/feeds install luci-lib-docker
+          ./scripts/feeds install ttyd
+          ./scripts/feeds install yq
+          
+          # 9. 安装其他常用包
+          echo "安装其他包..."
+          ./scripts/feeds install ddns-scripts
+          ./scripts/feeds install ddns-scripts-cloudflare
+          ./scripts/feeds install luci-app-ddns
+          ./scripts/feeds install luci-app-udpxy
+          ./scripts/feeds install wget-ssl
+          
+          echo "✅ 所有 feeds 安装完成"
+          
+      - name: Debug Feed Installation
+        if: always()
+        run: |
+          cd $OPENWRT_PATH
+          echo "=== 检查 feeds 目录结构 ==="
+          ls -la feeds/
+          echo "=== 检查 packages/lang 目录 ==="
+          ls -la feeds/packages/lang/ || echo "packages/lang 不存在"
+          echo "=== 检查 golang-package.mk 文件 ==="
+          find feeds -name "golang-package.mk" 2>/dev/null || echo "golang-package.mk 未找到"
+          echo "=== 检查 nikki Makefile ==="
+          cat feeds/nikki/nikki/Makefile 2>/dev/null | head -20 || echo "nikki Makefile 不存在"
+          
       - name: Cache DL
         uses: actions/cache@v4
         with:
           path: openwrt/dl
-          key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
+          key: dl-${{ hashFiles('openwrt/feeds.conf') }}
           restore-keys: |
             dl-
-
+            
       - name: Cache CCache
         uses: actions/cache@v4
         with:
@@ -127,30 +195,28 @@ jobs:
           key: ccache-${{ github.run_id }}
           restore-keys: |
             ccache-
-
+            
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
           ccache -M $CCACHE_MAXSIZE -o compression=true -o cache_dir=$CCACHE_DIR
           ccache -s
-
+          
       - name: Fix Compilation Flags (StrongSwan 兼容)
         run: |
           cd $OPENWRT_PATH
-          # 修复编译参数：通过 GITHUB_ENV 传递，避免 .bashrc 错误
           echo "CFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> $GITHUB_ENV
           echo "CXXFLAGS=-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -march=native" >> $GITHUB_ENV
           echo "LDFLAGS=-L/usr/lib/x86_64-linux-gnu -lssp" >> $GITHUB_ENV
-          # 验证参数
-          echo "CFLAGS=${{ env.CFLAGS }}"
-          echo "CXXFLAGS=${{ env.CXXFLAGS }}"
-          echo "LDFLAGS=${{ env.LDFLAGS }}"
           echo "✅ 编译参数修复完成"
-        shell: /usr/bin/bash -e {0}
 
       - name: Stage1 - Base + Strongswan + Docker + DDNS + UDPXY
         run: |
           cd $OPENWRT_PATH
+          # 确保我们的自定义 strongswan 被优先使用
+          mkdir -p package/feeds/packages/
+          ln -sf ../../custom/strongswan package/feeds/packages/strongswan 2>/dev/null || true
+          
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -164,7 +230,8 @@ jobs:
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
           CONFIG_DEVEL=y
           CONFIG_BROKEN=y
-          # StrongSwan 完整版（核心）
+          
+          # StrongSwan 完整版（使用我们的自定义版本）
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_strongswan-ipsec=y
@@ -172,6 +239,7 @@ jobs:
           CONFIG_PACKAGE_strongswan-mod-stroke=y
           CONFIG_PACKAGE_strongswan-mod-updown=y
           CONFIG_PACKAGE_strongswan-mod-kernel-netlink=y
+          
           # L2TP/IPsec 依赖
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
@@ -180,6 +248,7 @@ jobs:
           CONFIG_PACKAGE_ppp-mod-l2tp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pptp=y
+          
           # 网络/防火墙
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_iptables=y
@@ -193,6 +262,7 @@ jobs:
           CONFIG_KMOD_XFRM=y
           CONFIG_KMOD_IPSEC=y
           CONFIG_PACKAGE_iptables-mod-ipsec=y
+          
           # Docker 完整组件
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_ttyd=y
@@ -203,6 +273,7 @@ jobs:
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_yq=y
           CONFIG_PACKAGE_cfdisk=y
+          
           # 基础 LuCI 组件
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-compat=y
@@ -214,6 +285,7 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_wget-ssl=y
+          
           # 禁用冲突组件
           CONFIG_PACKAGE_wolfssl=n
           CONFIG_PACKAGE_libreswan=n
@@ -221,8 +293,17 @@ jobs:
           CONFIG_PACKAGE_openconnect=n
           CONFIG_PACKAGE_openswan=n
           EOF
+          
           make defconfig
-
+          
+      - name: Validate Stage1 Config
+        run: |
+          cd $OPENWRT_PATH
+          echo "=== 验证 StrongSwan 配置 ==="
+          grep -E "CONFIG_PACKAGE_strongswan.*=y" .config || echo "⚠️ StrongSwan 未启用"
+          echo "=== 检查依赖 ==="
+          make defconfig
+          
       - name: Upload OpenWRT Config
         if: always()
         id: upload-config
@@ -272,22 +353,30 @@ jobs:
           path: stage1-firmware.tar.gz
           retention-days: 30
 
+      - name: Clean for Stage2
+        run: |
+          cd $OPENWRT_PATH
+          # 清理编译中间文件，但保留 dl 目录和 staging_dir
+          make clean
+          echo "✅ Stage1 清理完成，准备 Stage2 编译"
+          
       - name: Stage2 - Add Nikki
         run: |
           cd $OPENWRT_PATH
           # 追加 Nikki 配置，保留 StrongSwan
           cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_dockerd=y
+          
+          # Nikki 配置
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          
           # 强制禁用冲突组件
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
           CONFIG_PACKAGE_wolfssl=n
           EOF
+          
           make defconfig
           
       - name: Compile Stage2 Firmware
@@ -316,22 +405,29 @@ jobs:
           path: stage2-firmware.tar.gz
           retention-days: 30
 
+      - name: Clean for Stage3
+        run: |
+          cd $OPENWRT_PATH
+          make clean
+          echo "✅ Stage2 清理完成，准备 Stage3 编译"
+          
       - name: Stage3 - Add HomeProxy/Sing-Box
         run: |
           cd $OPENWRT_PATH
           # 追加 HomeProxy 配置
           cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-app-nikki=y
+          
+          # HomeProxy 配置
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
+          
           # 禁用冲突
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
           CONFIG_PACKAGE_wolfssl=n
           EOF
+          
           make defconfig
           
       - name: Compile Stage3 Firmware
@@ -369,3 +465,4 @@ jobs:
           echo "📦 Stage3：Stage2 + HomeProxy + Sing-Box"
           echo "🔑 StrongSwan 特性：完整 ipsec 命令 + init.d 服务 + L2TP/IPsec 兼容安卓/iOS"
           echo "=========================================="
+          echo "固件已上传至 Artifacts，可在 Actions 页面下载"
