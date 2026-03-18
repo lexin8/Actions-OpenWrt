@@ -1,4 +1,4 @@
-name: docker
+name: fanchmwrt-complete
 
 on:
   workflow_dispatch:
@@ -11,12 +11,16 @@ env:
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
   REPO_BRANCH2: openwrt-23.05
+  # strongswan 相关配置
+  STRONGSWAN_REPO: https://github.com/immortalwrt/packages
+  STRONGSWAN_BRANCH: openwrt-24.10
+  STRONGSWAN_PATH: net/strongswan
+  # 固件基础配置
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
-  UPLOAD_FIRMWARE: true
   FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
 
 jobs:
@@ -40,7 +44,7 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          # 新增：安装Go环境依赖（适配yq编译）
+          # 整合依赖：包含strongswan + docker + yq + nikki所需全部依赖（新增golang-go适配yq）
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
@@ -58,47 +62,86 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone source code
+      - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL2  ${{ github.workspace }}/openwrt
-          echo "OPENWRT_PATH=${{ github.workspace }}/openwrt" >> $GITHUB_ENV
-          ls -l ${{ github.workspace }}/openwrt
-
-      - name: Add immortalwrt feeds (整合yq包拉取逻辑)
+          git clone --depth 1 $REPO_URL2 openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+          
+      # ========== 1. 拉取 strongswan 包 ==========
+      - name: Pull StrongSwan from ImmortalWrt Packages
         run: |
           cd $OPENWRT_PATH
+          mkdir -p packages/net
+          git clone --depth 1 -b $STRONGSWAN_BRANCH $STRONGSWAN_REPO temp-packages
+          mv temp-packages/$STRONGSWAN_PATH packages/net/
+          rm -rf temp-packages
+          ls -la packages/net/strongswan || echo "⚠️ StrongSwan 拉取失败，请检查仓库路径"
+          
+      # ========== 2. 整合 docker/yq 修复逻辑 + 添加 nikki 源 ==========
+      - name: Add Feeds (immortalwrt源 + nikki源 + 修复docker/yq)
+        run: |
+          cd $OPENWRT_PATH
+          # 备份原有feeds配置
           cp $FEEDS_CONF $FEEDS_CONF.bak
-          # 追加immortalwrt源（优先级最高）
+          # 追加immortalwrt源（修复docker/yq依赖，优先级最高）
           cat >> $FEEDS_CONF << EOF
-          # 新增：immortalwrt 源（修复docker/yq相关依赖）
           src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100
           src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99
+          # 添加nikki源
+          src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git
           EOF
-          cat $FEEDS_CONF
           # 更新feeds
           ./scripts/feeds clean
           ./scripts/feeds update -a
           
-          # 核心修改1：卸载原有冲突包 + 卸载默认yq（避免冲突）
+          # 核心修复：卸载冲突包 + 替换适配版yq
           ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
-          
-          # 核心修改2：删除原有yq包目录（彻底清理）
           rm -rf feeds/packages/utils/yq
-          # 从immortalwrt拉取适配的yq包（关键步骤）
           mkdir -p feeds/packages/utils/yq
           wget -O feeds/packages/utils/yq/Makefile \
             https://raw.githubusercontent.com/immortalwrt/packages/openwrt-24.10/utils/yq/Makefile
           
-          # 从immortalwrt_luci源安装luci相关包
+          # 安装所需包：docker相关 + nikki相关 + 基础luci
           ./scripts/feeds install -p immortalwrt_luci luci-base luci-app-dockerman luci-lib-docker
-          # 从immortalwrt_pkgs源安装系统级包 + yq
           ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
+          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
+          # 安装全量feeds（保留原逻辑）
+          ./scripts/feeds install -a
+          
+      - name: Cache DL
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
 
-      - name: Configure firmware (配置内容严格对齐)
+      - name: Cache CCache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.run_id }}
+          restore-keys: |
+            ccache-
+            
+      - name: Setup CCache
         run: |
-          cd $OPENWRT_PATH
-          # 写入配置（包含所有指定包 + 新增yq）
-          cat > $CONFIG_FILE << EOF
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE -o compression=true
+          ccache -s
+          
+      - name: Fix Toolchain Compilation
+        run: |
+          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
+          echo "工具链修复完成"
+          
+      # ========== 第一阶段：基础 + strongswan + docker + dockerman + DDNS + UDPXY ==========
+      - name: Stage1 - Base + Strongswan + Docker/Dockerman + DDNS + UDPXY
+        run: |
+          cd openwrt
+          cat > .config << 'EOF'
+          # ===================== 系统架构与分区 =====================
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
@@ -109,14 +152,34 @@ jobs:
           CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
-          # 基础系统
-          CONFIG_BUSYBOX_CUSTOM=y
-          CONFIG_CLEAN_IPKG=y
-          # Luci基础及指定包
-          CONFIG_LUCI=y
-          CONFIG_LUCI_LANG_zh_Hans=y
-          CONFIG_PACKAGE_luci-base=y
-          # Docker相关指定包
+          # ===================== 核心开关 =====================
+          CONFIG_DEVEL=y
+          CONFIG_BROKEN=y
+          # ===================== StrongSwan-full (L2TP/IPsec 核心) =====================
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+          # L2TP 专用组件
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_ppp-mod-l2tp=y
+          CONFIG_PACKAGE_ppp-mod-pppoe=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+          # 网络转发/NAT/加密
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_KMOD_IP_TABLES=y
+          CONFIG_KMOD_IP_NAT=y
+          CONFIG_KMOD_IP_CONNTRACK=y
+          CONFIG_KMOD_CRYPTO_AES=y
+          CONFIG_KMOD_CRYPTO_CBC=y
+          CONFIG_KMOD_CRYPTO_HMAC=y
+          CONFIG_KMOD_CRYPTO_SHA256=y
+          CONFIG_KMOD_XFRM=y
+          CONFIG_KMOD_IPSEC=y
+          CONFIG_PACKAGE_iptables-mod-ipsec=y
+          # ===================== Docker/Dockerman (核心新增) =====================
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_dockerd=y
@@ -124,35 +187,173 @@ jobs:
           CONFIG_PACKAGE_ucode-mod-socket=y
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-lib-docker=y
-          # 新增：启用immortalwrt适配的yq包
           CONFIG_PACKAGE_yq=y
-          # 关闭不必要功能
-          CONFIG_PACKAGE_dnsmasq_full_dhcpv6=n
-          CONFIG_PACKAGE_ip6tables=n
-          CONFIG_PACKAGE_odhcp6c=n
-          CONFIG_PACKAGE_odhcpd-ipv6only=n
+          # ===================== 基础功能 =====================
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-app-argon-config=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_wget-ssl=y
+          # ===================== 禁用冲突组件 =====================
+          CONFIG_PACKAGE_wolfssl=n
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          CONFIG_PACKAGE_openconnect=n
+          CONFIG_PACKAGE_openswan=n
           EOF
           make defconfig
-
-      - name: Download packages
+          
+      - name: Upload OpenWRT Config
+        if: always()
+        id: upload-config
         run: |
-          cd $OPENWRT_PATH
-          make download -j8
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-
-      - name: make OpenWRT   
+          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Config Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-config
+          path: openwrt-config.tar.gz
+          retention-days: 7
+          
+      - name: Compile Stage1 Firmware
         run: |
-          cd $OPENWRT_PATH
+          cd openwrt
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-
-      - name: Upload firmware directory
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+          
+      - name: Package Stage1 Firmware
+        if: always()
+        id: stage1-package
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Stage1 Firmware
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt_firmware_x86_64_dockerman
-          path: ${{ env.FIRMWARE_OUTPUT_PATH }}/
+          name: immortalwrt-stage1-firmware (base+strongswan+docker)
+          path: stage1-firmware.tar.gz
+          retention-days: 30
+
+      # ========== 第二阶段：Stage1基础上添加 Nikki ==========
+      - name: Stage2 - Add Nikki (保留strongswan+docker)
+        run: |
+          cd openwrt
+          cat >> .config << 'EOF'
+          # 保留核心组件（防止被覆盖）
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-minimal=n
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_dockerd=y
+          # 添加Nikki组件
+          CONFIG_PACKAGE_nikki=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          # 禁用冲突组件
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          EOF
+          make defconfig
+          
+      - name: Compile Stage2 Firmware
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          make -j$(nproc) V=s || make -j1 V=s
+          
+      - name: Package Stage2 Firmware
+        if: always()
+        id: stage2-package
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
+          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Stage2 Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage2-firmware (base+strongswan+docker+nikki)
+          path: stage2-firmware.tar.gz
+          retention-days: 30
+
+      # ========== 第三阶段：Stage2基础上添加 HomeProxy/Sing-Box ==========
+      - name: Stage3 - Add HomeProxy/Sing-Box (保留strongswan+docker+nikki)
+        run: |
+          cd openwrt
+          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
+          ./scripts/feeds update small
+          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+          # 追加配置
+          cat >> .config << 'EOF'
+          # 保留核心组件
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          # 添加HomeProxy/Sing-Box
+          CONFIG_PACKAGE_homeproxy=y
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_sing-box=y
+          # 禁用冲突组件
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          EOF
+          make defconfig
+          
+      - name: Compile Stage3 Firmware
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          make -j$(nproc) V=s || make -j1 V=s
+          
+      - name: Package Stage3 Firmware
+        if: always()
+        id: stage3-package
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/stage3-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage3-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage3-firmware/config-stage3.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
+          echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Stage3 Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage3-firmware (full: strongswan+docker+nikki+homeproxy)
+          path: stage3-firmware.tar.gz
+          retention-days: 30
+
+      - name: Completion
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！"
+          echo "📦 Stage1：基础 + Strongswan + Docker/Dockerman + DDNS + UDPXY"
+          echo "📦 Stage2：Stage1 + Nikki"
+          echo "📦 Stage3：Stage2 + HomeProxy + Sing-Box"
+          echo "=========================================="
