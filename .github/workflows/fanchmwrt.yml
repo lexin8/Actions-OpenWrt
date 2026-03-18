@@ -1,36 +1,17 @@
 name: fanchmwrt
 
 on:
-  repository_dispatch:
-  watch:
-    types: started
   workflow_dispatch:
-    inputs:
-      ssh:
-        description: 'SSH connection to Actions'
-        required: true
-        default: 'false'
-      clean_cache:
-        description: '清理缓存并重新编译'
-        required: true
-        default: 'false'
+  schedule:
+    - cron: '0 20 * * 6'
 
 env:
-  CONFIG_FILE: istoreos.config
-  CONFIG_FILE2: fanchmwrt.config
-  DIY_P1_SH: fanchmwrt.sh
-  DIY_P2_SH: l2tp.sh
-  DIY_P3_SH: diy-part3.sh
-  SSH_ACTIONS: false
-  UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
-  ENABLE_L2TP_COMPONENTS: false
-  UPLOAD_SOFTETHERVPN: true
-  UPLOAD_COWTRANSFER: true
-  UPLOAD_RELEASE: false
-  UPLOAD_WETRANSFER: false
-  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
   TZ: Asia/Shanghai
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: openwrt-23.05
+  FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
 
@@ -47,7 +28,7 @@ jobs:
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-
+          
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -60,199 +41,347 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-
-      - name: Combine Disks
+          
+      - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 4096
-          temp-reserve-mb: 100
+          swap-size-mb: 1024
           root-reserve-mb: 1024
+          remove-dotnet: true
+          remove-android: true
 
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          path: builddir
+        uses: actions/checkout@main
 
-      - name: Clone Source Code
+      - name: Clone Source Codes
         run: |
-          git clone --depth 1 $REPO_URL openwrt
+          # 克隆fanchmwrt作为主源码
+          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
+          # 克隆immortalwrt官方源码用于提取strongswan组件
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH immortalwrt-official
+          
+          # 复制strongswan相关组件到fanchmwrt源码中
+          # 复制软件包目录
+          mkdir -p openwrt/package/feeds/packages/strongswan
+          cp -rf immortalwrt-official/package/feeds/packages/strongswan/* openwrt/package/feeds/packages/strongswan/
+          
+          # 复制luci-app-strongswan（如果有）
+          if [ -d "immortalwrt-official/package/feeds/luci/luci-app-strongswan" ]; then
+              mkdir -p openwrt/package/feeds/luci/luci-app-strongswan
+              cp -rf immortalwrt-official/package/feeds/luci/luci-app-strongswan/* openwrt/package/feeds/luci/luci-app-strongswan/
+          fi
+          
+          # 复制ipsec-vpnserver-manyusers（如果有）
+          if [ -d "immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers" ]; then
+              mkdir -p openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers
+              cp -rf immortalwrt-official/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers/* openwrt/package/feeds/luci/luci-app-ipsec-vpnserver-manyusers/
+          fi
+          
+          # 清理临时源码
+          rm -rf immortalwrt-official
+          
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          COMMIT_AUTHOR=$(git show -s --date=short --format="作者: %an")
-          echo "COMMIT_AUTHOR=$COMMIT_AUTHOR" >> $GITHUB_ENV
-          COMMIT_DATE=$(git show -s --date=short --format="时间: %ci")
-          echo "COMMIT_DATE=$COMMIT_DATE" >> $GITHUB_ENV
-          COMMIT_MESSAGE=$(git show -s --date=short --format="内容: %s")
-          echo "COMMIT_MESSAGE=$COMMIT_MESSAGE" >> $GITHUB_ENV
-          COMMIT_HASH=$(git show -s --date=short --format="hash: %H")
-          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
-
-      # ===== 缓存配置开始 =====
-      - name: 缓存 feeds
+          
+      - name: Cache DL
         uses: actions/cache@v4
-        id: cache-feeds
-        with:
-          path: openwrt/feeds
-          key: feeds-${{ hashFiles('openwrt/feeds.conf.default') }}-${{ github.run_id }}
-          restore-keys: |
-            feeds-${{ hashFiles('openwrt/feeds.conf.default') }}-
-            feeds-
-
-      - name: 缓存 dl 源码包
-        uses: actions/cache@v4
-        id: cache-dl
         with:
           path: openwrt/dl
-          key: dl-${{ hashFiles('openwrt/feeds.conf.default', 'openwrt/.config') }}-${{ github.run_id }}
-          restore-keys: |
-            dl-${{ hashFiles('openwrt/feeds.conf.default') }}-
-            dl-
+          key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
 
-      - name: 缓存 toolchain 编译工具链
+      - name: Cache CCache
         uses: actions/cache@v4
-        id: cache-toolchain
-        with:
-          path: |
-            openwrt/staging_dir
-            openwrt/build_dir/toolchain-*
-          key: toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}-${{ github.run_id }}
-          restore-keys: |
-            toolchain-${{ hashFiles('openwrt/toolchain/Makefile') }}-
-            toolchain-
-
-      - name: 缓存 ccache 编译缓存
-        uses: actions/cache@v4
-        id: cache-ccache
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ github.ref }}-${{ github.sha }}-${{ github.run_id }}
+          key: ccache-${{ github.run_id }}
           restore-keys: |
-            ccache-${{ github.ref }}-
             ccache-
-      # ===== 缓存配置结束 =====
-
-      - name: 配置 ccache
+            
+      - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE
-          ccache -o compression=true
+          ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
-
-      - name: 更新 feeds（使用缓存）
+          
+      - name: Fix Toolchain Compilation
+        run: |
+          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
+          echo "工具链修复完成"
+          
+      - name: Update Feeds (提前同步，关键修复)
         run: |
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
-      - name: 运行一键部署脚本
-        run: |
-          cd $OPENWRT_PATH
-          chmod +x $GITHUB_WORKSPACE/builddir/$DIY_P1_SH
-          $GITHUB_WORKSPACE/builddir/$DIY_P1_SH
-
-      - name: softethervpn
-        id: softethervpn
-        if: env.UPLOAD_SOFTETHERVPN == 'true' && !cancelled()
-        run: |
-          cd ${{ github.workspace }}/openwrt/feeds/packages/net/
-          rm -rf softethervpn*
-          cp -r ${{ github.workspace }}/builddir/softethervpn .
-          cp -r ${{ github.workspace }}/builddir/softethervpn5 .
-
-      - name: SSH connection to Actions
-        uses: P3TERX/ssh2actions@v1.0.0
-        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
-        env:
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-
-      - name: 生成配置
+          
+      # ========== 第一阶段：基础 + DDNS + UDPXY + Docker + strongswan-full ==========
+      - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
         run: |
           cd openwrt
+          
+          # 基础配置（核心：保留strongswan-full，移除冲突组件）
+          cat > .config << 'EOF'
+          # ===================== 核心系统架构与分区 =====================
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_TARGET_ROOTFS_SQUASHFS=y
+          # ==============================================
+          # 核心开关（strongswan-full 必需）
+          # ==============================================
+          CONFIG_DEVEL=y
+          CONFIG_BROKEN=y
+          # ==============================================
+          # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
+          # ==============================================
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+          # ==============================================
+          # L2TP 专用组件
+          # ==============================================
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_ppp-mod-l2tp=y
+          CONFIG_PACKAGE_ppp-mod-pppoe=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+          # ==============================================
+          # 网络转发/NAT/加密（必需）
+          # ==============================================
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_KMOD_IP_TABLES=y
+          CONFIG_KMOD_IP_NAT=y
+          CONFIG_KMOD_IP_CONNTRACK=y
+          CONFIG_KMOD_IP_CONNTRACK_MARK=y
+          CONFIG_KMOD_NETFILTER_XT_MATCH_STATE=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack-extra=y
+          CONFIG_KMOD_CRYPTO_AES=y
+          CONFIG_KMOD_CRYPTO_CBC=y
+          CONFIG_KMOD_CRYPTO_HMAC=y
+          CONFIG_KMOD_CRYPTO_SHA256=y
+          CONFIG_KMOD_XFRM=y
+          CONFIG_KMOD_XFRM_USER=y
+          CONFIG_KMOD_XFRM_MODE_TUNNEL=y
+          CONFIG_KMOD_XFRM_MODE_TRANSPORT=y
+          CONFIG_KMOD_IPSEC=y
+          CONFIG_KMOD_IPSEC_MB=y
+          CONFIG_KMOD_NETFILTER_XT_MATCH_IPSEC=y
+          CONFIG_KMOD_l2tp=y
+          CONFIG_KMOD_l2tp-ip=y
+          CONFIG_KMOD_l2tp-eth=y
+          CONFIG_KMOD_pppol2tp=y
+          CONFIG_KMOD_crypto-rng=y
+          CONFIG_PACKAGE_iptables-mod-ipsec=y
+          # ==============================================
+          # Web 管理界面（LuCI）
+          # ==============================================
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-app-argon-config=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers=y
+          CONFIG_PACKAGE_luci-app-strongswan=y
+          # ==============================================
+          # DDNS 组件
+          # ==============================================
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
+          CONFIG_PACKAGE_wget-ssl=y
+          # ==============================================
+          # StrongSwan 强化模块
+          # ==============================================
+          CONFIG_PACKAGE_strongswan-mod-xauth=y
+          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
+          CONFIG_PACKAGE_strongswan-ikev2=y
+          CONFIG_PACKAGE_strongswan-eap=y
+          CONFIG_PACKAGE_strongswan-eap-identity=y
+          CONFIG_PACKAGE_strongswan-psk=y
+          # ==============================================
+          # 调试/工具组件
+          # ==============================================
+          CONFIG_PACKAGE_ipsec-tools=y
+          CONFIG_PACKAGE_ntpclient=y
+          # ==============================================
+          # 禁用冲突组件（防止和 strongswan 冲突）
+          # ==============================================
+          # CONFIG_PACKAGE_libwolfssl is not set
+          CONFIG_PACKAGE_wolfssl=n
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          CONFIG_PACKAGE_openconnect=n
+          CONFIG_PACKAGE_openswan=n
+          EOF
           make defconfig
-
-      - name: 下载 package（使用缓存）
+          
+      - name: Upload OpenWRT Config
+        if: always()
         run: |
-          cd openwrt
-          # 只下载缺失的包
-          make download -j$(nproc)
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-
-      - name: 导出并上传.config配置文件
-        id: upload_config
-        run: |
-          cd openwrt
-          if [ -f ".config" ]; then
-            CONFIG_NAME="openwrt_config_$(date +%Y%m%d_%H%M%S).config"
-            cp .config $GITHUB_WORKSPACE/$CONFIG_NAME
-            echo "CONFIG_PATH=$GITHUB_WORKSPACE/$CONFIG_NAME" >> $GITHUB_OUTPUT
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failed" >> $GITHUB_OUTPUT
-          fi
-
-      - name: 上传.config到directory
+          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Config Artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt_Config_File
-          path: ${{ steps.upload_config.outputs.CONFIG_PATH }}
+          name: openwrt-config
+          path: openwrt-config.tar.gz
           retention-days: 7
-
-      - name: 开始编译固件（使用ccache加速）
-        id: compile
+          
+      - name: make OpenWRT   
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR
-          export USE_CCACHE=1
-          export CCACHE_COMPRESS=1
-          export CCACHE_MAXSIZE=$CCACHE_MAXSIZE
-          export PATH="/usr/lib/ccache:$PATH"
-          
-          # 显示缓存统计
+          make download -j$(nproc)
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          ccache -s
+          make -j$(nproc) V=s || make -j1 V=s
           ccache -s
           
-          # 编译
+      - name: Stage1 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Stage1 - Upload Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage1-firmware
+          path: stage1-firmware.tar.gz
+          retention-days: 30
+
+      # ========== 第二阶段：Nikki + 保留strongswan-full ==========
+      - name: Stage2 - Add Nikki Feed
+        run: |
+          cd openwrt
+          echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
+          ./scripts/feeds update nikki
+          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
+          
+      - name: Stage2 - Config (保留strongswan-full)
+        run: |
+          cd openwrt
+          cat >> .config << 'EOF'
+          # 保留strongswan-full配置（关键：防止被覆盖）
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-minimal=n
+          # 添加Nikki组件
+          CONFIG_PACKAGE_nikki=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          # 禁用冲突组件
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          EOF
+          make defconfig
+          
+      - name: Stage2 - Download
+        run: cd openwrt && make download -j$(nproc)
+
+      - name: Stage2 - Compile
+        run: |
+          cd openwrt
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
           
-          # 显示编译后缓存统计
-          ccache -s
-          echo "status=success" >> $GITHUB_OUTPUT
+      - name: Stage2 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage2-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
+          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Stage2 - Upload Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-stage2-firmware
+          path: stage2-firmware.tar.gz
+          retention-days: 30
 
-      - name: 清理不必要的文件
+      # ========== 第三阶段：HomeProxy/Sing-Box + 保留strongswan-full ==========
+      - name: Stage3 - Add Small Feed
         run: |
           cd openwrt
-          # 清理编译中间文件，但保留ccache缓存
-          rm -rf build_dir/target-* build_dir/host
-          # 保留toolchain和dl供下次使用
-          echo "清理完成"
-
-      - name: 搜索固件
+          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
+          ./scripts/feeds update small
+          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+          
+      - name: Stage3 - Config (保留strongswan-full)
         run: |
-          cd openwrt/bin/
-          find . -name "*squashfs*"
+          cd openwrt
+          cat >> .config << 'EOF'
+          # 保留strongswan-full配置
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-minimal=n
+          # 添加HomeProxy/Sing-Box组件
+          CONFIG_PACKAGE_homeproxy=y
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_sing-box=y
+          # 禁用冲突组件
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          EOF
+          make defconfig
+          
+      - name: Stage3 - Download
+        run: cd openwrt && make download -j$(nproc)
 
-      - name: Organize files
-        id: organize
-        if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      - name: Stage3 - Compile
         run: |
-          cd openwrt/bin/
-          FIRMWARE_DIR=$(find . -name "*squashfs*"  | head -n 1 | xargs dirname)
-          cd $FIRMWARE_DIR
-          rm -rf packages
-          find . -name "*ext4*" | xargs rm -rf
-          find . -name "*root*" | xargs rm -rf
-          FIRMWARE_NAME=$(date +%Y.%m.%d.%H)_OpenWrt.tar.gz
-          tar czvf $FIRMWARE_NAME config.buildinfo *.img.gz
-          ls | grep -v $FIRMWARE_NAME | xargs rm -rf
-          echo "FIRMWARE_FILE=$PWD/$FIRMWARE_NAME" >> $GITHUB_OUTPUT
-          echo "status=success" >> $GITHUB_OUTPUT
-
-      - name: 上传固件压缩包
+          cd openwrt
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          make -j$(nproc) V=s || make -j1 V=s
+          
+      - name: Stage3 - Package Firmware
+        if: always()
+        run: |
+          cd openwrt/bin/targets/x86/64
+          mkdir -p $GITHUB_WORKSPACE/stage3-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage3-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage3-firmware/config-stage3.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
+          echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Stage3 - Upload Firmware
+        if: always()
         uses: actions/upload-artifact@v4
-        if: steps.organize.outputs.status == 'success' && !cancelled()
         with:
-          name: OpenWrt_Firmware
-          path: ${{ steps.organize.outputs.FIRMWARE_FILE }}
-          retention-days: 7
+          name: immortalwrt-stage3-firmware
+          path: stage3-firmware.tar.gz
+          retention-days: 30
+
+      - name: Completion
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！"
+          echo "📦 Stage1 固件已上传（基础 + DDNS + UDPXY + Docker + strongswan-full）"
+          echo "📦 Stage2 固件已上传（Nikki + strongswan-full）"
+          echo "📦 Stage3 固件已上传（HomeProxy + Sing-Box + strongswan-full）"
+          echo "=========================================="
