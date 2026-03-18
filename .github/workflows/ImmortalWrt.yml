@@ -55,8 +55,8 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
-          git clone --depth 1 $REPO_URL2 openwrt
-          # git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+          # git clone --depth 1 $REPO_URL2 openwrt
+          git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
@@ -123,6 +123,7 @@ jobs:
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+          CONFIG_PACKAGE_iptables-mod-nat-extra=y
           # ==============================================
           # L2TP 专用组件
           # ==============================================
