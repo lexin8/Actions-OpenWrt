@@ -105,9 +105,9 @@ jobs:
         run: |
           cd $OPENWRT_PATH/feeds/packages/net/strongswan
           sed -i '/include $(INCLUDE_DIR)\/nls.mk/a TARGET_CFLAGS += ${{ env.COMMON_CFLAGS }}\nTARGET_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}\nTARGET_LDFLAGS += ${{ env.COMMON_LDFLAGS }}\nSTRONGSWAN_CFLAGS += ${{ env.COMMON_CFLAGS }}\nSTRONGSWAN_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}' Makefile
-          sed -i '/CONFIGURE_ARGS+=/a --enable-symbol-visibility=no \\\n--with-libstrongswan-prefix=$(STAGING_DIR)/usr \\\n--with-pic \\\n--with-cflags="${{ env.COMMON_CFLAGS }}" \\\n--with-cxxflags="${{ env.COMMON_CXXFLAGS }}" \\\n--with-ldflags="${{ env.COMMON_LDFLAGS }}"' Makefile
+          sed -i '/CONFIGURE_ARGS+=/a --enable-symbol-visibility=no \\\n--with-libstrongswan-prefix=$(STAGING_DIR)/usr \\\n--with-pic \\\n--with-crypto=openssl \\\n--enable-openssl \\\n--disable-wolfssl \\\n--with-openssl=$(STAGING_DIR)/usr \\\n--with-cflags="${{ env.COMMON_CFLAGS }}" \\\n--with-cxxflags="${{ env.COMMON_CXXFLAGS }}" \\\n--with-ldflags="${{ env.COMMON_LDFLAGS }}"' Makefile
           sed -i '/define BuildPlugin/a DEPENDS+= strongswan (= $(PKG_VERSION)-$(PKG_RELEASE))\nTARGET_CFLAGS += $(STRONGSWAN_CFLAGS)\nTARGET_CXXFLAGS += $(STRONGSWAN_CXXFLAGS)\nTARGET_LDFLAGS += $(STRONGSWAN_LDFLAGS)' Makefile
-          sed -i 's/+PACKAGE_strongswan-mod-wolfssl:libwolfssl/+PACKAGE_strongswan-mod-wolfssl:libwolfssl +libstrongswan (= $(PKG_VERSION)-$(PKG_RELEASE))/' Makefile
+          sed -i 's/+PACKAGE_strongswan-mod-wolfssl:libwolfssl/+PACKAGE_strongswan-mod-openssl:libopenssl +libstrongswan (= $(PKG_VERSION)-$(PKG_RELEASE))/' Makefile
           sed -i 's/$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so.\* $(1)\/usr\/lib\/ipsec\//$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so\* $(1)\/usr\/lib\/ipsec\//' Makefile
           
       - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
@@ -128,11 +128,10 @@ jobs:
           CONFIG_BROKEN=y
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_libwolfssl=y
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=y
-          CONFIG_PACKAGE_libopenssl=n
-          CONFIG_PACKAGE_strongswan-mod-openssl=n
-          CONFIG_PACKAGE_strongswan-libtls=n
+          CONFIG_PACKAGE_libopenssl=y
+          CONFIG_PACKAGE_strongswan-mod-openssl=y
+          CONFIG_PACKAGE_libwolfssl=n
+          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
           CONFIG_PACKAGE_iptables-mod-nat-extra=y
@@ -264,10 +263,10 @@ jobs:
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libwolfssl=y
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=y
-          CONFIG_PACKAGE_libopenssl=n
-          CONFIG_PACKAGE_strongswan-mod-openssl=n
+          CONFIG_PACKAGE_libopenssl=y
+          CONFIG_PACKAGE_strongswan-mod-openssl=y
+          CONFIG_PACKAGE_libwolfssl=n
+          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
@@ -322,10 +321,10 @@ jobs:
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libwolfssl=y
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=y
-          CONFIG_PACKAGE_libopenssl=n
-          CONFIG_PACKAGE_strongswan-mod-openssl=n
+          CONFIG_PACKAGE_libopenssl=y
+          CONFIG_PACKAGE_strongswan-mod-openssl=y
+          CONFIG_PACKAGE_libwolfssl=n
+          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
@@ -371,7 +370,7 @@ jobs:
         run: |
           echo "=========================================="
           echo "✅ 编译完成！"
-          echo "🔧 StrongSwan修复：符号缺失已修复 + 插件与核心库参数统一"
+          echo "🔧 StrongSwan修复：OpenSSL后端 + 符号缺失已修复"
           echo "📦 Stage1 固件：基础 + DDNS + UDPXY + Docker + strongswan-full"
           echo "📦 Stage2 固件：Nikki + strongswan-full"
           echo "📦 Stage3 固件：HomeProxy + Sing-Box + strongswan-full"
