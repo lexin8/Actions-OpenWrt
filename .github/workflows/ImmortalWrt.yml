@@ -53,9 +53,14 @@ jobs:
 
       - name: Optimize Disk IO
         run: |
-          sudo mount -t tmpfs -o size=20G tmpfs $GITHUB_WORKSPACE/openwrt/build_dir || true
-          echo 0 | sudo tee /proc/sys/vm/drop_caches
-          sudo sysctl -w vm.swappiness=10
+          # 修复1：先创建build_dir目录（避免挂载点不存在）
+          mkdir -p $GITHUB_WORKSPACE/openwrt/build_dir
+          # 修复2：挂载tmpfs，添加容错（失败不终止）
+          sudo mount -t tmpfs -o size=10G tmpfs $GITHUB_WORKSPACE/openwrt/build_dir 2>/dev/null || echo "tmpfs挂载失败，使用默认磁盘"
+          # 修复3：drop_caches添加sudo和容错，仅在权限允许时执行
+          sudo bash -c "echo 0 > /proc/sys/vm/drop_caches" 2>/dev/null || echo "无法清理缓存，跳过"
+          # 修复4：sysctl添加容错
+          sudo sysctl -w vm.swappiness=10 2>/dev/null || echo "无法调整swappiness，跳过"
 
       - name: Checkout
         uses: actions/checkout@main
