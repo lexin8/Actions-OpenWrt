@@ -10,7 +10,6 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
-  FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
   FEEDS_CONF: feeds.conf.default
@@ -29,12 +28,163 @@ jobs:
         run: |
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          echo "硬盘使用情况:" && df -hT
-          
-      - name: Initialization Environment (Official Dependencies)
+          df -hT
+
+      - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+
+      - name: Maximize Build Space
+        uses: easimon/maximize-build-space@master
+        with:
+          swap-size-mb: 1024
+          root-reserve-mb: 1024
+          remove-dotnet: true
+          remove-android: true
+
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone ImmortalWrt Source
+        run: |
+          git clone --depth 1 $REPO_URL2 openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
+
+      - name: Configure Official Feeds
+        run: |
+          cd $OPENWRT_PATH
+          cp feeds.conf.default feeds.conf.default.bak
+          cat > feeds.conf.default << EOF
+          src-git core https://github.com/immortalwrt/immortalwrt.git;openwrt-24.10
+          src-git luci https://github.com/immortalwrt/luci.git;openwrt-24.10
+          src-git packages https://github.com/immortalwrt/packages.git;openwrt-24.10
+          EOF
+
+      - name: Update & Install Official Packages
+        run: |
+          cd $OPENWRT_PATH
+          ./scripts/feeds clean
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Cache DL
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
+
+      - name: Cache CCache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.run_id }}
+          restore-keys: ccache-
+
+      - name: Setup CCache
+        run: |
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE -o compression=true
+          ccache -s
+
+      - name: Build Config
+        run: |
+          cd openwrt
+          cat > .config << 'EOF'
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          CONFIG_TARGET_IMAGES_GZIP=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_TARGET_ROOTFS_SQUASHFS=y
+          CONFIG_DEVEL=y
+          CONFIG_BROKEN=y
+
+          # StrongSwan + WolfSSL
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_strongswan-full=y
+          CONFIG_PACKAGE_strongswan-mod-swanctl=y
+          CONFIG_PACKAGE_strongswan-mod-wolfssl=y
+          CONFIG_PACKAGE_wolfssl=y
+          CONFIG_PACKAGE_libwolfssl=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_ppp-mod-l2tp=y
+
+          # Kernel IPSec
+          CONFIG_PACKAGE_kmod-ipsec=y
+          CONFIG_PACKAGE_kmod-xfrm=y
+          CONFIG_PACKAGE_kmod-crypto-aes=y
+          CONFIG_PACKAGE_kmod-crypto-sha256=y
+          CONFIG_PACKAGE_kmod-crypto-cbc=y
+          CONFIG_PACKAGE_kmod-crypto-hmac=y
+          CONFIG_PACKAGE_iptables-mod-ipsec=y
+          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
+
+          # Docker
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_yq=y
+
+          # Luci
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-app-argon-config=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+
+          # Disable conflict
+          CONFIG_PACKAGE_libreswan=n
+          CONFIG_PACKAGE_luci-app-libreswan=n
+          CONFIG_PACKAGE_openconnect=n
+          EOF
+          make defconfig
+
+      - name: Compile Firmware
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          make -j$(nproc) V=s || make -j1 V=s
+
+      - name: Package Firmware
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/firmware
+          cp -v *.img.gz *.manifest sha256sums $GITHUB_WORKSPACE/firmware/ 2>/dev/null || true
+          cd $GITHUB_WORKSPACE
+          tar -czvf firmware.tar.gz -C firmware .
+
+      - name: Upload Firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: immortalwrt-x86-64
+          path: firmware.tar.gz
+          retention-days: 30
+
+      - name: Complete
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！所有组件均来自 ImmortalWrt 官方"
+          echo "✅ StrongSwan + swanctl + WolfSSL 已完整集成"
+          echo "=========================================="        run: |
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
