@@ -171,9 +171,7 @@ jobs:
           CONFIG_PACKAGE_openconnect=n
           CONFIG_PACKAGE_openswan=n
           EOF
-          # 追加配置片段到空文件
           cat .config.stage1 > .config
-          # 用 make defconfig 合并依赖、补全默认值、生成 kconfig/conf 工具
           make defconfig
 
       - name: 【关键】验证 Stage1 StrongSwan 配置是否生效
@@ -235,7 +233,7 @@ jobs:
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
 
-      - name: 打包并上传 Stage1 固件
+      - name: 打包 Stage1 固件
         if: always()
         run: |
           cd $OPENWRT_PATH/bin/targets/x86/64
@@ -244,6 +242,9 @@ jobs:
           cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
           cd $GITHUB_WORKSPACE
           tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+
+      - name: 上传 Stage1 固件
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: immortalwrt-stage1-firmware
@@ -287,7 +288,7 @@ jobs:
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
 
-      - name: 打包并上传 Stage2 固件
+      - name: 打包 Stage2 固件
         if: always()
         run: |
           cd $OPENWRT_PATH/bin/targets/x86/64
@@ -296,6 +297,9 @@ jobs:
           cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
           cd $GITHUB_WORKSPACE
           tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
+
+      - name: 上传 Stage2 固件
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: immortalwrt-stage2-firmware
