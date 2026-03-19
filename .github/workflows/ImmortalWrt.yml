@@ -1,4 +1,4 @@
-name: ImmortalWrt 极速二阶段编译
+name: ImmortalWrt 极速编译 StrongSwan
 
 on:
   workflow_dispatch:
@@ -8,13 +8,10 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: openwrt-23.05
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
-  CCACHE_MAXSIZE: 5G
-  # 全局统一编译参数（核心：保证插件与核心库参数一致）
+  CCACHE_MAXSIZE: 10G
   COMMON_CFLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
   COMMON_CXXFLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
   COMMON_LDFLAGS: "-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
@@ -49,10 +46,16 @@ jobs:
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
-          swap-size-mb: 1024
+          swap-size-mb: 4096
           root-reserve-mb: 1024
           remove-dotnet: true
           remove-android: true
+
+      - name: Optimize Disk IO
+        run: |
+          sudo mount -t tmpfs -o size=20G tmpfs $GITHUB_WORKSPACE/openwrt/build_dir || true
+          echo 0 | sudo tee /proc/sys/vm/drop_caches
+          sudo sysctl -w vm.swappiness=10
 
       - name: Checkout
         uses: actions/checkout@main
@@ -80,69 +83,36 @@ jobs:
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE -o compression=true
+          ccache -M $CCACHE_MAXSIZE -o compression=true -o cache_sloppy=true -o max_files=0
           ccache -s
           
       - name: Fix Toolchain Compilation
         run: |
-          # 导出全局统一编译参数（核心：插件和核心库共用）
           export CFLAGS="${{ env.COMMON_CFLAGS }}"
           export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
           export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
           export STRONGSWAN_CFLAGS="${{ env.COMMON_CFLAGS }}"
           export STRONGSWAN_CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
           export STRONGSWAN_LDFLAGS="${{ env.COMMON_LDFLAGS }}"
-          echo "工具链修复完成，全局编译参数已统一"
           
       - name: Update Feeds
         run: |
           cd openwrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds update -a -f || ./scripts/feeds update -a
+          ./scripts/feeds install -a -f || ./scripts/feeds install -a
           
-      # ========== 核心修复：StrongSwan符号缺失 + 插件与核心库参数一致 ==========
       - name: Fix StrongSwan Symbol & Compile Params
         run: |
           cd $OPENWRT_PATH/feeds/packages/net/strongswan
-          
-          # 1. 统一编译参数：插件继承核心库的CFLAGS/CXXFLAGS/LDFLAGS
-          sed -i '/include $(INCLUDE_DIR)\/nls.mk/a \
-          # 统一核心库和插件编译参数 \
-          TARGET_CFLAGS += ${{ env.COMMON_CFLAGS }} \
-          TARGET_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }} \
-          TARGET_LDFLAGS += ${{ env.COMMON_LDFLAGS }} \
-          STRONGSWAN_CFLAGS += ${{ env.COMMON_CFLAGS }} \
-          STRONGSWAN_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}' Makefile
-          
-          # 2. 启用符号导出，禁用符号隐藏
-          sed -i '/CONFIGURE_ARGS+=/a \
-          --enable-symbol-visibility=no \\\
-          --with-libstrongswan-prefix=$(STAGING_DIR)/usr \\\
-          --with-pic \\\
-          --with-cflags="${{ env.COMMON_CFLAGS }}" \\\
-          --with-cxxflags="${{ env.COMMON_CXXFLAGS }}" \\\
-          --with-ldflags="${{ env.COMMON_LDFLAGS }}"' Makefile
-          
-          # 3. 强制插件依赖核心库相同版本，绑定编译顺序
-          sed -i '/define BuildPlugin/a \
-          DEPENDS+= strongswan (= $(PKG_VERSION)-$(PKG_RELEASE)) \
-          TARGET_CFLAGS += $(STRONGSWAN_CFLAGS) \
-          TARGET_CXXFLAGS += $(STRONGSWAN_CXXFLAGS) \
-          TARGET_LDFLAGS += $(STRONGSWAN_LDFLAGS)' Makefile
-          
-          # 4. 修正WolfSSL插件依赖，绑定核心库
+          sed -i '/include $(INCLUDE_DIR)\/nls.mk/a TARGET_CFLAGS += ${{ env.COMMON_CFLAGS }}\nTARGET_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}\nTARGET_LDFLAGS += ${{ env.COMMON_LDFLAGS }}\nSTRONGSWAN_CFLAGS += ${{ env.COMMON_CFLAGS }}\nSTRONGSWAN_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}' Makefile
+          sed -i '/CONFIGURE_ARGS+=/a --enable-symbol-visibility=no \\\n--with-libstrongswan-prefix=$(STAGING_DIR)/usr \\\n--with-pic \\\n--with-cflags="${{ env.COMMON_CFLAGS }}" \\\n--with-cxxflags="${{ env.COMMON_CXXFLAGS }}" \\\n--with-ldflags="${{ env.COMMON_LDFLAGS }}"' Makefile
+          sed -i '/define BuildPlugin/a DEPENDS+= strongswan (= $(PKG_VERSION)-$(PKG_RELEASE))\nTARGET_CFLAGS += $(STRONGSWAN_CFLAGS)\nTARGET_CXXFLAGS += $(STRONGSWAN_CXXFLAGS)\nTARGET_LDFLAGS += $(STRONGSWAN_LDFLAGS)' Makefile
           sed -i 's/+PACKAGE_strongswan-mod-wolfssl:libwolfssl/+PACKAGE_strongswan-mod-wolfssl:libwolfssl +libstrongswan (= $(PKG_VERSION)-$(PKG_RELEASE))/' Makefile
-          
-          # 5. 确保核心库完整安装，符号表不丢失
           sed -i 's/$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so.\* $(1)\/usr\/lib\/ipsec\//$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so\* $(1)\/usr\/lib\/ipsec\//' Makefile
           
-          echo "StrongSwan修复完成：符号导出启用 + 插件与核心库参数统一"
-          
-      # ========== 第一阶段：基础 + DDNS + UDPXY + Docker + strongswan-full ==========
       - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
         run: |
           cd openwrt
-          
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -156,8 +126,6 @@ jobs:
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
           CONFIG_DEVEL=y
           CONFIG_BROKEN=y
-          
-          # StrongSwan核心（保留WolfSSL，禁用OpenSSL）
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_libwolfssl=y
@@ -165,8 +133,6 @@ jobs:
           CONFIG_PACKAGE_libopenssl=n
           CONFIG_PACKAGE_strongswan-mod-openssl=n
           CONFIG_PACKAGE_strongswan-libtls=n
-          
-          # 必需依赖
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
           CONFIG_PACKAGE_iptables-mod-nat-extra=y
@@ -175,8 +141,6 @@ jobs:
           CONFIG_PACKAGE_ppp-mod-l2tp=y
           CONFIG_PACKAGE_ppp-mod-pppoe=y
           CONFIG_PACKAGE_ppp-mod-pptp=y
-          
-          # 网络/加密内核模块
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_iptables=y
           CONFIG_PACKAGE_ip6tables=y
@@ -203,8 +167,6 @@ jobs:
           CONFIG_KMOD_pppol2tp=y
           CONFIG_KMOD_crypto-rng=y
           CONFIG_PACKAGE_iptables-mod-ipsec=y
-          
-          # LuCI及应用
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-compat=y
           CONFIG_PACKAGE_luci-theme-argon=y
@@ -215,30 +177,30 @@ jobs:
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers=y
           CONFIG_PACKAGE_luci-app-strongswan=y
-          
-          # DDNS组件
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_wget-ssl=y
-          
-          # StrongSwan强化模块
           CONFIG_PACKAGE_strongswan-mod-xauth=y
           CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
           CONFIG_PACKAGE_strongswan-ikev2=y
           CONFIG_PACKAGE_strongswan-eap=y
           CONFIG_PACKAGE_strongswan-eap-identity=y
           CONFIG_PACKAGE_strongswan-psk=y
-          
-          # 调试工具
           CONFIG_PACKAGE_ipsec-tools=y
           CONFIG_PACKAGE_ntpclient=y
-          
-          # 禁用冲突组件
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
           CONFIG_PACKAGE_openconnect=n
           CONFIG_PACKAGE_openswan=n
+          CONFIG_BUILD_OPTIMIZE_FULL=y
+          CONFIG_BUILD_OPTIMIZE_SPEED=y
+          CONFIG_STRIP_STRIP_ALL=y
+          CONFIG_DEBUG=n
+          CONFIG_PACKAGE_kmod-debug=n
+          CONFIG_TARGET_x86=n
+          CONFIG_TARGET_x86_geode=n
+          CONFIG_TARGET_x86_legacy=n
           EOF
           make defconfig
           
@@ -260,13 +222,14 @@ jobs:
         run: |
           cd openwrt
           make download -j$(nproc)
-          # 导出统一编译参数，确保编译阶段生效
           export CFLAGS="${{ env.COMMON_CFLAGS }}"
           export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
           export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
-          make -j$(nproc) V=s || make -j1 V=s
+          CORES=$(nproc)
+          PARALLEL_JOBS=$((CORES + 1))
+          make -j$PARALLEL_JOBS || make -j1 V=s
           ccache -s
           
       - name: Stage1 - Package Firmware
@@ -288,13 +251,12 @@ jobs:
           path: stage1-firmware.tar.gz
           retention-days: 30
 
-      # ========== 第二阶段：Nikki + 保留strongswan-full ==========
       - name: Stage2 - Add Nikki Feed
         run: |
           cd openwrt
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
-          ./scripts/feeds update nikki
-          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
+          ./scripts/feeds update nikki -f || ./scripts/feeds update nikki
+          ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn -f || ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           
       - name: Stage2 - Config
         run: |
@@ -324,7 +286,9 @@ jobs:
           export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
           export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
+          CORES=$(nproc)
+          PARALLEL_JOBS=$((CORES + 1))
+          make -j$PARALLEL_JOBS || make -j1 V=s
           
       - name: Stage2 - Package Firmware
         if: always()
@@ -345,13 +309,12 @@ jobs:
           path: stage2-firmware.tar.gz
           retention-days: 30
 
-      # ========== 第三阶段：HomeProxy/Sing-Box + 保留strongswan-full ==========
       - name: Stage3 - Add Small Feed
         run: |
           cd openwrt
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
-          ./scripts/feeds update small
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+          ./scripts/feeds update small -f || ./scripts/feeds update small
+          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box -f || ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
           
       - name: Stage3 - Config
         run: |
@@ -381,7 +344,9 @@ jobs:
           export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
           export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
+          CORES=$(nproc)
+          PARALLEL_JOBS=$((CORES + 1))
+          make -j$PARALLEL_JOBS || make -j1 V=s
           
       - name: Stage3 - Package Firmware
         if: always()
