@@ -1,4 +1,4 @@
-name: ImmortalWrt+StrongSwan
+name: ImmortalWrt 严谨编译（StrongSwan 修复版）
 
 on:
   workflow_dispatch:
@@ -12,7 +12,6 @@ env:
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
-  # 编译参数统一通过 OpenWrt 配置系统传递，不修改 Makefile
   COMMON_FLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
 
 jobs:
@@ -36,7 +35,6 @@ jobs:
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          # 【关键1】安装 StrongSwan 完整编译依赖
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libgmp-dev libgcrypt-dev libp11-kit-dev libxml2-dev
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
@@ -85,7 +83,6 @@ jobs:
           cd $OPENWRT_PATH
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          # 【关键2】检查 StrongSwan 包是否存在于 Feeds 中
           if [ -d "feeds/packages/net/strongswan" ]; then
             echo "✅ StrongSwan 包已找到"
           else
@@ -93,101 +90,106 @@ jobs:
             exit 1
           fi
 
-      - name: 【核心】配置 StrongSwan（OpenSSL 后端，禁用 WolfSSL）
+      - name: 【核心】生成初始配置并修改（使用正确的 conf 工具）
         run: |
           cd $OPENWRT_PATH
-          # 【关键3】用 OpenWrt 官方工具修改配置，100% 可靠
-          ./scripts/config --set-val CONFIG_TARGET_x86 y
-          ./scripts/config --set-val CONFIG_TARGET_x86_64 y
-          ./scripts/config --set-val CONFIG_TARGET_x86_64_Generic y
-          ./scripts/config --set-val CONFIG_TARGET_KERNEL_PARTSIZE 100
-          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_PARTSIZE 700
-          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_PERSIST_VAR y
-          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_TARGZ y
-          ./scripts/config --set-val CONFIG_TARGET_IMAGES_GZIP y
-          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_EXT4FS n
-          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_SQUASHFS y
-          ./scripts/config --set-val CONFIG_DEVEL y
-          ./scripts/config --set-val CONFIG_BROKEN y
+          # 1. 先生成 x86-64 的默认配置
+          make defconfig
           
-          # StrongSwan 核心配置（确保选中）
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-full y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-ipsec y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-ikev2 y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-openssl y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-eap-mschapv2 y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-eap-identity y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-xauth y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-psk y
+          # 2. 使用 scripts/kconfig/conf 工具修改配置（正确方式）
+          # 目标架构配置
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_x86 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_x86_64 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_x86_64_Generic y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_KERNEL_PARTSIZE 100 .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_ROOTFS_PARTSIZE 700 .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_ROOTFS_PERSIST_VAR y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_ROOTFS_TARGZ y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_IMAGES_GZIP y .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_ROOTFS_EXT4FS n .config
+          ./scripts/kconfig/conf --set-val CONFIG_TARGET_ROOTFS_SQUASHFS y .config
+          ./scripts/kconfig/conf --set-val CONFIG_DEVEL y .config
+          ./scripts/kconfig/conf --set-val CONFIG_BROKEN y .config
+          
+          # StrongSwan 核心配置
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-full y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-ipsec y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-ikev2 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-openssl y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-eap-mschapv2 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-eap-identity y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-xauth y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-psk y .config
           
           # 禁用 WolfSSL 相关
-          ./scripts/config --set-val CONFIG_PACKAGE_libwolfssl n
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-wolfssl n
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-libtls n
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_libwolfssl n .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-wolfssl n .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-libtls n .config
           
           # 基础依赖
-          ./scripts/config --set-val CONFIG_PACKAGE_libopenssl y
-          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-raw y
-          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-nat-extra y
-          ./scripts/config --set-val CONFIG_PACKAGE_iptables-mod-nat-extra y
-          ./scripts/config --set-val CONFIG_PACKAGE_xl2tpd y
-          ./scripts/config --set-val CONFIG_PACKAGE_ppp y
-          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-l2tp y
-          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-pppoe y
-          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-pptp y
-          ./scripts/config --set-val CONFIG_PACKAGE_firewall y
-          ./scripts/config --set-val CONFIG_PACKAGE_iptables y
-          ./scripts/config --set-val CONFIG_PACKAGE_ip6tables y
-          ./scripts/config --set-val CONFIG_KMOD_IP_TABLES y
-          ./scripts/config --set-val CONFIG_KMOD_IP_NAT y
-          ./scripts/config --set-val CONFIG_KMOD_IP_CONNTRACK y
-          ./scripts/configARK y
-          ./scripts/config --set-val CONFIG_KMOD_NETFILTER_XT_MATCH_STATE y
-          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-conntrack-extra y
-          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_AES y
-          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_CBC y
-          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_HMAC y
-          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_SHA256 y
-          ./scripts/config --set-val CONFIG_KMOD_XFRM y
-          ./scripts/config --set-val CONFIG_KMOD_XFRM_USER y
-          ./scripts/config --set-val CONFIG_KMOD_XFRM_MODE_TUNNEL y
-          ./scripts/config --set-val CONFIG_KMOD_XFRM_MODE_TRANSPORT y
-          ./scripts/config --set-val CONFIG_KMOD_IPSEC y
-          ./scripts/config --set-val CONFIG_KMOD_l2tp y
-          ./scripts/config --set-val CONFIG_KMOD_l2tp-ip y
-          ./scripts/config --set-val CONFIG_KMOD_l2tp-eth y
-          ./scripts/config --set-val CONFIG_KMOD_pppol2tp y
-          ./scripts/config --set-val CONFIG_PACKAGE_iptables-mod-ipsec y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-compat y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-theme-argon y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-argon-config y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-firewall y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-ddns y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-udpxy y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-dockerman y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-strongswan y
-          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts y
-          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts-cloudflare y
-          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4 y
-          ./scripts/config --set-val CONFIG_PACKAGE_wget-ssl y
-          ./scripts/config --set-val CONFIG_PACKAGE_ipsec-tools y
-          ./scripts/config --set-val CONFIG_PACKAGE_ntpclient y
-          ./scripts/config --set-val CONFIG_PACKAGE_libreswan n
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-libreswan n
-          ./scripts/config --set-val CONFIG_PACKAGE_openconnect n
-          ./scripts/config --set-val CONFIG_PACKAGE_openswan n
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_libopenssl y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_kmod-ipt-raw y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_kmod-ipt-nat-extra y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_iptables-mod-nat-extra y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_xl2tpd y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ppp y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ppp-mod-l2tp y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ppp-mod-pppoe y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ppp-mod-pptp y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_firewall y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_iptables y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ip6tables y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_IP_TABLES y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_IP_NAT y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_IP_CONNTRACK y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_IP_CONNTRACK_MARK y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_NETFILTER_XT_MATCH_STATE y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_kmod-ipt-conntrack-extra y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_CRYPTO_AES y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_CRYPTO_CBC y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_CRYPTO_HMAC y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_CRYPTO_SHA256 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_XFRM y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_XFRM_USER y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_XFRM_MODE_TUNNEL y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_XFRM_MODE_TRANSPORT y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_IPSEC y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_l2tp y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_l2tp-ip y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_l2tp-eth y .config
+          ./scripts/kconfig/conf --set-val CONFIG_KMOD_pppol2tp y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_iptables-mod-ipsec y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-compat y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-theme-argon y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-argon-config y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-firewall y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-ddns y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-udpxy y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-dockerman y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-strongswan y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ddns-scripts y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ddns-scripts-cloudflare y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4 y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_wget-ssl y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ipsec-tools y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_ntpclient y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_libreswan n .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-libreswan n .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_openconnect n .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_openswan n .config
+          
+          # 3. 再次运行 defconfig 确保配置一致性
+          make defconfig
 
-      - name: 【关键4】检查 StrongSwan 配置是否生效
+      - name: 【关键】验证 StrongSwan 配置是否生效
         run: |
           cd $OPENWRT_PATH
-          make defconfig
           echo "=== 检查 StrongSwan 核心配置 ==="
           grep -E "CONFIG_PACKAGE_strongswan(=|_)" .config || true
           grep -E "CONFIG_PACKAGE_libopenssl|CONFIG_PACKAGE_libwolfssl" .config || true
-          # 验证 strongswan-full 是否为 y
           if grep -q "CONFIG_PACKAGE_strongswan-full=y" .config; then
             echo "✅ StrongSwan 配置已生效"
           else
@@ -203,18 +205,15 @@ jobs:
           path: ${{ env.OPENWRT_PATH }}/.config
           retention-days: 7
 
-      - name: 【关键5】先单独编译 StrongSwan（确认可编译）
+      - name: 【关键】先单独编译 StrongSwan（确认可编译）
         run: |
           cd $OPENWRT_PATH
           make download -j$(nproc)
-          # 设置编译参数（通过环境变量，不修改 Makefile）
           export CFLAGS="${{ env.COMMON_FLAGS }}"
           export CXXFLAGS="${{ env.COMMON_FLAGS }}"
           export LDFLAGS="-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          # 单独编译 StrongSwan，V=s 输出详细日志
           make package/strongswan/compile V=s -j$(nproc) || make package/strongswan/compile V=s -j1
-          # 检查编译输出
           if [ -d "build_dir/target-x86_64_musl/strongswan-*/ipkg-install/usr/sbin" ]; then
             echo "✅ StrongSwan 单独编译成功"
             ls -la build_dir/target-x86_64_musl/strongswan-*/ipkg-install/usr/sbin/
@@ -265,19 +264,17 @@ jobs:
       - name: Stage2：添加 Nikki Feed 并编译
         run: |
           cd $OPENWRT_PATH
-          # 添加 Feed
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-          # 用官方工具配置 Nikki
-          ./scripts/config --set-val CONFIG_PACKAGE_nikki y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-nikki y
-          ./scripts/config --set-val CONFIG_PACKAGE_luci-i18n-nikki-zh-cn y
-          # 再次确认 StrongSwan 配置未被覆盖
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-full y
-          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-openssl y
+          # 使用正确的 conf 工具配置 Nikki
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_nikki y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-app-nikki y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_luci-i18n-nikki-zh-cn y .config
+          # 再次确认 StrongSwan 配置
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-full y .config
+          ./scripts/kconfig/conf --set-val CONFIG_PACKAGE_strongswan-mod-openssl y .config
           make defconfig
-          # 编译
           export CFLAGS="${{ env.COMMON_FLAGS }}"
           export CXXFLAGS="${{ env.COMMON_FLAGS }}"
           export LDFLAGS="-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
