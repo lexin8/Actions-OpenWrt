@@ -58,7 +58,7 @@ jobs:
 
       - name: Clone ImmortalWrt Source (Official Branch)
         run: |
-          git clone --depth 1 -b $REPO_BRANCH $REPO_URL2 openwrt
+          git clone --depth 1 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
