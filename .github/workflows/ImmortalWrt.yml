@@ -1,4 +1,4 @@
-name: ImmortalWrt 极速二阶段编译
+name: ImmortalWrt+StrongSwan
 
 on:
   workflow_dispatch:
@@ -8,15 +8,12 @@ on:
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: openwrt-23.05
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
-  COMMON_CFLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
-  COMMON_CXXFLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
-  COMMON_LDFLAGS: "-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
+  # 编译参数统一通过 OpenWrt 配置系统传递，不修改 Makefile
+  COMMON_FLAGS: "-fvisibility=default -rdynamic -fPIC -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -O2 -mtune=generic -march=x86-64"
 
 jobs:
   Build:
@@ -26,26 +23,27 @@ jobs:
       packages: read
 
     steps:
-      - name: Check Server Performance
+      - name: 检查服务器性能
         run: |
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
           echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
-          
-      - name: Initialization Environment
+
+      - name: 初始化环境（含 StrongSwan 编译依赖）
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
-          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev
+          # 【关键1】安装 StrongSwan 完整编译依赖
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev libgmp-dev libgcrypt-dev libp11-kit-dev libxml2-dev
           sudo -E systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          
-      - name: Maximize Build Space
+
+      - name: 最大化编译空间
         uses: easimon/maximize-build-space@master
         with:
           swap-size-mb: 1024
@@ -56,201 +54,207 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone ImmortalWrt Source
+      - name: 克隆 ImmortalWrt 源码
         run: |
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          
-      - name: Cache DL
+
+      - name: 缓存 DL 目录
         uses: actions/cache@v4
         with:
           path: openwrt/dl
           key: dl-${{ hashFiles('openwrt/feeds.conf.default') }}
 
-      - name: Cache CCache
+      - name: 缓存 CCache
         uses: actions/cache@v4
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ github.run_id }}
           restore-keys: |
             ccache-
-            
-      - name: Setup CCache
+
+      - name: 配置 CCache
         run: |
           mkdir -p $CCACHE_DIR
           ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
-          
-      - name: Fix Toolchain Compilation
+
+      - name: 更新并安装 Feeds
         run: |
-          export CFLAGS="${{ env.COMMON_CFLAGS }}"
-          export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
-          export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
-          export STRONGSWAN_CFLAGS="${{ env.COMMON_CFLAGS }}"
-          export STRONGSWAN_CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
-          export STRONGSWAN_LDFLAGS="${{ env.COMMON_LDFLAGS }}"
-          echo "工具链修复完成，全局编译参数已统一"
-          
-      - name: Update Feeds
-        run: |
-          cd openwrt
+          cd $OPENWRT_PATH
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          
-      - name: Fix StrongSwan Symbol & Compile Params
+          # 【关键2】检查 StrongSwan 包是否存在于 Feeds 中
+          if [ -d "feeds/packages/net/strongswan" ]; then
+            echo "✅ StrongSwan 包已找到"
+          else
+            echo "❌ StrongSwan 包未找到，编译终止"
+            exit 1
+          fi
+
+      - name: 【核心】配置 StrongSwan（OpenSSL 后端，禁用 WolfSSL）
         run: |
-          cd $OPENWRT_PATH/feeds/packages/net/strongswan
-          sed -i '/include $(INCLUDE_DIR)\/nls.mk/a \
-          TARGET_CFLAGS += ${{ env.COMMON_CFLAGS }} \
-          TARGET_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }} \
-          TARGET_LDFLAGS += ${{ env.COMMON_LDFLAGS }} \
-          STRONGSWAN_CFLAGS += ${{ env.COMMON_CFLAGS }} \
-          STRONGSWAN_CXXFLAGS += ${{ env.COMMON_CXXFLAGS }}' Makefile
-          sed -i '/CONFIGURE_ARGS+=/a \
-          --enable-symbol-visibility=no \\\
-          --with-libstrongswan-prefix=$(STAGING_DIR)/usr \\\
-          --with-pic \\\
-          --with-crypto=openssl \\\
-          --enable-openssl \\\
-          --disable-wolfssl \\\
-          --with-openssl=$(STAGING_DIR)/usr \\\
-          --with-cflags="${{ env.COMMON_CFLAGS }}" \\\
-          --with-cxxflags="${{ env.COMMON_CXXFLAGS }}" \\\
-          --with-ldflags="${{ env.COMMON_LDFLAGS }}"' Makefile
-          sed -i '/define BuildPlugin/a \
-          DEPENDS+= strongswan (= $(PKG_VERSION)-$(PKG_RELEASE)) \
-          TARGET_CFLAGS += $(STRONGSWAN_CFLAGS) \
-          TARGET_CXXFLAGS += $(STRONGSWAN_CXXFLAGS) \
-          TARGET_LDFLAGS += $(STRONGSWAN_LDFLAGS)' Makefile
-          sed -i 's/+PACKAGE_strongswan-mod-wolfssl:libwolfssl/+PACKAGE_strongswan-mod-openssl:libopenssl +libstrongswan (= $(PKG_VERSION)-$(PKG_RELEASE))/' Makefile
-          sed -i 's/$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so.\* $(1)\/usr\/lib\/ipsec\//$(CP) $(PKG_INSTALL_DIR)\/usr\/lib\/ipsec\/libstrongswan.so\* $(1)\/usr\/lib\/ipsec\//' Makefile
-          echo "StrongSwan修复完成：OpenSSL后端 + 符号导出启用 + 插件与核心库参数统一"
+          cd $OPENWRT_PATH
+          # 【关键3】用 OpenWrt 官方工具修改配置，100% 可靠
+          ./scripts/config --set-val CONFIG_TARGET_x86 y
+          ./scripts/config --set-val CONFIG_TARGET_x86_64 y
+          ./scripts/config --set-val CONFIG_TARGET_x86_64_Generic y
+          ./scripts/config --set-val CONFIG_TARGET_KERNEL_PARTSIZE 100
+          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_PARTSIZE 700
+          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_PERSIST_VAR y
+          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_TARGZ y
+          ./scripts/config --set-val CONFIG_TARGET_IMAGES_GZIP y
+          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_EXT4FS n
+          ./scripts/config --set-val CONFIG_TARGET_ROOTFS_SQUASHFS y
+          ./scripts/config --set-val CONFIG_DEVEL y
+          ./scripts/config --set-val CONFIG_BROKEN y
           
-      - name: Stage1 - Base + DDNS + UDPXY + Docker + strongswan-full
+          # StrongSwan 核心配置（确保选中）
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-full y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-ipsec y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-ikev2 y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-openssl y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-eap-mschapv2 y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-eap-identity y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-xauth y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-psk y
+          
+          # 禁用 WolfSSL 相关
+          ./scripts/config --set-val CONFIG_PACKAGE_libwolfssl n
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-wolfssl n
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-libtls n
+          
+          # 基础依赖
+          ./scripts/config --set-val CONFIG_PACKAGE_libopenssl y
+          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-raw y
+          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-nat-extra y
+          ./scripts/config --set-val CONFIG_PACKAGE_iptables-mod-nat-extra y
+          ./scripts/config --set-val CONFIG_PACKAGE_xl2tpd y
+          ./scripts/config --set-val CONFIG_PACKAGE_ppp y
+          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-l2tp y
+          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-pppoe y
+          ./scripts/config --set-val CONFIG_PACKAGE_ppp-mod-pptp y
+          ./scripts/config --set-val CONFIG_PACKAGE_firewall y
+          ./scripts/config --set-val CONFIG_PACKAGE_iptables y
+          ./scripts/config --set-val CONFIG_PACKAGE_ip6tables y
+          ./scripts/config --set-val CONFIG_KMOD_IP_TABLES y
+          ./scripts/config --set-val CONFIG_KMOD_IP_NAT y
+          ./scripts/config --set-val CONFIG_KMOD_IP_CONNTRACK y
+          ./scripts/configARK y
+          ./scripts/config --set-val CONFIG_KMOD_NETFILTER_XT_MATCH_STATE y
+          ./scripts/config --set-val CONFIG_PACKAGE_kmod-ipt-conntrack-extra y
+          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_AES y
+          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_CBC y
+          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_HMAC y
+          ./scripts/config --set-val CONFIG_KMOD_CRYPTO_SHA256 y
+          ./scripts/config --set-val CONFIG_KMOD_XFRM y
+          ./scripts/config --set-val CONFIG_KMOD_XFRM_USER y
+          ./scripts/config --set-val CONFIG_KMOD_XFRM_MODE_TUNNEL y
+          ./scripts/config --set-val CONFIG_KMOD_XFRM_MODE_TRANSPORT y
+          ./scripts/config --set-val CONFIG_KMOD_IPSEC y
+          ./scripts/config --set-val CONFIG_KMOD_l2tp y
+          ./scripts/config --set-val CONFIG_KMOD_l2tp-ip y
+          ./scripts/config --set-val CONFIG_KMOD_l2tp-eth y
+          ./scripts/config --set-val CONFIG_KMOD_pppol2tp y
+          ./scripts/config --set-val CONFIG_PACKAGE_iptables-mod-ipsec y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-compat y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-theme-argon y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-argon-config y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-firewall y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-ddns y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-udpxy y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-dockerman y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-strongswan y
+          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts y
+          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts-cloudflare y
+          ./scripts/config --set-val CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4 y
+          ./scripts/config --set-val CONFIG_PACKAGE_wget-ssl y
+          ./scripts/config --set-val CONFIG_PACKAGE_ipsec-tools y
+          ./scripts/config --set-val CONFIG_PACKAGE_ntpclient y
+          ./scripts/config --set-val CONFIG_PACKAGE_libreswan n
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-libreswan n
+          ./scripts/config --set-val CONFIG_PACKAGE_openconnect n
+          ./scripts/config --set-val CONFIG_PACKAGE_openswan n
+
+      - name: 【关键4】检查 StrongSwan 配置是否生效
         run: |
-          cd openwrt
-          cat > .config << 'EOF'
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=700
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_TARGZ=y
-          CONFIG_TARGET_IMAGES_GZIP=y
-          CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_TARGET_ROOTFS_SQUASHFS=y
-          CONFIG_DEVEL=y
-          CONFIG_BROKEN=y
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
-          CONFIG_PACKAGE_libwolfssl=n
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
-          CONFIG_PACKAGE_strongswan-libtls=n
-          CONFIG_PACKAGE_kmod-ipt-raw=y
-          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
-          CONFIG_PACKAGE_iptables-mod-nat-extra=y
-          CONFIG_PACKAGE_xl2tpd=y
-          CONFIG_PACKAGE_ppp=y
-          CONFIG_PACKAGE_ppp-mod-l2tp=y
-          CONFIG_PACKAGE_ppp-mod-pppoe=y
-          CONFIG_PACKAGE_ppp-mod-pptp=y
-          CONFIG_PACKAGE_firewall=y
-          CONFIG_PACKAGE_iptables=y
-          CONFIG_PACKAGE_ip6tables=y
-          CONFIG_KMOD_IP_TABLES=y
-          CONFIG_KMOD_IP_NAT=y
-          CONFIG_KMOD_IP_CONNTRACK=y
-          CONFIG_KMOD_IP_CONNTRACK_MARK=y
-          CONFIG_KMOD_NETFILTER_XT_MATCH_STATE=y
-          CONFIG_PACKAGE_kmod-ipt-conntrack-extra=y
-          CONFIG_KMOD_CRYPTO_AES=y
-          CONFIG_KMOD_CRYPTO_CBC=y
-          CONFIG_KMOD_CRYPTO_HMAC=y
-          CONFIG_KMOD_CRYPTO_SHA256=y
-          CONFIG_KMOD_XFRM=y
-          CONFIG_KMOD_XFRM_USER=y
-          CONFIG_KMOD_XFRM_MODE_TUNNEL=y
-          CONFIG_KMOD_XFRM_MODE_TRANSPORT=y
-          CONFIG_KMOD_IPSEC=y
-          CONFIG_KMOD_IPSEC_MB=y
-          CONFIG_KMOD_NETFILTER_XT_MATCH_IPSEC=y
-          CONFIG_KMOD_l2tp=y
-          CONFIG_KMOD_l2tp-ip=y
-          CONFIG_KMOD_l2tp-eth=y
-          CONFIG_KMOD_pppol2tp=y
-          CONFIG_KMOD_crypto-rng=y
-          CONFIG_PACKAGE_iptables-mod-ipsec=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-compat=y
-          CONFIG_PACKAGE_luci-theme-argon=y
-          CONFIG_PACKAGE_luci-app-argon-config=y
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-app-ipsec-vpnserver-manyusers=y
-          CONFIG_PACKAGE_luci-app-strongswan=y
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_strongswan-mod-xauth=y
-          CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
-          CONFIG_PACKAGE_strongswan-ikev2=y
-          CONFIG_PACKAGE_strongswan-eap=y
-          CONFIG_PACKAGE_strongswan-eap-identity=y
-          CONFIG_PACKAGE_strongswan-psk=y
-          CONFIG_PACKAGE_ipsec-tools=y
-          CONFIG_PACKAGE_ntpclient=y
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          CONFIG_PACKAGE_openconnect=n
-          CONFIG_PACKAGE_openswan=n
-          EOF
+          cd $OPENWRT_PATH
           make defconfig
-          
-      - name: Upload OpenWRT Config
-        if: always()
-        run: |
-          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
-          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Upload Config Artifact
+          echo "=== 检查 StrongSwan 核心配置 ==="
+          grep -E "CONFIG_PACKAGE_strongswan(=|_)" .config || true
+          grep -E "CONFIG_PACKAGE_libopenssl|CONFIG_PACKAGE_libwolfssl" .config || true
+          # 验证 strongswan-full 是否为 y
+          if grep -q "CONFIG_PACKAGE_strongswan-full=y" .config; then
+            echo "✅ StrongSwan 配置已生效"
+          else
+            echo "❌ StrongSwan 配置未生效，编译终止"
+            exit 1
+          fi
+
+      - name: 上传 OpenWrt 配置
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-config
-          path: openwrt-config.tar.gz
+          path: ${{ env.OPENWRT_PATH }}/.config
           retention-days: 7
-          
-      - name: Compile Stage1
+
+      - name: 【关键5】先单独编译 StrongSwan（确认可编译）
         run: |
-          cd openwrt
+          cd $OPENWRT_PATH
           make download -j$(nproc)
-          export CFLAGS="${{ env.COMMON_CFLAGS }}"
-          export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
-          export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
+          # 设置编译参数（通过环境变量，不修改 Makefile）
+          export CFLAGS="${{ env.COMMON_FLAGS }}"
+          export CXXFLAGS="${{ env.COMMON_FLAGS }}"
+          export LDFLAGS="-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          # 单独编译 StrongSwan，V=s 输出详细日志
+          make package/strongswan/compile V=s -j$(nproc) || make package/strongswan/compile V=s -j1
+          # 检查编译输出
+          if [ -d "build_dir/target-x86_64_musl/strongswan-*/ipkg-install/usr/sbin" ]; then
+            echo "✅ StrongSwan 单独编译成功"
+            ls -la build_dir/target-x86_64_musl/strongswan-*/ipkg-install/usr/sbin/
+          else
+            echo "❌ StrongSwan 单独编译失败"
+            exit 1
+          fi
+
+      - name: 上传 StrongSwan 编译日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: strongswan-compile-logs
+          path: |
+            ${{ env.OPENWRT_PATH }}/build_dir/target-x86_64_musl/strongswan-*/config.log
+            ${{ env.OPENWRT_PATH }}/build_dir/target-x86_64_musl/strongswan-*/.built*
+          retention-days: 7
+
+      - name: 编译完整固件（Stage1：基础+StrongSwan）
+        run: |
+          cd $OPENWRT_PATH
+          export CFLAGS="${{ env.COMMON_FLAGS }}"
+          export CXXFLAGS="${{ env.COMMON_FLAGS }}"
+          export LDFLAGS="-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          
-      - name: Stage1 - Package Firmware
+
+      - name: 打包 Stage1 固件
         if: always()
         run: |
-          cd openwrt/bin/targets/x86/64
+          cd $OPENWRT_PATH/bin/targets/x86/64
           mkdir -p $GITHUB_WORKSPACE/stage1-firmware
           cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
           cd $GITHUB_WORKSPACE
           tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
-          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Stage1 - Upload Firmware
+
+      - name: 上传 Stage1 固件
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -258,55 +262,39 @@ jobs:
           path: stage1-firmware.tar.gz
           retention-days: 30
 
-      - name: Stage2 - Add Nikki Feed
+      - name: Stage2：添加 Nikki Feed 并编译
         run: |
-          cd openwrt
+          cd $OPENWRT_PATH
+          # 添加 Feed
           echo "src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git" >> feeds.conf.default
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
-          
-      - name: Stage2 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
-          CONFIG_PACKAGE_libwolfssl=n
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          EOF
+          # 用官方工具配置 Nikki
+          ./scripts/config --set-val CONFIG_PACKAGE_nikki y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-app-nikki y
+          ./scripts/config --set-val CONFIG_PACKAGE_luci-i18n-nikki-zh-cn y
+          # 再次确认 StrongSwan 配置未被覆盖
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-full y
+          ./scripts/config --set-val CONFIG_PACKAGE_strongswan-mod-openssl y
           make defconfig
-          
-      - name: Stage2 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage2 - Compile
-        run: |
-          cd openwrt
-          export CFLAGS="${{ env.COMMON_CFLAGS }}"
-          export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
-          export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
+          # 编译
+          export CFLAGS="${{ env.COMMON_FLAGS }}"
+          export CXXFLAGS="${{ env.COMMON_FLAGS }}"
+          export LDFLAGS="-rdynamic -fPIC -L/usr/lib/x86_64-linux-gnu -lssp"
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
-          
-      - name: Stage2 - Package Firmware
+
+      - name: 打包 Stage2 固件
         if: always()
         run: |
-          cd openwrt/bin/targets/x86/64
+          cd $OPENWRT_PATH/bin/targets/x86/64
           mkdir -p $GITHUB_WORKSPACE/stage2-firmware
           cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage2-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
+          cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/stage2-firmware/config-stage2.txt
           cd $GITHUB_WORKSPACE
           tar -czvf stage2-firmware.tar.gz -C stage2-firmware .
-          echo "stage2-firmware-path=$GITHUB_WORKSPACE/stage2-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Stage2 - Upload Firmware
+
+      - name: 上传 Stage2 固件
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -314,68 +302,11 @@ jobs:
           path: stage2-firmware.tar.gz
           retention-days: 30
 
-      - name: Stage3 - Add Small Feed
-        run: |
-          cd openwrt
-          echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
-          ./scripts/feeds update small
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
-          
-      - name: Stage3 - Config
-        run: |
-          cd openwrt
-          cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
-          CONFIG_PACKAGE_libwolfssl=n
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
-          CONFIG_PACKAGE_homeproxy=y
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          EOF
-          make defconfig
-          
-      - name: Stage3 - Download
-        run: cd openwrt && make download -j$(nproc)
-
-      - name: Stage3 - Compile
-        run: |
-          cd openwrt
-          export CFLAGS="${{ env.COMMON_CFLAGS }}"
-          export CXXFLAGS="${{ env.COMMON_CXXFLAGS }}"
-          export LDFLAGS="${{ env.COMMON_LDFLAGS }}"
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make -j$(nproc) V=s || make -j1 V=s
-          
-      - name: Stage3 - Package Firmware
-        if: always()
-        run: |
-          cd openwrt/bin/targets/x86/64
-          mkdir -p $GITHUB_WORKSPACE/stage3-firmware
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage3-firmware/ 2>/dev/null || true
-          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage3-firmware/config-stage3.txt
-          cd $GITHUB_WORKSPACE
-          tar -czvf stage3-firmware.tar.gz -C stage3-firmware .
-          echo "stage3-firmware-path=$GITHUB_WORKSPACE/stage3-firmware.tar.gz" >> $GITHUB_OUTPUT
-          
-      - name: Stage3 - Upload Firmware
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: immortalwrt-stage3-firmware
-          path: stage3-firmware.tar.gz
-          retention-days: 30
-
-      - name: Completion
+      - name: 完成
         run: |
           echo "=========================================="
           echo "✅ 编译完成！"
-          echo "🔧 StrongSwan修复：OpenSSL后端 + 符号缺失已修复 + 移除WolfSSL"
+          echo "🔧 StrongSwan 状态：已通过单独编译验证，使用 OpenSSL 后端"
           echo "📦 Stage1 固件：基础 + DDNS + UDPXY + Docker + strongswan-full"
-          echo "📦 Stage2 固件：Nikki + strongswan-full"
-          echo "📦 Stage3 固件：HomeProxy + Sing-Box + strongswan-full"
+          echo "📦 Stage2 固件：Stage1 + Nikki"
           echo "=========================================="
