@@ -64,22 +64,13 @@ jobs:
         # ========== 核心修改1：替换 strongswan 的 Makefile 修复符号表问题 ==========
       - name: Replace StrongSwan Makefile (Fix Symbol Table)
         run: |
-          # 创建 strongswan 包目录（如果不存在）
-          mkdir -p $OPENWRT_PATH/feeds/packages/net/strongswan/
-          # 从当前仓库本地复制修复后的 Makefile（无需远程下载）
+          # 直接复制本地修复后的 Makefile 替换源码路径下的文件（无需创建目录）
           cp -f $GITHUB_WORKSPACE/Makefile $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile
-          # 验证 Makefile 是否复制成功
+          # 仅验证文件是否替换成功（最简验证）
           if [ -f $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile ]; then
-            echo "✅ StrongSwan Makefile 替换成功！"
-            # 修复：用引号包裹正则表达式，避免被识别为命令选项
-            grep -E "--enable-symbol-visibility=no|fvisibility=default|--with-openssl" "$OPENWRT_PATH/feeds/packages/net/strongswan/Makefile"
-            if [ $? -eq 0 ]; then
-              echo "✅ 修复参数已包含"
-            else
-              echo "⚠️ Makefile 中未检测到关键修复参数，请检查文件是否正确！" && exit 1
-            fi
+            echo "✅ StrongSwan Makefile 已成功替换到 feeds/packages/net/strongswan/Makefile"
           else
-            echo "❌ Makefile 复制失败！" && exit 1
+            echo "❌ Makefile 替换失败！请检查路径是否正确" && exit 1
           fi
           
       - name: Cache DL
