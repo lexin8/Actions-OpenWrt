@@ -1,0 +1,152 @@
+name: Build ImmortalWrt VPN & Docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-immortalwrt:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout ImmortalWrt LTS Source
+        uses: actions/checkout@v4
+        with:
+          repository: immortalwrt/immortalwrt
+          ref: openwrt-23.05
+          fetch-depth: 0
+          submodules: true
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt update -y
+          sudo apt full-upgrade -y
+          sudo apt install -y \
+            build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+            gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
+            file wget curl qemu-utils libelf-dev autoconf automake libtool autopoint \
+            pkg-config libgmp3-dev libmpc-dev libmpfr-dev texinfo patchutils nano
+
+      - name: Generate .config File
+        run: |
+          cat > .config << EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_PACKAGE_cfdisk=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_ucode-mod-socket=y
+          CONFIG_PACKAGE_iptables-mod-extra=y
+          CONFIG_PACKAGE_iptables-mod-ipopt=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_libreswan=y
+          CONFIG_PACKAGE_ipsec-tools=y
+          CONFIG_PACKAGE_luci-app-libreswan=y
+          CONFIG_KERNEL_CRYPTO_AES=y
+          CONFIG_KERNEL_CRYPTO_SHA1=y
+          CONFIG_KERNEL_CRYPTO_HMAC=y
+          CONFIG_KERNEL_CRYPTO_XFRM=y
+          CONFIG_KERNEL_XFRM_USER=y
+          CONFIG_KERNEL_XFRM_IPCOMP=y
+          CONFIG_KERNEL_NET_KEY=y
+          CONFIG_KERNEL_INET_AH=y
+          CONFIG_KERNEL_INET_ESP=y
+          CONFIG_KERNEL_INET_IPCOMP=y
+          CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
+          CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+          CONFIG_PACKAGE_luci-proto-ppp=y
+          CONFIG_PACKAGE_luci-proto-vpnc=y
+          CONFIG_PACKAGE_luci-proto-openconnect=y
+          CONFIG_PACKAGE_ipip=y
+          CONFIG_PACKAGE_vxlan=y
+          CONFIG_PACKAGE_luci-proto-ipip=y
+          CONFIG_PACKAGE_luci-proto-vxlan=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-libreswan-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-theme-openwrt-2020=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_unzip=y
+          CONFIG_PACKAGE_zip=y
+          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_net-tools=y
+          CONFIG_PACKAGE_iproute2=y
+          CONFIG_PACKAGE_ping=y
+          CONFIG_PACKAGE_traceroute=y
+          CONFIG_PACKAGE_tcpdump=y
+          CONFIG_PACKAGE_mtr=y
+          CONFIG_PACKAGE_nmap=y
+          CONFIG_PACKAGE_iperf3=y
+          CONFIG_PACKAGE_bind-dig=y
+          CONFIG_PACKAGE_ethtool=y
+          CONFIG_PACKAGE_bridge-utils=y
+          CONFIG_PACKAGE_strace=y
+          CONFIG_PACKAGE_lsof=y
+          CONFIG_PACKAGE_iftop=y
+          CONFIG_PACKAGE_arping=y
+          CONFIG_PACKAGE_iputils-ping=y
+          EOF
+
+      - name: Update & Install Feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Auto-Complete Dependencies (Non-Interactive)
+        run: |
+          make defconfig
+
+      - name: Download Package Sources
+        run: |
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+
+      - name: Build ImmortalWrt Image
+        run: |
+          make -j$(nproc) || make -j1 V=s
+          echo "编译完成，检查产物目录..."
+          ls -lh ./bin/targets/x86/64/ || echo "产物目录不存在，请检查编译是否成功"
+
+      - name: Prepare Artifacts (Fault-Tolerant)
+        run: |
+          mkdir -p ./immortalwrt-output/
+          echo "当前产物目录内容："
+          ls -la ./bin/targets/x86/64/ || true
+          cp -f ./bin/targets/x86/64/*.img.gz ./immortalwrt-output/ 2>/dev/null || true
+          cp -f ./bin/targets/x86/64/*.manifest ./immortalwrt-output/ 2>/dev/null || true
+          cp -f ./bin/targets/x86/64/*sha256* ./immortalwrt-output/ 2>/dev/null || true
+          echo "最终收集到的产物："
+          ls -lh ./immortalwrt-output/
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ImmortalWrt-x86_64-$(date +%Y%m%d)
+          path: ./immortalwrt-output/
+          retention-days: 90
