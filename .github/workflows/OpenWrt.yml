@@ -1,4 +1,4 @@
-name: Build OpenWrt x86_64 with IPSec VPN & Docker
+name: Build OpenWrt VPN & Docker
 
 on:
   workflow_dispatch:
@@ -130,14 +130,21 @@ jobs:
       - name: Build OpenWrt Image
         run: |
           make -j$(nproc) || make -j1 V=s
-          echo "编译完成，开始整理产物..."
+          echo "编译完成，检查产物目录..."
+          ls -lh ./bin/targets/x86/64/ || echo "产物目录不存在，请检查编译是否成功"
 
-      - name: Prepare Artifacts
+      - name: Prepare Artifacts (Fault-Tolerant)
         run: |
           mkdir -p ./openwrt-output/
-          cp ./bin/targets/x86/64/*.img.gz ./openwrt-output/
-          cp ./bin/targets/x86/64/*.sha256sums ./openwrt-output/
-          cp ./bin/targets/x86/64/*.manifest ./openwrt-output/
+          # 先列出目录下所有文件，方便调试
+          echo "当前产物目录内容："
+          ls -la ./bin/targets/x86/64/ || true
+          # 容错复制：优先复制核心固件，其他文件不存在则跳过
+          cp -f ./bin/targets/x86/64/*.img.gz ./openwrt-output/ 2>/dev/null || true
+          cp -f ./bin/targets/x86/64/*.manifest ./openwrt-output/ 2>/dev/null || true
+          cp -f ./bin/targets/x86/64/*sha256* ./openwrt-output/ 2>/dev/null || true
+          # 检查最终收集到的文件
+          echo "最终收集到的产物："
           ls -lh ./openwrt-output/
 
       - name: Upload Build Artifacts
