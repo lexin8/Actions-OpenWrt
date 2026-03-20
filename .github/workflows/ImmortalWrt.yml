@@ -116,14 +116,6 @@ jobs:
           # 5. 确保 OpenSSL 插件依赖核心库
           sed -i 's/DEPENDS:=strongswan +libopenssl3/DEPENDS:=strongswan +libopenssl3 +libstrongswan/' $STRONGSWAN_MAKEFILE
           
-          # 6. 清理 StrongSwan 旧编译缓存（非交互式方式，避免终端错误）
-          make -C $OPENWRT_PATH package/strongswan/clean V=s \
-            TERM=xterm-256color \
-            CONFIG_TERM_NONE=1 \
-            || echo "StrongSwan 清理完成（忽略非交互式环境警告）"
-          
-          # 7. 删除原有的追加配置（避免被后续覆盖）
-          # 所有配置已整合到Stage1的EOF块中
           
           echo "StrongSwan 符号表修复完成"
           
