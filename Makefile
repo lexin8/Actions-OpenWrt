@@ -166,7 +166,6 @@ $(call Package/strongswan/Default)
 	+strongswan-charon \
 	+strongswan-charon-cmd \
 	+strongswan-ipsec \
-	+strongswan-libnttfft \
 	+strongswan-mod-addrblock \
 	+strongswan-mod-aes \
 	+strongswan-mod-af-alg \
@@ -688,7 +687,7 @@ $(eval $(call BuildPlugin,af-alg,AF_ALG crypto interface to Linux Crypto API,+km
 $(eval $(call BuildPlugin,agent,SSH agent signing,))
 $(eval $(call BuildPlugin,attr,file based config,))
 $(eval $(call BuildPlugin,attr-sql,SQL based config,+strongswan-charon))
-$(eval $(call BuildPlugin,bliss,BLISS crypto,+strongswan-libnttfft +strongswan-mod-mgf1 +strongswan-mod-hmac))
+$(eval $(call BuildPlugin,bliss,BLISS crypto,+strongswan-mod-mgf1 +strongswan-mod-hmac))
 $(eval $(call BuildPlugin,blowfish,Blowfish crypto,))
 $(eval $(call BuildPlugin,ccm,CCM AEAD wrapper crypto,))
 $(eval $(call BuildPlugin,chapoly,ChaCha20-Poly1305 AEAD crypto,+kmod-crypto-chacha20poly1305))
@@ -729,7 +728,7 @@ $(eval $(call BuildPlugin,md4,MD4 crypto,))
 $(eval $(call BuildPlugin,md5,MD5 crypto,))
 $(eval $(call BuildPlugin,mgf1,MGF1 crypto,))
 $(eval $(call BuildPlugin,mysql,MySQL database interface,+strongswan-mod-sql +PACKAGE_strongswan-mod-mysql:libmysqlclient-r))
-$(eval $(call BuildPlugin,newhope,New Hope crypto,+strongswan-libnttfft +strongswan-mod-chapoly +strongswan-mod-sha3))
+$(eval $(call BuildPlugin,newhope,New Hope crypto,+strongswan-mod-chapoly +strongswan-mod-sha3))
 $(eval $(call BuildPlugin,ntru,NTRU crypto,+strongswan-mod-mgf1))
 $(eval $(call BuildPlugin,openssl,OpenSSL crypto,+PACKAGE_strongswan-mod-openssl:libopenssl))
 $(eval $(call BuildPlugin,pem,PEM decoding,))
