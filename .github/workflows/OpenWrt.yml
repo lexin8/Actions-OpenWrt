@@ -1,4 +1,4 @@
-name: Build OpenWrt  VPN & Docker
+name: Build OpenWrt x86_64 with IPSec VPN & Docker
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout OpenWrt Source
+      - name: Checkout Official OpenWrt Source
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
@@ -98,6 +98,18 @@ jobs:
           CONFIG_PACKAGE_iproute2=y
           CONFIG_PACKAGE_ping=y
           CONFIG_PACKAGE_traceroute=y
+          CONFIG_PACKAGE_tcpdump=y
+          CONFIG_PACKAGE_mtr=y
+          CONFIG_PACKAGE_nmap=y
+          CONFIG_PACKAGE_iperf3=y
+          CONFIG_PACKAGE_bind-dig=y
+          CONFIG_PACKAGE_ethtool=y
+          CONFIG_PACKAGE_bridge-utils=y
+          CONFIG_PACKAGE_strace=y
+          CONFIG_PACKAGE_lsof=y
+          CONFIG_PACKAGE_iftop=y
+          CONFIG_PACKAGE_arping=y
+          CONFIG_PACKAGE_iputils-ping=y
           EOF
 
       - name: Update & Install Feeds
@@ -105,10 +117,9 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Configure & Check Dependencies
+      - name: Auto-Complete Dependencies (Non-Interactive)
         run: |
           make defconfig
-          make menuconfig -o .config
 
       - name: Download Package Sources
         run: |
