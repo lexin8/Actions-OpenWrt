@@ -71,8 +71,13 @@ jobs:
           # 验证 Makefile 是否复制成功
           if [ -f $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile ]; then
             echo "✅ StrongSwan Makefile 替换成功！"
-            # 检查关键修复参数是否存在
-            grep -E "--enable-symbol-visibility=no|fvisibility=default|--with-openssl" $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile && echo "✅ 修复参数已包含"
+            # 修复：用引号包裹正则表达式，避免被识别为命令选项
+            grep -E "--enable-symbol-visibility=no|fvisibility=default|--with-openssl" "$OPENWRT_PATH/feeds/packages/net/strongswan/Makefile"
+            if [ $? -eq 0 ]; then
+              echo "✅ 修复参数已包含"
+            else
+              echo "⚠️ Makefile 中未检测到关键修复参数，请检查文件是否正确！" && exit 1
+            fi
           else
             echo "❌ Makefile 复制失败！" && exit 1
           fi
