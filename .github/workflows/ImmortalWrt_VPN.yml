@@ -32,7 +32,6 @@ jobs:
 
       - name: Generate .config File
         run: |
-          cd openwrt
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -156,8 +155,8 @@ jobs:
       - name: Upload .config File
         uses: actions/upload-artifact@v4
         with:
-          name: ImmortalWrt-Config-$(date +%Y%m%d)
-          path: ./.config
+          name: ImmortalWrt-Config
+          path: .config
           retention-days: 30
 
       - name: Update & Install Feeds
