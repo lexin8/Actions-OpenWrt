@@ -20,15 +20,6 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Fix ImmortalWrt Feeds
-        run: |
-          cp feeds.conf.default feeds.conf.default.bak
-          cat > feeds.conf.default << EOF
-          src-git packages https://github.com/immortalwrt/packages.git;openwrt-23.05
-          src-git luci https://github.com/immortalwrt/luci.git;openwrt-23.05
-          src-git routing https://github.com/immortalwrt/routing.git;openwrt-23.05
-          EOF
-
       - name: Install Build Dependencies
         run: |
           sudo apt update -y
@@ -166,20 +157,13 @@ jobs:
         with:
           name: ImmortalWrt-Config-$(date +%Y%m%d)
           path: ./.config
-          retention-days: 90
+          retention-days: 30
 
       - name: Update & Install Feeds
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          ./scripts/feeds install luci-lib-docker
-          ./scripts/feeds install libnetwork
-          ./scripts/feeds install luci-app-ipsec-vpn
 
-      - name: Auto-Complete Dependencies
-        run: |
-          make defconfig
-          grep -E 'docker|libreswan|xl2tpd' .config
 
       - name: Download Package Sources
         run: |
