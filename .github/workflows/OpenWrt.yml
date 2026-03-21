@@ -182,7 +182,7 @@ jobs:
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
-          # 补充的中文支持核心配置
+          # 中文支持核心配置
           CONFIG_LUCI_LANG_zh_CN=y
           CONFIG_LUCI_I18N=y
           CONFIG_PACKAGE_luci-intl=y
@@ -195,6 +195,25 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-status-zh-cn=y
           CONFIG_PACKAGE_libiconv=y
           CONFIG_PACKAGE_libintl-full=y
+          # ===== L2TP/IPSec PSK 新增核心依赖（确保功能完整）=====
+          # L2TP 认证依赖
+          CONFIG_PACKAGE_ppp-mod-chap=y
+          CONFIG_PACKAGE_ppp-mod-mschap=y
+          CONFIG_PACKAGE_ppp-mod-mschapv2=y
+          # IPSec 关键工具（补充ipsec-tools缺失组件）
+          CONFIG_PACKAGE_ipsec-tools-libs=y
+          # L2TP/IPSec 防火墙转发依赖
+          CONFIG_PACKAGE_iptables-mod-nat-extra=y
+          CONFIG_PACKAGE_kmod-nf-nathelper=y
+          CONFIG_PACKAGE_kmod-nf-nathelper-extra=y
+          # L2TP 内核模块（xl2tpd 运行必需）
+          CONFIG_PACKAGE_kmod-l2tp=y
+          CONFIG_PACKAGE_kmod-l2tp-ip=y
+          CONFIG_PACKAGE_kmod-l2tp-eth=y
+          # IPSec NAT-T 穿透（解决公网NAT环境下IPSec连接问题）
+          CONFIG_KERNEL_XFRM_NAT_TRAVERSAL=y
+          CONFIG_PACKAGE_libnftnl=y
+          CONFIG_PACKAGE_libmnl=y
           EOF
           make defconfig
           
