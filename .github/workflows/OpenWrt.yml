@@ -5,6 +5,9 @@ on:
   push:
     branches: [ main ]
 
+env:
+  OPENWRT_BRANCH: openwrt-23.05
+
 jobs:
   build-openwrt:
     runs-on: ubuntu-22.04
@@ -12,13 +15,24 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Official OpenWrt Source
+      - name: Checkout Official OpenWrt Source (GitHub Mirror)
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
-          ref: openwrt-23.05
+          ref: ${{ env.OPENWRT_BRANCH }}
           fetch-depth: 0
           submodules: true
+
+      - name: Modify feeds.conf.default to GitHub Mirrors (Unified Branch)
+        run: |
+          cp feeds.conf.default feeds.conf.default.bak
+          cat > feeds.conf.default << EOF
+          src-git packages https://github.com/openwrt/packages.git^${{ env.OPENWRT_BRANCH }}
+          src-git luci https://github.com/openwrt/luci.git^${{ env.OPENWRT_BRANCH }}
+          src-git routing https://github.com/openwrt/routing.git^${{ env.OPENWRT_BRANCH }}
+          src-git telephony https://github.com/openwrt/telephony.git^${{ env.OPENWRT_BRANCH }}
+          EOF
+          cat feeds.conf.default
 
       - name: Install Build Dependencies
         run: |
@@ -37,7 +51,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_PACKAGE_cfdisk=y
@@ -73,11 +87,17 @@ jobs:
           CONFIG_PACKAGE_uhttpd=y
           CONFIG_PACKAGE_uhttpd-mod-ubus=y
           CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
           CONFIG_PACKAGE_luci-mod-admin-full=y
           CONFIG_PACKAGE_luci-mod-network=y
           CONFIG_PACKAGE_luci-mod-firewall=y
           CONFIG_PACKAGE_luci-mod-system=y
           CONFIG_PACKAGE_luci-mod-status=y
+          CONFIG_PACKAGE_luci-lib-nixio=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_rpcd=y
+          CONFIG_PACKAGE_rpcd-mod-luci=y
+          CONFIG_PACKAGE_lua=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-theme-openwrt-2020=y
@@ -141,8 +161,16 @@ jobs:
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           EOF
+          cat .config
 
-      - name: Update & Install Feeds
+      - name: Upload .config File (Before Build)
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt-Config-$(date +%Y%m%d)
+          path: ./.config
+          retention-days: 30
+
+      - name: Update & Install Feeds (GitHub Mirrors + Unified Branch)
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -160,21 +188,15 @@ jobs:
       - name: Build OpenWrt Image
         run: |
           make -j$(nproc) || make -j1 V=s
-          echo "编译完成，检查产物目录..."
           ls -lh ./bin/targets/x86/64/ || echo "产物目录不存在，请检查编译是否成功"
 
       - name: Prepare Artifacts (Fault-Tolerant)
         run: |
           mkdir -p ./openwrt-output/
-          # 先列出目录下所有文件，方便调试
-          echo "当前产物目录内容："
           ls -la ./bin/targets/x86/64/ || true
-          # 容错复制：优先复制核心固件，其他文件不存在则跳过
           cp -f ./bin/targets/x86/64/*.img.gz ./openwrt-output/ 2>/dev/null || true
           cp -f ./bin/targets/x86/64/*.manifest ./openwrt-output/ 2>/dev/null || true
           cp -f ./bin/targets/x86/64/*sha256* ./openwrt-output/ 2>/dev/null || true
-          # 检查最终收集到的文件
-          echo "最终收集到的产物："
           ls -lh ./openwrt-output/
 
       - name: Upload Build Artifacts
@@ -182,4 +204,4 @@ jobs:
         with:
           name: OpenWrt-x86_64-$(date +%Y%m%d)
           path: ./openwrt-output/
-          retention-days: 90
+          retention-days: 30
