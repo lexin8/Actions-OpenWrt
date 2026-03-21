@@ -161,6 +161,7 @@ jobs:
           CONFIG_PACKAGE_nftables=y
           EOF
           cat .config
+          make defconfig
 
       - name: Upload .config File (Before Build)
         uses: actions/upload-artifact@v4
