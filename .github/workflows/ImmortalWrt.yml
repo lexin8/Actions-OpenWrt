@@ -55,23 +55,10 @@ jobs:
 
       - name: Clone ImmortalWrt Source
         run: |
+          # git clone --depth 1 $REPO_URL2 openwrt
           git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          
-        # ========== 核心修改1：替换 strongswan 的 Makefile 修复符号表问题 ==========
-      - name: Replace StrongSwan Makefile (Fix Symbol Table)
-        run: |
-          # 直接复制本地修复后的 Makefile 替换源码路径下的文件（无需创建目录）
-          cp -f $GITHUB_WORKSPACE/Makefile $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile
-          # 仅验证文件是否替换成功（最简验证）
-          if [ -f $OPENWRT_PATH/feeds/packages/net/strongswan/Makefile ]; then
-            echo "✅ StrongSwan Makefile 已成功替换到 feeds/packages/net/strongswan/Makefile"
-          else
-            echo "❌ Makefile 替换失败！请检查路径是否正确" && exit 1
-          fi
           
       - name: Cache DL
         uses: actions/cache@v4
@@ -93,18 +80,12 @@ jobs:
           ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
           
-      # ========== 核心修改2：强化编译参数，确保符号可见性 ==========
-      - name: Fix Toolchain Compilation (Symbol Visibility)
+      - name: Fix Toolchain Compilation
         run: |
-          # 全局设置符号可见性编译参数，覆盖所有编译环节
-          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -fvisibility=default -rdynamic"
-          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0 -fvisibility=default -rdynamic"
-          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp -rdynamic"
-          # 将参数写入环境变量，确保后续编译生效
-          echo "CFLAGS=$CFLAGS" >> $GITHUB_ENV
-          echo "CXXFLAGS=$CXXFLAGS" >> $GITHUB_ENV
-          echo "LDFLAGS=$LDFLAGS" >> $GITHUB_ENV
-          echo "✅ 工具链修复完成，符号可见性参数已设置"
+          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
+          echo "工具链修复完成"
           
       - name: Update Feeds (提前同步，关键修复)
         run: |
@@ -117,7 +98,7 @@ jobs:
         run: |
           cd openwrt
           
-          # 基础配置（核心：强制OpenSSL，禁用wolfssl，保留strongswan-full）
+          # 基础配置（核心：保留strongswan-full，移除冲突组件）
           cat > .config << 'EOF'
           # ===================== 核心系统架构与分区 =====================
           CONFIG_TARGET_x86=y
@@ -136,19 +117,10 @@ jobs:
           CONFIG_DEVEL=y
           CONFIG_BROKEN=y
           # ==============================================
-          # 强制使用OpenSSL，禁用wolfssl（关键）
-          # ==============================================
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_openssl-util=y
-          CONFIG_PACKAGE_wolfssl=n
-          CONFIG_PACKAGE_libwolfssl=n
-          CONFIG_PACKAGE_strongswan-mod-wolfssl=n
-          # ==============================================
           # StrongSwan-full（L2TP/IPsec + IKEv2 核心）
           # ==============================================
           CONFIG_PACKAGE_strongswan=y
           CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
           CONFIG_PACKAGE_kmod-ipt-raw=y
           CONFIG_PACKAGE_kmod-ipt-nat-extra=y
           CONFIG_PACKAGE_iptables-mod-nat-extra=y
@@ -210,7 +182,7 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4=y
           CONFIG_PACKAGE_wget-ssl=y
           # ==============================================
-          # StrongSwan 强化模块（强制OpenSSL依赖）
+          # StrongSwan 强化模块
           # ==============================================
           CONFIG_PACKAGE_strongswan-mod-xauth=y
           CONFIG_PACKAGE_strongswan-mod-eap-mschapv2=y
@@ -218,10 +190,6 @@ jobs:
           CONFIG_PACKAGE_strongswan-eap=y
           CONFIG_PACKAGE_strongswan-eap-identity=y
           CONFIG_PACKAGE_strongswan-psk=y
-          CONFIG_PACKAGE_strongswan-mod-x509=y
-          CONFIG_PACKAGE_strongswan-mod-pem=y
-          CONFIG_PACKAGE_strongswan-mod-hmac=y
-          CONFIG_PACKAGE_strongswan-mod-aes=y
           # ==============================================
           # 调试/工具组件
           # ==============================================
@@ -230,6 +198,8 @@ jobs:
           # ==============================================
           # 禁用冲突组件（防止和 strongswan 冲突）
           # ==============================================
+          # CONFIG_PACKAGE_libwolfssl is not set
+          CONFIG_PACKAGE_wolfssl=n
           CONFIG_PACKAGE_libreswan=n
           CONFIG_PACKAGE_luci-app-libreswan=n
           CONFIG_PACKAGE_openconnect=n
@@ -239,7 +209,6 @@ jobs:
           
       - name: Upload OpenWRT Config
         if: always()
-        id: upload-config
         run: |
           tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
           echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
@@ -252,22 +221,14 @@ jobs:
           path: openwrt-config.tar.gz
           retention-days: 7
           
-      # ========== 核心修改3：编译时强制启用CCACHE和符号参数 ==========
       - name: make OpenWRT   
         run: |
           cd openwrt
           make download -j$(nproc)
-          # 强制传递符号可见性参数，确保覆盖所有编译环节
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 \
-                 CFLAGS="-fvisibility=default -rdynamic" \
-                 CXXFLAGS="-fvisibility=default -rdynamic" \
-                 PATH="/usr/lib/ccache:$PATH"
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
-          # 编译时输出详细日志，便于排查符号问题
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          # 验证strongswan编译产物的符号可见性（关键检查）
-          find ./build_dir/ -name "libstrongswan.so" -exec nm -D -g {} | grep -i "crypto_init" \; || true
           
       - name: Stage1 - Package Firmware
         if: always()
@@ -276,9 +237,6 @@ jobs:
           mkdir -p $GITHUB_WORKSPACE/stage1-firmware
           cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
           cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
-          # 复制符号检查日志到固件包
-          echo "===== Symbol Check Log =====" > $GITHUB_WORKSPACE/stage1-firmware/symbol-check.log
-          find $GITHUB_WORKSPACE/openwrt/build_dir/ -name "libstrongswan.so" -exec nm -D -g {} \; >> $GITHUB_WORKSPACE/stage1-firmware/symbol-check.log 2>&1
           cd $GITHUB_WORKSPACE
           tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
           echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
@@ -299,16 +257,13 @@ jobs:
           ./scripts/feeds update nikki
           ./scripts/feeds install nikki luci-app-nikki luci-i18n-nikki-zh-cn
           
-      - name: Stage2 - Config (保留strongswan-full + 强制OpenSSL)
+      - name: Stage2 - Config (保留strongswan-full)
         run: |
           cd openwrt
           cat >> .config << 'EOF'
-          # 强制保留strongswan-full和OpenSSL
+          # 保留strongswan-full配置（关键：防止被覆盖）
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_wolfssl=n
-          CONFIG_PACKAGE_libwolfssl=n
           # 添加Nikki组件
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
@@ -322,13 +277,10 @@ jobs:
       - name: Stage2 - Download
         run: cd openwrt && make download -j$(nproc)
 
-      - name: Stage2 - Compile (保留符号参数)
+      - name: Stage2 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 \
-                 CFLAGS="-fvisibility=default -rdynamic" \
-                 CXXFLAGS="-fvisibility=default -rdynamic" \
-                 PATH="/usr/lib/ccache:$PATH"
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
           
       - name: Stage2 - Package Firmware
@@ -358,16 +310,13 @@ jobs:
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
           
-      - name: Stage3 - Config (保留strongswan-full + 强制OpenSSL)
+      - name: Stage3 - Config (保留strongswan-full)
         run: |
           cd openwrt
           cat >> .config << 'EOF'
-          # 强制保留strongswan-full和OpenSSL
+          # 保留strongswan-full配置
           CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_libopenssl=y
-          CONFIG_PACKAGE_wolfssl=n
-          CONFIG_PACKAGE_libwolfssl=n
           # 添加HomeProxy/Sing-Box组件
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
@@ -381,13 +330,10 @@ jobs:
       - name: Stage3 - Download
         run: cd openwrt && make download -j$(nproc)
 
-      - name: Stage3 - Compile (保留符号参数)
+      - name: Stage3 - Compile
         run: |
           cd openwrt
-          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 \
-                 CFLAGS="-fvisibility=default -rdynamic" \
-                 CXXFLAGS="-fvisibility=default -rdynamic" \
-                 PATH="/usr/lib/ccache:$PATH"
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           make -j$(nproc) V=s || make -j1 V=s
           
       - name: Stage3 - Package Firmware
@@ -416,5 +362,4 @@ jobs:
           echo "📦 Stage1 固件已上传（基础 + DDNS + UDPXY + Docker + strongswan-full）"
           echo "📦 Stage2 固件已上传（Nikki + strongswan-full）"
           echo "📦 Stage3 固件已上传（HomeProxy + Sing-Box + strongswan-full）"
-          echo "🔍 符号表修复已生效，强制使用OpenSSL，禁用wolfssl"
           echo "=========================================="
