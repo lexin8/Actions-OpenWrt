@@ -1,39 +1,62 @@
-name: Build OpenWrt 23.05
+name: fanchmwrt
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
+  schedule:
+    - cron: '0 20 * * 6'
 
 env:
-  OPENWRT_BRANCH: openwrt-23.05
-  BUILD_DATE: ${{ github.run_id }}
+  TZ: Asia/Shanghai
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/openwrt/openwrt
+  REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: openwrt-23.05
+  CCACHE_DIR: ${{ github.workspace }}/ccache
+  CCACHE_MAXSIZE: 5G
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: .config
+  FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
 
 jobs:
-  build-openwrt:
+  Build:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
+      packages: read
 
     steps:
-      - name: Checkout OpenWrt Source
-        uses: actions/checkout@v4
-        with:
-          repository: openwrt/openwrt
-          ref: ${{ env.OPENWRT_BRANCH }}
-          fetch-depth: 0
-          submodules: recursive
-          timeout-minutes: 10
-
-      - name: Install Build Dependencies
+      - name: Check Server Performance
         run: |
-          sudo apt update -y
-          sudo apt full-upgrade -y
-          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget curl qemu-utils libelf-dev autoconf automake libtool autopoint pkg-config libgmp3-dev libmpc-dev libmpfr-dev texinfo patchutils nano
-
-      - name: Generate .config File
-        working-directory: ${{ github.workspace }}/openwrt
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+          
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev libncursesw5-dev swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go libwolfssl-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+          
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone ImmortalWrt Source
+        run: |
+          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+  
+      - name: config
+        run: |
+          cd openwrt
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -151,56 +174,51 @@ jobs:
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           EOF
-          chmod 644 .config
-          ls -la .config
-
-      - name: Upload .config File
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenWrt-Config-${{ env.BUILD_DATE }}
-          path: ${{ github.workspace }}/openwrt/.config
-          retention-days: 30
-
-      - name: Update & Install Feeds
-        working-directory: ${{ github.workspace }}/openwrt
-        run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          ./scripts/feeds install luci-app-dockerman
-          ./scripts/feeds install luci-app-libreswan
-
-      - name: Auto-Complete Dependencies
-        working-directory: ${{ github.workspace }}/openwrt
-        run: |
           make defconfig
-          grep -E 'docker|libreswan|xl2tpd' .config
-
-      - name: Download Package Sources
-        working-directory: ${{ github.workspace }}/openwrt
+          
+      - name: Upload OpenWRT Config
+        if: always()
+        id: upload-config
         run: |
-          make download -j$(nproc)
-          find dl -size -1024c -exec ls -l {} \;
-          find dl -size -1024c -exec rm -f {} \;
-
-      - name: Build OpenWrt Image
-        working-directory: ${{ github.workspace }}/openwrt
-        run: |
-          make -j$(nproc) || make -j1 V=s
-          ls -lh ./bin/targets/x86/64/ || echo "Build Directory Not Found"
-
-      - name: Prepare Build Artifacts
-        working-directory: ${{ github.workspace }}/openwrt
-        run: |
-          mkdir -p ./openwrt-output/
-          ls -la ./bin/targets/x86/64/ || true
-          cp -f ./bin/targets/x86/64/*.img.gz ./openwrt-output/ 2>/dev/null || true
-          cp -f ./bin/targets/x86/64/*.manifest ./openwrt-output/ 2>/dev/null || true
-          cp -f ./bin/targets/x86/64/*sha256* ./openwrt-output/ 2>/dev/null || true
-          ls -lh ./openwrt-output/
-
-      - name: Upload Build Artifacts
+          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Config Artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-x86_64-${{ env.BUILD_DATE }}
-          path: ${{ github.workspace }}/openwrt/openwrt-output/
-          retention-days: 90
+          name: openwrt-config
+          path: openwrt-config.tar.gz
+          retention-days: 7
+          
+      - name: Compile Stage1 Firmware
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          make -j$(nproc) V=s || make -j1 V=s
+          
+      - name: Package Stage1 Firmware
+        if: always()
+        id: stage1-package
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Stage1 Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-stage1-firmware
+          path: stage1-firmware.tar.gz
+          retention-days: 30
+ 
+      - name: Completion
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！"
+          echo "=========================================="
