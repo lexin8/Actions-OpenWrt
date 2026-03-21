@@ -166,8 +166,8 @@ jobs:
       - name: Upload .config File (Before Build)
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-Config-$(date +%Y%m%d)
-          path: ./.config
+          name: OpenWrt-Config-${{ github.run_id }} 
+          path: ${{ github.workspace }}/.config
           retention-days: 30
 
       - name: Update & Install Feeds (GitHub Mirrors + Unified Branch)
