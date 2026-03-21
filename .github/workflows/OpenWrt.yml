@@ -47,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone ImmortalWrt Source
+      - name: Clone  Source
         run: |
           git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
           cd openwrt
@@ -71,7 +71,7 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
+          CONFIG_TARGET_ROOTFS_PARTSIZE=2000
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_PACKAGE_cfdisk=y
@@ -182,6 +182,19 @@ jobs:
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
+          # 补充的中文支持核心配置
+          CONFIG_LUCI_LANG_zh_CN=y
+          CONFIG_LUCI_I18N=y
+          CONFIG_PACKAGE_luci-intl=y
+          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-udpxy-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-admin-full-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-network-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-system-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-status-zh-cn=y
+          CONFIG_PACKAGE_libiconv=y
+          CONFIG_PACKAGE_libintl-full=y
           EOF
           make defconfig
           
