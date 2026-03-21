@@ -25,11 +25,11 @@ jobs:
 
       - name: Modify feeds.conf.default to GitHub Mirrors (Unified Branch)
         run: |
-          cp feeds.conf.default feeds.conf.default.bak
           cat > feeds.conf.default << EOF
-          src-git packages https://github.com/openwrt/packages.git^${{ env.OPENWRT_BRANCH }}
-          src-git luci https://github.com/openwrt/luci.git^${{ env.OPENWRT_BRANCH }}
-          src-git routing https://github.com/openwrt/routing.git^${{ env.OPENWRT_BRANCH }}
+          src-git packages https://github.com/openwrt/packages.git;${{ env.OPENWRT_BRANCH }}
+          src-git luci https://github.com/openwrt/luci.git;${{ env.OPENWRT_BRANCH }}
+          src-git routing https://github.com/openwrt/routing.git;${{ env.OPENWRT_BRANCH }} 
+          src-git telephony https://github.com/openwrt/telephony.git;${{ env.OPENWRT_BRANCH }}
           EOF
           cat feeds.conf.default
 
