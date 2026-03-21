@@ -53,6 +53,15 @@ jobs:
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+
+      - name: Modify feeds.conf.default to GitHub Mirrors (Unified Branch)
+        run: |
+          cat > feeds.conf.default << EOF
+          src-git packages https://github.com/openwrt/packages.git;openwrt-23.05
+          src-git luci https://github.com/openwrt/luci.git;openwrt-23.05
+          src-git routing https://github.com/openwrt/routing.git;openwrt-23.05
+          src-git telephony https://github.com/openwrt/telephony.git;openwrt-23.05
+          EOF
   
       - name: config
         run: |
