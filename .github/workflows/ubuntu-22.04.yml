@@ -120,7 +120,7 @@ jobs:
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
           echo "工具链修复完成"
           
-      - name: Stage1 - Base + Strongswan + Docker + DDNS + UDPXY
+      - name: Stage1 Docker + DDNS + UDPXY
         run: |
           cd openwrt
           cat > .config << 'EOF'
@@ -128,63 +128,118 @@ jobs:
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=700
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_TARGZ=y
-          CONFIG_TARGET_IMAGES_GZIP=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_TARGET_ROOTFS_SQUASHFS=y
-          CONFIG_DEVEL=y
-          CONFIG_BROKEN=y
-          # StrongSwan
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_kmod-ipt-raw=y
-          CONFIG_PACKAGE_kmod-ipt-nat-extra=y
-          CONFIG_PACKAGE_xl2tpd=y
-          CONFIG_PACKAGE_ppp=y
-          CONFIG_PACKAGE_ppp-mod-l2tp=y
-          CONFIG_PACKAGE_ppp-mod-pppoe=y
-          CONFIG_PACKAGE_ppp-mod-pptp=y
-          # Network
-          CONFIG_PACKAGE_firewall=y
-          CONFIG_PACKAGE_iptables=y
-          CONFIG_KMOD_IP_TABLES=y
-          CONFIG_KMOD_IP_NAT=y
-          CONFIG_KMOD_IP_CONNTRACK=y
-          CONFIG_KMOD_CRYPTO_AES=y
-          CONFIG_KMOD_CRYPTO_CBC=y
-          CONFIG_KMOD_CRYPTO_HMAC=y
-          CONFIG_KMOD_CRYPTO_SHA256=y
-          CONFIG_KMOD_XFRM=y
-          CONFIG_KMOD_IPSEC=y
-          CONFIG_PACKAGE_iptables-mod-ipsec=y
-          # Docker
+          CONFIG_PACKAGE_cfdisk=y
+          CONFIG_PACKAGE_which=y
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_sudo=y
+          CONFIG_PACKAGE_wget-ssl=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_unzip=y
+          CONFIG_PACKAGE_zip=y
+          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_vim-full=y
+          CONFIG_PACKAGE_net-tools=y
+          CONFIG_PACKAGE_iproute2=y
+          CONFIG_PACKAGE_ping=y
+          CONFIG_PACKAGE_traceroute=y
+          CONFIG_PACKAGE_tcpdump=y
+          CONFIG_PACKAGE_mtr=y
+          CONFIG_PACKAGE_nmap=y
+          CONFIG_PACKAGE_iperf3=y
+          CONFIG_PACKAGE_bind-dig=y
+          CONFIG_PACKAGE_ethtool=y
+          CONFIG_PACKAGE_bridge-utils=y
+          CONFIG_PACKAGE_strace=y
+          CONFIG_PACKAGE_lsof=y
+          CONFIG_PACKAGE_iftop=y
+          CONFIG_PACKAGE_arping=y
+          CONFIG_PACKAGE_iputils-ping=y
+          CONFIG_PACKAGE_psmisc=y
+          CONFIG_PACKAGE_procps-ng=y
+          CONFIG_PACKAGE_htop=y
+          CONFIG_PACKAGE_tree=y
+          CONFIG_PACKAGE_uhttpd=y
+          CONFIG_PACKAGE_uhttpd-mod-ubus=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-lib-nixio=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-lib-ip=y
+          CONFIG_PACKAGE_rpcd=y
+          CONFIG_PACKAGE_rpcd-mod-luci=y
+          CONFIG_PACKAGE_lua=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-mod-network=y
+          CONFIG_PACKAGE_luci-mod-firewall=y
+          CONFIG_PACKAGE_luci-mod-system=y
+          CONFIG_PACKAGE_luci-mod-status=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-theme-openwrt-2020=y
           CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_dockerd=y
           CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_ucode-mod-socket=y
           CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
           CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_yq=y
-          # Basic
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-compat=y
-          CONFIG_PACKAGE_luci-theme-argon=y
-          CONFIG_PACKAGE_luci-app-argon-config=y
-          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_libnetwork=y
+          CONFIG_PACKAGE_kmod-nft-fib=y
+          CONFIG_PACKAGE_kmod-nf-flow=y
+          CONFIG_PACKAGE_kmod-nft-nat=y
+          CONFIG_PACKAGE_kmod-nft-offload=y
+          CONFIG_PACKAGE_kmod-ipt-nat6=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-udp=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack=y
+          CONFIG_PACKAGE_kmod-ipt-nat=y
+          CONFIG_PACKAGE_kmod-libcgroup=y
+          CONFIG_PACKAGE_kmod-overlay=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_libreswan=y
+          CONFIG_PACKAGE_ipsec-tools=y
+          CONFIG_PACKAGE_luci-app-ipsec-vpn=y
+          CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp-mod-pptp=y
+          CONFIG_PACKAGE_luci-proto-ppp=y
+          CONFIG_PACKAGE_luci-proto-l2tp=y
+          CONFIG_PACKAGE_kmod-ipsec=y
+          CONFIG_PACKAGE_kmod-ipsec4=y
+          CONFIG_PACKAGE_kmod-ipsec6=y
+          CONFIG_PACKAGE_kmod-tun=y
+          CONFIG_KERNEL_CRYPTO_AES=y
+          CONFIG_KERNEL_CRYPTO_SHA1=y
+          CONFIG_KERNEL_CRYPTO_HMAC=y
+          CONFIG_KERNEL_CRYPTO_XFRM=y
+          CONFIG_KERNEL_XFRM_USER=y
+          CONFIG_KERNEL_XFRM_IPCOMP=y
+          CONFIG_KERNEL_NET_KEY=y
+          CONFIG_KERNEL_INET_AH=y
+          CONFIG_KERNEL_INET_ESP=y
+          CONFIG_KERNEL_INET_IPCOMP=y
+          CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
+          CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
+          CONFIG_PACKAGE_iptables-mod-extra=y
+          CONFIG_PACKAGE_iptables-mod-ipopt=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_ipip=y
+          CONFIG_PACKAGE_vxlan=y
+          CONFIG_PACKAGE_luci-proto-ipip=y
+          CONFIG_PACKAGE_luci-proto-vxlan=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_ucode-mod-socket=y
           CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_wget-ssl=y
-          # Disable conflict
-          CONFIG_PACKAGE_wolfssl=n
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
-          CONFIG_PACKAGE_openconnect=n
-          CONFIG_PACKAGE_openswan=n
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
           EOF
           make defconfig
           
@@ -236,15 +291,9 @@ jobs:
         run: |
           cd openwrt
           cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
-          CONFIG_PACKAGE_strongswan-minimal=n
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_dockerd=y
           CONFIG_PACKAGE_nikki=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           make defconfig
           
@@ -282,14 +331,11 @@ jobs:
           ./scripts/feeds update small
           ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
           cat >> .config << 'EOF'
-          CONFIG_PACKAGE_strongswan-full=y
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_libreswan=n
-          CONFIG_PACKAGE_luci-app-libreswan=n
           EOF
           make defconfig
           
