@@ -87,19 +87,16 @@ jobs:
           ./scripts/feeds install -p kenzo luci-app-openclash clash-meta
           ./scripts/feeds install -a
           
-      - name: 修复 Rust 编译配置（解决 llvm.download-ci-llvm 报错）
+      - name: Fix Rust CI Compatibility (避免 ruby 编译报错)
         run: |
-          cd $OPENWRT_PATH
-          # 修复 ruby 依赖的 rust 编译配置
-          if [ -f "feeds/packages/lang/rust/Makefile" ]; then
-              sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' feeds/packages/lang/rust/Makefile
-              echo "✅ Rust 编译配置修复完成"
-          fi
-          # 移除 OpenClash 对 ruby 的依赖（新版无需 ruby）
-          if [ -f "feeds/kenzo/luci-app-openclash/Makefile" ]; then
-              sed -i '/+ruby +ruby-yaml/d' feeds/kenzo/luci-app-openclash/Makefile
-              echo "✅ OpenClash Ruby 依赖移除完成"
-          fi
+            cd $OPENWRT_PATH
+            RUST_MAKEFILE="feeds/immortalwrt_pkgs/lang/rust/Makefile"
+            if [ -f "$RUST_MAKEFILE" ]; then
+                sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' "$RUST_MAKEFILE"
+                echo "✅ Rust CI 配置修复完成"
+            fi
+            echo "RUST_BACKTRACE=1" >> $GITHUB_ENV
+            echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
           
       - name: Cache DL
         uses: actions/cache@v4
