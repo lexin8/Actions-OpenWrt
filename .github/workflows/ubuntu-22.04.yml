@@ -1,4 +1,4 @@
-name: fanchmwrt-dockerman
+name: fanchmwrt-complete
 
 on:
   workflow_dispatch:
@@ -11,6 +11,9 @@ env:
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
   REPO_BRANCH2: openwrt-23.05
+  STRONGSWAN_REPO: https://github.com/immortalwrt/packages
+  STRONGSWAN_BRANCH: openwrt-24.10
+  STRONGSWAN_PATH: net/strongswan
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -56,13 +59,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
 
-      - name: Clone fanchmwrt Source
+      - name: Clone ImmortalWrt Source
         run: |
           git clone --depth 1 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
           
-      - name: Add Feeds (fanchmwrt + nikki + fix docker/yq)
+      - name: Pull StrongSwan from ImmortalWrt Packages
+        run: |
+          cd $OPENWRT_PATH
+          mkdir -p packages/net
+          git clone --depth 1 -b $STRONGSWAN_BRANCH $STRONGSWAN_REPO temp-packages
+          mv temp-packages/$STRONGSWAN_PATH packages/net/
+          rm -rf temp-packages
+          ls -la packages/net/strongswan || echo "⚠️ StrongSwan 拉取失败，请检查仓库路径"
+          
+      - name: Add Feeds (immortalwrt + nikki + fix docker/yq)
         run: |
           cd $OPENWRT_PATH
           cp $FEEDS_CONF $FEEDS_CONF.bak
@@ -186,6 +198,8 @@ jobs:
           CONFIG_PACKAGE_kmod-libcgroup=y
           CONFIG_PACKAGE_kmod-overlay=y
           CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_libreswan=y
+          CONFIG_PACKAGE_ipsec-tools=y
           CONFIG_PACKAGE_luci-app-ipsec-vpn=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
           CONFIG_PACKAGE_xl2tpd=y
@@ -269,7 +283,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-stage1-firmware
+          name: immortalwrt-stage1-firmware
           path: stage1-firmware.tar.gz
           retention-days: 30
 
@@ -306,29 +320,22 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-stage2-firmware
+          name: immortalwrt-stage2-firmware
           path: stage2-firmware.tar.gz
           retention-days: 30
 
-      - name: Stage3 - Add HomeProxy and PassWall2
+      - name: Stage3 - Add HomeProxy/Sing-Box
         run: |
           cd openwrt
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box kmod-nft-tproxy ucode-mod-digest \
-            passwall2 luci-app-passwall2 luci-i18n-passwall2-zh-cn v2ray-core v2ray-geodata xray-core
+          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box kmod-nft-tproxy ucode-mod-digest
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_homeproxy=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_passwall2=y
-          CONFIG_PACKAGE_luci-app-passwall2=y
-          CONFIG_PACKAGE_luci-i18n-passwall2-zh-cn=y
-          CONFIG_PACKAGE_v2ray-core=y
-          CONFIG_PACKAGE_v2ray-geodata=y
-          CONFIG_PACKAGE_xray-core=y
           EOF
           make defconfig
           
@@ -355,7 +362,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: fanchmwrt-stage3-firmware
+          name: immortalwrt-stage3-firmware
           path: stage3-firmware.tar.gz
           retention-days: 30
 
@@ -363,7 +370,7 @@ jobs:
         run: |
           echo "=========================================="
           echo "✅ 编译完成！"
-          echo "📦 Stage1：基础 + Dockerman + DDNS + UDPXY"
+          echo "📦 Stage1：基础 + Strongswan + Docker/Dockerman + DDNS + UDPXY"
           echo "📦 Stage2：Stage1 + Nikki"
-          echo "📦 Stage3：Stage2 + kenzok8"
+          echo "📦 Stage3：Stage2 + HomeProxy + Sing-Box"
           echo "=========================================="
