@@ -84,16 +84,19 @@ jobs:
           ./scripts/feeds install luci-app-openclash clash-meta
           ./scripts/feeds install -a
 
-      - name: Fix Rust CI Compatibility (避免 ruby 编译报错)
+      - name: Fix OpenClash + Rust Compatibility
         run: |
             cd $OPENWRT_PATH
-            RUST_MAKEFILE="feeds/immortalwrt_pkgs/lang/rust/Makefile"
-            if [ -f "$RUST_MAKEFILE" ]; then
-                sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' "$RUST_MAKEFILE"
-                echo "✅ Rust CI 配置修复完成"
-            fi
-            echo "RUST_BACKTRACE=1" >> $GITHUB_ENV
-            echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> $GITHUB_ENV
+            find feeds/kenzo feeds/small -name "Makefile" -path "*/luci-app-openclash/*" | while read -r file; do
+                sed -i '/+ruby/d' "$file"
+                sed -i '/+ruby-yaml/d' "$file"
+                sed -i '/ruby-yaml/d' "$file"
+            done
+            find feeds -name "Makefile" -path "*/lang/rust/*" | while read -r file; do
+                sed -i 's/llvm.download-ci-llvm=true/llvm.download-ci-llvm=if-unchanged/g' "$file"
+                sed -i 's/llvm.download-ci-llvm = true/llvm.download-ci-llvm = if-unchanged/g' "$file"
+            done
+            ./scripts/feeds uninstall ruby ruby-yaml || true
           
       - name: Cache DL
         uses: actions/cache@v4
