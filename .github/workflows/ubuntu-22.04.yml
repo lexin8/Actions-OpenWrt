@@ -329,7 +329,7 @@ jobs:
           cd openwrt
           echo "src-git small https://github.com/kenzok8/small" >> feeds.conf.default
           ./scripts/feeds update small
-          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box
+          ./scripts/feeds install homeproxy luci-app-homeproxy sing-box kmod-nft-tproxy ucode-mod-digest
           cat >> .config << 'EOF'
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-app-nikki=y
