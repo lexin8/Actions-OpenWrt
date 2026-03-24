@@ -1,0 +1,166 @@
+name: OpenWrt
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 20 * * 6'
+
+env:
+  TZ: Asia/Shanghai
+  REPO_URL: https://github.com/immortalwrt/immortalwrt
+  REPO_URL2: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: master
+  CCACHE_DIR: ${{ github.workspace }}/ccache
+  CCACHE_MAXSIZE: 5G
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: .config
+  FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
+
+jobs:
+  Build:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      packages: read
+
+    steps:
+      - name: Check Server Performance
+        run: |
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
+          echo "CPU核心数量: $(nproc)"
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+          
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
+          sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev libncursesw5-dev swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go libwolfssl-dev
+          sudo -E systemctl daemon-reload
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get -y clean
+          sudo timedatectl set-timezone "$TZ"
+          
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Clone  Source
+        run: |
+          git clone --depth 1 $REPO_URL2 -b $REPO_BRANCH2 openwrt
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Modify feeds.conf.default to GitHub Mirrors (Unified Branch)
+        run: |
+          cat > feeds.conf.default << EOF
+          src-git packages https://github.com/openwrt/packages.git;openwrt-23.05
+          src-git luci https://github.com/openwrt/luci.git;openwrt-23.05
+          src-git routing https://github.com/openwrt/routing.git;openwrt-23.05
+          src-git telephony https://github.com/openwrt/telephony.git;openwrt-23.05
+          EOF
+  
+      - name: config
+        run: |
+          cd openwrt
+          cat > .config << EOF
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=2000
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_PACKAGE_cfdisk=y
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_opkg=y
+          CONFIG_PACKAGE_wget=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_htop=y
+          CONFIG_PACKAGE_tree=y
+          CONFIG_PACKAGE_dropbear=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+          CONFIG_PACKAGE_dnsmasq-full=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iproute2=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_wireless-tools=y
+          CONFIG_PACKAGE_kmod-l2tp=y
+          CONFIG_PACKAGE_kmod-l2tp-ip=y
+          CONFIG_PACKAGE_kmod-ipsec4=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_strongswan=y
+          CONFIG_PACKAGE_luci-app-ipsec-vpnserver=y
+          CONFIG_PACKAGE_luci-proto-l2tp=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-lib-base=y
+          CONFIG_PACKAGE_luci-lib-ip=y
+          CONFIG_PACKAGE_luci-lib-nixio=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_ntpclient=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_zsh=y
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_kmod-fs-ext4=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_usbutils=y
+          CONFIG_PACKAGE_kmod-usb-storage=y
+          CONFIG_PACKAGE_kmod-usb-ohci=y
+          CONFIG_PACKAGE_kmod-usb-uhci=y
+          CONFIG_PACKAGE_kmod-usb2=y
+          CONFIG_PACKAGE_kmod-usb3=y
+          EOF
+          make defconfig
+          
+      - name: Upload OpenWRT Config
+        if: always()
+        id: upload-config
+        run: |
+          tar -czvf openwrt-config.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Config Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-config
+          path: openwrt-config.tar.gz
+          retention-days: 7
+          
+      - name: Compile Stage1 Firmware
+        run: |
+          cd openwrt
+          make download -j$(nproc)
+          make -j$(nproc) V=s || make -j1 V=s
+          
+      - name: Package Stage1 Firmware
+        if: always()
+        id: stage1-package
+        run: |
+          cd $FIRMWARE_OUTPUT_PATH
+          mkdir -p $GITHUB_WORKSPACE/stage1-firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/stage1-firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/stage1-firmware/config-stage1.txt
+          cd $GITHUB_WORKSPACE
+          tar -czvf stage1-firmware.tar.gz -C stage1-firmware .
+          echo "stage1-firmware-path=$GITHUB_WORKSPACE/stage1-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Stage1 Firmware
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-stage1-firmware
+          path: stage1-firmware.tar.gz
+          retention-days: 30
+ 
+      - name: Completion
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！"
+          echo "=========================================="
