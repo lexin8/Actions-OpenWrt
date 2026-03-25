@@ -73,7 +73,6 @@ jobs:
           src-git small https://github.com/kenzok8/small priority=97
           src-git Music https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git nikki https://github.com/nikkinikki-org/OpenWrt-nikki.git
-          cat $FEEDS_CONF.bak >> $FEEDS_CONF
           EOF
           ./scripts/feeds clean
           ./scripts/feeds update -a
@@ -364,7 +363,6 @@ jobs:
           src-git kenzo https://github.com/kenzok8/openwrt-packages
           src-git small https://github.com/kenzok8/small
           EOF
-          cat $FEEDS_CONF.bak >> $FEEDS_CONF
           ./scripts/feeds clean
           ./scripts/feeds update -a
           ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
