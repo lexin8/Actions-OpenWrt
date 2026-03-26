@@ -31,7 +31,7 @@ jobs:
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 可选：配置代理（如果需要在 GitHub Secrets 中设置 HTTP_PROXY）
+      - name: 可选配置代理
         run: |
           if [ -n "$HTTP_PROXY" ]; then
             echo "$HTTP_PROXY" > AutoMergePublicNodes/local_proxy.conf
@@ -41,45 +41,35 @@ jobs:
           HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
           HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
 
-      - name: 运行 fetch.py 并记录日志
+      - name: 运行 fetch.py（忽略错误，保存日志）
         id: fetch
         run: |
           cd AutoMergePublicNodes
-          python fetch.py 2>&1 | tee output.log
+          python fetch.py 2>&1 | tee output.log || true
           # 尝试提取订阅 URL
           SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
           echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
-          echo "SUB_URL=$SUB_URL" >> $GITHUB_OUTPUT
-          # 如果没提取到，尝试查找本地生成的订阅文件
-          if [ -z "$SUB_URL" ]; then
-            echo "未从输出中提取到订阅 URL，尝试查找本地订阅文件..."
-            if [ -f sub/subscription.txt ]; then
-              echo "发现本地订阅文件 sub/subscription.txt"
-              cp sub/subscription.txt ../subscription.txt
-            elif [ -f sub/subscription ]; then
-              echo "发现本地订阅文件 sub/subscription"
-              cp sub/subscription ../subscription.txt
-            else
-              echo "未找到任何订阅文件，请检查 fetch.py 的输出。"
-              cat output.log
-              exit 1
-            fi
+          # 检查本地是否有生成的订阅文件
+          if [ -f sub/subscription.txt ]; then
+            cp sub/subscription.txt ../subscription.txt
+            echo "从本地文件 sub/subscription.txt 获取订阅成功"
+          elif [ -f sub/subscription ]; then
+            cp sub/subscription ../subscription.txt
+            echo "从本地文件 sub/subscription 获取订阅成功"
           fi
 
-      - name: 下载订阅内容（如果提取到 URL）
+      - name: 下载订阅内容（如果有 URL）
         if: env.SUB_URL != ''
         run: |
           curl -sL "$SUB_URL" -o subscription.txt
           if [ ! -s subscription.txt ]; then
-            echo "订阅下载失败，请检查 URL 是否有效"
-            exit 1
+            echo "警告：通过 URL 下载失败，将尝试使用本地文件"
           fi
-          echo "订阅文件已下载"
 
-      - name: 将订阅文件复制到 nodes 目录
+      - name: 确保最终有订阅文件
         run: |
           mkdir -p nodes
-          # 如果已经存在 subscription.txt（来自 URL 或本地文件）
+          # 优先使用已存在的 subscription.txt
           if [ -f subscription.txt ]; then
             cp subscription.txt nodes/subscription.txt
           elif [ -f AutoMergePublicNodes/sub/subscription.txt ]; then
