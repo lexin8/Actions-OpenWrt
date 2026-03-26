@@ -1,38 +1,38 @@
-name: Extract Nodes
+name: Extract Free Nodes
 
 on:
   schedule:
-    - cron: '0 */12 * * *'   # 每12小时运行一次
+    - cron: '0 */12 * * *'   # 每12小时自动运行一次
   workflow_dispatch:         # 支持手动触发
 
 jobs:
   extract:
     runs-on: ubuntu-latest
     permissions:
-      contents: write         # 允许推送代码到 gh-pages
+      contents: write         # 允许推送代码到 gh-pages 分支
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download list.meta.yml
+      - name: Download list.meta.yml from source
         run: |
-          # 尝试多个镜像，确保下载成功
+          # 尝试多个镜像，确保下载成功（Actions 环境可直接访问 GitHub）
+          curl -L -o list.meta.yml \
+            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
           curl -L -o list.meta.yml \
             "https://ghproxy.cn/https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
           curl -L -o list.meta.yml \
-            "https://raw.gitmirror.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
-          curl -L -o list.meta.yml \
             "https://cdn.jsdelivr.net/gh/chengaopan/AutoMergePublicNodes/list.meta.yml"
 
-      - name: Install yq
+      - name: Install yq (YAML processor)
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod a+x /usr/local/bin/yq
 
-      - name: Extract proxies
+      - name: Extract proxies array
         run: |
           yq '.proxies' list.meta.yml > proxies.yaml
-          # 生成 base64 格式（可选）
+          # 生成 base64 编码版本（备选）
           cat proxies.yaml | base64 -w 0 > proxies_base64.txt
 
       - name: Deploy to GitHub Pages
@@ -42,4 +42,4 @@ jobs:
           publish_dir: ./
           publish_branch: gh-pages
           keep_files: false
-          destination_dir: .   # 将文件直接放在根目录
+          destination_dir: nodes   # 将文件放入 nodes 目录
