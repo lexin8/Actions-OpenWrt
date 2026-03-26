@@ -177,6 +177,18 @@ proxies:
     headers:
       Host: snippet.chinat.eu.cc
     path: /danfeng
+- name: 14|IR_speednode_0013
+  port: 443
+  reality-opts:
+    public-key: RravQN06gzsNsm5ojEhZGrxBgLGEpqEThtHEltdjpBk
+    short-id: b3d76d
+  server: 62.60.237.240
+  servername: logggg.nammknammknammknammknammkb2.ir
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: d4de1f64-bf3c-4d97-9663-0091f8c07359
 - client-fingerprint: random
   name: 14|JP_speednode_0014
   network: ws
@@ -208,6 +220,23 @@ proxies:
   ws-opts:
     headers:
       Host: snippet.fgfw.de5.net
+    path: /danfeng
+- alpn:
+  - http/1.1
+  client-fingerprint: random
+  name: 14|KR_speednode_0020
+  network: ws
+  port: 12345
+  server: 121.174.43.148
+  servername: snippet.chinat.eu.cc
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 948fac3c-42bf-41a6-a5f9-704d36ff0d8d
+  ws-opts:
+    headers:
+      Host: snippet.chinat.eu.cc
     path: /danfeng
 - name: 14|KR_speednode_0022
   network: ws
