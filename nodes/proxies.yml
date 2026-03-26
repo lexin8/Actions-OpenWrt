@@ -2,8 +2,6 @@ proxies:
 - alterId: 2
   cipher: auto
   name: 12|🇭🇰 香港|@ripaojiedian
-  port: 30807
-  server: v10.hdacd.com
   skip-cert-verify: false
   tls: false
   type: vmess
@@ -11,8 +9,6 @@ proxies:
 - name: 12,13|日本3|@ripaojiedian
   network: tcp
   password: 6d29eb2f74293cb01a19b32cf08ad2e9
-  port: 4937
-  server: 160.16.106.99
   skip-cert-verify: false
   sni: www.nintendogames.net
   type: trojan
@@ -20,19 +16,15 @@ proxies:
   cipher: auto
   name: 13|香港|@ripaojiedian
   network: tcp
-  port: '30807'
-  server: v10.hdacd.com
   servername: ''
   tls: false
   type: vmess
   uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
 - flow: xtls-rprx-vision
   name: 14|AT_speednode_0002
-  port: 443
   reality-opts:
     public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
     short-id: ff776ff77be48b88
-  server: 152.53.80.40
   servername: sha.helper-internet.com
   skip-cert-verify: false
   tls: true
@@ -42,11 +34,9 @@ proxies:
 - client-fingerprint: safari
   flow: xtls-rprx-vision
   name: 14|AU_speednode_0003
-  port: 2443
   reality-opts:
     public-key: uzRnmrb_UXbDNz5_IeFrC-PJfnuoUIsyaSEy1FgdPho
     short-id: ae377cba
-  server: 159.13.36.110
   servername: www.microsoft.com
   skip-cert-verify: false
   tls: true
@@ -55,19 +45,15 @@ proxies:
   uuid: 48b36b6a-eaa6-4843-9231-0bb8b38b5da5
 - name: 14|AU_speednode_0004
   password: IL37892054
-  port: 443
-  server: enhanced-crayfish.rooster465.autos
   skip-cert-verify: false
   sni: enhanced-crayfish.rooster465.autos
   type: trojan
   udp: true
 - flow: xtls-rprx-vision
   name: 14|CH_speednode_0005
-  port: 443
   reality-opts:
     public-key: iCY6H8CpnIfqmIkEABduJEAeJrnYS089R1-jKEyVp3w
     short-id: e043995937
-  server: 138.124.104.221
   servername: pol2.frostbot.ru
   skip-cert-verify: false
   tls: true
@@ -76,8 +62,6 @@ proxies:
   uuid: fd37be2f-f8d1-47de-97e8-13c28107d31e
 - name: 14|CZ_speednode_0006
   network: ws
-  port: 443
-  server: 194.87.245.253
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -91,11 +75,9 @@ proxies:
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
   name: 14|GB_speednode_0009
-  port: 2443
   reality-opts:
     public-key: 498LE1B8NFnfagrOnGGmuh80KqgKXMKiHbgcpxRqBB0
     short-id: 2d989d13dba1
-  server: 152.67.158.177
   servername: www.cloudflare.com
   skip-cert-verify: false
   tls: true
@@ -107,8 +89,6 @@ proxies:
   client-fingerprint: random
   name: 14|HK_speednode_0010
   network: ws
-  port: 3389
-  server: 203.168.131.110
   servername: snippet.chinav.eu.cc
   skip-cert-verify: false
   tls: true
@@ -124,8 +104,6 @@ proxies:
   client-fingerprint: random
   name: 14|HK_speednode_0011
   network: ws
-  port: 3389
-  server: 203.168.131.110
   servername: snippet.chinav.eu.cc
   skip-cert-verify: false
   tls: true
@@ -141,8 +119,6 @@ proxies:
   client-fingerprint: random
   name: 14|IE_speednode_0012
   network: ws
-  port: 443
-  server: 20.67.254.104
   servername: snippet.chinat.eu.cc
   skip-cert-verify: false
   tls: true
@@ -154,11 +130,9 @@ proxies:
       Host: snippet.chinat.eu.cc
     path: /danfeng
 - name: 14|IR_speednode_0013
-  port: 443
   reality-opts:
     public-key: RravQN06gzsNsm5ojEhZGrxBgLGEpqEThtHEltdjpBk
     short-id: b3d76d
-  server: 62.60.237.240
   servername: logggg.nammknammknammknammknammkb2.ir
   skip-cert-verify: false
   tls: true
@@ -168,8 +142,6 @@ proxies:
 - client-fingerprint: random
   name: 14|JP_speednode_0014
   network: ws
-  port: 39738
-  server: 103.214.168.247
   servername: snippet.fgfw.de5.net
   skip-cert-verify: false
   tls: true
@@ -183,10 +155,8 @@ proxies:
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
   name: 14|KR_speednode_0016
-  port: 19001
   reality-opts:
     public-key: UtL7E0Gmxj3X5JdcPAutpTRKo7K2hugkR0vwk2XroUM
-  server: krp01.jumperservice.com
   servername: addons.mozilla.org
   skip-cert-verify: false
   tls: true
@@ -195,10 +165,8 @@ proxies:
   uuid: 455fc271-3ee2-493b-8c75-9324b4851e2f
 - flow: xtls-rprx-vision
   name: 14|KR_speednode_0017
-  port: 19001
   reality-opts:
     public-key: UtL7E0Gmxj3X5JdcPAutpTRKo7K2hugkR0vwk2XroUM
-  server: krp01.jumperservice.com
   servername: addons.mozilla.org
   skip-cert-verify: false
   tls: true
@@ -210,8 +178,6 @@ proxies:
   client-fingerprint: random
   name: 14|KR_speednode_0019
   network: ws
-  port: 37810
-  server: 211.193.169.223
   servername: snippet.fgfw.de5.net
   skip-cert-verify: false
   tls: true
@@ -227,8 +193,6 @@ proxies:
   client-fingerprint: random
   name: 14|KR_speednode_0020
   network: ws
-  port: 12345
-  server: 121.174.43.148
   servername: snippet.chinat.eu.cc
   skip-cert-verify: false
   tls: true
@@ -241,8 +205,6 @@ proxies:
     path: /danfeng
 - name: 14|KR_speednode_0022
   network: ws
-  port: 16993
-  server: 222.113.18.207
   servername: snippet.fgfw.de5.net
   skip-cert-verify: false
   tls: true
@@ -258,8 +220,6 @@ proxies:
   client-fingerprint: random
   name: 14|KR_speednode_0023
   network: ws
-  port: 10162
-  server: 106.251.70.75
   servername: snippet.chinav.eu.cc
   skip-cert-verify: false
   tls: true
@@ -275,8 +235,6 @@ proxies:
   client-fingerprint: random
   name: 14|KR_speednode_0024
   network: ws
-  port: 50006
-  server: 175.199.169.221
   servername: snippet.fgfw.de5.net
   skip-cert-verify: false
   tls: true
@@ -289,8 +247,6 @@ proxies:
     path: /danfeng
 - name: 14|KR_speednode_0025
   network: ws
-  port: 11371
-  server: 121.152.61.147
   servername: snippet.fgfw.de5.net
   skip-cert-verify: false
   tls: true
@@ -303,45 +259,33 @@ proxies:
     path: /danfeng
 - name: 14|MD_speednode_0028
   password: 3ac6a6ca99f74941b1eaf892818e2ddb
-  port: 443
-  server: 89.221.225.71
   skip-cert-verify: true
   type: trojan
   udp: true
 - name: 14|PL_speednode_0029
   password: IL37892054
-  port: 443
-  server: outgoing-ladybird.rooster465.autos
   skip-cert-verify: false
   sni: outgoing-ladybird.rooster465.autos
   type: trojan
   udp: true
 - name: 14|PL_speednode_0030
   password: IL37892054
-  port: 443
-  server: fluent-stingray.crayfish192.xyz
   skip-cert-verify: true
   type: trojan
   udp: true
 - name: 14|PL_speednode_0031
   password: IL37892054
-  port: 443
-  server: fluent-stingray.crayfish192.xyz
   skip-cert-verify: true
   sni: fluent-stingray.crayfish192.xyz
   type: trojan
   udp: true
 - name: 14|PL_speednode_0032
   password: IL37892054
-  port: 443
-  server: outgoing-ladybird.rooster465.autos
   skip-cert-verify: false
   type: trojan
   udp: true
 - name: 14|RU_speednode_0033
   network: ws
-  port: 443
-  server: 193.9.49.65
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -354,23 +298,17 @@ proxies:
     path: /?ed=2560
 - name: 14|SG_speednode_0034
   password: 3ac6a6ca99f74941b1eaf892818e2ddb
-  port: 443
-  server: 185.151.146.40
   skip-cert-verify: true
   type: trojan
   udp: true
 - name: 14|TW_speednode_0036
   password: 3ac6a6ca99f74941b1eaf892818e2ddb
-  port: 443
-  server: 85.237.206.249
   skip-cert-verify: true
   type: trojan
   udp: true
 - client-fingerprint: randomized
   name: 14|US_speednode_0037
   network: ws
-  port: 2095
-  server: www.npmjs.com
   servername: fuckingfangbinxing.cnm-fangbinxing-nmsl-ccc.workers.dev
   skip-cert-verify: false
   tls: false
@@ -384,8 +322,6 @@ proxies:
 - client-fingerprint: randomized
   name: 14|US_speednode_0038
   network: ws
-  port: 2095
-  server: www.udemy.com
   servername: fuckingfangbinxing.cnm-fangbinxing-nmsl-ccc.workers.dev
   skip-cert-verify: false
   tls: false
@@ -399,8 +335,6 @@ proxies:
 - name: 14|US_speednode_0039
   network: ws
   password: trojan
-  port: 8025
-  server: 54.46.72.234
   skip-cert-verify: true
   sni: jflsjlaf.pages.dev
   type: trojan
@@ -411,8 +345,6 @@ proxies:
     path: /
 - name: 14|US_speednode_0040
   network: ws
-  port: 443
-  server: 172.64.229.85
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -426,8 +358,6 @@ proxies:
 - client-fingerprint: randomized
   name: 14|US_speednode_0041
   network: ws
-  port: 2095
-  server: ns.cloudflare.com
   servername: fuckingfangbinxing.cnm-fangbinxing-nmsl-ccc.workers.dev
   skip-cert-verify: false
   tls: false
@@ -441,8 +371,6 @@ proxies:
 - client-fingerprint: randomized
   name: 14|US_speednode_0042
   network: ws
-  port: 2095
-  server: www.wto.org
   servername: fuckingfangbinxing.cnm-fangbinxing-nmsl-ccc.workers.dev
   skip-cert-verify: false
   tls: false
@@ -455,8 +383,6 @@ proxies:
     path: /
 - name: 14|US_speednode_0043
   network: ws
-  port: 443
-  server: 162.159.38.78
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -469,8 +395,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0044
   network: ws
-  port: 443
-  server: 162.159.24.111
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -483,8 +407,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0046
   network: ws
-  port: 443
-  server: 162.159.7.2
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -497,8 +419,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0047
   network: ws
-  port: 443
-  server: 172.64.229.165
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -511,8 +431,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0048
   network: ws
-  port: 443
-  server: www.visa.cn
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -525,8 +443,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0049
   network: ws
-  port: 443
-  server: 192.0.54.131
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -539,8 +455,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0050
   network: ws
-  port: 443
-  server: 192.0.63.230
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -553,8 +467,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0051
   network: ws
-  port: 443
-  server: 192.0.63.56
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -567,8 +479,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0052
   network: ws
-  port: 443
-  server: 192.0.54.225
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -581,8 +491,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0053
   network: ws
-  port: 443
-  server: 192.0.63.134
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -595,8 +503,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0054
   network: ws
-  port: 443
-  server: 192.0.54.188
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -609,8 +515,6 @@ proxies:
     path: /danfeng?ed=2560
 - name: 14|US_speednode_0055
   network: ws
-  port: 443
-  server: 104.17.155.101
   servername: wu.090881.xyz
   skip-cert-verify: false
   tls: true
@@ -623,8 +527,6 @@ proxies:
     path: /products/proxyip=ProxyIP.SG.CMLiussss.net/proxyip=ProxyIP.SG.CMLiussss.net
 - name: 14|US_speednode_0056
   network: ws
-  port: 443
-  server: 172.64.156.0
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -637,8 +539,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0057
   network: ws
-  port: 443
-  server: vip1.kaixincloud.top
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -651,8 +551,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0058
   network: ws
-  port: 443
-  server: 192.0.63.56
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -665,8 +563,6 @@ proxies:
     path: /danfeng
 - name: 14|US_speednode_0059
   network: ws
-  port: 443
-  server: 162.159.44.142
   servername: r.icy.de5.net
   skip-cert-verify: false
   tls: true
@@ -679,8 +575,6 @@ proxies:
     path: /?ed=2560
 - name: 14|US_speednode_0061
   network: ws
-  port: 443
-  server: 192.0.54.131
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -693,8 +587,6 @@ proxies:
     path: /danfeng
 - name: 14|US_speednode_0062
   network: ws
-  port: 443
-  server: 192.0.63.230
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -707,8 +599,6 @@ proxies:
     path: /danfeng
 - name: 14|US_speednode_0063
   network: ws
-  port: 443
-  server: 192.0.54.188
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -721,8 +611,6 @@ proxies:
     path: /danfeng
 - name: 14|US_speednode_0064
   network: ws
-  port: 443
-  server: 192.0.63.134
   servername: snippet.danfeng.kozow.com
   skip-cert-verify: false
   tls: true
@@ -735,22 +623,16 @@ proxies:
     path: /danfeng
 - name: 14|US_speednode_0065
   password: 3ac6a6ca99f74941b1eaf892818e2ddb
-  port: 443
-  server: 77.247.126.137
   skip-cert-verify: true
   type: trojan
   udp: true
 - name: 14|US_speednode_0068
   password: 3ac6a6ca99f74941b1eaf892818e2ddb
-  port: 443
-  server: 194.33.45.157
   skip-cert-verify: true
   type: trojan
   udp: true
 - name: 14|US_speednode_0070
   network: ws
-  port: 443
-  server: 192.200.160.20
   servername: 639073677243791121.camry-perma.info
   skip-cert-verify: false
   tls: true
@@ -761,3 +643,163 @@ proxies:
     headers:
       Host: 639073677243791121.camry-perma.info
     path: /njvqoews?ed=2560
+- name: v2rayfree_1
+- name: v2rayfree_2
+- name: v2rayfree_3
+- name: v2rayfree_4
+- name: v2rayfree_5
+- name: v2rayfree_7
+- name: v2rayfree_9
+- name: v2rayfree_10
+- name: v2rayfree_11
+- name: v2rayfree_13
+- name: v2rayfree_14
+- name: v2rayfree_15
+- name: v2rayfree_16
+- name: v2rayfree_17
+- name: v2rayfree_18
+- name: v2rayfree_19
+- name: v2rayfree_20
+- name: v2rayfree_21
+- name: v2rayfree_22
+- name: v2rayfree_23
+- name: v2rayfree_24
+- name: v2rayfree_25
+- name: v2rayfree_26
+- name: v2rayfree_28
+- name: v2rayfree_29
+- name: v2rayfree_30
+- name: v2rayfree_31
+- name: v2rayfree_32
+- name: v2rayfree_33
+- name: v2rayfree_34
+- name: v2rayfree_35
+- name: v2rayfree_36
+- name: v2rayfree_37
+- name: v2rayfree_39
+- name: v2rayfree_40
+- name: v2rayfree_41
+- name: v2rayfree_42
+- name: v2rayfree_43
+- name: v2rayfree_44
+- name: v2rayfree_46
+- name: v2rayfree_47
+- name: v2rayfree_48
+- name: v2rayfree_49
+- name: v2rayfree_50
+- name: v2rayfree_51
+- name: v2rayfree_52
+- name: v2rayfree_53
+- name: v2rayfree_54
+- name: v2rayfree_55
+- name: v2rayfree_56
+- name: v2rayfree_57
+- name: v2rayfree_58
+- name: v2rayfree_59
+- name: v2rayfree_60
+- name: v2rayfree_61
+- name: v2rayfree_62
+- name: v2rayfree_63
+- name: v2rayfree_64
+- name: v2rayfree_65
+- name: v2rayfree_66
+- name: v2rayfree_67
+- name: v2rayfree_68
+- name: v2rayfree_69
+- name: v2rayfree_70
+- name: v2rayfree_72
+- name: v2rayfree_73
+- name: v2rayfree_74
+- name: v2rayfree_75
+- name: v2rayfree_76
+- name: v2rayfree_77
+- name: v2rayfree_78
+- name: v2rayfree_79
+- name: v2rayfree_81
+- name: v2rayfree_82
+- name: v2rayfree_83
+- name: v2rayfree_84
+- name: v2rayfree_85
+- name: v2rayfree_86
+- name: v2rayfree_87
+- name: v2rayfree_88
+- name: v2rayfree_89
+- name: v2rayfree_90
+- name: v2rayfree_91
+- name: v2rayfree_92
+- name: v2rayfree_93
+- name: v2rayfree_94
+- name: v2rayfree_95
+- name: v2rayfree_96
+- name: v2rayfree_97
+- name: v2rayfree_98
+- name: v2rayfree_99
+- name: v2rayfree_100
+- name: v2rayfree_101
+- name: v2rayfree_102
+- name: v2rayfree_103
+- name: v2rayfree_104
+- name: v2rayfree_105
+- name: v2rayfree_106
+- name: v2rayfree_107
+- name: v2rayfree_109
+- name: v2rayfree_110
+- name: v2rayfree_111
+- name: v2rayfree_112
+- name: v2rayfree_113
+- name: v2rayfree_114
+- name: v2rayfree_115
+- name: v2rayfree_117
+- name: v2rayfree_118
+- name: v2rayfree_119
+- name: v2rayfree_120
+- name: v2rayfree_121
+- name: v2rayfree_122
+- name: v2rayfree_123
+- name: v2rayfree_124
+- name: v2rayfree_125
+- name: v2rayfree_126
+- name: v2rayfree_127
+- name: v2rayfree_128
+- name: v2rayfree_129
+- name: v2rayfree_130
+- name: v2rayfree_131
+- name: v2rayfree_132
+- name: v2rayfree_133
+- name: v2rayfree_134
+- name: v2rayfree_135
+- name: v2rayfree_136
+- name: v2rayfree_137
+- name: v2rayfree_138
+- name: v2rayfree_139
+- name: v2rayfree_140
+- name: v2rayfree_141
+- name: v2rayfree_142
+- name: v2rayfree_143
+- name: v2rayfree_144
+- name: v2rayfree_146
+- name: v2rayfree_147
+- name: v2rayfree_148
+- name: v2rayfree_149
+- name: v2rayfree_150
+- name: v2rayfree_151
+- name: v2rayfree_152
+- name: v2rayfree_153
+- name: v2rayfree_154
+- name: v2rayfree_155
+- name: v2rayfree_157
+- name: v2rayfree_159
+- name: v2rayfree_162
+- name: v2rayfree_163
+- name: v2rayfree_165
+- name: v2rayfree_166
+- name: v2rayfree_168
+- name: v2rayfree_169
+- name: v2rayfree_170
+- name: v2rayfree_171
+- name: v2rayfree_173
+- name: v2rayfree_174
+- name: v2rayfree_175
+- name: v2rayfree_176
+- name: v2rayfree_177
+- name: v2rayfree_178
