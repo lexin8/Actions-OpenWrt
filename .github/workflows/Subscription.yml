@@ -1,12 +1,22 @@
-name: Generate and List Files
+name: Update Subscription Nodes
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
 
 jobs:
-  generate:
+  update:
     runs-on: ubuntu-22.04
     steps:
+      - name: 克隆当前仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: 克隆 AutoMergePublicNodes 仓库
         run: git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
 
@@ -20,16 +30,36 @@ jobs:
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 运行 fetch.py
+      - name: 运行 fetch.py（忽略错误）
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 列出所有生成的文件
+      - name: 提取 proxies 部分并生成订阅文件
         run: |
+          mkdir -p nodes
           cd AutoMergePublicNodes
-          echo "========== 文件列表 =========="
-          ls -lR
-          echo "=============================="
-          echo "最近修改的文本文件："
-          find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.yml" -o -name "*.conf" \) -printf "%T@ %p\n" | sort -nr | head -10
+          if [ ! -f list.meta.yml ]; then
+            echo "错误：未找到 list.meta.yml"
+            exit 1
+          fi
+          python3 << EOF
+          import yaml
+          with open('list.meta.yml', 'r', encoding='utf-8') as f:
+          data = yaml.safe_load(f)
+          proxies = data.get('proxies', [])
+          if not proxies:
+          print("警告：未找到 proxies 字段或为空")
+          with open('../nodes/proxies.yml', 'w', encoding='utf-8') as f:
+          f.write('proxies:\n')
+          yaml.dump(proxies, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+          print(f"已生成 nodes/proxies.yml，包含 {len(proxies)} 个节点")
+          EOF
+
+      - name: 提交并推送更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nodes/proxies.yml
+          git diff --cached --quiet || git commit -m "Auto update proxies list [skip ci]"
+          git push
