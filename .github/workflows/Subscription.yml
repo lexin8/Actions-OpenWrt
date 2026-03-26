@@ -30,36 +30,28 @@ jobs:
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 运行 fetch.py（忽略错误）
+      - name: 运行 fetch.py
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
+
+      - name: 安装 yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod a+x /usr/local/bin/yq
 
       - name: 提取 proxies 部分并生成订阅文件
         run: |
           mkdir -p nodes
           cd AutoMergePublicNodes
-          if [ ! -f list.meta.yml ]; then
-            echo "错误：未找到 list.meta.yml"
-            exit 1
-          fi
-          python3 << EOF
-          import yaml
-          with open('list.meta.yml', 'r', encoding='utf-8') as f:
-          data = yaml.safe_load(f)
-          proxies = data.get('proxies', [])
-          if not proxies:
-          print("警告：未找到 proxies 字段或为空")
-          with open('../nodes/proxies.yml', 'w', encoding='utf-8') as f:
-          f.write('proxies:\n')
-          yaml.dump(proxies, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
-          print(f"已生成 nodes/proxies.yml，包含 {len(proxies)} 个节点")
-          EOF
+          echo "proxies:" > ../nodes/proxies.yaml
+          yq '.proxies' list.meta.yml >> ../nodes/proxies.yaml
 
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/proxies.yml
+          git add nodes/proxies.yaml
           git diff --cached --quiet || git commit -m "Auto update proxies list [skip ci]"
           git push
