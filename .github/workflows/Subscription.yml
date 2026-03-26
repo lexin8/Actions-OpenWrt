@@ -1,0 +1,68 @@
+name: Update Subscription Nodes
+
+on:
+  workflow_dispatch:          # 手动触发
+  schedule:
+    - cron: '0 0 * * *'       # 每天 UTC 0 点自动更新
+
+permissions:
+  contents: write             # 允许提交推送
+
+jobs:
+  update-nodes:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: 克隆当前仓库（用于后续提交）
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      # 完整历史，便于提交
+
+      - name: 克隆 AutoMergePublicNodes 仓库
+        run: |
+          git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
+          cd AutoMergePublicNodes
+
+      - name: 安装 Python 依赖
+        run: |
+          cd AutoMergePublicNodes
+          pip install -r requirements.txt
+
+      - name: 配置代理（如果需要）
+        # 如果你需要代理访问节点源，可以在 Secrets 中设置 HTTP_PROXY 和 HTTPS_PROXY
+        # 如果不需要代理，此步骤可跳过
+        run: |
+          if [ -n "$HTTP_PROXY" ]; then
+            echo "$HTTP_PROXY" > AutoMergePublicNodes/local_proxy.conf
+          fi
+
+      - name: 运行 fetch.py 并提取订阅 URL
+        id: fetch
+        run: |
+          cd AutoMergePublicNodes
+          python fetch.py 2>&1 | tee output.log
+          SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
+          echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
+
+      - name: 下载订阅内容
+        if: env.SUB_URL != ''
+        run: |
+          curl -sL "$SUB_URL" -o subscription.txt
+          if [ ! -s subscription.txt ]; then
+            echo "订阅下载失败，请检查 URL 是否有效"
+            exit 1
+          fi
+          # 创建 nodes 目录（如果不存在）
+          mkdir -p nodes
+          # 将订阅内容复制到仓库的 nodes 目录
+          cp subscription.txt nodes/subscription.txt
+          echo "订阅文件已保存到 nodes/subscription.txt"
+
+      - name: 提交并推送更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nodes/subscription.txt
+          # 如果有更改才提交
+          git diff --cached --quiet || git commit -m "Auto update subscription nodes [skip ci]"
+          git push
