@@ -9,9 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  update-nodes:
+  update:
     runs-on: ubuntu-22.04
-
     steps:
       - name: 克隆当前仓库
         uses: actions/checkout@v4
@@ -21,69 +20,68 @@ jobs:
       - name: 克隆 AutoMergePublicNodes 仓库
         run: git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
 
-      - name: 修复 requirements.txt 中的 requests-file 依赖
+      - name: 修复 requirements.txt 依赖
         run: |
           cd AutoMergePublicNodes
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
 
-      - name: 安装 Python 依赖
+      - name: 安装依赖库
         run: |
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 可选配置代理
-        run: |
-          if [ -n "$HTTP_PROXY" ]; then
-            echo "$HTTP_PROXY" > AutoMergePublicNodes/local_proxy.conf
-            echo "代理已配置：$HTTP_PROXY"
-          fi
-        env:
-          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
-          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
-
-      - name: 修补 fetch.py 以忽略关键词退出
-        run: |
-          cd AutoMergePublicNodes
-          # 查找包含 "sys.exit(1)" 的行，并在前面加上 # 注释掉（保留原行用于调试）
-          sed -i 's/^\(\s*\)sys\.exit(1)/\1# sys.exit(1)/' fetch.py
-          # 同时将可能出现的 "exit(1)" 也注释掉
-          sed -i 's/^\(\s*\)exit(1)/\1# exit(1)/' fetch.py
-          echo "已注释掉 fetch.py 中的 sys.exit(1) 调用"
-
-      - name: 运行 fetch.py（忽略错误，保存日志）
-        id: fetch
+      - name: 运行 fetch.py（忽略错误）
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
-          # 提取订阅 URL（如果存在）
-          SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
-          echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
-          # 查找可能生成的订阅文件（包括 sub 目录、根目录等）
-          echo "查找生成的订阅文件..."
-          find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -not -path "./.git/*" -size +1c | while read file; do
-            echo "找到文件: $file"
-            # 如果是订阅文件（可能包含节点信息），复制到工作目录
-            if file "$file" | grep -q text; then
-              cp "$file" ../subscription.txt && echo "已复制 $file 到 subscription.txt"
+
+      - name: 查看生成的文件（调试用）
+        run: |
+          cd AutoMergePublicNodes
+          echo "========== 文件列表 =========="
+          ls -lR
+          echo "=============================="
+          echo "最近修改的文本文件："
+          find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -printf "%T@ %p\n" | sort -nr | head -10
+
+      - name: 智能复制订阅文件
+        run: |
+          mkdir -p nodes
+          cd AutoMergePublicNodes
+
+          possible_files=(
+            "sub/subscription.txt"
+            "sub/subscription"
+            "subscription.txt"
+            "subscription.yaml"
+            "sub/*.txt"
+            "*.txt"
+          )
+
+          found=""
+          for pattern in "${possible_files[@]}"; do
+            shopt -s nullglob
+            files=($pattern)
+            shopt -u nullglob
+            if [ ${#files[@]} -gt 0 ]; then
+              found="${files[0]}"
+              break
             fi
           done
 
-      - name: 确保最终有订阅文件
-        run: |
-          mkdir -p nodes
-          # 优先使用已存在的 subscription.txt（可能是从 URL 下载或本地复制得到）
-          if [ -f subscription.txt ]; then
-            cp subscription.txt nodes/subscription.txt
-          elif [ -f AutoMergePublicNodes/sub/subscription.txt ]; then
-            cp AutoMergePublicNodes/sub/subscription.txt nodes/subscription.txt
+          if [ -z "$found" ]; then
+            echo "未找到预设文件名，查找最近修改的文本文件..."
+            found=$(find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -printf "%T@ %p\n" | sort -nr | head -1 | cut -d' ' -f2-)
+          fi
+
+          if [ -n "$found" ] && [ -f "$found" ]; then
+            cp "$found" ../nodes/subscription.txt
+            echo "已复制 $found 到 nodes/subscription.txt"
+            echo "文件大小: $(wc -c < ../nodes/subscription.txt) 字节"
           else
-            echo "错误：未找到任何订阅内容，请检查 fetch.py 的输出日志。"
-            echo "---------- fetch.py 日志开始 ----------"
-            cat AutoMergePublicNodes/output.log || true
-            echo "---------- fetch.py 日志结束 ----------"
+            echo "错误：未找到任何订阅文件"
             exit 1
           fi
-          echo "订阅文件已保存到 nodes/subscription.txt，大小：$(wc -c < nodes/subscription.txt) 字节"
 
       - name: 提交并推送更新
         run: |
