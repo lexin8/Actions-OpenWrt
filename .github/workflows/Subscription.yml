@@ -1,32 +1,29 @@
 name: Update Subscription Nodes
 
 on:
-  workflow_dispatch:          # 手动触发
+  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'       # 每天 UTC 0 点自动更新
+    - cron: '0 0 * * *'
 
 permissions:
-  contents: write             # 允许提交推送
+  contents: write
 
 jobs:
   update-nodes:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: 克隆当前仓库（用于后续提交）
+      - name: 克隆当前仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: 克隆 AutoMergePublicNodes 仓库
-        run: |
-          git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
-          cd AutoMergePublicNodes
+        run: git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
 
       - name: 修复 requirements.txt 中的 requests-file 依赖
         run: |
           cd AutoMergePublicNodes
-          # 将 Git 引用替换为 PyPI 上的稳定版本
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
 
       - name: 安装 Python 依赖
@@ -34,23 +31,42 @@ jobs:
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 配置代理（如果需要）
-        # 如果你需要代理访问节点源，可以在 Secrets 中设置 HTTP_PROXY 和 HTTPS_PROXY
+      - name: 可选：配置代理（如果需要在 GitHub Secrets 中设置 HTTP_PROXY）
         run: |
           if [ -n "$HTTP_PROXY" ]; then
             echo "$HTTP_PROXY" > AutoMergePublicNodes/local_proxy.conf
+            echo "代理已配置：$HTTP_PROXY"
           fi
+        env:
+          HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+          HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
 
-      - name: 运行 fetch.py 并提取订阅 URL
+      - name: 运行 fetch.py 并记录日志
         id: fetch
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log
-          # 从输出中提取订阅 URL（格式为 "Subscription URL: http://..."）
+          # 尝试提取订阅 URL
           SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
           echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
+          echo "SUB_URL=$SUB_URL" >> $GITHUB_OUTPUT
+          # 如果没提取到，尝试查找本地生成的订阅文件
+          if [ -z "$SUB_URL" ]; then
+            echo "未从输出中提取到订阅 URL，尝试查找本地订阅文件..."
+            if [ -f sub/subscription.txt ]; then
+              echo "发现本地订阅文件 sub/subscription.txt"
+              cp sub/subscription.txt ../subscription.txt
+            elif [ -f sub/subscription ]; then
+              echo "发现本地订阅文件 sub/subscription"
+              cp sub/subscription ../subscription.txt
+            else
+              echo "未找到任何订阅文件，请检查 fetch.py 的输出。"
+              cat output.log
+              exit 1
+            fi
+          fi
 
-      - name: 下载订阅内容
+      - name: 下载订阅内容（如果提取到 URL）
         if: env.SUB_URL != ''
         run: |
           curl -sL "$SUB_URL" -o subscription.txt
@@ -58,9 +74,20 @@ jobs:
             echo "订阅下载失败，请检查 URL 是否有效"
             exit 1
           fi
-          # 创建 nodes 目录（如果不存在）
+          echo "订阅文件已下载"
+
+      - name: 将订阅文件复制到 nodes 目录
+        run: |
           mkdir -p nodes
-          cp subscription.txt nodes/subscription.txt
+          # 如果已经存在 subscription.txt（来自 URL 或本地文件）
+          if [ -f subscription.txt ]; then
+            cp subscription.txt nodes/subscription.txt
+          elif [ -f AutoMergePublicNodes/sub/subscription.txt ]; then
+            cp AutoMergePublicNodes/sub/subscription.txt nodes/subscription.txt
+          else
+            echo "错误：未找到任何订阅内容，无法更新 nodes/subscription.txt"
+            exit 1
+          fi
           echo "订阅文件已保存到 nodes/subscription.txt"
 
       - name: 提交并推送更新
@@ -68,6 +95,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nodes/subscription.txt
-          # 如果有更改才提交
           git diff --cached --quiet || git commit -m "Auto update subscription nodes [skip ci]"
           git push
