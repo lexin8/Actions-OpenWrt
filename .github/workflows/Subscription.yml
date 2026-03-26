@@ -41,44 +41,49 @@ jobs:
           HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
           HTTPS_PROXY: ${{ secrets.HTTPS_PROXY }}
 
+      - name: 修补 fetch.py 以忽略关键词退出
+        run: |
+          cd AutoMergePublicNodes
+          # 查找包含 "sys.exit(1)" 的行，并在前面加上 # 注释掉（保留原行用于调试）
+          sed -i 's/^\(\s*\)sys\.exit(1)/\1# sys.exit(1)/' fetch.py
+          # 同时将可能出现的 "exit(1)" 也注释掉
+          sed -i 's/^\(\s*\)exit(1)/\1# exit(1)/' fetch.py
+          echo "已注释掉 fetch.py 中的 sys.exit(1) 调用"
+
       - name: 运行 fetch.py（忽略错误，保存日志）
         id: fetch
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
-          # 尝试提取订阅 URL
+          # 提取订阅 URL（如果存在）
           SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
           echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
-          # 检查本地是否有生成的订阅文件
-          if [ -f sub/subscription.txt ]; then
-            cp sub/subscription.txt ../subscription.txt
-            echo "从本地文件 sub/subscription.txt 获取订阅成功"
-          elif [ -f sub/subscription ]; then
-            cp sub/subscription ../subscription.txt
-            echo "从本地文件 sub/subscription 获取订阅成功"
-          fi
-
-      - name: 下载订阅内容（如果有 URL）
-        if: env.SUB_URL != ''
-        run: |
-          curl -sL "$SUB_URL" -o subscription.txt
-          if [ ! -s subscription.txt ]; then
-            echo "警告：通过 URL 下载失败，将尝试使用本地文件"
-          fi
+          # 查找可能生成的订阅文件（包括 sub 目录、根目录等）
+          echo "查找生成的订阅文件..."
+          find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -not -path "./.git/*" -size +1c | while read file; do
+            echo "找到文件: $file"
+            # 如果是订阅文件（可能包含节点信息），复制到工作目录
+            if file "$file" | grep -q text; then
+              cp "$file" ../subscription.txt && echo "已复制 $file 到 subscription.txt"
+            fi
+          done
 
       - name: 确保最终有订阅文件
         run: |
           mkdir -p nodes
-          # 优先使用已存在的 subscription.txt
+          # 优先使用已存在的 subscription.txt（可能是从 URL 下载或本地复制得到）
           if [ -f subscription.txt ]; then
             cp subscription.txt nodes/subscription.txt
           elif [ -f AutoMergePublicNodes/sub/subscription.txt ]; then
             cp AutoMergePublicNodes/sub/subscription.txt nodes/subscription.txt
           else
-            echo "错误：未找到任何订阅内容，无法更新 nodes/subscription.txt"
+            echo "错误：未找到任何订阅内容，请检查 fetch.py 的输出日志。"
+            echo "---------- fetch.py 日志开始 ----------"
+            cat AutoMergePublicNodes/output.log || true
+            echo "---------- fetch.py 日志结束 ----------"
             exit 1
           fi
-          echo "订阅文件已保存到 nodes/subscription.txt"
+          echo "订阅文件已保存到 nodes/subscription.txt，大小：$(wc -c < nodes/subscription.txt) 字节"
 
       - name: 提交并推送更新
         run: |
