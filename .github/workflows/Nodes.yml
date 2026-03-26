@@ -1,4 +1,4 @@
-name: Update Nodes
+name: Update Subscription Nodes
 
 on:
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 测速并过滤失效节点
+      - name: 测速并过滤失效节点（每个节点测试10次）
         run: |
           cd AutoMergePublicNodes
           if [ ! -f list.meta.yml ]; then
@@ -45,25 +45,40 @@ jobs:
           python3 << 'EOF'
           import yaml
           import asyncio
-          import socket
+          import time
 
-          TIMEOUT = 5
+          TIMEOUT = 3
+          TEST_TIMES = 10
+          SUCCESS_THRESHOLD = 5
 
-          async def test_node(node):
+          async def test_node_once(node):
               server = node.get('server')
               port = node.get('port')
               if not server or not port:
-                  return node, False
+                  return False, None
               try:
+                  start = time.time()
                   _, writer = await asyncio.wait_for(
                       asyncio.open_connection(server, port),
                       timeout=TIMEOUT
                   )
+                  elapsed = time.time() - start
                   writer.close()
                   await writer.wait_closed()
-                  return node, True
+                  return True, elapsed
               except:
-                  return node, False
+                  return False, None
+
+          async def test_node(node):
+              success = 0
+              latencies = []
+              for _ in range(TEST_TIMES):
+                  ok, lat = await test_node_once(node)
+                  if ok:
+                      success += 1
+                      latencies.append(lat)
+              avg_latency = sum(latencies) / len(latencies) if latencies else None
+              return node, success, avg_latency
 
           async def main():
               with open('list.meta.yml', 'r', encoding='utf-8') as f:
@@ -75,16 +90,17 @@ jobs:
                       f.write('proxies: []')
                   return
 
-              print(f"开始测试 {len(proxies)} 个节点...")
+              print(f"开始测试 {len(proxies)} 个节点（每个节点测试 {TEST_TIMES} 次）...")
               tasks = [test_node(p) for p in proxies]
               results = await asyncio.gather(*tasks)
 
               valid_nodes = []
-              for node, ok in results:
-                  if ok:
+              for node, success, avg_latency in results:
+                  if success >= SUCCESS_THRESHOLD:
                       valid_nodes.append(node)
+                      print(f"✅ {node.get('name', 'unknown')} : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
                   else:
-                      print(f"失效节点: {node.get('name', 'unknown')} ({node.get('server')}:{node.get('port')})")
+                      print(f"❌ 失效节点: {node.get('name', 'unknown')} ({node.get('server')}:{node.get('port')}) - 成功率 {success}/{TEST_TIMES}")
 
               print(f"有效节点数: {len(valid_nodes)} / {len(proxies)}")
 
