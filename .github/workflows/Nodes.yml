@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -125,3 +126,10 @@ jobs:
           git add nodes/list.meta.yml nodes/proxies.yml
           git diff --cached --quiet || git commit -m "Auto update list.meta.yml and filtered proxies.yml [skip ci]"
           git push
+
+      - name: 删除本次运行记录
+        if: always()   # 无论之前的步骤成功或失败，都执行删除
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }} -X DELETE
