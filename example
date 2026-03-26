@@ -1,0 +1,18 @@
+git clone --depth=1 --single-branch --branch openwrt-24.10 https://github.com/immortalwrt/luci.git luci-app-homeproxy
+
+# 格式：git clone --depth=1 --single-branch --branch 分支名 仓库地址 目标目录
+# 只拉取 luci-app-mosdns 组件（示例）
+git clone --depth=1 --single-branch --branch openwrt-24.10 https://github.com/immortalwrt/packages.git luci-app-mosdns
+# 只保留需要的子目录，删除其他无关文件（关键：避免冲突）
+mv luci-app-mosdns/net/luci-app-mosdns ./  # 把组件移到当前目录
+rm -rf luci-app-mosdns  # 删除克隆的整个仓库，只留目标组件
+
+# 如需拉取多个组件，重复上述步骤（比如再拉取 mosdns 本体）
+git clone --depth=1 --single-branch --branch openwrt-24.10 https://github.com/immortalwrt/packages.git mosdns
+mv mosdns/net/mosdns ./
+rm -rf mosdns
+
+
+# 格式：src-git 别名 仓库地址;分支名 +需要的组件1 +需要的组件2（+表示只保留，-表示排除）
+# 示例：只拉取 immortalwrt_pkgs 中的 luci-app-mosdns 和 mosdns，排除所有其他包
+src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 +net/luci-app-mosdns +net/mosdns
