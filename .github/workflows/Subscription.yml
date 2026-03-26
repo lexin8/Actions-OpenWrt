@@ -16,12 +16,18 @@ jobs:
       - name: 克隆当前仓库（用于后续提交）
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # 完整历史，便于提交
+          fetch-depth: 0
 
       - name: 克隆 AutoMergePublicNodes 仓库
         run: |
           git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
           cd AutoMergePublicNodes
+
+      - name: 修复 requirements.txt 中的 requests-file 依赖
+        run: |
+          cd AutoMergePublicNodes
+          # 将 Git 引用替换为 PyPI 上的稳定版本
+          sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
 
       - name: 安装 Python 依赖
         run: |
@@ -30,7 +36,6 @@ jobs:
 
       - name: 配置代理（如果需要）
         # 如果你需要代理访问节点源，可以在 Secrets 中设置 HTTP_PROXY 和 HTTPS_PROXY
-        # 如果不需要代理，此步骤可跳过
         run: |
           if [ -n "$HTTP_PROXY" ]; then
             echo "$HTTP_PROXY" > AutoMergePublicNodes/local_proxy.conf
@@ -41,6 +46,7 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log
+          # 从输出中提取订阅 URL（格式为 "Subscription URL: http://..."）
           SUB_URL=$(grep -oP 'Subscription URL: \K\S+' output.log | head -1)
           echo "SUB_URL=$SUB_URL" >> $GITHUB_ENV
 
@@ -54,7 +60,6 @@ jobs:
           fi
           # 创建 nodes 目录（如果不存在）
           mkdir -p nodes
-          # 将订阅内容复制到仓库的 nodes 目录
           cp subscription.txt nodes/subscription.txt
           echo "订阅文件已保存到 nodes/subscription.txt"
 
