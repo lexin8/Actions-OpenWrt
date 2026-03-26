@@ -9,12 +9,12 @@ jobs:
   extract:
     runs-on: ubuntu-latest
     permissions:
-      contents: write          # 允许推送代码到当前仓库
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: master          # 指定主分支
+          ref: master
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download list.meta.yml
@@ -28,17 +28,16 @@ jobs:
             https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod a+x /usr/local/bin/yq
 
-      - name: Extract proxies
+      - name: Extract proxies and wrap with "proxies:" key
         run: |
-          # 确保 nodes 目录存在
           mkdir -p nodes
-          yq '.proxies' list.meta.yml > nodes/proxies.yaml
+          echo "proxies:" > nodes/proxies.yaml
+          yq '.proxies' list.meta.yml >> nodes/proxies.yaml
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nodes/proxies.yaml
-          # 如果文件没有变化，则不提交
           git diff --cached --quiet || git commit -m "Update nodes/proxies.yaml [skip ci]"
           git push
