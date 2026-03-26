@@ -1,0 +1,54 @@
+name: Extract Nodes
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'   # 每天更新两次
+  workflow_dispatch:         # 支持手动触发
+
+jobs:
+  extract-nodes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download list.meta.yml
+        run: |
+          # 尝试多个镜像，确保能下载
+          curl -L -o list.meta.yml \
+            "https://ghproxy.cn/https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
+          curl -L -o list.meta.yml \
+            "https://raw.gitmirror.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
+          curl -L -o list.meta.yml \
+            "https://cdn.jsdelivr.net/gh/chengaopan/AutoMergePublicNodes/list.meta.yml"
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod a+x /usr/local/bin/yq
+
+      - name: Extract proxies and save
+        run: |
+          # 提取 proxies 数组，保存为纯节点 YAML 文件
+          yq '.proxies' list.meta.yml > proxies.yaml
+          # 可选：将 base64 编码的节点列表也生成一份（供其他客户端使用）
+          cat proxies.yaml | base64 -w 0 > proxies_base64.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-subscription
+          path: |
+            proxies.yaml
+            proxies_base64.txt
+
+      - name: Deploy to GitHub Pages（可选）
+        if: github.ref == 'refs/heads/main'  # 仅在主分支推送
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          keep_files: false
+          destination_dir: nodes
+          # 将生成的 proxies.yaml 和 proxies_base64.txt 发布到 pages
