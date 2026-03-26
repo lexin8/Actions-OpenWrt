@@ -1,4 +1,4 @@
-name: Update Subscription Nodes
+name: Update Nodes
 
 on:
   workflow_dispatch:
@@ -34,6 +34,12 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
+
+      - name: 复制 list.meta.yml 到 nodes 目录
+        run: |
+          mkdir -p nodes
+          cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
+          echo "已复制 list.meta.yml 到 nodes/ 目录"
 
       - name: 测速并过滤失效节点（每个节点测试10次）
         run: |
@@ -116,6 +122,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/proxies.yml
-          git diff --cached --quiet || git commit -m "Auto update proxies list (filtered) [skip ci]"
+          git add nodes/list.meta.yml nodes/proxies.yml
+          git diff --cached --quiet || git commit -m "Auto update list.meta.yml and filtered proxies.yml [skip ci]"
           git push
