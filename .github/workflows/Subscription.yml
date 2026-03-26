@@ -35,28 +35,79 @@ jobs:
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 安装 yq（YAML 处理工具）
-        run: sudo snap install yq
+      - name: 查看 list.meta.yml 前 20 行（调试用）
+        run: |
+          cd AutoMergePublicNodes
+          echo "===== list.meta.yml 前20行 ====="
+          head -20 list.meta.yml
+          echo "============================"
 
-      - name: 提取 proxies 部分并生成订阅文件
+      - name: 使用 Python 从 list.meta.yml 提取节点并生成 proxies.yml
         run: |
           mkdir -p nodes
           cd AutoMergePublicNodes
-          if [ ! -f config.yml ]; then
-            echo "错误：未找到 config.yml"
+          if [ ! -f list.meta.yml ]; then
+            echo "错误：未找到 list.meta.yml"
             exit 1
           fi
-          # 提取 proxies 数组（不包含根键）
-          yq eval '.proxies' config.yml > ../nodes/proxies.yml
-          # 在文件开头添加 "proxies:" 根键
-          sed -i '1i proxies:' ../nodes/proxies.yml
-          echo "已生成 nodes/proxies.yml"
-          echo "文件大小: $(wc -c < ../nodes/proxies.yml) 字节"
+          python3 << EOF
+import yaml
+import sys
+
+# 加载 list.meta.yml
+with open('list.meta.yml', 'r', encoding='utf-8') as f:
+    data = yaml.safe_load(f)
+
+# 尝试从常见键名中提取节点列表
+proxies = None
+if isinstance(data, list):
+    # 如果整个文件是一个节点列表
+    proxies = data
+elif isinstance(data, dict):
+    # 检查可能的键
+    for key in ['proxies', 'nodes', 'servers', 'list']:
+        if key in data and isinstance(data[key], list):
+            proxies = data[key]
+            break
+    # 如果还是没有，尝试取第一个非空列表值
+    if proxies is None:
+        for value in data.values():
+            if isinstance(value, list) and len(value) > 0:
+                proxies = value
+                break
+
+# 如果仍没有找到，尝试从文件中读取并解析每行（假设每行是一个节点URI）
+if proxies is None and 'list_raw.txt' in os.listdir('.'):
+    print("未在 list.meta.yml 中找到节点列表，尝试从 list_raw.txt 读取")
+    with open('list_raw.txt', 'r') as f:
+        lines = [line.strip() for line in f if line.strip()]
+    # 假设每行是节点URI，直接保存为列表（但可能不是结构化的对象）
+    proxies = lines
+
+if proxies is None:
+    print("错误：无法提取节点列表")
+    sys.exit(1)
+
+# 将节点列表写入 proxies.yml，格式为 proxies: 根键 + 节点列表
+with open('../nodes/proxies.yml', 'w', encoding='utf-8') as f:
+    f.write('proxies:\n')
+    yaml.dump(proxies, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+
+print("已生成 nodes/proxies.yml，包含 {} 个节点".format(len(proxies)))
+EOF
+
+      - name: 同时复制 list_raw.txt 作为备用（可选）
+        run: |
+          cd AutoMergePublicNodes
+          if [ -f list_raw.txt ]; then
+            cp list_raw.txt ../nodes/list_raw.txt
+            echo "已复制 list_raw.txt 到 nodes/list_raw.txt"
+          fi
 
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/proxies.yml
-          git diff --cached --quiet || git commit -m "Auto update proxies.yml [skip ci]"
+          git add nodes/proxies.yml nodes/list_raw.txt || true
+          git diff --cached --quiet || git commit -m "Auto update subscription [skip ci]"
           git push
