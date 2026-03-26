@@ -35,51 +35,16 @@ jobs:
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 查看生成的文件（调试用）
-        run: |
-          cd AutoMergePublicNodes
-          echo "========== 文件列表 =========="
-          ls -lR
-          echo "=============================="
-          echo "最近修改的文本文件："
-          find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -printf "%T@ %p\n" | sort -nr | head -10
-
-      - name: 智能复制订阅文件
+      - name: 复制 list_raw.txt 到 nodes 目录
         run: |
           mkdir -p nodes
           cd AutoMergePublicNodes
-
-          possible_files=(
-            "sub/subscription.txt"
-            "sub/subscription"
-            "subscription.txt"
-            "subscription.yaml"
-            "sub/*.txt"
-            "*.txt"
-          )
-
-          found=""
-          for pattern in "${possible_files[@]}"; do
-            shopt -s nullglob
-            files=($pattern)
-            shopt -u nullglob
-            if [ ${#files[@]} -gt 0 ]; then
-              found="${files[0]}"
-              break
-            fi
-          done
-
-          if [ -z "$found" ]; then
-            echo "未找到预设文件名，查找最近修改的文本文件..."
-            found=$(find . -type f \( -name "*.txt" -o -name "*.yaml" -o -name "*.conf" \) -printf "%T@ %p\n" | sort -nr | head -1 | cut -d' ' -f2-)
-          fi
-
-          if [ -n "$found" ] && [ -f "$found" ]; then
-            cp "$found" ../nodes/subscription.txt
-            echo "已复制 $found 到 nodes/subscription.txt"
-            echo "文件大小: $(wc -c < ../nodes/subscription.txt) 字节"
+          if [ -f list_raw.txt ]; then
+            cp list_raw.txt ../nodes/list_raw.txt
+            echo "已复制 list_raw.txt 到 nodes/list_raw.txt"
+            echo "文件大小: $(wc -c < ../nodes/list_raw.txt) 字节"
           else
-            echo "错误：未找到任何订阅文件"
+            echo "错误：未找到 list_raw.txt"
             exit 1
           fi
 
@@ -87,6 +52,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/subscription.txt
-          git diff --cached --quiet || git commit -m "Auto update subscription nodes [skip ci]"
+          git add nodes/list_raw.txt
+          git diff --cached --quiet || git commit -m "Auto update raw nodes list [skip ci]"
           git push
