@@ -35,27 +35,28 @@ jobs:
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 复制并编码订阅文件
+      - name: 安装 yq（YAML 处理工具）
+        run: sudo snap install yq
+
+      - name: 提取 proxies 部分并生成订阅文件
         run: |
           mkdir -p nodes
           cd AutoMergePublicNodes
-          if [ ! -f list_raw.txt ]; then
-            echo "错误：未找到 list_raw.txt"
+          if [ ! -f config.yml ]; then
+            echo "错误：未找到 config.yml"
             exit 1
           fi
-          # 复制原始文件
-          cp list_raw.txt ../nodes/list_raw.txt
-          echo "已复制 list_raw.txt 到 nodes/list_raw.txt"
-          # 生成 Base64 编码版本（无换行）
-          base64 -w 0 list_raw.txt > ../nodes/subscription.txt
-          echo "已生成 Base64 编码订阅文件 nodes/subscription.txt"
-          echo "原始文件大小: $(wc -c < ../nodes/list_raw.txt) 字节"
-          echo "Base64 文件大小: $(wc -c < ../nodes/subscription.txt) 字节"
+          # 提取 proxies 数组（不包含根键）
+          yq eval '.proxies' config.yml > ../nodes/proxies.yml
+          # 在文件开头添加 "proxies:" 根键
+          sed -i '1i proxies:' ../nodes/proxies.yml
+          echo "已生成 nodes/proxies.yml"
+          echo "文件大小: $(wc -c < ../nodes/proxies.yml) 字节"
 
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/list_raw.txt nodes/subscription.txt
-          git diff --cached --quiet || git commit -m "Auto update subscription [skip ci]"
+          git add nodes/proxies.yml
+          git diff --cached --quiet || git commit -m "Auto update proxies.yml [skip ci]"
           git push
