@@ -209,23 +209,6 @@ proxies:
     headers:
       Host: snippet.fgfw.de5.net
     path: /danfeng
-- alpn:
-  - http/1.1
-  client-fingerprint: random
-  name: 14|KR_speednode_0020
-  network: ws
-  port: 12345
-  server: 121.174.43.148
-  servername: snippet.chinat.eu.cc
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 948fac3c-42bf-41a6-a5f9-704d36ff0d8d
-  ws-opts:
-    headers:
-      Host: snippet.chinat.eu.cc
-    path: /danfeng
 - name: 14|KR_speednode_0022
   network: ws
   port: 16993
