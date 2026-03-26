@@ -2,44 +2,43 @@ name: Extract Free Nodes
 
 on:
   schedule:
-    - cron: '0 */12 * * *'   # 每12小时自动运行一次
-  workflow_dispatch:         # 支持手动触发
+    - cron: '0 */12 * * *'
+  workflow_dispatch:
 
 jobs:
   extract:
     runs-on: ubuntu-latest
     permissions:
-      contents: write         # 允许推送代码到 gh-pages 分支
+      contents: write          # 允许推送代码到当前仓库
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: master          # 指定主分支
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download list.meta.yml from source
+      - name: Download list.meta.yml
         run: |
-          # 尝试多个镜像，确保下载成功（Actions 环境可直接访问 GitHub）
           curl -L -o list.meta.yml \
-            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
-          curl -L -o list.meta.yml \
-            "https://ghproxy.cn/https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml" || \
-          curl -L -o list.meta.yml \
-            "https://cdn.jsdelivr.net/gh/chengaopan/AutoMergePublicNodes/list.meta.yml"
+            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml"
 
-      - name: Install yq (YAML processor)
+      - name: Install yq
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo wget -qO /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod a+x /usr/local/bin/yq
 
-      - name: Extract proxies array
+      - name: Extract proxies
         run: |
-          yq '.proxies' list.meta.yml > proxies.yaml
-          # 生成 base64 编码版本（备选）
-          cat proxies.yaml | base64 -w 0 > proxies_base64.txt
+          # 确保 nodes 目录存在
+          mkdir -p nodes
+          yq '.proxies' list.meta.yml > nodes/proxies.yaml
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          publish_branch: gh-pages
-          keep_files: false
-          destination_dir: nodes   # 将文件放入 nodes 目录
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nodes/proxies.yaml
+          # 如果文件没有变化，则不提交
+          git diff --cached --quiet || git commit -m "Update nodes/proxies.yaml [skip ci]"
+          git push
