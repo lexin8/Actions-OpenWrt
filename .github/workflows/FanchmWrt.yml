@@ -123,7 +123,8 @@ jobs:
           CONFIG_TARGET_ROOTFS_PARTSIZE=1024
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_PACKAGE_omcproxy=y
+          CONFIG_PACKAGE_omcproxy=n
+          CONFIG_PACKAGE_igmpproxy=y
           # 基础工具（移除默认自带的ping/iputils-ping）
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_which=y
@@ -412,7 +413,8 @@ jobs:
           CONFIG_TARGET_ROOTFS_PARTSIZE=1024
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
           CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_PACKAGE_omcproxy=y
+          CONFIG_PACKAGE_omcproxy=n
+          CONFIG_PACKAGE_igmpproxy=y
           # 基础工具（移除默认自带的ping/iputils-ping）
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_which=y
