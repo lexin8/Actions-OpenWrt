@@ -30,7 +30,7 @@ jobs:
           cd AutoMergePublicNodes
           pip install -r requirements.txt
 
-      - name: 运行 fetch.py
+      - name: 运行 fetch.py 获取 AutoMergePublicNodes 节点
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
@@ -41,13 +41,106 @@ jobs:
           cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
           echo "已复制 list.meta.yml 到 nodes/ 目录"
 
+      - name: 获取 free-nodes/v2rayfree 最新订阅文件链接
+        id: get_latest
+        run: |
+          # 使用 GitHub API 获取仓库根目录下所有文件
+          # 文件命名格式 vYYYYMMDD（如 v202603262），按名称降序取第一个
+          curl -s "https://api.github.com/repos/free-nodes/v2rayfree/contents/" > files.json
+          # 提取所有文件 name，过滤出以 v 开头且全是数字/字母的文件
+          latest_file=$(jq -r '.[] | select(.type=="file") | .name' files.json | grep -E '^v[0-9]+$' | sort -r | head -n1)
+          if [ -z "$latest_file" ]; then
+            echo "未找到订阅文件，尝试使用 README 中的链接"
+            # 备选：从 README 提取订阅链接（正则匹配 raw.githubusercontent 链接）
+            curl -s "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/README.md" | grep -oP 'https://raw.githubusercontent.com/free-nodes/v2rayfree/main/v[0-9]+' | head -n1 > url.txt
+          else
+            echo "https://raw.githubusercontent.com/free-nodes/v2rayfree/main/$latest_file" > url.txt
+          fi
+          echo "订阅文件 URL: $(cat url.txt)"
+          echo "url=$(cat url.txt)" >> $GITHUB_OUTPUT
+
+      - name: 抓取 free-nodes/v2rayfree 最新节点
+        run: |
+          curl -L -o v2rayfree_nodes.txt "${{ steps.get_latest.outputs.url }}"
+          echo "已下载 v2rayfree 节点列表"
+
+      - name: 合并并转换节点格式（统一为 proxies 列表）
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import base64
+          import re
+
+          # 1. 读取 AutoMergePublicNodes 的 list.meta.yml
+          with open('nodes/list.meta.yml', 'r', encoding='utf-8') as f:
+              data1 = yaml.safe_load(f)
+          proxies1 = data1.get('proxies', [])
+          print(f"从 AutoMergePublicNodes 获取到 {len(proxies1)} 个节点")
+
+          # 2. 解析 v2rayfree 订阅文件（每行一个节点 URL，可能 base64 编码）
+          proxies2 = []
+          with open('v2rayfree_nodes.txt', 'r', encoding='utf-8', errors='ignore') as f:
+              content = f.read().strip()
+          
+          # 检查是否是 base64 编码（通常订阅链接返回的是 base64）
+          if not any(content.startswith(x) for x in ['ss://', 'trojan://', 'vless://', 'vmess://']):
+              try:
+                  decoded = base64.b64decode(content).decode('utf-8')
+                  lines = decoded.splitlines()
+              except:
+                  lines = content.splitlines()
+          else:
+              lines = content.splitlines()
+
+          for line in lines:
+              line = line.strip()
+              if not line:
+                  continue
+              node_info = {'raw': line}
+              # 尝试提取 server 和 port 用于测速
+              if line.startswith('ss://'):
+                  match = re.search(r'@([^:]+):(\d+)', line)
+                  if match:
+                      node_info['server'] = match.group(1)
+                      node_info['port'] = int(match.group(2))
+                  else:
+                      node_info['server'] = None
+              elif line.startswith('trojan://'):
+                  match = re.search(r'@([^:]+):(\d+)', line)
+                  if match:
+                      node_info['server'] = match.group(1)
+                      node_info['port'] = int(match.group(2))
+                  else:
+                      node_info['server'] = None
+              elif line.startswith('vless://'):
+                  match = re.search(r'@([^:]+):(\d+)', line)
+                  if match:
+                      node_info['server'] = match.group(1)
+                      node_info['port'] = int(match.group(2))
+                  else:
+                      node_info['server'] = None
+              elif line.startswith('vmess://'):
+                  # vmess 是 base64 编码的 JSON，可解析但较复杂，先跳过测速
+                  node_info['server'] = None
+              else:
+                  node_info['server'] = None
+              
+              node_info['name'] = f"v2rayfree_{len(proxies2)+1}"
+              proxies2.append(node_info)
+          
+          print(f"从 v2rayfree 获取到 {len(proxies2)} 个节点（原始）")
+
+          # 合并两个列表
+          combined_proxies = proxies1 + proxies2
+          print(f"合并后总节点数: {len(combined_proxies)}")
+
+          # 保存合并后的节点列表供测速使用
+          with open('combined_nodes.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump(combined_proxies, f, allow_unicode=True)
+          EOF
+
       - name: 测速并过滤失效节点（每个节点测试10次）
         run: |
-          cd AutoMergePublicNodes
-          if [ ! -f list.meta.yml ]; then
-            echo "错误：未找到 list.meta.yml"
-            exit 1
-          fi
           python3 << 'EOF'
           import yaml
           import asyncio
@@ -57,9 +150,7 @@ jobs:
           TEST_TIMES = 10
           SUCCESS_THRESHOLD = 5
 
-          async def test_node_once(node):
-              server = node.get('server')
-              port = node.get('port')
+          async def test_node_once(server, port):
               if not server or not port:
                   return False, None
               try:
@@ -76,10 +167,15 @@ jobs:
                   return False, None
 
           async def test_node(node):
+              server = node.get('server')
+              port = node.get('port')
+              if not server or not port:
+                  return node, 0, None
+              
               success = 0
               latencies = []
               for _ in range(TEST_TIMES):
-                  ok, lat = await test_node_once(node)
+                  ok, lat = await test_node_once(server, port)
                   if ok:
                       success += 1
                       latencies.append(lat)
@@ -87,32 +183,45 @@ jobs:
               return node, success, avg_latency
 
           async def main():
-              with open('list.meta.yml', 'r', encoding='utf-8') as f:
-                  data = yaml.safe_load(f)
-              proxies = data.get('proxies', [])
-              if not proxies:
-                  print("警告：未找到 proxies 字段")
-                  with open('../nodes/proxies.yml', 'w') as f:
-                      f.write('proxies: []')
-                  return
-
-              print(f"开始测试 {len(proxies)} 个节点（每个节点测试 {TEST_TIMES} 次）...")
-              tasks = [test_node(p) for p in proxies]
+              with open('combined_nodes.yaml', 'r', encoding='utf-8') as f:
+                  combined = yaml.safe_load(f)
+              
+              print(f"开始测试 {len(combined)} 个节点（每个节点测试 {TEST_TIMES} 次）...")
+              tasks = [test_node(node) for node in combined]
               results = await asyncio.gather(*tasks)
 
               valid_nodes = []
+              valid_raw = []
               for node, success, avg_latency in results:
                   if success >= SUCCESS_THRESHOLD:
                       valid_nodes.append(node)
-                      print(f"✅ {node.get('name', 'unknown')} : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
+                      valid_raw.append(node.get('raw', ''))
+                      name = node.get('name', 'unknown')
+                      server = node.get('server', 'unknown')
+                      port = node.get('port', 'unknown')
+                      print(f"✅ {name} ({server}:{port}) : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
                   else:
-                      print(f"❌ 失效节点: {node.get('name', 'unknown')} ({node.get('server')}:{node.get('port')}) - 成功率 {success}/{TEST_TIMES}")
+                      name = node.get('name', 'unknown')
+                      server = node.get('server', 'unknown')
+                      port = node.get('port', 'unknown')
+                      print(f"❌ 失效节点: {name} ({server}:{port}) - 成功率 {success}/{TEST_TIMES}")
 
-              print(f"有效节点数: {len(valid_nodes)} / {len(proxies)}")
+              print(f"有效节点数: {len(valid_nodes)} / {len(combined)}")
 
-              with open('../nodes/proxies.yml', 'w', encoding='utf-8') as f:
+              # 保存 YAML 格式（移除测速辅助字段）
+              with open('nodes/proxies.yml', 'w', encoding='utf-8') as f:
                   f.write('proxies:\n')
-                  yaml.dump(valid_nodes, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+                  clean_nodes = []
+                  for node in valid_nodes:
+                      clean_node = {k: v for k, v in node.items() if k not in ['server', 'port', 'raw']}
+                      clean_nodes.append(clean_node)
+                  yaml.dump(clean_nodes, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+              
+              # 保存纯链接列表
+              with open('nodes/links.txt', 'w', encoding='utf-8') as f:
+                  for raw in valid_raw:
+                      if raw:
+                          f.write(raw + '\n')
 
           if __name__ == '__main__':
               asyncio.run(main())
@@ -122,6 +231,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/list.meta.yml nodes/proxies.yml
-          git diff --cached --quiet || git commit -m "Auto update list.meta.yml and filtered proxies.yml [skip ci]"
+          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
+          git diff --cached --quiet || git commit -m "Auto update nodes from both sources [skip ci]"
           git push
