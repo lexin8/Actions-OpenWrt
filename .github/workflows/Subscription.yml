@@ -35,23 +35,71 @@ jobs:
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
 
-      - name: 安装 yq
+      - name: 测速并过滤失效节点
         run: |
-          sudo wget -qO /usr/local/bin/yq \
-            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod a+x /usr/local/bin/yq
-
-      - name: 提取 proxies 部分并生成订阅文件
-        run: |
-          mkdir -p nodes
           cd AutoMergePublicNodes
-          echo "proxies:" > ../nodes/proxies.yaml
-          yq '.proxies' list.meta.yml >> ../nodes/proxies.yaml
+          if [ ! -f list.meta.yml ]; then
+            echo "错误：未找到 list.meta.yml"
+            exit 1
+          fi
+          python3 << 'EOF'
+          import yaml
+          import asyncio
+          import socket
+
+          TIMEOUT = 5
+
+          async def test_node(node):
+              server = node.get('server')
+              port = node.get('port')
+              if not server or not port:
+                  return node, False
+              try:
+                  _, writer = await asyncio.wait_for(
+                      asyncio.open_connection(server, port),
+                      timeout=TIMEOUT
+                  )
+                  writer.close()
+                  await writer.wait_closed()
+                  return node, True
+              except:
+                  return node, False
+
+          async def main():
+              with open('list.meta.yml', 'r', encoding='utf-8') as f:
+                  data = yaml.safe_load(f)
+              proxies = data.get('proxies', [])
+              if not proxies:
+                  print("警告：未找到 proxies 字段")
+                  with open('../nodes/proxies.yml', 'w') as f:
+                      f.write('proxies: []')
+                  return
+
+              print(f"开始测试 {len(proxies)} 个节点...")
+              tasks = [test_node(p) for p in proxies]
+              results = await asyncio.gather(*tasks)
+
+              valid_nodes = []
+              for node, ok in results:
+                  if ok:
+                      valid_nodes.append(node)
+                  else:
+                      print(f"失效节点: {node.get('name', 'unknown')} ({node.get('server')}:{node.get('port')})")
+
+              print(f"有效节点数: {len(valid_nodes)} / {len(proxies)}")
+
+              with open('../nodes/proxies.yml', 'w', encoding='utf-8') as f:
+                  f.write('proxies:\n')
+                  yaml.dump(valid_nodes, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
+
+          if __name__ == '__main__':
+              asyncio.run(main())
+          EOF
 
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/proxies.yaml
-          git diff --cached --quiet || git commit -m "Auto update proxies list [skip ci]"
+          git add nodes/proxies.yml
+          git diff --cached --quiet || git commit -m "Auto update proxies list (filtered) [skip ci]"
           git push
