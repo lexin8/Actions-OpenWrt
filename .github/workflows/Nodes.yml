@@ -36,7 +36,12 @@ jobs:
 
       - name: Download mihomo (Clash.Meta)
         run: |
-          wget -qO mihomo.gz https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-alpha.gz
+          # 获取最新稳定版本号
+          LATEST=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
+          echo "Latest version: $LATEST"
+          # 尝试直接下载
+          curl -L -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST}/mihomo-linux-amd64-${LATEST}.gz" || \
+          curl -L -o mihomo.gz "https://ghproxy.cn/https://github.com/MetaCubeX/mihomo/releases/download/${LATEST}/mihomo-linux-amd64-${LATEST}.gz"
           gunzip mihomo.gz
           chmod +x mihomo
           sudo mv mihomo /usr/local/bin/
@@ -70,10 +75,10 @@ jobs:
           /usr/local/bin/mihomo -d . -f test-config-merged.yaml &
           sleep 5
 
-          # 通过 REST API 获取所有节点的延迟
+          # 获取所有节点名称
           curl -s -X GET "http://127.0.0.1:9090/proxies/PROXY" | jq -r '.all[]' > all_proxies.txt
 
-          # 测试每个节点延迟（需要循环调用 /proxies/{name}/delay）
+          # 测试每个节点延迟
           while read name; do
             delay=$(curl -s -X GET "http://127.0.0.1:9090/proxies/${name}/delay?timeout=5000&url=http://www.gstatic.com/generate_204" | jq '.delay')
             echo "$name $delay"
@@ -87,7 +92,6 @@ jobs:
 
       - name: Generate filtered proxies.yaml
         run: |
-          # 读取 nodes/proxies_raw.yaml 中的节点列表，只保留 good_nodes.txt 中的节点
           python << 'EOF'
           import yaml
 
