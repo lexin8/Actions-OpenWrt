@@ -1,117 +1,48 @@
-name: Extract and Filter Free Nodes
+- name: Create test config with proxies
+  run: |
+    python << 'EOF'
+    import yaml
 
-on:
-  schedule:
-    - cron: '0 */12 * * *'
-  workflow_dispatch:
+    with open('nodes/proxies_raw.yaml', 'r') as f:
+        raw = yaml.safe_load(f)
+    proxies = raw.get('proxies', [])
 
-jobs:
-  extract-and-filter:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: master
-          token: ${{ secrets.GITHUB_TOKEN }}
+    config = {
+        'mixed-port': 7890,
+        'allow-lan': False,
+        'mode': 'rule',
+        'log-level': 'warning',
+        'external-controller': '127.0.0.1:9090',
+        'proxies': proxies,
+        'proxy-groups': [
+            {
+                'name': 'PROXY',
+                'type': 'select',
+                'proxies': [p['name'] for p in proxies]  # 显式列出所有节点名
+            }
+        ],
+        'rules': ['MATCH,PROXY']
+    }
 
-      - name: Download list.meta.yml
-        run: |
-          curl -L -o list.meta.yml \
-            "https://raw.githubusercontent.com/chengaopan/AutoMergePublicNodes/master/list.meta.yml"
+    with open('test-config.yaml', 'w') as f:
+        yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+    EOF
 
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq \
-            https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod a+x /usr/local/bin/yq
+- name: Start mihomo and test latency
+  run: |
+    /usr/local/bin/mihomo -d . -f test-config.yaml &
+    sleep 5
 
-      - name: Extract proxies (raw)
-        run: |
-          mkdir -p nodes
-          echo "proxies:" > nodes/proxies_raw.yaml
-          yq '.proxies' list.meta.yml >> nodes/proxies_raw.yaml
+    # 获取所有节点名称
+    curl -s http://127.0.0.1:9090/proxies/PROXY | jq -r '.proxies[]' > proxies.txt
 
-      - name: Download mihomo (Clash.Meta)
-        run: |
-          # 获取最新稳定版本号
-          LATEST=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | jq -r .tag_name)
-          echo "Latest version: $LATEST"
-          # 尝试直接下载
-          curl -L -o mihomo.gz "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST}/mihomo-linux-amd64-${LATEST}.gz" || \
-          curl -L -o mihomo.gz "https://ghproxy.cn/https://github.com/MetaCubeX/mihomo/releases/download/${LATEST}/mihomo-linux-amd64-${LATEST}.gz"
-          gunzip mihomo.gz
-          chmod +x mihomo
-          sudo mv mihomo /usr/local/bin/
+    # 测试每个节点延迟
+    while read name; do
+      delay=$(curl -s -X GET "http://127.0.0.1:9090/proxies/${name}/delay?timeout=5000&url=http://www.gstatic.com/generate_204" | jq '.delay')
+      echo "$name $delay"
+    done < proxies.txt > delays.txt
 
-      - name: Test nodes with mihomo
-        run: |
-          # 创建临时配置文件
-          cat > test-config.yaml << 'EOF'
-          mixed-port: 7890
-          allow-lan: false
-          mode: rule
-          log-level: warning
-          external-controller: 127.0.0.1:9090
+    pkill mihomo || true
 
-          proxies: []  # 占位，后面会用 yq 覆盖
-
-          proxy-groups:
-            - name: PROXY
-              type: select
-              proxies:
-                - *  # 动态填充所有节点
-
-          rules:
-            - MATCH,PROXY
-          EOF
-
-          # 将 nodes/proxies_raw.yaml 中的 proxies 合并到 test-config.yaml
-          yq eval-all '. as $item ireduce ({}; . * $item)' nodes/proxies_raw.yaml test-config.yaml > test-config-merged.yaml
-
-          # 启动 mihomo 后台运行
-          /usr/local/bin/mihomo -d . -f test-config-merged.yaml &
-          sleep 5
-
-          # 获取所有节点名称
-          curl -s -X GET "http://127.0.0.1:9090/proxies/PROXY" | jq -r '.all[]' > all_proxies.txt
-
-          # 测试每个节点延迟
-          while read name; do
-            delay=$(curl -s -X GET "http://127.0.0.1:9090/proxies/${name}/delay?timeout=5000&url=http://www.gstatic.com/generate_204" | jq '.delay')
-            echo "$name $delay"
-          done < all_proxies.txt > delays.txt
-
-          # 停止 mihomo
-          pkill mihomo
-
-          # 过滤出延迟 <= 300ms 且不为 null 的节点
-          awk '$2 != "null" && $2 <= 300 {print $1}' delays.txt > good_nodes.txt
-
-      - name: Generate filtered proxies.yaml
-        run: |
-          python << 'EOF'
-          import yaml
-
-          with open('nodes/proxies_raw.yaml', 'r') as f:
-              raw = yaml.safe_load(f)
-          nodes = raw.get('proxies', [])
-
-          with open('good_nodes.txt', 'r') as f:
-              good_names = set(line.strip() for line in f)
-
-          filtered = [node for node in nodes if node.get('name') in good_names]
-
-          with open('nodes/proxies.yaml', 'w') as f:
-              yaml.dump({'proxies': filtered}, f, allow_unicode=True, default_flow_style=False)
-          EOF
-
-      - name: Commit and push filtered nodes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add nodes/proxies.yaml
-          git diff --cached --quiet || git commit -m "Update filtered nodes/proxies.yaml [skip ci]"
-          git push
+    # 过滤延迟 ≤ 300ms 的节点
+    awk '$2 != "null" && $2 <= 300 {print $1}' delays.txt > good_nodes.txt
