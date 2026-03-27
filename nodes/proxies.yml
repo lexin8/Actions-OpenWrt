@@ -2,7 +2,7 @@ proxy-providers: {}
 proxies:
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 26.73MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 38.17MB/s"
   port: 2443
   reality-opts:
     public-key: 498LE1B8NFnfagrOnGGmuh80KqgKXMKiHbgcpxRqBB0
@@ -14,22 +14,21 @@ proxies:
   type: vless
   udp: true
   uuid: 48b36b6a-eaa6-4843-9231-0bb8b38b5da5
-- name: "\U0001F1E6\U0001F1FA AU 001 | ⬇️ 24.83MB/s"
-  password: IL37892054
-  port: 443
-  server: enhanced-crayfish.rooster465.autos
-  skip-cert-verify: false
-  sni: enhanced-crayfish.rooster465.autos
-  type: trojan
-  udp: true
-- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 22.06MB/s"
+- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 28.67MB/s"
   password: IL37892054
   port: 443
   server: fluent-stingray.crayfish192.xyz
   skip-cert-verify: true
   type: trojan
   udp: true
-- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 22.06MB/s"
+- name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 27.66MB/s"
+  password: IL37892054
+  port: 443
+  server: outgoing-ladybird.rooster465.autos
+  skip-cert-verify: false
+  type: trojan
+  udp: true
+- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 21.82MB/s"
   network: tcp
   password: BxceQaOe
   port: 1850
@@ -37,19 +36,16 @@ proxies:
   skip-cert-verify: true
   sni: t.me%2Fripaojiedian
   type: trojan
-- name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 21.80MB/s"
-  password: IL37892054
-  port: 443
-  server: outgoing-ladybird.rooster465.autos
-  skip-cert-verify: false
-  sni: outgoing-ladybird.rooster465.autos
+- name: "\U0001F1ED\U0001F1F0 HK 002 | ⬇️ 15.46MB/s"
+  network: ws
+  password: trojan
+  port: 8025
+  server: 54.46.72.234
+  skip-cert-verify: true
+  sni: jflsjlaf.pages.dev
   type: trojan
   udp: true
-- name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 8.94MB/s"
-  network: tcp
-  password: 6d29eb2f74293cb01a19b32cf08ad2e9
-  port: 1524
-  server: 160.16.72.205
-  skip-cert-verify: false
-  sni: www.nintendogames.net
-  type: trojan
+  ws-opts:
+    headers:
+      Host: jflsjlaf.pages.dev
+    path: /
