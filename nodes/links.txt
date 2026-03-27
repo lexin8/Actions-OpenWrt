@@ -1,15 +1,6 @@
-name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 30.01MB/s"
-network: tcp
-password: BxceQaOe
-port: 6313
-server: 54.168.70.136
-skip-cert-verify: true
-sni: t.me%2Fripaojiedian
-type: trojan
-
 client-fingerprint: firefox
 flow: xtls-rprx-vision
-name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 29.50MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 39.63MB/s"
 port: 2443
 reality-opts:
   public-key: 498LE1B8NFnfagrOnGGmuh80KqgKXMKiHbgcpxRqBB0
@@ -22,24 +13,24 @@ type: vless
 udp: true
 uuid: 48b36b6a-eaa6-4843-9231-0bb8b38b5da5
 
-name: "\U0001F1E6\U0001F1FA AU 001 | \u2B07\uFE0F 25.42MB/s"
-password: IL37892054
-port: 443
-server: enhanced-crayfish.rooster465.autos
-skip-cert-verify: false
-sni: enhanced-crayfish.rooster465.autos
-type: trojan
-udp: true
-
-name: "\U0001F1F5\U0001F1F1 PL 001 | \u2B07\uFE0F 22.01MB/s"
+name: "\U0001F1F5\U0001F1F1 PL 001 | \u2B07\uFE0F 29.46MB/s"
 password: IL37892054
 port: 443
 server: outgoing-ladybird.rooster465.autos
 skip-cert-verify: false
+sni: outgoing-ladybird.rooster465.autos
 type: trojan
 udp: true
 
-name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 20.15MB/s"
+name: "\U0001F1F5\U0001F1F1 PL 002 | \u2B07\uFE0F 28.67MB/s"
+password: IL37892054
+port: 443
+server: fluent-stingray.crayfish192.xyz
+skip-cert-verify: true
+type: trojan
+udp: true
+
+name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 21.15MB/s"
 network: tcp
 password: BxceQaOe
 port: 1850
@@ -48,7 +39,7 @@ skip-cert-verify: true
 sni: t.me%2Fripaojiedian
 type: trojan
 
-name: "\U0001F1EF\U0001F1F5 JP 002 | \u2B07\uFE0F 20.01MB/s"
+name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 17.82MB/s"
 network: tcp
 password: 6d29eb2f74293cb01a19b32cf08ad2e9
 port: 4019
@@ -57,7 +48,21 @@ skip-cert-verify: false
 sni: www.nintendogames.net
 type: trojan
 
-name: "\U0001F1ED\U0001F1F0 HK 002 | \u2B07\uFE0F 16.67MB/s"
+name: "\U0001F1ED\U0001F1F0 HK 002 | \u2B07\uFE0F 17.43MB/s"
+network: ws
+password: trojan
+port: 8025
+server: 54.46.72.234
+skip-cert-verify: true
+sni: jflsjlaf.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: jflsjlaf.pages.dev
+  path: /
+
+name: "\U0001F1ED\U0001F1F0 HK 003 | \u2B07\uFE0F 17.00MB/s"
 network: tcp
 password: BxceQaOe
 port: 37223
@@ -65,42 +70,4 @@ server: 95.40.26.214
 skip-cert-verify: true
 sni: t.me%2Fripaojiedian
 type: trojan
-
-client-fingerprint: firefox
-flow: xtls-rprx-vision
-name: "\U0001F1F0\U0001F1F7 KR 001 | \u2B07\uFE0F 14.31MB/s"
-port: 19001
-reality-opts:
-  public-key: UtL7E0Gmxj3X5JdcPAutpTRKo7K2hugkR0vwk2XroUM
-server: krp01.jumperservice.com
-servername: addons.mozilla.org
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 455fc271-3ee2-493b-8c75-9324b4851e2f
-
-name: "\U0001F1EF\U0001F1F5 JP 003 | \u2B07\uFE0F 9.23MB/s"
-network: tcp
-password: 6d29eb2f74293cb01a19b32cf08ad2e9
-port: 1524
-server: 160.16.72.205
-skip-cert-verify: false
-sni: www.nintendogames.net
-type: trojan
-
-name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 7.57MB/s"
-network: ws
-port: 443
-server: 192.200.160.20
-servername: 639073677243791121.camry-perma.info
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 92b82d0f-d2f8-4f6f-b177-08f681a337e6
-ws-opts:
-  headers:
-    Host: 639073677243791121.camry-perma.info
-  path: /njvqoews?ed=2560
 
