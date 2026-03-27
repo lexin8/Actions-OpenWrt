@@ -65,138 +65,91 @@ jobs:
 
       - name: 下载 clashfree 节点列表
         run: |
-          curl -L -o v2rayfree_nodes.txt "${{ steps.get_latest.outputs.url }}"
+          curl -L -o clashfree_nodes.yml "${{ steps.get_latest.outputs.url }}"
 
-      - name: 合并节点并转换为标准格式
+      - name: 合并节点为 Clash 配置格式
         run: |
           python3 << 'EOF'
           import yaml
-          import base64
-          import re
-          import urllib.parse
-
-          # 解析 Clash YAML 格式的 proxies
-          def parse_clash_yaml(content):
-              try:
-                  data = yaml.safe_load(content)
-                  proxies = data.get('proxies', [])
-                  # 确保每个节点都有 server 和 port 字段，否则测速会失败
-                  for node in proxies:
-                      if 'server' not in node or 'port' not in node:
-                          continue
-                      # 添加 raw 字段（可选，用于 links.txt）
-                      node['raw'] = yaml.dump(node, default_flow_style=False).strip()
-                  return proxies
-              except Exception as e:
-                  print(f"解析 Clash YAML 失败: {e}")
-                  return []
-
+          
           # 1. 读取 AutoMergePublicNodes 的 list.meta.yml
           with open('nodes/list.meta.yml', 'r', encoding='utf-8') as f:
               data1 = yaml.safe_load(f)
           proxies1 = data1.get('proxies', [])
           print(f"从 AutoMergePublicNodes 获取到 {len(proxies1)} 个节点")
-
-          # 2. 解析 clashfree 订阅文件（Clash YAML 格式）
-          with open('v2rayfree_nodes.txt', 'r', encoding='utf-8', errors='ignore') as f:
-              content = f.read()
-          proxies2 = parse_clash_yaml(content)
+          
+          # 2. 读取 clashfree 订阅文件（已经是 Clash 格式）
+          with open('clashfree_nodes.yml', 'r', encoding='utf-8', errors='ignore') as f:
+              data2 = yaml.safe_load(f)
+          proxies2 = data2.get('proxies', [])
           print(f"从 clashfree 获取到 {len(proxies2)} 个节点")
-
-          # 合并
-          combined = proxies1 + proxies2
-          print(f"合并后总节点数: {len(combined)}")
-
-          # 保存合并后的节点供测速
-          with open('combined_nodes.yaml', 'w', encoding='utf-8') as f:
-              yaml.dump(combined, f, allow_unicode=True)
+          
+          # 合并所有节点
+          all_proxies = proxies1 + proxies2
+          print(f"合并后总节点数: {len(all_proxies)}")
+          
+          # 构建完整的 Clash 配置（只需 proxies 部分，测速工具可接受）
+          clash_config = {
+              'proxies': all_proxies
+          }
+          
+          # 保存为 Clash 配置文件，供测速工具使用
+          with open('merged_config.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 测速并过滤失效节点（每个节点测试10次）
+      - name: 安装 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: 安装 clash-speedtest
+        run: go install github.com/faceair/clash-speedtest@latest
+
+      - name: 测速并过滤节点
+        run: |
+          # 使用 clash-speedtest 测速，输出到 filtered.yaml
+          # 参数说明：
+          #   -c: 指定合并后的配置文件
+          #   -output: 输出筛选后的配置
+          #   -max-latency: 延迟超过 800ms 的节点将被过滤
+          #   -min-download-speed: 下载速度低于 5 MB/s 的节点将被过滤
+          #   -concurrent: 并发数设为 10 提高测速效率
+          #   -timeout: 单次测速超时 5 秒
+          ~/go/bin/clash-speedtest \
+            -c merged_config.yaml \
+            -output filtered.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest.log
+
+      - name: 提取有效节点并保存为标准格式
         run: |
           python3 << 'EOF'
           import yaml
-          import asyncio
-          import time
-
-          TIMEOUT = 3
-          TEST_TIMES = 10
-          SUCCESS_THRESHOLD = 5
-
-          async def test_node_once(server, port):
-              try:
-                  start = time.time()
-                  _, writer = await asyncio.wait_for(
-                      asyncio.open_connection(server, port),
-                      timeout=TIMEOUT
-                  )
-                  elapsed = time.time() - start
-                  writer.close()
-                  await writer.wait_closed()
-                  return True, elapsed
-              except:
-                  return False, None
-
-          async def test_node(node):
-              server = node.get('server')
-              port = node.get('port')
-              if not server or not port:
-                  # 无法测速的节点，视为失败
-                  return node, 0, None
-              success = 0
-              latencies = []
-              for _ in range(TEST_TIMES):
-                  ok, lat = await test_node_once(server, port)
-                  if ok:
-                      success += 1
-                      latencies.append(lat)
-              avg_latency = sum(latencies) / len(latencies) if latencies else None
-              return node, success, avg_latency
-
-          async def main():
-              with open('combined_nodes.yaml', 'r', encoding='utf-8') as f:
-                  combined = yaml.safe_load(f)
-              
-              print(f"开始测试 {len(combined)} 个节点（每个节点测试 {TEST_TIMES} 次）...")
-              tasks = [test_node(node) for node in combined]
-              results = await asyncio.gather(*tasks)
-
-              valid_nodes = []
-              valid_raw = []
-              for node, success, avg_latency in results:
-                  if success >= SUCCESS_THRESHOLD:
-                      valid_nodes.append(node)
-                      if 'raw' in node:
-                          valid_raw.append(node['raw'])
-                      name = node.get('name', 'unknown')
-                      server = node.get('server', 'unknown')
-                      port = node.get('port', 'unknown')
-                      print(f"✅ {name} ({server}:{port}) : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
-                  else:
-                      name = node.get('name', 'unknown')
-                      server = node.get('server', 'unknown')
-                      port = node.get('port', 'unknown')
-                      print(f"❌ 失效节点: {name} ({server}:{port}) - 成功率 {success}/{TEST_TIMES}")
-
-              print(f"有效节点数: {len(valid_nodes)} / {len(combined)}")
-
-              # 保存标准 YAML 格式（移除 raw 字段）
-              with open('nodes/proxies.yml', 'w', encoding='utf-8') as f:
-                  f.write('proxies:\n')
-                  clean_nodes = []
-                  for node in valid_nodes:
-                      clean_node = {k: v for k, v in node.items() if k != 'raw'}
-                      clean_nodes.append(clean_node)
-                  yaml.dump(clean_nodes, f, allow_unicode=True, sort_keys=False, default_flow_style=False)
-              
-              # 保存纯链接列表（从 raw 字段提取）
-              with open('nodes/links.txt', 'w', encoding='utf-8') as f:
-                  for raw in valid_raw:
-                      if raw:
-                          f.write(raw + '\n')
-
-          if __name__ == '__main__':
-              asyncio.run(main())
+          
+          # 读取测速筛选后的配置
+          with open('filtered.yaml', 'r', encoding='utf-8') as f:
+              data = yaml.safe_load(f)
+          
+          valid_proxies = data.get('proxies', [])
+          print(f"测速筛选后有效节点数: {len(valid_proxies)}")
+          
+          # 保存为标准 YAML 格式
+          with open('nodes/proxies.yml', 'w', encoding='utf-8') as f:
+              yaml.dump(valid_proxies, f, allow_unicode=True, sort_keys=False)
+          
+          # 同时保存纯链接列表（从每个节点的 raw 字段提取）
+          # 注意：clash-speedtest 输出中可能没有 raw 字段，这里仅保存原始节点的 YAML 表示
+          with open('nodes/links.txt', 'w', encoding='utf-8') as f:
+              for proxy in valid_proxies:
+                  # 将每个节点转换为单行 YAML 表示
+                  proxy_str = yaml.dump(proxy, default_flow_style=False).strip()
+                  f.write(proxy_str + '\n\n')
+          
+          print(f"已保存到 nodes/proxies.yml 和 nodes/links.txt")
           EOF
 
       - name: 提交并推送更新
