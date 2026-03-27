@@ -88,6 +88,7 @@ jobs:
           fetch_source() {
             local input="$1"
             local prefix="$2"
+            echo "========================================"
             echo "处理源: $input"
             if [[ "$input" =~ ^https?://.*README\.md$ ]] || [[ "$input" =~ /blob/.*README\.md$ ]]; then
               if [[ "$input" =~ github\.com.*/blob/ ]]; then
@@ -95,10 +96,14 @@ jobs:
               fi
               echo "  下载 README: $input"
               curl -s -L "$input" > readme.tmp
-              # 提取所有 URL，过滤出 .yml 结尾的链接
-              grep -oP 'https?://[^[:space:]]+' readme.tmp | grep '\.yml$' > yml_urls.txt
+              # 提取所有可能的 URL（包括被括号、引号包裹的）
+              grep -Eo 'https?://[^ ]+' readme.tmp | sed 's/[),]//g' > all_urls.txt
+              # 筛选 .yml 结尾的 URL
+              grep '\.yml$' all_urls.txt > yml_urls.txt
               if [ -s yml_urls.txt ]; then
-                echo "  找到 .yml 链接，开始下载..."
+                echo "  找到 .yml 链接:"
+                cat yml_urls.txt
+                echo "  开始下载..."
                 while read -r url; do
                   if [[ "$url" =~ github\.com.*/blob/ ]]; then
                     url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
@@ -107,8 +112,12 @@ jobs:
                 done < yml_urls.txt
               else
                 echo "  未找到 .yml 链接，尝试提取节点链接"
-                grep -oP '(vmess|trojan|vless|ss)://[^[:space:]]+' readme.tmp > node_links.txt
+                # 提取节点链接（支持更多协议）
+                grep -Eo '(vmess|trojan|vless|ss)://[^ ]+' readme.tmp | sed 's/[),]//g' > node_links.txt
                 if [ -s node_links.txt ]; then
+                  echo "  找到节点链接:"
+                  cat node_links.txt
+                  echo "  开始转换..."
                   python3 << 'PYTHON'
           import yaml
           import base64
@@ -290,6 +299,10 @@ jobs:
               fetch_source "$url" "sub$i"
             fi
           done
+
+          echo "========================================"
+          echo "下载的源文件列表："
+          ls -la sources/ || true
 
       - name: 合并节点
         run: |
