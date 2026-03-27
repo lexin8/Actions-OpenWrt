@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       readme_url1:
-        description: 'README 链接 1（从中提取 .yml 订阅）'
+        description: 'README 链接 1（从中提取 .yml/.yaml 订阅）'
         required: false
         default: 'https://github.com/free-nodes/clashfree/blob/main/README.md'
       readme_url2:
@@ -110,14 +110,14 @@ jobs:
               curl -s -L "$input" > readme.tmp
               
               # 提取所有 URL，并清理尾部常见干扰字符
-              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"''),]\+$//' > all_urls_raw.txt
+              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"''),]\+$//; s/[[:space:]]*$//' > all_urls_raw.txt
               echo "  找到的所有链接（清理后）:"
               cat all_urls_raw.txt
               
-              # 筛选 .yml 结尾的 URL
-              grep '\.yml$' all_urls_raw.txt > yml_urls.txt || true
+              # 筛选 .yml 或 .yaml 结尾的 URL
+              grep -E '\.ya?ml$' all_urls_raw.txt > yml_urls.txt || true
               if [ -s yml_urls.txt ]; then
-                echo "  ✅ 找到 .yml 链接:"
+                echo "  ✅ 找到 .yml/.yaml 链接:"
                 cat yml_urls.txt
                 echo "  开始下载..."
                 while read -r url; do
@@ -128,7 +128,7 @@ jobs:
                   curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
                 done < yml_urls.txt
               else
-                echo "  ⚠️ 未找到 .yml 链接"
+                echo "  ⚠️ 未找到 .yml/.yaml 链接"
               fi
             else
               curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
