@@ -201,30 +201,26 @@ jobs:
             -timeout 5s \
             2>&1 | tee speedtest.log
 
-      - name: 提取有效节点并保存为标准格式
+      - name: 保存最终订阅文件
         run: |
+          # filtered.yaml 已经是标准的 Clash 配置（包含 proxies 键），直接复制
+          cp filtered.yaml nodes/proxies.yml
+          
+          # 可选：生成纯节点列表（仅 proxies 数组）便于其他用途
           python3 << 'EOF'
           import yaml
-          
-          # 读取测速筛选后的配置
-          with open('filtered.yaml', 'r', encoding='utf-8') as f:
-              data = yaml.safe_load(f)
-          
-          valid_proxies = data.get('proxies', [])
-          print(f"最终有效节点数: {len(valid_proxies)}")
-          
-          # 保存为标准 YAML 格式
-          with open('nodes/proxies.yml', 'w', encoding='utf-8') as f:
-              yaml.dump(valid_proxies, f, allow_unicode=True, sort_keys=False)
-          
-          # 同时保存纯链接列表（将每个节点转换为 YAML 块）
-          with open('nodes/links.txt', 'w', encoding='utf-8') as f:
-              for proxy in valid_proxies:
-                  proxy_str = yaml.dump(proxy, default_flow_style=False).strip()
-                  f.write(proxy_str + '\n\n')
-          
-          print(f"已保存到 nodes/proxies.yml 和 nodes/links.txt")
+          with open('filtered.yaml', 'r') as f:
+              config = yaml.safe_load(f)
+          proxies = config.get('proxies', [])
+          with open('nodes/links.txt', 'w') as f:
+              for proxy in proxies:
+                  # 输出每个节点的 YAML 表示，便于阅读
+                  f.write(yaml.dump(proxy, default_flow_style=False).strip())
+                  f.write('\n\n')
           EOF
+          
+          # 输出最终有效节点数量
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
 
       - name: 提交并推送更新
         run: |
