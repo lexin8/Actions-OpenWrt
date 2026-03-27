@@ -93,15 +93,19 @@ jobs:
               if [[ "$input" =~ github\.com.*/blob/ ]]; then
                 input=$(echo "$input" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
               fi
+              echo "  下载 README: $input"
               curl -s -L "$input" > readme.tmp
-              yml_found=false
-              grep -oP 'https://github.com/[^/]+/[^/]+/blob/[^\)\s]+\.yml' readme.tmp | \
-              while read blob_url; do
-                yml_found=true
-                raw_url=$(echo "$blob_url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
-                curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$raw_url"
-              done
-              if [ "$yml_found" = false ]; then
+              # 提取所有 URL，过滤出 .yml 结尾的链接
+              grep -oP 'https?://[^[:space:]]+' readme.tmp | grep '\.yml$' > yml_urls.txt
+              if [ -s yml_urls.txt ]; then
+                echo "  找到 .yml 链接，开始下载..."
+                while read -r url; do
+                  if [[ "$url" =~ github\.com.*/blob/ ]]; then
+                    url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
+                  fi
+                  curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
+                done < yml_urls.txt
+              else
                 echo "  未找到 .yml 链接，尝试提取节点链接"
                 grep -oP '(vmess|trojan|vless|ss)://[^[:space:]]+' readme.tmp > node_links.txt
                 if [ -s node_links.txt ]; then
@@ -262,6 +266,8 @@ jobs:
           else:
               print("未找到节点链接")
           PYTHON
+                else
+                  echo "  未找到任何节点链接"
                 fi
               fi
             else
