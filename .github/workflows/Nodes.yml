@@ -26,9 +26,17 @@ jobs:
         run: |
           mkdir -p sources
 
+          # 将输入值赋给 shell 变量
           readme1="${{ github.event.inputs.readme_url1 }}"
           readme2="${{ github.event.inputs.readme_url2 }}"
-          # ... 其他输入
+          readme3="${{ github.event.inputs.readme_url3 }}"
+          readme4="${{ github.event.inputs.readme_url4 }}"
+          readme5="${{ github.event.inputs.readme_url5 }}"
+          sub1="${{ github.event.inputs.sub_url1 }}"
+          sub2="${{ github.event.inputs.sub_url2 }}"
+          sub3="${{ github.event.inputs.sub_url3 }}"
+          sub4="${{ github.event.inputs.sub_url4 }}"
+          sub5="${{ github.event.inputs.sub_url5 }}"
 
           fetch_source() {
             local input="$1"
@@ -39,10 +47,20 @@ jobs:
               if [[ "$input" =~ github\.com.*/blob/ ]]; then
                 input=$(echo "$input" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
               fi
+              echo "  下载 README: $input"
               curl -s -L "$input" > readme.tmp
-              grep -Eo 'https?://[^ ]+' readme.tmp | sed 's/[),]//g' | grep '\.yml$' > yml_urls.txt || true
+              
+              # 提取所有链接（包括 .yml 和其他）
+              grep -Eo 'https?://[^ ]+' readme.tmp | sed 's/[),]//g' > all_urls.txt || true
+              echo "  找到的所有链接:"
+              cat all_urls.txt
+              
+              # 提取 .yml 链接
+              grep '\.yml$' all_urls.txt > yml_urls.txt || true
               if [ -s yml_urls.txt ]; then
-                echo "  找到 .yml 链接，开始下载..."
+                echo "  ✅ 找到 .yml 链接:"
+                cat yml_urls.txt
+                echo "  开始下载..."
                 while read -r url; do
                   if [[ "$url" =~ github\.com.*/blob/ ]]; then
                     url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
@@ -50,22 +68,29 @@ jobs:
                   curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
                 done < yml_urls.txt
               else
-                echo "  未找到 .yml 链接，跳过"
+                echo "  ⚠️ 未找到 .yml 链接"
               fi
             else
+              echo "  直接订阅链接，直接下载"
               curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
             fi
           }
 
           # 处理 README 源
           for url in "$readme1" "$readme2" "$readme3" "$readme4" "$readme5"; do
-            [ -n "$url" ] && fetch_source "$url" "readme"
-          done
-          # 处理直接订阅源
-          for url in "$sub1" "$sub2" "$sub3" "$sub4" "$sub5"; do
-            [ -n "$url" ] && fetch_source "$url" "sub"
+            if [ -n "$url" ]; then
+              fetch_source "$url" "readme"
+            fi
           done
 
+          # 处理直接订阅源
+          for url in "$sub1" "$sub2" "$sub3" "$sub4" "$sub5"; do
+            if [ -n "$url" ]; then
+              fetch_source "$url" "sub"
+            fi
+          done
+
+          echo "========================================"
           echo "下载的源文件列表："
           ls -la sources/ || true
 
