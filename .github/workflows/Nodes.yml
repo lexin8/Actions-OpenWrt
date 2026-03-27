@@ -2,6 +2,47 @@ name: Update Nodes
 
 on:
   workflow_dispatch:
+    inputs:
+      readme_url1:
+        description: 'README 链接 1（从中提取 .yml 订阅或节点链接）'
+        required: false
+        default: 'https://github.com/free-nodes/clashfree/blob/main/README.md'
+      readme_url2:
+        description: 'README 链接 2（可选）'
+        required: false
+        default: 'https://github.com/free18/v2ray/blob/main/README.md'
+      readme_url3:
+        description: 'README 链接 3（可选）'
+        required: false
+        default: ''
+      readme_url4:
+        description: 'README 链接 4（可选）'
+        required: false
+        default: ''
+      readme_url5:
+        description: 'README 链接 5（可选）'
+        required: false
+        default: ''
+      sub_url1:
+        description: '直接订阅链接 1（Clash 配置）'
+        required: false
+        default: ''
+      sub_url2:
+        description: '直接订阅链接 2（可选）'
+        required: false
+        default: ''
+      sub_url3:
+        description: '直接订阅链接 3（可选）'
+        required: false
+        default: ''
+      sub_url4:
+        description: '直接订阅链接 4（可选）'
+        required: false
+        default: ''
+      sub_url5:
+        description: '直接订阅链接 5（可选）'
+        required: false
+        default: ''
   schedule:
     - cron: '0 0 * * *'
 
@@ -39,72 +80,235 @@ jobs:
         run: |
           mkdir -p nodes
           cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
-          echo "已复制 list.meta.yml 到 nodes/ 目录"
 
-      - name: 获取 free-nodes/clashfree 最新订阅文件
-        id: get_latest
+      - name: 获取所有订阅源
         run: |
-          # 获取 README 内容
-          curl -s "https://raw.githubusercontent.com/free-nodes/clashfree/main/README.md" > readme.md
-          
-          # 提取所有 .yml 文件的 GitHub blob 链接并转换为 raw 链接
-          grep -oP 'https://github.com/free-nodes/clashfree/blob/main/[^\)\s]+\.yml' readme.md | \
-          while read blob_url; do
-            raw_url=$(echo "$blob_url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
-            echo "$raw_url"
-          done | sort -r > urls.txt
-          
-          latest_url=$(head -n1 urls.txt)
-          if [ -z "$latest_url" ]; then
-            echo "错误：未在 README 中找到任何 .yml 订阅文件链接"
-            exit 1
-          fi
-          
-          echo "订阅文件 URL: $latest_url"
-          echo "url=$latest_url" >> $GITHUB_OUTPUT
+          mkdir -p sources
 
-      - name: 下载 clashfree 节点列表
-        run: |
-          curl -L -o clashfree_nodes.yml "${{ steps.get_latest.outputs.url }}"
+          fetch_source() {
+            local input="$1"
+            local prefix="$2"
+            echo "处理源: $input"
+            if [[ "$input" =~ ^https?://.*README\.md$ ]] || [[ "$input" =~ /blob/.*README\.md$ ]]; then
+              if [[ "$input" =~ github\.com.*/blob/ ]]; then
+                input=$(echo "$input" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
+              fi
+              curl -s -L "$input" > readme.tmp
+              yml_found=false
+              grep -oP 'https://github.com/[^/]+/[^/]+/blob/[^\)\s]+\.yml' readme.tmp | \
+              while read blob_url; do
+                yml_found=true
+                raw_url=$(echo "$blob_url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
+                curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$raw_url"
+              done
+              if [ "$yml_found" = false ]; then
+                echo "  未找到 .yml 链接，尝试提取节点链接"
+                grep -oP '(vmess|trojan|vless|ss)://[^[:space:]]+' readme.tmp > node_links.txt
+                if [ -s node_links.txt ]; then
+                  python3 << 'PYTHON'
+          import yaml
+          import base64
+          import urllib.parse
+          import re
 
-      - name: 合并节点为 Clash 配置格式
+          def parse_vmess(uri):
+              if not uri.startswith('vmess://'):
+                  return None
+              b64 = uri[8:]
+              tag = None
+              if '#' in b64:
+                  b64, tag = b64.split('#', 1)
+              b64 += '=' * (4 - len(b64) % 4)
+              try:
+                  data = yaml.safe_load(base64.b64decode(b64))
+                  node = {
+                      'name': tag or data.get('ps', f"node_{data.get('add')}_{data.get('port')}"),
+                      'type': 'vmess',
+                      'server': data.get('add'),
+                      'port': int(data.get('port', 0)),
+                      'uuid': data.get('id'),
+                      'alterId': int(data.get('aid', 0)),
+                      'cipher': data.get('scy', 'auto'),
+                  }
+                  if data.get('tls'):
+                      node['tls'] = True
+                  if data.get('sni'):
+                      node['sni'] = data['sni']
+                  if data.get('net'):
+                      node['network'] = data['net']
+                  if data.get('path'):
+                      node['ws-path'] = data['path']
+                  if data.get('host'):
+                      node['ws-headers'] = {'Host': data['host']}
+                  return node
+              except:
+                  return None
+
+          def parse_trojan(uri):
+              if not uri.startswith('trojan://'):
+                  return None
+              tag = None
+              if '#' in uri:
+                  uri, tag = uri.split('#', 1)
+              uri = uri[9:]
+              if '?' in uri:
+                  uri, query = uri.split('?', 1)
+              else:
+                  query = ''
+              match = re.match(r'([^@]+)@([^:]+):(\d+)', uri)
+              if not match:
+                  return None
+              password, server, port = match.groups()
+              node = {
+                  'name': tag or f"node_trojan_{server}_{port}",
+                  'type': 'trojan',
+                  'server': server,
+                  'port': int(port),
+                  'password': password,
+              }
+              if query:
+                  params = urllib.parse.parse_qs(query)
+                  if 'sni' in params:
+                      node['sni'] = params['sni'][0]
+                  if 'allowInsecure' in params:
+                      node['skip-cert-verify'] = params['allowInsecure'][0] == '1'
+              return node
+
+          def parse_vless(uri):
+              if not uri.startswith('vless://'):
+                  return None
+              tag = None
+              if '#' in uri:
+                  uri, tag = uri.split('#', 1)
+              uri = uri[8:]
+              if '?' in uri:
+                  uri, query = uri.split('?', 1)
+              else:
+                  query = ''
+              match = re.match(r'([^@]+)@([^:]+):(\d+)', uri)
+              if not match:
+                  return None
+              uuid, server, port = match.groups()
+              node = {
+                  'name': tag or f"node_vless_{server}_{port}",
+                  'type': 'vless',
+                  'server': server,
+                  'port': int(port),
+                  'uuid': uuid,
+              }
+              if query:
+                  params = urllib.parse.parse_qs(query)
+                  if 'encryption' in params:
+                      node['encryption'] = params['encryption'][0]
+                  if 'flow' in params:
+                      node['flow'] = params['flow'][0]
+                  if 'sni' in params:
+                      node['sni'] = params['sni'][0]
+                  if 'type' in params:
+                      node['network'] = params['type'][0]
+                  if 'security' in params:
+                      node['tls'] = params['security'][0] == 'tls'
+              return node
+
+          def parse_ss(uri):
+              if not uri.startswith('ss://'):
+                  return None
+              tag = None
+              if '#' in uri:
+                  uri, tag = uri.split('#', 1)
+              uri = uri[5:]
+              if '@' not in uri:
+                  try:
+                      decoded = base64.b64decode(uri).decode('utf-8')
+                      if '@' in decoded:
+                          uri = decoded
+                  except:
+                      return None
+              match = re.match(r'([^:]+):([^@]+)@([^:]+):(\d+)', uri)
+              if not match:
+                  return None
+              method, password, server, port = match.groups()
+              node = {
+                  'name': tag or f"node_ss_{server}_{port}",
+                  'type': 'ss',
+                  'server': server,
+                  'port': int(port),
+                  'cipher': method,
+                  'password': password,
+              }
+              return node
+
+          proxies = []
+          with open('node_links.txt', 'r') as f:
+              for line in f:
+                  line = line.strip()
+                  if line.startswith('vmess://'):
+                      node = parse_vmess(line)
+                  elif line.startswith('trojan://'):
+                      node = parse_trojan(line)
+                  elif line.startswith('vless://'):
+                      node = parse_vless(line)
+                  elif line.startswith('ss://'):
+                      node = parse_ss(line)
+                  else:
+                      continue
+                  if node:
+                      proxies.append(node)
+
+          if proxies:
+              with open('sources/node_proxies.yml', 'w') as f:
+                  yaml.dump({'proxies': proxies}, f, allow_unicode=True, sort_keys=False)
+              print(f"从节点链接转换得到 {len(proxies)} 个节点")
+          else:
+              print("未找到节点链接")
+          PYTHON
+                fi
+              fi
+            else
+              curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
+            fi
+          }
+
+          for i in 1 2 3 4 5; do
+            url_var="readme_url$i"
+            url="${!url_var}"
+            if [ -n "$url" ]; then
+              fetch_source "$url" "readme$i"
+            fi
+          done
+
+          for i in 1 2 3 4 5; do
+            url_var="sub_url$i"
+            url="${!url_var}"
+            if [ -n "$url" ]; then
+              fetch_source "$url" "sub$i"
+            fi
+          done
+
+      - name: 合并节点
         run: |
           python3 << 'EOF'
-          import yaml
-          
-          # 1. 读取 AutoMergePublicNodes 的 list.meta.yml
-          with open('nodes/list.meta.yml', 'r', encoding='utf-8') as f:
-              data1 = yaml.safe_load(f)
-          proxies1 = data1.get('proxies', [])
-          print(f"从 AutoMergePublicNodes 获取到 {len(proxies1)} 个节点")
-          
-          # 2. 读取 clashfree 订阅文件（已经是 Clash 格式）
-          with open('clashfree_nodes.yml', 'r', encoding='utf-8', errors='ignore') as f:
-              data2 = yaml.safe_load(f)
-          proxies2 = data2.get('proxies', [])
-          print(f"从 clashfree 获取到 {len(proxies2)} 个节点")
-          
-          # 合并所有节点
-          all_proxies = proxies1 + proxies2
+          import yaml, glob, os
+          all_proxies = []
+          source_files = ['nodes/list.meta.yml'] + glob.glob('sources/*.yml')
+          for f in source_files:
+              if not os.path.exists(f): continue
+              try:
+                  data = yaml.safe_load(open(f, encoding='utf-8'))
+                  proxies = data.get('proxies', [])
+                  print(f"从 {f} 获取 {len(proxies)} 个节点")
+                  all_proxies.extend(proxies)
+              except Exception as e:
+                  print(f"读取 {f} 失败: {e}")
           print(f"合并后总节点数: {len(all_proxies)}")
-          
-          # 构建完整的 Clash 配置（只需 proxies 部分）
-          clash_config = {
-              'proxies': all_proxies
-          }
-          
-          # 保存为 Clash 配置文件，供后续使用
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
-              yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+              yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 初步TCP测速过滤失效节点（每个节点测试10次）
+      - name: 初步TCP测速过滤失效节点
         run: |
           python3 << 'EOF'
-          import yaml
-          import asyncio
-          import time
-
+          import yaml, asyncio, time
           TIMEOUT = 3
           TEST_TIMES = 10
           SUCCESS_THRESHOLD = 5
@@ -112,66 +316,41 @@ jobs:
           async def test_node_once(server, port):
               try:
                   start = time.time()
-                  _, writer = await asyncio.wait_for(
-                      asyncio.open_connection(server, port),
-                      timeout=TIMEOUT
-                  )
-                  elapsed = time.time() - start
-                  writer.close()
-                  await writer.wait_closed()
-                  return True, elapsed
+                  _, writer = await asyncio.wait_for(asyncio.open_connection(server, port), timeout=TIMEOUT)
+                  writer.close(); await writer.wait_closed()
+                  return True, time.time() - start
               except:
                   return False, None
 
           async def test_node(node):
-              server = node.get('server')
-              port = node.get('port')
-              if not server or not port:
-                  # 无法测速的节点，视为失败
-                  return node, 0, None
-              success = 0
-              latencies = []
+              server, port = node.get('server'), node.get('port')
+              if not server or not port: return node, 0, None
+              success, latencies = 0, []
               for _ in range(TEST_TIMES):
                   ok, lat = await test_node_once(server, port)
                   if ok:
                       success += 1
                       latencies.append(lat)
-              avg_latency = sum(latencies) / len(latencies) if latencies else None
-              return node, success, avg_latency
+              avg_lat = sum(latencies)/len(latencies) if latencies else None
+              return node, success, avg_lat
 
           async def main():
-              # 读取合并后的所有节点
-              with open('merged_config.yaml', 'r', encoding='utf-8') as f:
-                  merged = yaml.safe_load(f)
-              proxies = merged.get('proxies', [])
-              
-              print(f"开始对 {len(proxies)} 个节点进行初步TCP测速（每个节点测试 {TEST_TIMES} 次）...")
-              tasks = [test_node(node) for node in proxies]
-              results = await asyncio.gather(*tasks)
-
-              valid_nodes = []
-              for node, success, avg_latency in results:
+              with open('merged_config.yaml') as f:
+                  proxies = yaml.safe_load(f).get('proxies', [])
+              print(f"测试 {len(proxies)} 个节点 (每个 {TEST_TIMES} 次)...")
+              results = await asyncio.gather(*[test_node(n) for n in proxies])
+              valid = []
+              for node, success, avg in results:
                   if success >= SUCCESS_THRESHOLD:
-                      valid_nodes.append(node)
-                      name = node.get('name', 'unknown')
-                      server = node.get('server', 'unknown')
-                      port = node.get('port', 'unknown')
-                      print(f"✅ 初步通过: {name} ({server}:{port}) : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
+                      valid.append(node)
+                      print(f"✅ {node.get('name')} : {success}/{TEST_TIMES} 成功, 延迟 {avg:.2f}s")
                   else:
-                      name = node.get('name', 'unknown')
-                      server = node.get('server', 'unknown')
-                      port = node.get('port', 'unknown')
-                      print(f"❌ 初步失效: {name} ({server}:{port}) - 成功率 {success}/{TEST_TIMES}")
+                      print(f"❌ {node.get('name')} : {success}/{TEST_TIMES} 失败")
+              print(f"初步有效节点: {len(valid)} / {len(proxies)}")
+              with open('preliminary_valid.yaml', 'w') as f:
+                  yaml.dump({'proxies': valid}, f, allow_unicode=True, sort_keys=False)
 
-              print(f"初步有效节点数: {len(valid_nodes)} / {len(proxies)}")
-
-              # 保存初步有效节点为 Clash 配置格式
-              preliminary_config = {'proxies': valid_nodes}
-              with open('preliminary_valid.yaml', 'w', encoding='utf-8') as f:
-                  yaml.dump(preliminary_config, f, allow_unicode=True, sort_keys=False)
-
-          if __name__ == '__main__':
-              asyncio.run(main())
+          asyncio.run(main())
           EOF
 
       - name: 安装 Go 环境
@@ -182,16 +361,8 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: 使用 clash-speedtest 进行精确测速并筛选
+      - name: clash-speedtest 精确测速
         run: |
-          # 使用 clash-speedtest 对初步有效节点进行精确测速
-          # 参数说明：
-          #   -c: 指定初步有效节点配置文件
-          #   -output: 输出最终筛选后的配置
-          #   -max-latency: 延迟超过 800ms 的节点将被过滤
-          #   -min-download-speed: 下载速度低于 5 MB/s 的节点将被过滤
-          #   -concurrent: 并发数设为 10 提高测速效率
-          #   -timeout: 单次测速超时 5 秒
           ~/go/bin/clash-speedtest \
             -c preliminary_valid.yaml \
             -output filtered.yaml \
@@ -203,29 +374,21 @@ jobs:
 
       - name: 保存最终订阅文件
         run: |
-          # filtered.yaml 已经是标准的 Clash 配置（包含 proxies 键），直接复制
           cp filtered.yaml nodes/proxies.yml
-          
-          # 可选：生成纯节点列表（仅 proxies 数组）便于其他用途
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
           import yaml
-          with open('filtered.yaml', 'r') as f:
-              config = yaml.safe_load(f)
-          proxies = config.get('proxies', [])
+          with open('filtered.yaml') as f:
+              proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
-              for proxy in proxies:
-                  # 输出每个节点的 YAML 表示，便于阅读
-                  f.write(yaml.dump(proxy, default_flow_style=False).strip())
-                  f.write('\n\n')
+              for p in proxies:
+                  f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
-          
-          # 输出最终有效节点数量
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
 
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
-          git diff --cached --quiet || git commit -m "Auto update nodes from both sources [skip ci]"
+          git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
           git push
