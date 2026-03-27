@@ -88,14 +88,90 @@ jobs:
           all_proxies = proxies1 + proxies2
           print(f"合并后总节点数: {len(all_proxies)}")
           
-          # 构建完整的 Clash 配置（只需 proxies 部分，测速工具可接受）
+          # 构建完整的 Clash 配置（只需 proxies 部分）
           clash_config = {
               'proxies': all_proxies
           }
           
-          # 保存为 Clash 配置文件，供测速工具使用
+          # 保存为 Clash 配置文件，供后续使用
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
               yaml.dump(clash_config, f, allow_unicode=True, sort_keys=False)
+          EOF
+
+      - name: 初步TCP测速过滤失效节点（每个节点测试10次）
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import asyncio
+          import time
+
+          TIMEOUT = 3
+          TEST_TIMES = 10
+          SUCCESS_THRESHOLD = 5
+
+          async def test_node_once(server, port):
+              try:
+                  start = time.time()
+                  _, writer = await asyncio.wait_for(
+                      asyncio.open_connection(server, port),
+                      timeout=TIMEOUT
+                  )
+                  elapsed = time.time() - start
+                  writer.close()
+                  await writer.wait_closed()
+                  return True, elapsed
+              except:
+                  return False, None
+
+          async def test_node(node):
+              server = node.get('server')
+              port = node.get('port')
+              if not server or not port:
+                  # 无法测速的节点，视为失败
+                  return node, 0, None
+              success = 0
+              latencies = []
+              for _ in range(TEST_TIMES):
+                  ok, lat = await test_node_once(server, port)
+                  if ok:
+                      success += 1
+                      latencies.append(lat)
+              avg_latency = sum(latencies) / len(latencies) if latencies else None
+              return node, success, avg_latency
+
+          async def main():
+              # 读取合并后的所有节点
+              with open('merged_config.yaml', 'r', encoding='utf-8') as f:
+                  merged = yaml.safe_load(f)
+              proxies = merged.get('proxies', [])
+              
+              print(f"开始对 {len(proxies)} 个节点进行初步TCP测速（每个节点测试 {TEST_TIMES} 次）...")
+              tasks = [test_node(node) for node in proxies]
+              results = await asyncio.gather(*tasks)
+
+              valid_nodes = []
+              for node, success, avg_latency in results:
+                  if success >= SUCCESS_THRESHOLD:
+                      valid_nodes.append(node)
+                      name = node.get('name', 'unknown')
+                      server = node.get('server', 'unknown')
+                      port = node.get('port', 'unknown')
+                      print(f"✅ 初步通过: {name} ({server}:{port}) : {success}/{TEST_TIMES} 成功, 平均延迟 {avg_latency:.2f}s")
+                  else:
+                      name = node.get('name', 'unknown')
+                      server = node.get('server', 'unknown')
+                      port = node.get('port', 'unknown')
+                      print(f"❌ 初步失效: {name} ({server}:{port}) - 成功率 {success}/{TEST_TIMES}")
+
+              print(f"初步有效节点数: {len(valid_nodes)} / {len(proxies)}")
+
+              # 保存初步有效节点为 Clash 配置格式
+              preliminary_config = {'proxies': valid_nodes}
+              with open('preliminary_valid.yaml', 'w', encoding='utf-8') as f:
+                  yaml.dump(preliminary_config, f, allow_unicode=True, sort_keys=False)
+
+          if __name__ == '__main__':
+              asyncio.run(main())
           EOF
 
       - name: 安装 Go 环境
@@ -106,18 +182,18 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: 测速并过滤节点
+      - name: 使用 clash-speedtest 进行精确测速并筛选
         run: |
-          # 使用 clash-speedtest 测速，输出到 filtered.yaml
+          # 使用 clash-speedtest 对初步有效节点进行精确测速
           # 参数说明：
-          #   -c: 指定合并后的配置文件
-          #   -output: 输出筛选后的配置
+          #   -c: 指定初步有效节点配置文件
+          #   -output: 输出最终筛选后的配置
           #   -max-latency: 延迟超过 800ms 的节点将被过滤
           #   -min-download-speed: 下载速度低于 5 MB/s 的节点将被过滤
           #   -concurrent: 并发数设为 10 提高测速效率
           #   -timeout: 单次测速超时 5 秒
           ~/go/bin/clash-speedtest \
-            -c merged_config.yaml \
+            -c preliminary_valid.yaml \
             -output filtered.yaml \
             -max-latency 800ms \
             -min-download-speed 5 \
@@ -135,17 +211,15 @@ jobs:
               data = yaml.safe_load(f)
           
           valid_proxies = data.get('proxies', [])
-          print(f"测速筛选后有效节点数: {len(valid_proxies)}")
+          print(f"最终有效节点数: {len(valid_proxies)}")
           
           # 保存为标准 YAML 格式
           with open('nodes/proxies.yml', 'w', encoding='utf-8') as f:
               yaml.dump(valid_proxies, f, allow_unicode=True, sort_keys=False)
           
-          # 同时保存纯链接列表（从每个节点的 raw 字段提取）
-          # 注意：clash-speedtest 输出中可能没有 raw 字段，这里仅保存原始节点的 YAML 表示
+          # 同时保存纯链接列表（将每个节点转换为 YAML 块）
           with open('nodes/links.txt', 'w', encoding='utf-8') as f:
               for proxy in valid_proxies:
-                  # 将每个节点转换为单行 YAML 表示
                   proxy_str = yaml.dump(proxy, default_flow_style=False).strip()
                   f.write(proxy_str + '\n\n')
           
