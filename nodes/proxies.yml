@@ -2,7 +2,7 @@ proxy-providers: {}
 proxies:
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 38.76MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 44.35MB/s"
   port: 2443
   reality-opts:
     public-key: 498LE1B8NFnfagrOnGGmuh80KqgKXMKiHbgcpxRqBB0
@@ -14,15 +14,7 @@ proxies:
   type: vless
   udp: true
   uuid: 48b36b6a-eaa6-4843-9231-0bb8b38b5da5
-- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 31.09MB/s"
-  password: IL37892054
-  port: 443
-  server: fluent-stingray.crayfish192.xyz
-  skip-cert-verify: true
-  sni: fluent-stingray.crayfish192.xyz
-  type: trojan
-  udp: true
-- name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 28.79MB/s"
+- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 34.30MB/s"
   password: IL37892054
   port: 443
   server: outgoing-ladybird.rooster465.autos
@@ -30,7 +22,14 @@ proxies:
   sni: outgoing-ladybird.rooster465.autos
   type: trojan
   udp: true
-- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 18.14MB/s"
+- name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 34.18MB/s"
+  password: IL37892054
+  port: 443
+  server: fluent-stingray.crayfish192.xyz
+  skip-cert-verify: true
+  type: trojan
+  udp: true
+- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 17.27MB/s"
   network: ws
   password: trojan
   port: 8025
@@ -43,7 +42,7 @@ proxies:
     headers:
       Host: jflsjlaf.pages.dev
     path: /
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 7.78MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 17.20MB/s"
   network: ws
   port: 443
   server: 192.200.160.20
