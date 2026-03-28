@@ -179,16 +179,17 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 安装 Go 环境
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-
-      - name: 安装 clash-speedtest
-        run: go install github.com/faceair/clash-speedtest@latest
-
-      - name: clash-speedtest 精确测速
+      - name: 安装 Go 环境、clash-speedtest 并精确测速
         run: |
+          # 安装 Go 环境
+          GO_VERSION="1.21"
+          GO_TAR="go${GO_VERSION}.linux-amd64.tar.gz"
+          wget -q "https://go.dev/dl/${GO_TAR}"
+          sudo tar -C /usr/local -xzf "${GO_TAR}"
+          rm "${GO_TAR}"
+          export PATH=/usr/local/go/bin:$PATH
+          go version
+          go install github.com/faceair/clash-speedtest@latest
           ~/go/bin/clash-speedtest \
             -c preliminary_valid.yaml \
             -output filtered.yaml \
@@ -210,24 +211,12 @@ jobs:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
-
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 先拉取最新代码（尝试 rebase）
-          git fetch origin master
-          git rebase origin/master || git rebase --abort && git pull origin master --no-rebase
-          # 添加并提交更改
+          # 拉取远程最新更改，避免推送冲突
+          git pull --rebase origin master || true
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
-          # 推送
           git push origin master
-
-      - name: 删除本次运行记录
-        if: always()
-        run: |
-          echo "正在删除当前运行记录 (ID: ${{ github.run_id }})..."
-          gh api -X DELETE repos/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
