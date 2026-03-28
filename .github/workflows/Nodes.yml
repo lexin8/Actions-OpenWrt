@@ -179,17 +179,16 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 安装 Go 环境、clash-speedtest 并精确测速
+      - name: 安装 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: 安装 clash-speedtest
+        run: go install github.com/faceair/clash-speedtest@latest
+
+      - name: clash-speedtest 精确测速
         run: |
-          # 安装 Go 环境
-          GO_VERSION="1.21"
-          GO_TAR="go${GO_VERSION}.linux-amd64.tar.gz"
-          wget -q "https://go.dev/dl/${GO_TAR}"
-          sudo tar -C /usr/local -xzf "${GO_TAR}"
-          rm "${GO_TAR}"
-          export PATH=/usr/local/go/bin:$PATH
-          go version
-          go install github.com/faceair/clash-speedtest@latest
           ~/go/bin/clash-speedtest \
             -c preliminary_valid.yaml \
             -output filtered.yaml \
