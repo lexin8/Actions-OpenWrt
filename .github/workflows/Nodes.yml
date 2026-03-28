@@ -1,53 +1,12 @@
 name: Update Nodes
 
 on:
-  workflow_dispatch:
-    inputs:
-      readme_url1:
-        description: 'README 链接 1（从中提取 .yml/.yaml 订阅）'
-        required: false
-        default: 'https://github.com/free-nodes/clashfree/blob/main/README.md'
-      readme_url2:
-        description: 'README 链接 2（可选）'
-        required: false
-        default: 'https://github.com/free18/v2ray/blob/main/README.md'
-      readme_url3:
-        description: 'README 链接 3（可选）'
-        required: false
-        default: ''
-      readme_url4:
-        description: 'README 链接 4（可选）'
-        required: false
-        default: ''
-      readme_url5:
-        description: 'README 链接 5（可选）'
-        required: false
-        default: ''
-      sub_url1:
-        description: '直接订阅链接 1（Clash 配置）'
-        required: false
-        default: ''
-      sub_url2:
-        description: '直接订阅链接 2（可选）'
-        required: false
-        default: ''
-      sub_url3:
-        description: '直接订阅链接 3（可选）'
-        required: false
-        default: ''
-      sub_url4:
-        description: '直接订阅链接 4（可选）'
-        required: false
-        default: ''
-      sub_url5:
-        description: '直接订阅链接 5（可选）'
-        required: false
-        default: ''
   schedule:
     - cron: '0 */6 * * *'
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update:
@@ -85,16 +44,16 @@ jobs:
         run: |
           mkdir -p sources
 
-          readme1="${{ github.event.inputs.readme_url1 }}"
-          readme2="${{ github.event.inputs.readme_url2 }}"
-          readme3="${{ github.event.inputs.readme_url3 }}"
-          readme4="${{ github.event.inputs.readme_url4 }}"
-          readme5="${{ github.event.inputs.readme_url5 }}"
-          sub1="${{ github.event.inputs.sub_url1 }}"
-          sub2="${{ github.event.inputs.sub_url2 }}"
-          sub3="${{ github.event.inputs.sub_url3 }}"
-          sub4="${{ github.event.inputs.sub_url4 }}"
-          sub5="${{ github.event.inputs.sub_url5 }}"
+          readme1='https://github.com/free-nodes/clashfree/blob/main/README.md'
+          readme2='https://github.com/free18/v2ray/blob/main/README.md'
+          readme3=''
+          readme4=''
+          readme5=''
+          sub1=''
+          sub2=''
+          sub3=''
+          sub4=''
+          sub5=''
 
           fetch_source() {
             local input="$1"
@@ -255,8 +214,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 拉取远程最新更改，避免推送冲突
           git pull --rebase origin master || true
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
           git push origin master
+
+      - name: 删除本次运行记录
+        if: always()
+        run: |
+          echo "正在删除当前运行记录 (ID: ${{ github.run_id }})..."
+          gh api -X DELETE repos/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
