@@ -215,9 +215,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin master || true
+          # 先拉取最新代码（尝试 rebase）
+          git fetch origin master
+          git rebase origin/master || git rebase --abort && git pull origin master --no-rebase
+          # 添加并提交更改
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
+          # 推送
           git push origin master
 
       - name: 删除本次运行记录
