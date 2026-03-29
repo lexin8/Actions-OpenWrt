@@ -1,18 +1,6 @@
 proxy-providers: {}
 proxies:
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 348.75MB/s"
-  network: ws
-  port: 443
-  server: 135.84.64.66
-  servername: sni.111000.dynv6.net
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 330.79MB/s"
+- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 337.12MB/s"
   network: ws
   port: 443
   server: 185.16.110.0
@@ -24,10 +12,10 @@ proxies:
     headers:
       Host: sni.111000.dynv6.net
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 322.21MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 329.07MB/s"
   network: ws
   port: 443
-  server: 135.84.74.166
+  server: 135.84.64.66
   servername: sni.111000.dynv6.net
   tls: true
   type: vless
@@ -36,70 +24,7 @@ proxies:
     headers:
       Host: sni.111000.dynv6.net
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 317.88MB/s"
-  network: ws
-  port: 2096
-  server: 185.18.250.238
-  servername: sni.jpmj.dev
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.jpmj.dev
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 312.91MB/s"
-  network: ws
-  port: 443
-  server: 209.102.207.120
-  servername: sni.111000.v6.navy
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 305.31MB/s"
-  network: ws
-  port: 443
-  server: 199.107.164.217
-  servername: sni.111000.dynv6.net
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 303.56MB/s"
-  network: ws
-  port: 443
-  server: 135.84.74.43
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 301.64MB/s"
-  network: ws
-  port: 443
-  server: 135.84.74.155
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 298.49MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 312.74MB/s"
   network: ws
   port: 443
   server: 135.84.74.55
@@ -111,118 +36,11 @@ proxies:
     headers:
       Host: sni.111000.dynv6.net
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 272.79MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 306.78MB/s"
   network: ws
   port: 443
-  server: 172.64.146.153
-  servername: do88.cmddo.ggff.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 22620697-6fba-4b71-a348-0cef2f7bec1e
-  ws-opts:
-    headers:
-      Host: do88.cmddo.ggff.net
-    path: /
-- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 250.35MB/s"
-  network: ws
-  port: 8080
-  server: tgju.org
-  servername: www.speedtest.net
-  tls: false
-  type: vless
-  uuid: b38b778b-06f0-4161-91b2-1f0b220b7df4
-  ws-opts:
-    headers:
-      Host: 015.electrocellco-cf-015.workers.dev
-    path: /eyJqdW5rIjoiQm5nNGZUVWwiLCJwcm90b2NvbCI6InZsIiwibW9kZSI6InByb3h5aXAiLCJwYW5lbElQcyI6WyIyMTMuMTcwLjE1Ny4xIl19?ed=2560&join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---
-- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 225.74MB/s"
-  network: ws
-  port: 443
-  server: 162.159.152.4
-  servername: 020.eleCtrOcellCo-cf-020.WORKeRS.dEV
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: c8495c2c-9e10-4f24-90d8-c8c4a3e8bf9f
-  ws-opts:
-    headers:
-      Host: 020.eleCtrOcellCo-cf-020.WORKeRS.dEV
-    path: /eyJqdW5rIjoicnUxOEdKZ3dDeDYiLCJwcm90b2NvbCI6InZsIiwibW9kZSI6InByb3h5aXAiLCJwYW5lbElQcyI6W119
-- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 180.14MB/s"
-  network: ws
-  port: 80
-  server: 104.18.37.104
-  tls: false
-  type: vless
-  uuid: 69d38faa-21a1-4d18-82cb-796a942c181b
-  ws-opts:
-    headers:
-      Host: sfsl.ardomains1.dpdns.org
-    path: /?ed=2048
-- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 177.42MB/s"
-  network: ws
-  port: 80
-  server: 104.24.45.247
-  tls: false
-  type: vless
-  uuid: 2e71d8fc-d2e8-44fc-89bd-c8a449a193aa
-  ws-opts:
-    headers:
-      Host: odd-bread-435d.ahmadrezasteamacc.workers.dev
-    path: /?ed=2048
-- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 174.29MB/s"
-  network: ws
-  port: 80
-  server: 104.21.80.5
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 14e1775b-d92c-455b-8db3-e6c6d61909e0
-  ws-opts:
-    headers:
-      Host: vpnpro.eshghiabolfazl2009.workers.dev
-    path: /
-- alpn:
-  - http/1.1
-  client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 167.45MB/s"
-  network: ws
-  port: 443
-  server: 104.17.148.22
-  servername: 010.elECtROcEllCo-CF-010.woRKerS.DEv
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 5152ff5b-56f7-400c-bc1d-2f1dd1ac1e13
-  ws-opts:
-    headers:
-      Host: 010.elECtROcEllCo-CF-010.woRKerS.DEv
-    path: /eyJqdW5rIjoiZ2FTSnpWSlFGbENDM0xrIiwicHJvdG9jb2wiOiJ2bCIsIm1vZGUiOiJwcm94eWlwIiwicGFuZWxJUHMiOlsiMTI1LjcuMjQuMjUxIl19?ed=2560
-- alpn:
-  - http%2F1.1
-  name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 163.65MB/s"
-  network: ws
-  port: 443
-  server: 172.64.80.1
-  servername: Usa.cORreCtCOsETTe.WOrKeRS.DeV
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 4cf1a3a0-7360-41ff-84ae-b621001e8376
-  ws-opts:
-    headers:
-      Host: Usa.cORreCtCOsETTe.WOrKeRS.DeV
-    path: /R8BFTroQ00j1
-- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 119.95MB/s"
-  network: ws
-  port: 443
-  server: 94.131.101.135
+  server: 135.84.74.43
   servername: sni.111000.v6.navy
   tls: true
   type: vless
@@ -231,38 +49,82 @@ proxies:
     headers:
       Host: sni.111000.v6.navy
     path: /
-- name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 80.06MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 304.99MB/s"
   network: ws
   port: 443
-  server: 8.6.112.0
-  servername: asmaos.uk
+  server: 199.107.164.217
+  servername: sni.111000.dynv6.net
   tls: true
   type: vless
-  uuid: 427d85cd-a2a8-4668-8118-0d43d2d57f77
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: asmaos.uk
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 59.71MB/s"
-  password: 4123ae62-0999-4984-8ead-091630e594a9
-  port: 443
-  server: n2.chateditimage.com
-  skip-cert-verify: false
-  sni: n2.chateditimage.com
-  type: trojan
+      Host: sni.111000.dynv6.net
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 57.93MB/s"
-  port: 10121
-  reality-opts:
-    public-key: 4DdA8dBVn5zB_UTbgBY45YqM0HU8zrjXYdzg3-wz5Rg
-    short-id: 9c2a7d4e5f18b6a3
-  server: 150.241.83.152
-  servername: apple.com
+  name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 244.91MB/s"
+  network: ws
+  port: 443
+  server: 135.84.74.155
+  servername: sni.111000.v6.navy
   tls: true
   type: vless
-  uuid: d1209ffb-c159-48d5-b40d-542ce11fc768
-- name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 54.48MB/s"
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 229.47MB/s"
+  network: ws
+  port: 443
+  server: 209.102.207.120
+  servername: sni.111000.v6.navy
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: /
+- name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 223.18MB/s"
+  network: ws
+  port: 2096
+  server: 185.18.250.238
+  servername: sni.jpmj.dev
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.jpmj.dev
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 222.54MB/s"
+  network: tcp
+  port: 19001
+  reality-opts:
+    public-key: IiuIighvDsor2v-vb5s3IJbNiqwLw568auiqoXxc7FM
+  server: usadt01.jumperservice.com
+  servername: www.speedtest.org
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: b5be8e3f-a17d-479c-ebdb-9c3265c2cab7
+- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 215.22MB/s"
+  network: ws
+  port: 443
+  server: 135.84.74.166
+  servername: sni.111000.dynv6.net
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.dynv6.net
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 140.17MB/s"
   network: ws
   port: 443
   server: 34.82.76.253
@@ -276,14 +138,65 @@ proxies:
     headers:
       Host: sni.111000.dynv6.net
     path: /?ed=2560
-- cipher: aes-128-gcm
-  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 53.81MB/s"
-  password: shadowsocks
+- name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 129.10MB/s"
+  password: 4123ae62-0999-4984-8ead-091630e594a9
   port: 443
-  server: 158.173.20.171
-  type: ss
+  server: n2.chateditimage.com
+  skip-cert-verify: false
+  sni: n2.chateditimage.com
+  type: trojan
+- name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 120.98MB/s"
+  password: de7d6444-a7a8-4b3a-bf26-bc6939bb0279
+  port: 443
+  server: n3.chateditimage.com
+  skip-cert-verify: false
+  sni: n3.chateditimage.com
+  type: trojan
+- alpn:
+  - h3
+  client-fingerprint: random
+  name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 97.12MB/s"
+  network: ws
+  port: 2053
+  server: 173.0.92.23
+  servername: bab1c79b.soos.bbroot.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 69c70236-6d7f-a785-2d3a-5332b1c91e99
+  ws-opts:
+    headers:
+      Host: bab1c79b.soos.bbroot.com
+    path: /socks5=4b2c7676:6f0f4cbba5bb@38.111.30.111:26433
+- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 86.58MB/s"
+  network: ws
+  port: 443
+  server: 104.21.23.22
+  servername: 014.ELectRoceLlCO-Cf-014.worKeRS.dev
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 203e82ed-a6b7-416a-b04e-ba8a20d8a0c4
+  ws-opts:
+    headers:
+      Host: 014.ELectRoceLlCO-Cf-014.worKeRS.dev
+    path: /eyJqdW5rIjoiQkdrUldRNHQzR2MzVHkiLCJwcm90b2NvbCI6InZsIiwibW9kZSI6InByb3h5aXAiLCJwYW5lbElQcyI6W119
+- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 80.74MB/s"
+  network: ws
+  port: 8080
+  server: tgju.org
+  servername: www.speedtest.net
+  tls: false
+  type: vless
+  uuid: b38b778b-06f0-4161-91b2-1f0b220b7df4
+  ws-opts:
+    headers:
+      Host: 015.electrocellco-cf-015.workers.dev
+    path: /eyJqdW5rIjoiQm5nNGZUVWwiLCJwcm90b2NvbCI6InZsIiwibW9kZSI6InByb3h5aXAiLCJwYW5lbElQcyI6WyIyMTMuMTcwLjE1Ny4xIl19?ed=2560&join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---join-hallakechiVPN---
 - client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 50.19MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 70.65MB/s"
   network: ws
   port: 2053
   server: 216.126.224.117
@@ -295,37 +208,11 @@ proxies:
     headers:
       Host: edt2.btxst.eu.cc
     path: /albums
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 47.57MB/s"
-  network: ws
-  port: 443
-  server: 171.22.124.215
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /game
-- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 46.52MB/s"
-  port: 8443
-  server: 195.181.173.199
-  servername: ams1.fromblancwithlove.com
-  tls: true
-  type: vless
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 46.03MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 82.38.31.62
-  type: ss
-- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 43.59MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 69.79MB/s"
   network: ws
   password: trojan
-  port: 82
-  server: 136.244.105.89
+  port: 28080
+  server: 38.83.41.89
   skip-cert-verify: true
   sni: jflsjlaf.pages.dev
   type: trojan
@@ -335,71 +222,137 @@ proxies:
       Host: jflsjlaf.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 43.44MB/s"
-  network: ws
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 61.93MB/s"
+  network: tcp
   port: 443
-  server: 188.226.158.93
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /page/groups
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 42.20MB/s"
-  network: ws
-  port: 2053
-  server: 188.166.17.13
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /programs/channels/document
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 41.69MB/s"
-  network: ws
-  port: 8443
-  server: 5.35.36.146
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /dl/store
-- name: "\U0001F1E8\U0001F1F7 CR 001 | ⬇️ 40.76MB/s"
-  network: ws
-  port: 443
-  server: lucy.ns.cloudflare.com
-  servername: rivvers.info
+  reality-opts:
+    public-key: iCY6H8CpnIfqmIkEABduJEAeJrnYS089R1-jKEyVp3w
+    short-id: 5589c1
+  server: 45.150.65.43
+  servername: us1.frostbot.ru
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 098fd515-29de-4d74-b77d-d8ab878a7e2c
-  ws-opts:
-    headers:
-      Host: rivvers.info
-    path: /resgdws
-- name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 40.76MB/s"
-  network: ws
-  port: 443
-  server: brenna.ns.cloudflare.com
-  servername: terazhediii.info
+  uuid: fd37be2f-f8d1-47de-97e8-13c28107d31e
+- client-fingerprint: qq
+  flow: xtls-rprx-vision
+  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 50.56MB/s"
+  port: 10121
+  reality-opts:
+    public-key: 4DdA8dBVn5zB_UTbgBY45YqM0HU8zrjXYdzg3-wz5Rg
+    short-id: 9c2a7d4e5f18b6a3
+  server: 150.241.83.152
+  servername: apple.com
   tls: true
   type: vless
-  uuid: 1b2c91ab-f6c9-42f8-b2c6-8de0ac133d63
+  uuid: d1209ffb-c159-48d5-b40d-542ce11fc768
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 016 | ⬇️ 48.85MB/s"
+  port: 43504
+  reality-opts:
+    public-key: l2roflJeTPIn8TfTHzxmr14errgnp5Qea0Y20AOoQi0
+    short-id: 57f89a78
+  server: 157.254.27.41
+  servername: apple.com
+  tls: true
+  type: vless
+  uuid: 09ec436b-930a-42b1-8d2c-6addbafc8832
+- name: "\U0001F1FA\U0001F1F8 US 017 | ⬇️ 35.02MB/s"
+  network: ws
+  port: 443
+  server: 94.131.101.135
+  servername: sni.111000.v6.navy
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: terazhediii.info
-    path: /sghiyws
-- name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 40.74MB/s"
+      Host: sni.111000.v6.navy
+    path: /
+- cipher: aes-128-gcm
+  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 32.02MB/s"
+  password: shadowsocks
+  port: 443
+  server: 158.173.20.171
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 31.51MB/s"
+  password: W74XFALLLuw6m5IA
+  port: 443
+  server: series-a2.samanehha.co
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 30.60MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg0060183sf.cybervena.com
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 28.86MB/s"
+  network: tcp
+  port: 19001
+  reality-opts:
+    public-key: S-g0oP36DShii1uPOnZDSEhp_wQghX6h68PgMivOmD4
+  server: fra01.jumperservice.com
+  servername: www.speedtest.net
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 12eac926-c4ec-4040-8fb8-f316e9fc0fd6
+- name: "\U0001F1F0\U0001F1F7 KR 001 | ⬇️ 27.68MB/s"
+  password: ZY07256934
+  port: 443
+  server: glowing-deer.rooster465.autos
+  skip-cert-verify: false
+  sni: glowing-deer.rooster465.autos
+  type: trojan
+- name: "\U0001F1F0\U0001F1F7 KR 002 | ⬇️ 27.56MB/s"
+  password: IL37892054
+  port: 443
+  server: select-marmoset.rooster465.autos
+  skip-cert-verify: false
+  sni: select-marmoset.rooster465.autos
+  type: trojan
+- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 27.53MB/s"
+  port: 8443
+  server: 195.181.173.199
+  servername: ams1.fromblancwithlove.com
+  tls: true
+  type: vless
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- client-fingerprint: chrome
+  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 26.88MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: 1HeKf_8KDjfzXfUi9P7WBaGStMvr96TKdUbofpkwBzQ
+    short-id: 8bd29483ded126b4
+  server: 185.125.103.147
+  servername: wikihow.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 21915536-afb5-4a0c-b047-fcf549d3a173
+- name: "\U0001F1E6\U0001F1FA AU 001 | ⬇️ 25.71MB/s"
+  password: WF42809561
+  port: 443
+  server: evolving-kangaroo.rooster465.autos
+  skip-cert-verify: false
+  sni: evolving-kangaroo.rooster465.autos
+  type: trojan
+- name: "\U0001F1E6\U0001F1FA AU 002 | ⬇️ 25.66MB/s"
+  password: IL37892054
+  port: 443
+  server: enhanced-crayfish.rooster465.autos
+  skip-cert-verify: false
+  type: trojan
+- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 25.62MB/s"
   network: ws
   port: 443
   server: vip3.kaixincloud.top
@@ -413,7 +366,53 @@ proxies:
     headers:
       Host: terazhediii.info
     path: /sghiyws
-- name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 39.92MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 25.55MB/s"
+  network: ws
+  port: 443
+  server: brenna.ns.cloudflare.com
+  servername: terazhediii.info
+  tls: true
+  type: vless
+  uuid: 1b2c91ab-f6c9-42f8-b2c6-8de0ac133d63
+  ws-opts:
+    headers:
+      Host: terazhediii.info
+    path: /sghiyws
+- name: "\U0001F1E6\U0001F1FA AU 003 | ⬇️ 25.48MB/s"
+  password: IL37892054
+  port: 443
+  server: steady-lemming.rooster465.autos
+  skip-cert-verify: false
+  sni: steady-lemming.rooster465.autos
+  type: trojan
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 25.14MB/s"
+  network: ws
+  port: 443
+  server: 188.226.158.93
+  servername: edt2.btxst.eu.cc
+  tls: true
+  type: vless
+  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
+  ws-opts:
+    headers:
+      Host: edt2.btxst.eu.cc
+    path: /page/groups
+- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 25.14MB/s"
+  network: ws
+  port: 443
+  server: 108.162.193.217
+  servername: vangoghhh.info
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 94daa8ad-75ed-4dbf-a6de-d05036d98df5
+  ws-opts:
+    headers:
+      Host: vangoghhh.info
+    path: /tixvuws
+- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 25.00MB/s"
   network: ws
   port: 443
   server: elliot.ns.cloudflare.com
@@ -427,39 +426,25 @@ proxies:
     headers:
       Host: octopusss5.info
     path: /udfyfws
-- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 38.05MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 24.97MB/s"
   network: ws
   port: 443
-  server: 172.64.33.217
-  servername: vangoghhh.info
+  server: 108.162.192.133
+  servername: rivvers.info
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 94daa8ad-75ed-4dbf-a6de-d05036d98df5
+  uuid: 098fd515-29de-4d74-b77d-d8ab878a7e2c
   ws-opts:
     headers:
-      Host: vangoghhh.info
-    path: /tixvuws
-- name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 37.79MB/s"
-  network: ws
-  port: 443
-  server: 162.159.44.45
-  servername: picassooo.info
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 7270612b-49f6-4b04-999c-34d8263da767
-  ws-opts:
-    headers:
-      Host: picassooo.info
-    path: /aymdlws
-- name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 37.09MB/s"
+      Host: rivvers.info
+    path: /resgdws
+- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 24.75MB/s"
   network: ws
   password: trojan
-  port: 28080
-  server: 38.83.41.89
+  port: 82
+  server: 136.244.105.89
   skip-cert-verify: true
   sni: jflsjlaf.pages.dev
   type: trojan
@@ -468,25 +453,11 @@ proxies:
     headers:
       Host: jflsjlaf.pages.dev
     path: /
-- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 36.46MB/s"
-  network: ws
-  port: 443
-  server: 108.162.192.75
-  servername: octopusss4.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: fc965ad9-bdd7-4815-ad71-b39ec5972dc1
-  ws-opts:
-    headers:
-      Host: octopusss4.com
-    path: /tsghdws
 - client-fingerprint: chrome
-  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 35.77MB/s"
+  name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 24.70MB/s"
   network: ws
   port: 8443
-  server: 37.221.197.112
+  server: 5.35.36.146
   servername: edt2.btxst.eu.cc
   tls: true
   type: vless
@@ -494,69 +465,22 @@ proxies:
   ws-opts:
     headers:
       Host: edt2.btxst.eu.cc
-    path: /users/episodes/document
-- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 35.58MB/s"
-  password: IL37892054
-  port: 443
-  server: outgoing-ladybird.rooster465.autos
-  skip-cert-verify: false
-  type: trojan
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 35.14MB/s"
-  network: ws
-  port: 5004
-  server: 194.26.192.251
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /lesson/mall
-- name: "\U0001F1F1\U0001F1FB LV 001 | ⬇️ 34.61MB/s"
-  network: ws
-  port: 443
-  server: 188.253.22.2
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 3ddce082-7e03-429c-8af8-9a873d23f0ba
-  ws-opts:
-    path: /
-- name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 34.39MB/s"
-  password: IL37892054
-  port: 443
-  server: fluent-stingray.crayfish192.xyz
-  skip-cert-verify: false
-  sni: fluent-stingray.crayfish192.xyz
-  type: trojan
+    path: /dl/store
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 34.00MB/s"
-  port: 10965
+  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 24.55MB/s"
+  network: tcp
+  port: 443
   reality-opts:
-    public-key: lHxeD2nYtDb1V7JseV-sUTEuqH6_jie7U_iOARX7cT0
-    short-id: 9f3a7c6d2e8b41af
-  server: it1.axinode.sbs
-  servername: deepl.com
+    public-key: A3PWLCRX9oeSyPvrmrwj2jUXcLo2uCwAISRBHtNE1Xw
+  server: 194.124.250.51
+  servername: 5post-gate.x5.ru
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  uuid: d1209ffb-c159-48d5-b40d-542ce11fc768
-- name: "\U0001F1E9\U0001F1EA_德国_6"
-  network: ws
-  port: 2053
-  server: 88.99.60.34
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: "\U0001F1EC\U0001F1E7_英国_50"
+  uuid: 90c9c25c-df6c-4438-83d3-ef97166a9184
+- name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 24.44MB/s"
   network: ws
   port: 443
   server: 194.164.192.16
@@ -568,35 +492,66 @@ proxies:
     headers:
       Host: sni.111000.indevs.in
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: TR TROJAN-94 | free-nodes
-  password: WF42809561
-  port: 443
-  server: top-goshawk.rooster465.autos
-  skip-cert-verify: false
-  sni: top-goshawk.rooster465.autos
-  type: trojan
-- client-fingerprint: chrome
-  name: "\U0001F1EE\U0001F1F9_意大利"
+- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 23.86MB/s"
   network: ws
   port: 443
-  server: 194.165.59.20
-  servername: edt2.btxst.eu.cc
+  server: 172.64.32.75
+  servername: octopusss4.com
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
+  uuid: fc965ad9-bdd7-4815-ad71-b39ec5972dc1
   ws-opts:
     headers:
-      Host: edt2.btxst.eu.cc
-    path: /player/redirect/site
+      Host: octopusss4.com
+    path: /tsghdws
+- name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 23.51MB/s"
+  network: tcp
+  port: 443
+  server: 144.31.4.127
+  servername: plcdn14.melodramaonline.net
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 7e0a9f75-b424-493b-b7e6-cebd7ea8642d
+- name: 未知 VLESS-102 | free-nodes
+  network: ws
+  port: 443
+  server: 188.253.22.2
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 3ddce082-7e03-429c-8af8-9a873d23f0ba
+  ws-opts:
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-53 | free-nodes
+  password: yKVMoB3AwiTEznpnoq2FYR
+  port: 28687
+  server: 193.47.60.186
+  type: ss
+- name: TR TROJAN-76 | free-nodes
+  password: IL37892054
+  port: 443
+  server: fluent-stingray.crayfish192.xyz
+  skip-cert-verify: false
+  sni: fluent-stingray.crayfish192.xyz
+  type: trojan
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F5\U0001F1F1_波兰"
+  name: 未知 VLESS-119 | free-nodes
+  network: tcp
   port: 8443
   reality-opts:
     public-key: 5qvcOTHr_izGbsRz-j2xC3BMMdugFMsl7MnANjzwZ0I
     short-id: b2a1c97a38
   server: 45.144.49.116
   servername: www.apple.com
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
   uuid: bf263367-bb63-4663-b4a1-34946107a72e
@@ -614,19 +569,83 @@ proxies:
     path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 未知 VLESS-110 | free-nodes
+  name: 未知 VLESS-130 | free-nodes
   network: tcp
-  port: 23576
+  port: 443
   reality-opts:
-    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-    short-id: "01"
-  server: 51.158.206.97
-  servername: fuck.rkn
+    public-key: AYQOZFxjvHN-RIzKYEibwFiFsp03cdlWGdCmyFfuNVc
+    short-id: 4fa44664f6a566d3
+  server: 5.255.110.147
+  servername: nll.scroogethebest.com
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+  uuid: e2e1ddaa-1acf-4c4c-a211-92284f6440ed
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB VLESS-123 | free-nodes"
+  network: tcp
+  port: 10121
+  reality-opts:
+    public-key: 4DdA8dBVn5zB_UTbgBY45YqM0HU8zrjXYdzg3-wz5Rg
+    short-id: 9c2a7d4e5f18b6a3
+  server: 144.31.213.102
+  servername: apple.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: d1209ffb-c159-48d5-b40d-542ce11fc768
+- name: TR TROJAN-83 | free-nodes
+  password: WF42809561
+  port: 443
+  server: funky-platypus.rooster465.autos
+  skip-cert-verify: false
+  sni: funky-platypus.rooster465.autos
+  type: trojan
+- name: "\U0001F1ED\U0001F1F0 HK TROJAN-77 | free-nodes"
+  password: IL37892054
+  port: 443
+  server: growing-tuna.rooster465.autos
+  skip-cert-verify: false
+  type: trojan
+- name: "\U0001F1F7\U0001F1F4_罗马尼亚_1"
+  network: ws
+  port: 2053
+  server: 188.241.241.123
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- name: "\U0001F1EB\U0001F1F7_法国_28"
+  network: ws
+  port: 2053
+  server: 34.155.19.30
+  servername: sni.111000.v6.navy
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: /
+- name: "\U0001F1F7\U0001F1FA_俄罗斯_1"
+  network: ws
+  port: 443
+  server: 94.141.123.231
+  servername: sni.111000.dynv6.net
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.dynv6.net
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
 - client-fingerprint: chrome
   name: "\U0001F1F7\U0001F1FA_俄罗斯_4"
   network: ws
@@ -641,10 +660,99 @@ proxies:
       Host: edt2.btxst.eu.cc
     path: /friend
 - cipher: chacha20-ietf-poly1305
-  name: 未知 SS-56 | free-nodes
-  password: yKVMoB3AwiTEznpnoq2FYR
-  port: 28687
-  server: 193.47.60.186
+  name: "\U0001F1E8\U0001F1F3 TW SS-44 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001269pz2.cybervena.com
+  type: ss
+- name: "\U0001F1ED\U0001F1F0 HK TROJAN-85 | free-nodes"
+  password: WF42809561
+  port: 443
+  server: nearby-muskrat.rooster465.autos
+  skip-cert-verify: false
+  type: trojan
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US VLESS-131 | free-nodes"
+  network: tcp
+  port: 23335
+  reality-opts:
+    public-key: 7Gi8eiUU9TIVbGuvSU16gl5-Aqt7tcCSB9x6CSxyvik
+    short-id: 67b1e94e4dd1ef90
+  server: 104.167.197.59
+  servername: icloud.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e384913f-8863-47b4-8858-a84b68abb4a6
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-07 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg005972g7w.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-59 | free-nodes
+  password: Xsy8Ox4yOV3xLlpxtjzs3X
+  port: 16233
+  server: 102.133.165.160
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-14 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg0011606bh.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-05 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg005958sxh.cybervena.com
+  type: ss
+- client-fingerprint: chrome
+  name: TR VLESS-133 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: UjNPtE5lA4RH0KXJjmaXUEnue8ezfzyI86lJBosZTQE
+    short-id: dc
+  server: 185.181.208.246
+  servername: www.google.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: f1f26b76-ebc8-4f46-a3cf-8438c2f249a0
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-22 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg005969zt4.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-25 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg0060292s3.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-23 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg005977h4d.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-17 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg00129437x.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-42 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001244wfw.cybervena.com
   type: ss
 - client-fingerprint: chrome
   name: "\U0001F1EE\U0001F1F7_伊朗_49"
@@ -659,19 +767,25 @@ proxies:
     headers:
       Host: edt2.btxst.eu.cc
     path: /jp/seller
-- name: "\U0001F1F7\U0001F1F4_罗马尼亚"
-  network: ws
-  port: 2053
-  server: 188.241.241.123
-  servername: sni.111000.dynv6.net
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-37 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001166nc2.cybervena.com
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EA\U0001F1F8_西班牙_2"
+  port: 10965
+  reality-opts:
+    public-key: lHxeD2nYtDb1V7JseV-sUTEuqH6_jie7U_iOARX7cT0
+    short-id: 9f3a7c6d2e8b41af
+  server: it1.axinode.sbs
+  servername: deepl.com
   tls: true
   type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EC\U0001F1E7_英国_55"
+  uuid: d1209ffb-c159-48d5-b40d-542ce11fc768
+- name: "\U0001F1EC\U0001F1E7_英国_56"
   network: ws
   port: 2053
   server: 45.43.76.184
@@ -682,12 +796,24 @@ proxies:
   ws-opts:
     headers:
       Host: sni.111000.v6.navy
-    path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-08 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: n8mrcg005988a7z.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-51 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg0071643p7.cybervena.com
+  type: ss
 - client-fingerprint: chrome
-  name: "\U0001F1F1\U0001F1FB_拉脱维亚"
+  name: "\U0001F1E8\U0001F1E6_加拿大"
   network: ws
-  port: 8443
-  server: 37.128.204.4
+  port: 443
+  server: 171.22.124.215
   servername: edt2.btxst.eu.cc
   tls: true
   type: vless
@@ -695,160 +821,15 @@ proxies:
   ws-opts:
     headers:
       Host: edt2.btxst.eu.cc
-    path: /rank/wenku/online
-- name: "\U0001F1F7\U0001F1F4_罗马尼亚_2"
-  network: ws
-  port: 2053
-  server: 188.241.241.29
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: TR TROJAN-90 | free-nodes
-  password: WF42809561
-  port: 443
-  server: evolving-kangaroo.rooster465.autos
-  skip-cert-verify: false
-  sni: evolving-kangaroo.rooster465.autos
-  type: trojan
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1ED_瑞士_1"
-  network: ws
-  port: 4433
-  server: 138.226.240.199
-  servername: sub.mot.ip-ddns.com
-  tls: true
-  type: vless
-  uuid: 00000000-0000-4000-8000-000000000000
-  ws-opts:
-    headers:
-      Host: sub.mot.ip-ddns.com
-    path: /
-- name: "\U0001F1EB\U0001F1F7_法国_29"
-  network: ws
-  port: 2053
-  server: 34.155.19.30
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
-- name: 13|US_speednode_0019
-  network: ws
-  password: trojan
-  port: 8025
-  server: 54.46.72.234
-  skip-cert-verify: true
-  sni: jflsjlaf.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: jflsjlaf.pages.dev
-    path: /
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-131 | free-nodes
+    path: /game
+- name: 12,13|日本2|@ripaojiedian
   network: tcp
-  port: 443
-  reality-opts:
-    public-key: iCY6H8CpnIfqmIkEABduJEAeJrnYS089R1-jKEyVp3w
-    short-id: be91008fd0a4
-  server: 45.15.152.226
-  servername: fin2.frostbot.ru
+  password: 6d29eb2f74293cb01a19b32cf08ad2e9
+  port: 4937
+  server: 153.121.38.213
   skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: fd37be2f-f8d1-47de-97e8-13c28107d31e
-- name: "\U0001F1E9\U0001F1EA DE VLESS-108 | free-nodes"
-  network: ws
-  port: 80
-  server: 188.114.98.0
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 478cc26d-16b3-4fdd-be64-60d5a58c1622
-  ws-opts:
-    headers:
-      Host: tt.andishehparenting.com
-    path: /
-- name: TR TROJAN-92 | free-nodes
-  password: WF42809561
-  port: 443
-  server: model-stingray.crayfish192.xyz
-  skip-cert-verify: false
-  sni: model-stingray.crayfish192.xyz
+  sni: www.nintendogames.net
   type: trojan
-- name: TR TROJAN-88 | free-nodes
-  password: IL37892054
-  port: 443
-  server: steady-lemming.rooster465.autos
-  skip-cert-verify: false
-  sni: steady-lemming.rooster465.autos
-  type: trojan
-- name: "\U0001F1FA\U0001F1F8_美国_22"
-  network: ws
-  port: 443
-  server: betty.ns.cloudflare.com
-  servername: 639073677251729790.corolla-perma.info
-  tls: true
-  type: vless
-  uuid: 130e98f6-18ad-4505-9a6e-6e00424bd058
-  ws-opts:
-    headers:
-      Host: 639073677251729790.corolla-perma.info
-    path: /jsdrzrws?ed=2560
-- name: "\U0001F1E9\U0001F1EA_德国_2"
-  network: ws
-  port: 443
-  server: 139.144.77.170
-  servername: sni.111000.indevs.in
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 HK TROJAN-85 | free-nodes"
-  password: IL37892054
-  port: 443
-  server: growing-tuna.rooster465.autos
-  skip-cert-verify: false
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-34 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg005969zt4.cybervena.com
-  type: ss
-- name: "\U0001F1ED\U0001F1F0 HK TROJAN-93 | free-nodes"
-  password: WF42809561
-  port: 443
-  server: nearby-muskrat.rooster465.autos
-  skip-cert-verify: false
-  type: trojan
-- name: "\U0001F1EA\U0001F1F8_西班牙_8"
-  network: ws
-  port: 2053
-  server: 188.130.207.158
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
 - name: "\U0001F1FA\U0001F1F8_美国_17"
   network: ws
   port: 443
@@ -861,141 +842,36 @@ proxies:
     headers:
       Host: 639073677259599430.civic-perma.info
     path: /cahttingws?ed=2560
-- name: "\U0001F1F1\U0001F1FB_拉脱维亚_2"
-  network: ws
-  port: 443
-  server: 195.135.255.177
-  servername: sni.111000.dynv6.net
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E6\U0001F1FA_澳大利亚"
-  network: ws
-  port: 8443
-  server: 5.34.209.231
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: "\U0001F1EB\U0001F1F7_法国_2"
-  network: ws
-  port: 2053
-  server: 57.129.47.12
-  servername: sni.111000.indevs.in
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F7\U0001F1FA_俄罗斯_1"
-  network: ws
-  port: 443
-  server: 94.141.123.231
-  servername: sni.111000.dynv6.net
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: 13|US_speednode_0025
-  port: 8443
-  reality-opts:
-    public-key: 7HejPU15kdTl9QG_8AygEM3w0ythsbhG6q_SwUumyR0
-    short-id: f1071c148a5aefc4
-  server: 194.36.39.84
-  servername: rbc.ru
+- name: "\U0001F1EF\U0001F1F5 JP TROJAN-67 | free-nodes"
+  password: 6d29eb2f74293cb01a19b32cf08ad2e9
+  port: 34818
+  server: 160.16.124.17
   skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 96a1cd77-d7f8-42b6-86c1-29a2e2e85ea0
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-48 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001269pz2.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-60 | free-nodes
-  password: QFWzCw2uX9B9i6qAYeFBIE
-  port: 443
-  server: 154.46.31.106
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB SS-61 | free-nodes"
-  password: W74XFALLLuw6m5IA
-  port: 443
-  server: series-a1.samanehha.co
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB SS-02 | free-nodes"
-  password: 6c815bb84c781da5
-  port: 13030
-  server: 51.75.168.50
-  type: ss
-- name: 13|AT_speednode_0002
-  network: ws
-  password: trojan
-  port: 8444
-  server: 152.53.200.98
-  skip-cert-verify: false
-  sni: jflsjlaf.pages.dev
+  sni: www.nintendogames.net
   type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: jflsjlaf.pages.dev
-    path: /
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-46 | free-nodes"
+  name: "\U0001F1E8\U0001F1F3 TW SS-12 | free-nodes"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
-  server: r3mrcg0011778me.cybervena.com
+  server: ncmrcg000110w54.cybervena.com
   type: ss
-- name: "\U0001F1F7\U0001F1FA_俄罗斯_3"
-  network: ws
-  port: 443
-  server: 31.128.32.98
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E6\U0001F1F9_奥地利"
-  network: ws
-  port: 8443
-  server: 152.53.200.241
-  servername: edt2.btxst.eu.cc
-  tls: true
-  type: vless
-  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
-  ws-opts:
-    headers:
-      Host: edt2.btxst.eu.cc
-    path: /channels
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E9\U0001F1EA DE SS-01 | free-nodes"
-  password: 6675cbf62d6a3a4f
-  port: 11201
-  server: 57.129.95.45
+  name: "\U0001F1E8\U0001F1F3 TW SS-18 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007144ll4.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-41 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001222869.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-31 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: ncmrcg000019wnj.cybervena.com
   type: ss
 - name: "\U0001F1EB\U0001F1F7_法国_1"
   network: ws
@@ -1009,280 +885,244 @@ proxies:
     headers:
       Host: sni.111000.indevs.in
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EC\U0001F1E7_英国_54"
-  network: ws
-  port: 2053
-  server: 82.117.245.58
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8_美国"
-  port: 43504
-  reality-opts:
-    public-key: l2roflJeTPIn8TfTHzxmr14errgnp5Qea0Y20AOoQi0
-    short-id: 57f89a78
-  server: 157.254.27.41
-  servername: apple.com
-  tls: true
-  type: vless
-  uuid: 09ec436b-930a-42b1-8d2c-6addbafc8832
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-35 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg0059894bj.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-12 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg005972g7w.cybervena.com
-  type: ss
-- name: "\U0001F1EC\U0001F1E7_英国_53"
-  network: ws
-  port: 2053
-  server: 82.117.245.125
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /
-- name: "\U0001F1EF\U0001F1F5 JP TROJAN-77 | free-nodes"
-  password: 6d29eb2f74293cb01a19b32cf08ad2e9
-  port: 34818
-  server: 160.16.124.17
-  skip-cert-verify: false
-  sni: www.nintendogames.net
-  type: trojan
-- name: "\U0001F1EC\U0001F1E7 GB VLESS-113 | free-nodes"
-  network: ws
-  port: 443
-  server: vip2.kaixincloud.top
-  servername: 639073677259599430.civic-perma.info
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 53f0bca8-f170-4ef7-8031-c7d441189dbf
-  ws-opts:
-    headers:
-      Host: 639073677259599430.civic-perma.info
-    path: /cahttingws
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-10 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg005958sxh.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-37 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg0060292s3.cybervena.com
-  type: ss
-- name: "\U0001F1EF\U0001F1F5 JP TROJAN-76 | free-nodes"
-  password: 6d29eb2f74293cb01a19b32cf08ad2e9
-  port: 4937
-  server: 153.121.38.213
-  skip-cert-verify: false
-  sni: www.nintendogames.net
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-42 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: ncmrcg000021myh.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-17 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: nbmrcg003437cgb.cybervena.com
-  type: ss
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US SS-68 | free-nodes"
-  password: 8JCsPssfgS8tiRwiMlhARg==
-  port: 12000
-  server: 144.217.164.29
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-08 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg004732fk8.cybervena.com
-  type: ss
-- name: "\U0001F1FA\U0001F1F8 US TROJAN-79 | free-nodes"
-  password: 6d29eb2f74293cb01a19b32cf08ad2e9
-  port: 3700
-  server: 160.16.70.180
-  skip-cert-verify: false
-  sni: www.nintendogames.net
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-50 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001296egb.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-41 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: ncmrcg000019wnj.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-32 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0071643p7.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-20 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: ncmrcg000110w54.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-22 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001121x36.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-38 | free-nodes"
+  name: "\U0001F1E8\U0001F1F3 TW SS-26 | free-nodes"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
   server: namrcg001611cy4.cybervena.com
   type: ss
-- name: _未知_20
-  network: ws
-  port: 8443
-  server: 162.159.45.202
-  tls: true
-  type: vless
-  uuid: d39ddd0b-8d20-4d13-df63-752ad78c69c5
-  ws-opts:
-    headers:
-      Host: ccnew.jakesolo.eu.org
-    path: /ws
+- name: "\U0001F1EF\U0001F1F5 JP TROJAN-66 | free-nodes"
+  password: 6d29eb2f74293cb01a19b32cf08ad2e9
+  port: 4937
+  server: 160.16.106.99
+  skip-cert-verify: false
+  sni: www.nintendogames.net
+  type: trojan
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-45 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001166nc2.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-55 | free-nodes
+  name: "\U0001F1E8\U0001F1F3 TW SS-52 | free-nodes"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
   server: r3mrcg007175dsk.cybervena.com
   type: ss
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-26 | free-nodes"
+  name: "\U0001F1E8\U0001F1F3 TW SS-36 | free-nodes"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
-  server: r3mrcg0011993za.cybervena.com
+  server: r3mrcg0011499tl.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-32 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: ncmrcg000021myh.cybervena.com
+  type: ss
+- name: "\U0001F1E9\U0001F1EA_德国_2"
+  network: ws
+  port: 443
+  server: 139.144.77.170
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- name: "\U0001F1EB\U0001F1F7_法国_2"
+  network: ws
+  port: 2053
+  server: 57.129.47.12
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-35 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001121x36.cybervena.com
+  type: ss
+- name: "\U0001F1F8\U0001F1EC SG TROJAN-68 | free-nodes"
+  password: 6d29eb2f74293cb01a19b32cf08ad2e9
+  port: 4674
+  server: 160.16.214.104
+  skip-cert-verify: false
+  sni: www.nintendogames.net
+  type: trojan
+- name: "\U0001F1E6\U0001F1FA_澳大利亚"
+  network: ws
+  port: 8443
+  server: 5.34.209.231
+  servername: sni.111000.v6.navy
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-45 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001296egb.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-13 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg0011305nw.cybervena.com
   type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US VLESS-127 | free-nodes"
+  name: 未知 VLESS-135 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: iCY6H8CpnIfqmIkEABduJEAeJrnYS089R1-jKEyVp3w
+    short-id: be91008fd0a4
+  server: 45.15.152.226
+  servername: fin2.frostbot.ru
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: fd37be2f-f8d1-47de-97e8-13c28107d31e
+- name: TR TROJAN-87 | free-nodes
+  password: WF42809561
+  port: 443
+  server: touching-pigeon.rooster465.autos
+  skip-cert-verify: false
+  sni: touching-pigeon.rooster465.autos
+  type: trojan
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-50 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007150y7y.cybervena.com
+  type: ss
+- name: _未知_16
+  network: ws
+  port: 8443
+  server: 162.159.45.202
+  tls: true
+  type: vless
+  uuid: 3ab9683f-0d56-40b3-dbf6-94b79e2d094c
+  ws-opts:
+    headers:
+      Host: orus2.jakesolo.eu.org
+    path: /ws
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-38 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg0011778me.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-39 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg00121233v.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB SS-57 | free-nodes"
+  password: W74XFALLLuw6m5IA
+  port: 443
+  server: series-a1.samanehha.co
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-62 | free-nodes"
+  password: 8JCsPssfgS8tiRwiMlhARg==
+  port: 12000
+  server: 144.217.164.29
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-34 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: ncmrcg0001797nk.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-29 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: nbmrcg003437cgb.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-30 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: nbmrcg0034458by.cybervena.com
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1E6_乌克兰"
+  network: ws
+  port: 443
+  server: 89.185.25.124
+  servername: edt2.btxst.eu.cc
+  tls: true
+  type: vless
+  uuid: 8d2aeab8-ce98-47a6-84ec-d5b45d060b66
+  ws-opts:
+    headers:
+      Host: edt2.btxst.eu.cc
+    path: /version/collection
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-11 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: nbmrcg003505rnd.cybervena.com
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-64 | free-nodes"
+  password: ZfbPFDdeBj0B1Txs
+  port: 80
+  server: 154.53.60.212
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-128 | free-nodes
   network: tcp
   port: 8443
   reality-opts:
     public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 94.131.101.19
+  server: 82.117.255.37
   servername: tradingview.com
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
   uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-33 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg00470027f.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-14 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg005988a7z.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-53 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0071465vz.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-11 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: n8mrcg005961xa6.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-23 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0011305nw.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-30 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg007144ll4.cybervena.com
-  type: ss
-- name: TR TROJAN-91 | free-nodes
-  password: WF42809561
-  port: 443
-  server: funky-platypus.rooster465.autos
-  skip-cert-verify: false
-  sni: funky-platypus.rooster465.autos
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-43 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: ncmrcg0001797nk.cybervena.com
-  type: ss
-- name: "\U0001F1E9\U0001F1EA_德国_3"
+- name: "\U0001F1E9\U0001F1EA DE VLESS-111 | free-nodes"
   network: ws
-  port: 8881
-  server: 141.147.10.210
-  servername: sni.111000.dynv6.net
+  port: 443
+  server: 162.159.44.45
+  servername: picassooo.info
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  uuid: 7270612b-49f6-4b04-999c-34d8263da767
   ws-opts:
     headers:
-      Host: sni.111000.dynv6.net
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-44 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0011499tl.cybervena.com
-  type: ss
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US SS-71 | free-nodes"
-  password: ZfbPFDdeBj0B1Txs
-  port: 80
-  server: 154.53.60.212
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1E6 CA SS-04 | free-nodes"
-  password: 7a106afc33eaa261
-  port: 46534
-  server: 148.113.139.160
-  type: ss
+      Host: picassooo.info
+    path: /aymdlws
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-116 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: -YTGWg5DjsLDyaDfr1D83kiUK22LVcrK3yC53lqqigs
+    short-id: feedbacc
+  server: ch.fasti.win
+  servername: ch.fasti.win
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: a16bd0e2-ff2e-4e4c-a955-0c684255a065
