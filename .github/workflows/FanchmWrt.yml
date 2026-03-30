@@ -70,18 +70,19 @@ jobs:
           sed -i '/total_down_bytes > 0/a \
           if (fwx_config_match_filter(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
 
-          # Add config functions
+          # Add config functions (fixed for fanchmwrt source)
           cat >> fwx_config.c << 'EOF'
+
           static char filter_ips[256] = {0};
+
           void fwx_filter_init(void) {
-              uci_ctx_t ctx;
-              uci_load("fwx", &ctx);
-              uci_get_main_option("fwx", "lan_filter", filter_ips, sizeof(filter_ips));
-              uci_unload(&ctx);
+          fwx_config_get_option("fwx", "lan_filter", filter_ips, sizeof(filter_ips));
           }
+
           int fwx_config_match_filter(const char *ip) {
-              if (!ip || !*filter_ips) return 0;
-              return strstr(filter_ips, ip) ? 1 : 0;
+          if (!ip || !*filter_ips)
+              return 0;
+          return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
 
