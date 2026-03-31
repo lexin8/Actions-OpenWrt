@@ -61,32 +61,40 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch fwxd - LAN Traffic Filter
+      - name: Patch fwxd
         run: |
           cd $OPENWRT_PATH/package/fcm/fwxd/src
-          # Add includes
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
-          # Add filter logic
           sed -i '/total_down_bytes > 0/a \
           if (fwx_config_match_filter(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
-
-          # Add config functions (fixed for fanchmwrt source)
           cat >> fwx_config.c << 'EOF'
-
+          #include <string.h>
+          #include <uci.h>
           static char filter_ips[256] = {0};
-
           void fwx_filter_init(void) {
-          fwx_config_get_option("fwx", "lan_filter", filter_ips, sizeof(filter_ips));
+              struct uci_context *ctx = uci_alloc_context();
+              struct uci_package *pkg = NULL;
+              if (!ctx) return;
+              uci_load(ctx, "fwx", &pkg);
+              if (pkg) {
+                  struct uci_section *sec = uci_lookup_section(ctx, pkg, "fwx");
+                  if (sec) {
+                      struct uci_option *opt = uci_lookup_option(ctx, sec, "lan_filter");
+                      if (opt && opt->v.string) {
+                          strncpy(filter_ips, opt->v.string, sizeof(filter_ips)-1);
+                          filter_ips[sizeof(filter_ips)-1] = 0;
+                      }
+                  }
+                  uci_unload(ctx, pkg);
+              }
+              uci_free_context(ctx);
           }
-
           int fwx_config_match_filter(const char *ip) {
-          if (!ip || !*filter_ips)
-              return 0;
-          return strstr(filter_ips, ip) ? 1 : 0;
+              if (!ip || !*filter_ips)
+                  return 0;
+              return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
-
-          # Add function declarations
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
 
