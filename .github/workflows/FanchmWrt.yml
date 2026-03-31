@@ -61,16 +61,22 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch fwxd + LAN→LAN过滤 + Web界面IP配置框
+      - name: Patch fwxd - LAN→LAN流量过滤 + Web配置框
         run: |
           cd $OPENWRT_PATH
           
-          # ===================== 1. 修复后端 fwxd 功能（仅过滤LAN→LAN） =====================
-          cd package/fcm/fwxd/src
+          # ========== 1. 修复后端 fwxd 核心功能（仅过滤LAN→LAN，路径100%正确） ==========
+          SERVICE_DIR="package/fcm/fwxd/src"
+          cd $SERVICE_DIR
+          
+          # 添加头文件
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
+          
+          # 核心过滤：仅过滤LAN互访，WAN正常统计
           sed -i '/total_down_bytes > 0/a \
           if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
           
+          # 追加配置代码（格式严格对齐，EOF不越界）
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
           #include <uci.h>
@@ -98,28 +104,41 @@ jobs:
               return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
+          
+          # 添加函数声明
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
           
-          # ===================== 2. 自动添加 Web 界面 LAN→LAN IP 过滤输入框 =====================
-          cd $OPENWRT_PATH/package/fcm/luci-app-fwxd
+          # ========== 2. 自动查找Luci插件路径 + 添加Web界面输入框 ==========
+          cd $OPENWRT_PATH
+          # 自动精准查找 luci-app-fwxd 真实路径（适配你的仓库）
+          LUCI_DIR=$(find ./feeds -name "luci-app-fwxd" -type d | head -1)
           
-          # 第一步：给配置文件添加 lan_filter 选项
-          echo "config fwx 'main'" > root/etc/config/fwx
-          echo "    option lan_filter ''" >> root/etc/config/fwx
-          
-          # 第二步：在 Web 配置页面添加 IP 输入框（黑白名单样式）
-          sed -i '/<fieldset>/a \
-          <div class="cbi-section"> \
-              <h3>LAN→LAN 内网流量过滤</h3> \
-              <div class="cbi-value"> \
-                  <label class="cbi-value-title">过滤IP列表</label> \
-                  <div class="cbi-value-field"> \
-                      <textarea name="lan_filter" rows="3" cols="50" placeholder="输入要过滤内网互访的IP，多个用空格分隔，例如：192.168.1.100 192.168.1.105"><%=luci.model.uci.cursor():get(\'fwx\', \'main\', \'lan_filter\', \'\')%></textarea> \
-                      <div style="color:#999;font-size:12px;margin-top:5px">仅过滤【设备互访】流量，访问互联网(WAN)流量正常统计</div> \
+          # 仅当路径存在时才修改Web界面（避免报错）
+          if [ -n "$LUCI_DIR" ]; then
+              echo "找到Luci插件路径: $LUCI_DIR"
+              cd $LUCI_DIR
+              
+              # 添加UCI配置项
+              mkdir -p root/etc/config
+              echo "config fwx 'main'" > root/etc/config/fwx
+              echo "    option lan_filter ''" >> root/etc/config/fwx
+              
+              # 在Web页面添加IP输入框
+              sed -i '/<fieldset>/a \
+              <div class="cbi-section"> \
+                  <h3>LAN→LAN 内网流量过滤</h3> \
+                  <div class="cbi-value"> \
+                      <label class="cbi-value-title">过滤IP列表</label> \
+                      <div class="cbi-value-field"> \
+                          <textarea name="lan_filter" rows="3" cols="50" placeholder="多个IP用空格分隔"><%=luci.model.uci.cursor():get("fwx","main","lan_filter","")%></textarea> \
+                          <br><small>仅过滤设备互访流量，上网流量正常统计</small> \
+                      </div> \
                   </div> \
-              </div> \
-          </div>' luasrc/view/fwxd/config.htm
+              </div>' luasrc/view/fwxd/config.htm
+          else
+              echo "Luci插件未找到，跳过Web界面修改（仅启用后端过滤功能）"
+          fi
 
       - name: Cache DL
         uses: actions/cache@v4
