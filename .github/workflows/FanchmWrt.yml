@@ -61,12 +61,16 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch fwxd
+      - name: Patch fwxd + LAN→LAN过滤 + Web界面IP配置框
         run: |
-          cd $OPENWRT_PATH/package/fcm/fwxd/src
+          cd $OPENWRT_PATH
+          
+          # ===================== 1. 修复后端 fwxd 功能（仅过滤LAN→LAN） =====================
+          cd package/fcm/fwxd/src
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
           sed -i '/total_down_bytes > 0/a \
-          if (fwx_config_match_filter(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
+          if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
+          
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
           #include <uci.h>
@@ -90,13 +94,32 @@ jobs:
               uci_free_context(ctx);
           }
           int fwx_config_match_filter(const char *ip) {
-              if (!ip || !*filter_ips)
-                  return 0;
+              if (!ip || !*filter_ips) return 0;
               return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
+          
+          # ===================== 2. 自动添加 Web 界面 LAN→LAN IP 过滤输入框 =====================
+          cd $OPENWRT_PATH/package/fcm/luci-app-fwxd
+          
+          # 第一步：给配置文件添加 lan_filter 选项
+          echo "config fwx 'main'" > root/etc/config/fwx
+          echo "    option lan_filter ''" >> root/etc/config/fwx
+          
+          # 第二步：在 Web 配置页面添加 IP 输入框（黑白名单样式）
+          sed -i '/<fieldset>/a \
+          <div class="cbi-section"> \
+              <h3>LAN→LAN 内网流量过滤</h3> \
+              <div class="cbi-value"> \
+                  <label class="cbi-value-title">过滤IP列表</label> \
+                  <div class="cbi-value-field"> \
+                      <textarea name="lan_filter" rows="3" cols="50" placeholder="输入要过滤内网互访的IP，多个用空格分隔，例如：192.168.1.100 192.168.1.105"><%=luci.model.uci.cursor():get(\'fwx\', \'main\', \'lan_filter\', \'\')%></textarea> \
+                      <div style="color:#999;font-size:12px;margin-top:5px">仅过滤【设备互访】流量，访问互联网(WAN)流量正常统计</div> \
+                  </div> \
+              </div> \
+          </div>' luasrc/view/fwxd/config.htm
 
       - name: Cache DL
         uses: actions/cache@v4
