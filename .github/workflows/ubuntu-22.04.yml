@@ -20,13 +20,16 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      # 你修复后的补丁（格式完全正确）
-      - name: Patch fwxd
+      - name: Patch fwxd - LAN Traffic Filter
         run: |
           cd $OPENWRT_PATH/package/fcm/fwxd/src
+          # Add includes
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
+          # Add filter logic (ONLY filter LAN ↔ LAN traffic, WAN traffic normal)
           sed -i '/total_down_bytes > 0/a \
-          if (fwx_config_match_filter(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
+          if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
+
+          # Add config functions
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
           #include <uci.h>
@@ -55,6 +58,8 @@ jobs:
               return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
+          
+          # Add function declarations
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
 
