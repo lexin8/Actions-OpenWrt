@@ -61,28 +61,23 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch fwxd - LAN→LAN内网流量过滤 + Web界面配置框
+      - name: Patch fwxd - LAN→LAN 内网流量过滤 (Web界面+功能完整版)
         run: |
           cd $OPENWRT_PATH
           
-          # ========== 预操作：手动克隆Web界面插件到固定路径（彻底解决路径不存在问题） ==========
-          mkdir -p package/fcm/
-          git clone --depth 1 https://github.com/fanchmwrt/fanchmwrt-packages package/fcm/fanchmwrt-packages
-          # 移动luci-app-fwxd到正确目录
-          cp -r package/fcm/fanchmwrt-packages/luci-app-fwxd package/fcm/
-          rm -rf package/fcm/fanchmwrt-packages
-          
-          # ========== 1. 修复后端 fwxd 功能（仅过滤LAN→LAN流量，WAN正常统计） ==========
+          ##############################################################################
+          # 1. 修复后端 fwxd 服务（仅过滤LAN→LAN互访流量，WAN上网流量正常统计）
+          ##############################################################################
           cd package/fcm/fwxd/src
           
-          # 添加头文件
+          # 添加头文件依赖
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
           
-          # 核心过滤规则：只过滤LAN互访，不影响上网流量
+          # 核心过滤规则：仅拦截 LAN 互访流量，不影响上网
           sed -i '/total_down_bytes > 0/a \
           if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
           
-          # 追加配置代码（格式严格对齐，EOF合规）
+          # 追加配置读取代码（格式严格对齐，EOF无越界）
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
           #include <uci.h>
@@ -115,25 +110,27 @@ jobs:
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
           
-          # ========== 2. 固定路径修改Web界面（绝对不报错） ==========
+          ##############################################################################
+          # 2. 修改你源码自带的 Web 界面（原生路径：package/fcm/luci-app-fwxd）
+          ##############################################################################
           cd $OPENWRT_PATH/package/fcm/luci-app-fwxd
           
-          # 创建UCI配置文件（存储IP名单）
+          # 添加 UCI 配置文件（存储IP黑名单）
           mkdir -p root/etc/config
           cat > root/etc/config/fwx << 'EOF'
           config fwx 'main'
               option lan_filter ''
           EOF
           
-          # 在Web后台添加LAN→LAN过滤IP输入框
+          # 在 Web 后台添加 IP 输入框（原生页面嵌入）
           sed -i '/<fieldset>/a \
           <div class="cbi-section"> \
               <h3>LAN→LAN 内网流量过滤</h3> \
               <div class="cbi-value"> \
                   <label class="cbi-value-title">过滤IP列表</label> \
                   <div class="cbi-value-field"> \
-                      <textarea name="lan_filter" rows="3" cols="50" placeholder="多个IP用空格分隔，例如：192.168.1.100 192.168.1.105"><%=luci.model.uci.cursor():get("fwx","main","lan_filter","")%></textarea> \
-                      <br><small style="color:#999">仅过滤设备互访流量，访问互联网(WAN)流量正常统计</small> \
+                      <textarea name="lan_filter" rows="3" cols="50" placeholder="多个IP用空格分隔"><%=luci.model.uci.cursor():get("fwx","main","lan_filter","")%></textarea> \
+                      <br><small>仅过滤设备互访流量，上网流量正常统计</small> \
                   </div> \
               </div> \
           </div>' luasrc/view/fwxd/config.htm
