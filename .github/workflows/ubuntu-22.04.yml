@@ -79,7 +79,6 @@ jobs:
               return strstr(filter_ips, ip) ? 1 : 0;
           }
           EOF
-          
           # Add function declarations
           echo "void fwx_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
