@@ -61,39 +61,30 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch fwxd - LAN→LAN 内网流量过滤 (Web界面+功能完整版)
+      - name: Patch LAN→LAN 内网流量过滤 + Web界面
         run: |
           cd $OPENWRT_PATH
-          
-          ##############################################################################
-          # 1. 修复后端 fwxd 服务（仅过滤LAN→LAN互访流量，WAN上网流量正常统计）
-          ##############################################################################
           cd package/fcm/fwxd/src
-          
-          # 添加头文件依赖
+
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
-          
-          # 核心过滤规则：仅拦截 LAN 互访流量，不影响上网
           sed -i '/total_down_bytes > 0/a \
           if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
-          
-          # 追加配置读取代码（格式严格对齐，EOF无越界）
+
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
           #include <uci.h>
-          static char filter_ips[256] = {0};
-          void fwx_filter_init(void) {
+          static char lan_filter_ips[512] = {0};
+          void fwx_lan_filter_init(void) {
               struct uci_context *ctx = uci_alloc_context();
               struct uci_package *pkg = NULL;
               if (!ctx) return;
               uci_load(ctx, "fwx", &pkg);
               if (pkg) {
-                  struct uci_section *sec = uci_lookup_section(ctx, pkg, "fwx");
+                  struct uci_section *sec = uci_lookup_section(ctx, pkg, "lan_filter");
                   if (sec) {
-                      struct uci_option *opt = uci_lookup_option(ctx, sec, "lan_filter");
+                      struct uci_option *opt = uci_lookup_option(ctx, sec, "ip_list");
                       if (opt && opt->v.string) {
-                          strncpy(filter_ips, opt->v.string, sizeof(filter_ips)-1);
-                          filter_ips[sizeof(filter_ips)-1] = 0;
+                          strncpy(lan_filter_ips, opt->v.string, sizeof(lan_filter_ips)-1);
                       }
                   }
                   uci_unload(ctx, pkg);
@@ -101,39 +92,33 @@ jobs:
               uci_free_context(ctx);
           }
           int fwx_config_match_filter(const char *ip) {
-              if (!ip || !*filter_ips) return 0;
-              return strstr(filter_ips, ip) ? 1 : 0;
+              if (!ip || !*lan_filter_ips) return 0;
+              return strstr(lan_filter_ips, ip) ? 1 : 0;
           }
           EOF
-          
-          # 添加函数声明
-          echo "void fwx_filter_init(void);" >> fwx_config.h
+
+          echo "void fwx_lan_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
-          
-          ##############################################################################
-          # 2. 修改你源码自带的 Web 界面（原生路径：package/fcm/luci-app-fwxd）
-          ##############################################################################
-          cd $OPENWRT_PATH/package/fcm/luci-app-fwxd
-          
-          # 添加 UCI 配置文件（存储IP黑名单）
-          mkdir -p root/etc/config
-          cat > root/etc/config/fwx << 'EOF'
-          config fwx 'main'
-              option lan_filter ''
+
+          WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
+          mkdir -p $WEB_DIR/root/etc/config
+
+          cat >> $WEB_DIR/root/etc/config/fwx << 'EOF'
+          config fwx 'lan_filter'
+              option ip_list ''
           EOF
-          
-          # 在 Web 后台添加 IP 输入框（原生页面嵌入）
+
           sed -i '/<fieldset>/a \
           <div class="cbi-section"> \
               <h3>LAN→LAN 内网流量过滤</h3> \
               <div class="cbi-value"> \
                   <label class="cbi-value-title">过滤IP列表</label> \
                   <div class="cbi-value-field"> \
-                      <textarea name="lan_filter" rows="3" cols="50" placeholder="多个IP用空格分隔"><%=luci.model.uci.cursor():get("fwx","main","lan_filter","")%></textarea> \
-                      <br><small>仅过滤设备互访流量，上网流量正常统计</small> \
+                      <textarea name="ip_list" rows="3" placeholder="多个IP用空格分隔"><%=luci.model.uci.cursor():get("fwx","lan_filter","ip_list","")%></textarea> \
+                      <br><small>仅过滤内网互访流量，访问互联网(WAN)流量正常统计</small> \
                   </div> \
               </div> \
-          </div>' luasrc/view/fwxd/config.htm
+          </div>' $WEB_DIR/luasrc/view/fwx/macfilter.htm
 
       - name: Cache DL
         uses: actions/cache@v4
