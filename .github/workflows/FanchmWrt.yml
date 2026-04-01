@@ -10,6 +10,7 @@ env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
   REPO_BRANCH: openwrt-24.10
+  REPO_BRANCH2: fanchmwrt-24.10.4
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -57,7 +58,7 @@ jobs:
 
       - name: Clone fanchmwrt Source
         run: |
-          git clone --depth 1 $REPO_URL2 openwrt
+          git clone --depth 1 -b $REPO_BRANCH2 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
