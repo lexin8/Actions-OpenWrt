@@ -61,7 +61,7 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch LAN→LAN 内网流量过滤 + Web界面
+      - name: Patch LAN→LAN 内网流量过滤
         run: |
           cd $OPENWRT_PATH
           cd package/fcm/fwxd/src
@@ -74,30 +74,12 @@ jobs:
           #include <string.h>
           #include <uci.h>
           static char lan_filter_ips[512] = {0};
-          void fwx_lan_filter_init(void) {
-              struct uci_context *ctx = uci_alloc_context();
-              struct uci_package *pkg = NULL;
-              if (!ctx) return;
-              uci_load(ctx, "fwx", &pkg);
-              if (pkg) {
-                  struct uci_section *sec = uci_lookup_section(ctx, pkg, "lan_filter");
-                  if (sec) {
-                      struct uci_option *opt = uci_lookup_option(ctx, sec, "ip_list");
-                      if (opt && opt->v.string) {
-                          strncpy(lan_filter_ips, opt->v.string, sizeof(lan_filter_ips)-1);
-                      }
-                  }
-                  uci_unload(ctx, pkg);
-              }
-              uci_free_context(ctx);
-          }
           int fwx_config_match_filter(const char *ip) {
               if (!ip || !*lan_filter_ips) return 0;
-              return strstr(lan_filter_ips, ip) ? 1 : 0;
+              return strstr(lan_filter_ips,ip) ? 1 : 0;
           }
           EOF
 
-          echo "void fwx_lan_filter_init(void);" >> fwx_config.h
           echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
 
           WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
@@ -108,17 +90,18 @@ jobs:
               option ip_list ''
           EOF
 
-          sed -i '/<fieldset>/a \
-          <div class="cbi-section"> \
+          sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
+          <div class=\"cbi-section\"> \
               <h3>LAN→LAN 内网流量过滤</h3> \
-              <div class="cbi-value"> \
-                  <label class="cbi-value-title">过滤IP列表</label> \
-                  <div class="cbi-value-field"> \
-                      <textarea name="ip_list" rows="3" placeholder="多个IP用空格分隔"><%=luci.model.uci.cursor():get("fwx","lan_filter","ip_list","")%></textarea> \
-                      <br><small>仅过滤内网互访流量，访问互联网(WAN)流量正常统计</small> \
+              <div class=\"cbi-value\"> \
+                  <label class=\"cbi-value-title\">过滤IP列表</label> \
+                  <div class=\"cbi-value-field\"> \
+                      <textarea name=\"ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"lan_filter\",\"ip_list\",\"\")%></textarea> \
+                      <br><small>仅过滤内网互访流量，访问互联网正常统计</small> \
                   </div> \
               </div> \
-          </div>' $WEB_DIR/luasrc/view/fwx/macfilter.htm
+          </div> \
+          ' $WEB_DIR/luasrc/view/macfilter/rules.htm
 
       - name: Cache DL
         uses: actions/cache@v4
