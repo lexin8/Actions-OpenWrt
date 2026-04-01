@@ -1,0 +1,19 @@
+name: 清理Actions旧记录
+on:
+  workflow_dispatch:    # 手动运行
+  schedule:
+    - cron: '0 0 * * 0' # 每周日自动清理（可保留/删除）
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0          # 不限时间（0=不按时间过滤）
+          keep_minimum_runs: 2    # ✅ 每个工作流 最少保留最新2条
+          delete_workflow_by_state_pattern: ALL
+          delete_run_by_conclusion_pattern: ALL
+          dry_run: false
