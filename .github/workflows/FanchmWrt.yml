@@ -61,20 +61,6 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: 扫描 package 和 feeds 目录结构
-        run: |
-          cd $OPENWRT_PATH
-          echo "==================== 列出 feeds 目录 ===================="
-          ls -la feeds/
-          echo "==================== 列出 feeds/fanchmwrt 目录 ===================="
-          ls -la feeds/fanchmwrt/ 2>/dev/null || echo "目录不存在"
-          echo "==================== 列出 package/feeds 目录 ===================="
-          ls -la package/feeds/ 2>/dev/null || echo "目录不存在"
-          echo "==================== 查找所有 luci-app-fwx-macfilter ===================="
-          find . -name "luci-app-fwx-macfilter" -type d 2>/dev/null
-          echo "==================== 查找 rules.htm ===================="
-          find . -name "rules.htm" 2>/dev/null
-
       - name: Cache DL
         uses: actions/cache@v4
         with:
@@ -125,6 +111,20 @@ jobs:
           ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
           ./scripts/feeds install luci-app-homeproxy sing-box nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-theme-argon
           ./scripts/feeds install -a
+
+      - name: 扫描 package 和 feeds 目录结构
+        run: |
+          cd $OPENWRT_PATH
+          echo "==================== 列出 feeds 目录 ===================="
+          ls -la feeds/
+          echo "==================== 列出 feeds/fanchmwrt 目录 ===================="
+          ls -la feeds/fanchmwrt/ 2>/dev/null || echo "目录不存在"
+          echo "==================== 列出 package/feeds 目录 ===================="
+          ls -la package/feeds/ 2>/dev/null || echo "目录不存在"
+          echo "==================== 查找所有 luci-app-fwx-macfilter ===================="
+          find . -name "luci-app-fwx-macfilter" -type d 2>/dev/null
+          echo "==================== 查找 rules.htm ===================="
+          find . -name "rules.htm" 2>/dev/null
           
       - name: Configure Firmware (Homeproxy)
         run: |
