@@ -113,43 +113,54 @@ jobs:
           ./scripts/feeds install luci-app-homeproxy sing-box nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-theme-argon
           ./scripts/feeds install -a
 
-      - name: Patch LAN→LAN 内网流量过滤
+      - name: Patch 监控流量不统计(Web勾选版)
         run: |
           cd $OPENWRT_PATH
           cd package/fcm/fwxd/src
 
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
           sed -i '/total_down_bytes > 0/a \
-          if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
+          if (g_monitor_enable && is_monitor_port(node->dport, node->sport)) { json_object_put(root); return; }' fwx_netlink.c
 
           cat >> fwx_config.c << 'EOF'
           #include <string.h>
-          #include <uci.h>
-          static char lan_filter_ips[512] = {0};
-          int fwx_config_match_filter(const char *ip) {
-              if (!ip || !*lan_filter_ips) return 0;
-              return strstr(lan_filter_ips,ip) ? 1 : 0;
+          #include <stdio.h>
+          int g_monitor_enable = 1;
+          int is_monitor_port(int dport, int sport) {
+              if (dport == 554 || sport == 554 ||
+                  dport == 445 || sport == 445 ||
+                  dport == 139 || sport == 139 ||
+                  dport == 2049 || sport == 2049 ||
+                  dport == 8000 || sport == 8000 ||
+                  dport == 34567 || sport == 34567 ||
+                  dport == 9000 || sport == 9000) {
+                  return 1;
+              }
+              return 0;
           }
           EOF
 
-          echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
+          echo "extern int g_monitor_enable;" >> fwx_config.h
+          echo "int is_monitor_port(int dport, int sport);" >> fwx_config.h
 
           WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
 
           mkdir -p $WEB_DIR/root/etc/config
 
-          cat >> $WEB_DIR/root/etc/config/fwx << 'EOF'
-          config fwx 'lan_filter'
-              option ip_list ''
+          cat > $WEB_DIR/root/etc/config/fwx << 'EOF'
+          config fwx 'setting'
+              option monitor_enable '1'
           EOF
 
           sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
           <div class=\"cbi-section\"> \
-              <h3>LAN→LAN 内网流量过滤</h3> \
+              <h3>监控流量设置</h3> \
               <div class=\"cbi-value\"> \
-                  <label class=\"cbi-value-title\">过滤IP列表</label> \
+                  <label class=\"cbi-value-title\">监控流量不统计</label> \
                   <div class=\"cbi-value-field\"> \
-                      <textarea name=\"ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"lan_filter\",\"ip_list\",\"\")%></textarea> \
+                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_enable\",\"1\")==\"1\" ? \"checked\" : \"\"%>> \
+                      <label>启用（RTSP/SMB/NFS/监控私有协议）</label> \
+                      <br><small>勾选后，监控设备流量将不统计、不显示</small> \
                   </div> \
               </div> \
           </div>' $WEB_DIR/luasrc/view/macfilter/rules.htm
