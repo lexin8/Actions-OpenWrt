@@ -61,47 +61,19 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Patch LAN→LAN 内网流量过滤
+      - name: 扫描 package 和 feeds 目录结构
         run: |
           cd $OPENWRT_PATH
-          cd package/fcm/fwxd/src
-
-          sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
-          sed -i '/total_down_bytes > 0/a \
-          if (fwx_config_match_filter(node->ip) && node->lan_to_lan) { json_object_put(root); return; }' fwx_netlink.c
-
-          cat >> fwx_config.c << 'EOF'
-          #include <string.h>
-          #include <uci.h>
-          static char lan_filter_ips[512] = {0};
-          int fwx_config_match_filter(const char *ip) {
-              if (!ip || !*lan_filter_ips) return 0;
-              return strstr(lan_filter_ips,ip) ? 1 : 0;
-          }
-          EOF
-
-          echo "int fwx_config_match_filter(const char *ip);" >> fwx_config.h
-
-          WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
-          mkdir -p $WEB_DIR/root/etc/config
-
-          cat >> $WEB_DIR/root/etc/config/fwx << 'EOF'
-          config fwx 'lan_filter'
-              option ip_list ''
-          EOF
-
-          sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
-          <div class=\"cbi-section\"> \
-              <h3>LAN→LAN 内网流量过滤</h3> \
-              <div class=\"cbi-value\"> \
-                  <label class=\"cbi-value-title\">过滤IP列表</label> \
-                  <div class=\"cbi-value-field\"> \
-                      <textarea name=\"ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"lan_filter\",\"ip_list\",\"\")%></textarea> \
-                      <br><small>仅过滤内网互访流量，访问互联网正常统计</small> \
-                  </div> \
-              </div> \
-          </div> \
-          ' $WEB_DIR/luasrc/view/macfilter/rules.htm
+          echo "==================== 列出 feeds 目录 ===================="
+          ls -la feeds/
+          echo "==================== 列出 feeds/fanchmwrt 目录 ===================="
+          ls -la feeds/fanchmwrt/ 2>/dev/null || echo "目录不存在"
+          echo "==================== 列出 package/feeds 目录 ===================="
+          ls -la package/feeds/ 2>/dev/null || echo "目录不存在"
+          echo "==================== 查找所有 luci-app-fwx-macfilter ===================="
+          find . -name "luci-app-fwx-macfilter" -type d 2>/dev/null
+          echo "==================== 查找 rules.htm ===================="
+          find . -name "rules.htm" 2>/dev/null
 
       - name: Cache DL
         uses: actions/cache@v4
