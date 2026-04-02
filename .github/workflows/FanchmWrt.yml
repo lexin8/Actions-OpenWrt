@@ -118,40 +118,43 @@ jobs:
           cd $OPENWRT_PATH
           cd package/fcm/fwxd/src
 
-          # 步骤1：修改 fwx_netlink.c
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
           sed -i '/total_down_bytes > 0/a \
           if (g_monitor_enable && fwx_config_match_ip(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
 
-          # 步骤2：Base64 解码写入 fwx_config.c（彻底避开 YAML 解析）
-          echo "I2luY2x1ZGUgPHN0cmluZy5oPgojaW5jbHVkZSA8c3RkaW8uaD4KaW50IGdfbW9uaXRvcl9lbmFibGUgPSAxOwppbnQgZnd4X2NvbmZpZ19tYXRjaF9pcChjb25zdCBjaGFyIClpcCkgewogICAgaWYgKCFpcCB8fCAhKm1vbml0b3JfaXBfbGlzdCkgcmV0dXJuIDA7CiAgICByZXR1cm4gc3Ryc3RyKG1vbml0b3JfaXBfbGlzdCwgaXApID8gMSA6IDA7Cn0=" | base64 -d > fwx_config.c
+          printf '%s\n' '#include <string.h>' > fwx_config.c
+          printf '%s\n' '#include <stdio.h>' >> fwx_config.c
+          printf '%s\n' 'int g_monitor_enable = 1;' >> fwx_config.c
+          printf '%s\n' 'static char monitor_ip_list[512] = {0};' >> fwx_config.c
+          printf '%s\n' 'int fwx_config_match_ip(const char *ip) {' >> fwx_config.c
+          printf '%s\n' '    if (!ip || !*monitor_ip_list) return 0;' >> fwx_config.c
+          printf '%s\n' '    return strstr(monitor_ip_list, ip) ? 1 : 0;' >> fwx_config.c
+          printf '%s\n' '}' >> fwx_config.c
 
-          # 步骤3：修改 fwx_config.h
           echo "extern int g_monitor_enable;" >> fwx_config.h
           echo "int fwx_config_match_ip(const char *ip);" >> fwx_config.h
 
-          # 步骤4：配置 LuCI 目录
           WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
           mkdir -p $WEB_DIR/root/etc/config
 
-          # 步骤5：Base64 解码写入 OpenWrt 配置文件
-          echo "Y29uZmlnIGZ3eCAnc2V0dGluZycKICAgIG9wdGlvbiBtb25pdG9yX2VuYWJsZSAnMScKICAgIG9wdGlvbiBtb25pdG9yX2lwX2xpc3QgJyc=" | base64 -d > $WEB_DIR/root/etc/config/fwx
+          printf '%s\n' 'config fwx '\''setting'\' > $WEB_DIR/root/etc/config/fwx
+          printf '%s\n' '    option monitor_enable '\''1'\' >> $WEB_DIR/root/etc/config/fwx
+          printf '%s\n' '    option monitor_ip_list '\'' '\'' >> $WEB_DIR/root/etc/config/fwx
 
-          # 步骤6：修改 LuCI 网页
           sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
           <div class=\"cbi-section\"> \
               <h3>监控流量设置</h3> \
               <div class=\"cbi-value\"> \
                   <label class=\"cbi-value-title\">监控流量不统计</label> \
                   <div class=\"cbi-value-field\"> \
-                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_enable\",\"1\")=="1" ? "checked" : ""%>> \
+                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get("fwx","setting","monitor_enable","1")=="1" ? "checked" : ""%>> \
                       <label>启用</label> \
                   </div> \
               </div> \
               <div class=\"cbi-value\"> \
                   <label class=\"cbi-value-title\">监控设备IP列表</label> \
                   <div class=\"cbi-value-field\"> \
-                      <textarea name=\"monitor_ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_ip_list\",\"")%></textarea> \
+                      <textarea name=\"monitor_ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get("fwx","setting","monitor_ip_list","")%></textarea> \
                   </div> \
               </div> \
           </div>' $WEB_DIR/luasrc/view/macfilter/rules.htm
