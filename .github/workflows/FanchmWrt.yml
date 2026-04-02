@@ -115,8 +115,9 @@ jobs:
 
       - name: Patch 监控流量不统计(Web勾选+IP列表版)
         run: |
-          cd $OPENWRT_PATH
-          cd package/fcm/fwxd/src
+          set -e
+          OPENWRT_PATH="/home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt"
+          cd "$OPENWRT_PATH/package/fcm/fwxd/src"
 
           sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
           sed -i '/total_down_bytes > 0/a \
@@ -135,11 +136,11 @@ jobs:
           echo "int fwx_config_match_ip(const char *ip);" >> fwx_config.h
 
           WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
-          mkdir -p $WEB_DIR/root/etc/config
+          mkdir -p "$WEB_DIR/root/etc/config"
 
-          printf '%s\n' 'config fwx '\''setting'\' > $WEB_DIR/root/etc/config/fwx
-          printf '%s\n' '    option monitor_enable '\''1'\' >> $WEB_DIR/root/etc/config/fwx
-          printf '%s\n' '    option monitor_ip_list '\'' '\'' >> $WEB_DIR/root/etc/config/fwx
+          echo "config fwx 'setting'" > "$WEB_DIR/root/etc/config/fwx"
+          echo "    option monitor_enable '1'" >> "$WEB_DIR/root/etc/config/fwx"
+          echo "    option monitor_ip_list ''" >> "$WEB_DIR/root/etc/config/fwx"
 
           sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
           <div class=\"cbi-section\"> \
@@ -147,17 +148,17 @@ jobs:
               <div class=\"cbi-value\"> \
                   <label class=\"cbi-value-title\">监控流量不统计</label> \
                   <div class=\"cbi-value-field\"> \
-                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get("fwx","setting","monitor_enable","1")=="1" ? "checked" : ""%>> \
+                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_enable\",\"1\")==\"1\" ? \"checked\" : \"\"%>> \
                       <label>启用</label> \
                   </div> \
               </div> \
               <div class=\"cbi-value\"> \
                   <label class=\"cbi-value-title\">监控设备IP列表</label> \
                   <div class=\"cbi-value-field\"> \
-                      <textarea name=\"monitor_ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get("fwx","setting","monitor_ip_list","")%></textarea> \
+                      <textarea name=\"monitor_ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_ip_list\",\"\")%></textarea> \
                   </div> \
               </div> \
-          </div>' $WEB_DIR/luasrc/view/macfilter/rules.htm
+          </div>' "$WEB_DIR/luasrc/view/macfilter/rules.htm"
           
       - name: Configure Firmware (Homeproxy)
         run: |
