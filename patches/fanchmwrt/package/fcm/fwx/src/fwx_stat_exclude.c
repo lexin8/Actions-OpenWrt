@@ -36,7 +36,7 @@ static __be32 fwx_inet_prefix_to_mask(int plen)
 static int fwx_parse_cidr(const char *s, struct fwx_exclude_net *out)
 {
 	char buf[128];
-	const char *slash;
+	char *slash;
 	size_t ip_len;
 	int plen = 32;
 	u8 addr_bin[4];
