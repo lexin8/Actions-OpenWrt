@@ -82,18 +82,22 @@ jobs:
         run: |
           cd "$OPENWRT_PATH"
           make defconfig
-          printf "\n\
-          CONFIG_TARGET_x86_64=y\n\
-          CONFIG_TARGET_x86_64_Generic=y\n\
-          CONFIG_PACKAGE_kmod-fwx=y\n\
-          CONFIG_PACKAGE_fwxd=y\n\
-          CONFIG_PACKAGE_kmod-ipt-conntrack=y\n\
-          CONFIG_PACKAGE_luci=y\n\
-          CONFIG_PACKAGE_luci-base=y\n\
-          CONFIG_PACKAGE_luci-compat=y\n\
-          CONFIG_PACKAGE_luci-lib-jsonc=y\n\
-          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y\n\
-          " >> .config
+          # Ensure only x86_64 target is selected.
+          # Remove all "CONFIG_TARGET_* = y" lines to avoid building other targets/toolchains (e.g. mips).
+          sed -i '/^CONFIG_TARGET_[A-Za-z0-9_]*=y$/d' .config
+          cat >> .config <<'EOF'
+
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_PACKAGE_kmod-fwx=y
+          CONFIG_PACKAGE_fwxd=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-compat=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
+          EOF
           # Do not call olddefconfig here; some OpenWrt trees don't provide that target.
           # Continue compilation using the modified .config.
 
