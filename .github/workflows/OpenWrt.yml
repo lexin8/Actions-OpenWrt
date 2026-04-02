@@ -1,242 +1,88 @@
-name: Build FanchmWrt x86_64 (All-in-One)
+name: FanchmWrt (FWX compile test)
+
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: '0 20 * * 6'
 
 env:
-  # 源码仓库配置，无需修改
-  REPO_URL: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH: fanchmwrt-24.10.4
-  # 上传配置
-  UPLOAD_FIRMWARE: true
-  UPLOAD_BIN_DIR: false
   TZ: Asia/Shanghai
+  REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
+  REPO_BRANCH2: fanchmwrt-24.10.4
+  CCACHE_DIR: ${{ github.workspace }}/ccache
+  CCACHE_MAXSIZE: 5G
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    if: github.event.repository.owner.id == github.event.sender.id
+    permissions:
+      contents: write
+      packages: read
 
     steps:
-    # ... (前面步骤保持不变) ...
+      - name: Checkout
+        uses: actions/checkout@main
 
-    - name: 8. 生成固件配置（完全内置，无需外部.config文件）
-      working-directory: /workdir/openwrt
-      run: |
-        # ==============================================
-        # 在这里添加你的固件配置项，直接写入.config
-        # ==============================================
-        cat > .config <<'EOF'
-        # 核心目标配置：x86_64 通用设备
-        CONFIG_TARGET_x86=y
-        CONFIG_TARGET_x86_64=y
-        CONFIG_TARGET_x86_64_DEVICE_generic=y
+      - name: Initialization Environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo -E apt-get -y update
+          sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go
+          sudo timedatectl set-timezone "$TZ"
 
-        # 基础系统配置
-        CONFIG_PACKAGE_luci=y
-        CONFIG_PACKAGE_luci-i18n-zh-cn=y
+      - name: Clone fanchmwrt Source
+        run: |
+          git clone --depth 1 -b $REPO_BRANCH2 $REPO_URL2 openwrt
+          cd openwrt
+          echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-        # FanchmWrt 核心功能包
-        CONFIG_PACKAGE_kmod-fwx=y
-        CONFIG_PACKAGE_fwxd=y
-        CONFIG_PACKAGE_luci-app-fwx-macfilter=y
-        CONFIG_PACKAGE_luci-app-fwx-macfilter-i18n-zh-cn=y
+      - name: Apply FWX patches (package/fcm only)
+        run: |
+          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh"
+          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
 
-        # 可选常用插件（按需添加/删除）
-        CONFIG_PACKAGE_luci-app-upnp=y
-        CONFIG_PACKAGE_luci-app-ddns=y
-        CONFIG_PACKAGE_luci-app-wol=y
-        EOF
+      - name: Cache DL
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          key: dl-cache-fwx-${{ hashFiles('openwrt/feeds.conf.default') }}
+          restore-keys: dl-cache-fwx-
 
-        # 自动补全剩余默认配置
-        make defconfig
-        echo "✅ 固件配置生成完成，配置前100行预览："
-        head -100 .config
+      - name: Cache CCache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-fwx-${{ github.run_id }}
+          restore-keys: ccache-fwx-
 
-    - name: 9. 测试原始fwxd源码完整性
-      id: test_original
-      working-directory: /workdir/openwrt
-      run: |
-        FWXD_SRC="package/fcm/fwxd/src"
-        echo "==================== 源码检查 ===================="
-        
-        # 检查源码目录是否存在
-        if [ ! -d "$FWXD_SRC" ]; then
-          echo "❌ 错误：fwxd源码目录不存在！"
-          echo "ORIGINAL_BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
-          exit 1
-        fi
-        echo "✅ fwxd源码目录存在，文件列表："
-        ls -la "$FWXD_SRC"
+      - name: Setup CCache
+        run: |
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE -o compression=true
+          ccache -s
 
-        # 检查关键文件
-        echo -e "\n===== 关键文件检查 ====="
-        for file in fwx_config.c fwx_config.h fwx_netlink.c fwx_user.h Makefile; do
-          if [ ! -f "$FWXD_SRC/$file" ]; then
-            echo "❌ $file 不存在！"
-            echo "ORIGINAL_BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-          echo "✅ $file 存在"
-        done
+      - name: Update feeds
+        run: |
+          cd $OPENWRT_PATH
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
 
-        # 最小化编译测试
-        echo -e "\n===== 最小化编译测试 ====="
-        make package/fcm/libfwx_common/compile V=s -j1 || true
-        
-        if make package/fcm/fwxd/compile V=s -j1; then
-          echo "✅ 原始fwxd编译成功，无源码问题"
-          echo "ORIGINAL_BUILD_SUCCESS=true" >> $GITHUB_OUTPUT
-        else
-          echo "❌ 原始fwxd编译失败，与补丁无关"
-          echo "ORIGINAL_BUILD_SUCCESS=false" >> $GITHUB_OUTPUT
-          make package/fcm/fwxd/compile V=s -j1 2>&1 | tee fwxd_original_build.log
-        fi
+      - name: Configure minimal .config
+        run: |
+          cd $OPENWRT_PATH
+          make defconfig
+          printf "\nCONFIG_TARGET_x86_64=y\nCONFIG_TARGET_x86_64_Generic=y\nCONFIG_PACKAGE_kmod-fwx=y\nCONFIG_PACKAGE_fwxd=y\nCONFIG_PACKAGE_kmod-ipt-conntrack=y\n" >> .config
+          make olddefconfig
 
-    - name: 10. 上传原始源码编译失败日志
-      if: steps.test_original.outputs.ORIGINAL_BUILD_SUCCESS == 'false'
-      uses: actions/upload-artifact@v4
-      with:
-        name: fwxd-original-build-error-log
-        path: /workdir/openwrt/fwxd_original_build.log
-        retention-days: 7
-
-    - name: 11. 应用【监控流量不统计】安全补丁
-      if: steps.test_original.outputs.ORIGINAL_BUILD_SUCCESS == 'true'
-      working-directory: /workdir/openwrt/package/fcm/fwxd/src
-      run: |
-        echo "==================== 应用补丁 ===================="
-        # ... (补丁内容保持不变) ...
-        echo "✅ 所有补丁应用完成！"
-
-    - name: 12. 下载固件依赖库
-      working-directory: /workdir/openwrt
-      run: |
-        make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
-        echo "✅ 依赖库下载完成"
-
-    - name: 13. 编译固件
-      id: compile
-      working-directory: /workdir/openwrt
-      run: |
-        echo "===== 开始编译，线程数：$(nproc) ====="
-        # 多线程编译→失败降级单线程→失败降级详细输出
-        make -j$(nproc) 2>&1 | tee full_build.log || \
-        (echo "⚠️ 多线程编译失败，切换单线程重试" && make -j1 2>&1 | tee -a full_build.log) || \
-        (echo "❌ 单线程编译失败，输出详细日志" && make -j1 V=s 2>&1 | tee -a full_build.log && exit 1)
-        
-        # 编译成功后设置 OUTPUTS
-        echo "status=success" >> $GITHUB_OUTPUT
-        
-        # 提取设备名
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        if [ -s DEVICE_NAME ]; then
-          DEVICE_NAME_VAL="_$(cat DEVICE_NAME)"
-          echo "DEVICE_NAME=${DEVICE_NAME_VAL}" >> $GITHUB_OUTPUT
-        else
-          echo "DEVICE_NAME=" >> $GITHUB_OUTPUT
-        fi
-        
-        # 生成时间戳
-        FILE_DATE_VAL="_$(date +"%Y%m%d%H%M")"
-        echo "FILE_DATE=${FILE_DATE_VAL}" >> $GITHUB_OUTPUT
-        
-        echo "✅ 固件编译完成！"
-
-    - name: 14. 编译失败：自动收集全量诊断信息
-      id: collect_diag
-      if: failure() && steps.compile.outcome == 'failure'
-      working-directory: /workdir/openwrt
-      run: |
-        echo "===== 编译失败，开始收集诊断信息 ====="
-        DIAG_DIR="diagnostics_$(date +%Y%m%d_%H%M%S)"
-        mkdir -p "$DIAG_DIR"
-
-        # 1. 保存完整编译日志
-        [ -f full_build.log ] && cp full_build.log "$DIAG_DIR/"
-        echo "✅ 编译日志已保存"
-
-        # 2. 收集系统环境信息
-        {
-          echo "=== 环境变量 ==="
-          env
-          echo -e "\n=== 磁盘空间 ==="
-          df -h
-          echo -e "\n=== 内存使用 ==="
-          free -h
-          echo -e "\n=== CPU信息 ==="
-          cat /proc/cpuinfo | head -50
-        } > "$DIAG_DIR/environment.txt"
-        echo "✅ 环境信息已保存"
-
-        # 3. 收集文件结构信息
-        {
-          echo "=== package/fcm 目录结构 ==="
-          ls -laR package/fcm/ 2>/dev/null || echo "package/fcm 不存在"
-          echo -e "\n=== build_dir 目录结构 ==="
-          ls -la build_dir/ 2>/dev/null || echo "build_dir 不存在"
-          echo -e "\n=== feeds/fanchmwrt 目录结构 ==="
-          ls -la feeds/fanchmwrt/ 2>/dev/null || echo "feeds/fanchmwrt 不存在"
-        } > "$DIAG_DIR/file_structure.txt"
-        echo "✅ 文件结构已保存"
-
-        # 4. 收集关键配置和源码
-        mkdir -p "$DIAG_DIR/configs" "$DIAG_DIR/fwxd_source"
-        [ -f .config ] && cp .config "$DIAG_DIR/configs/"
-        [ -d "package/fcm/fwxd" ] && cp -r package/fcm/fwxd/* "$DIAG_DIR/fwxd_source/" 2>/dev/null
-        echo "✅ 配置和源码已保存"
-
-        # 5. 生成诊断摘要
-        {
-          echo "=== 编译失败诊断摘要 ==="
-          echo "生成时间: $(date)"
-          echo "仓库: $REPO_URL"
-          echo "分支: $REPO_BRANCH"
-          echo -e "\n=== 最后100行编译错误 ==="
-          [ -f full_build.log ] && tail -100 full_build.log || echo "无编译日志"
-        } > "$DIAG_DIR/README.txt"
-
-        # 6. 打包诊断信息并设置 OUTPUT
-        DIAG_ARCHIVE="${DIAG_DIR}.tar.gz"
-        tar -czf "$DIAG_ARCHIVE" "$DIAG_DIR"
-        echo "DIAG_ARCHIVE=${DIAG_ARCHIVE}" >> $GITHUB_OUTPUT
-        echo "✅ 诊断信息打包完成：${DIAG_ARCHIVE}"
-
-    - name: 15. 上传诊断信息包
-      if: failure() && steps.compile.outcome == 'failure'
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-failure-diagnostics${{ steps.compile.outputs.FILE_DATE }}
-        path: /workdir/openwrt/${{ steps.collect_diag.outputs.DIAG_ARCHIVE }}
-        retention-days: 14
-
-    - name: 16. 检查编译后磁盘空间
-      if: always()
-      run: df -hT
-
-    - name: 17. 上传bin目录（可选）
-      if: env.UPLOAD_BIN_DIR == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
-      uses: actions/upload-artifact@v4
-      with:
-        name: OpenWrt_bin${{ steps.compile.outputs.DEVICE_NAME }}${{ steps.compile.outputs.FILE_DATE }}
-        path: /workdir/openwrt/bin
-
-    - name: 18. 整理固件文件
-      id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && steps.compile.outputs.status == 'success' && !cancelled()
-      run: |
-        cd /workdir/openwrt/bin/targets/*/*
-        rm -rf packages
-        echo "FIRMWARE=$PWD" >> $GITHUB_OUTPUT  # 🔧 改为写入 GITHUB_OUTPUT
-        echo "status=success" >> $GITHUB_OUTPUT
-        echo "✅ 固件文件整理完成"
-
-    - name: 19. 上传最终固件
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      uses: actions/upload-artifact@v4
-      with:
-        name: OpenWrt_firmware${{ steps.compile.outputs.DEVICE_NAME }}${{ steps.compile.outputs.FILE_DATE }}
-        path: ${{ steps.organize.outputs.FIRMWARE }}  # 🔧 改为从 outputs 读取
+      - name: Compile kmod-fwx (test)
+        run: |
+          cd $OPENWRT_PATH
+          export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
+          ccache -s
+          make download -j$(nproc)
+          ccache -s
+          make -j$(nproc) package/fcm/fwx/compile V=s
+          make -j$(nproc) package/fcm/fwxd/compile V=s
+          ccache -s
+YAML
