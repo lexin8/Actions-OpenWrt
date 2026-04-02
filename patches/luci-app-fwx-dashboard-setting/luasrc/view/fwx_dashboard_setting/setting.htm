@@ -1,0 +1,143 @@
+<%+header%>
+
+<h2><%:Dashboard Setting%></h2>
+<p class="cbi-map-descr"><%:Configure dashboard monitoring interface and traffic accounting exclusions.%></p>
+
+<div class="cbi-section">
+	<h3><%:Traffic Statistics Interface%></h3>
+	<div class="cbi-value">
+		<label for="monitor-device"><%:Monitor interface%></label>
+		<select id="monitor-device" class="cbi-input-select"></select>
+	</div>
+</div>
+
+<div class="cbi-section">
+	<h3><%:Traffic accounting exclusions%></h3>
+	<p class="cbi-value-description">
+		<%:Exclude matching IPv4 traffic from per-client flow statistics (dashboard / reports). Does not affect forwarding or firewall. LAN-to-WAN traffic is always counted. The LAN-LAN switch and protocol checkboxes only apply when both ends are on the main LAN (same subnet as lan_ip/lan_mask).%>
+	</p>
+	<div class="cbi-value">
+		<label><input type="checkbox" id="exclude-lan-lan"/> <%:Exclude LAN-to-LAN (both ends in main LAN subnet)%></label>
+	</div>
+	<div class="cbi-value">
+		<label><%:Exclude by IP protocol for LAN-to-LAN only (uncheck all to disable):%></label>
+		<div style="margin-top:0.5em">
+			<label><input type="checkbox" id="ex-proto-icmp"/> ICMP (1)</label>
+			<label style="margin-left:1em"><input type="checkbox" id="ex-proto-tcp"/> TCP (6)</label>
+			<label style="margin-left:1em"><input type="checkbox" id="ex-proto-udp"/> UDP (17)</label>
+		</div>
+	</div>
+	<div class="cbi-value">
+		<label for="exclude-nets"><%:Exclude traffic involving these subnets or hosts (space-separated CIDR, e.g. 192.168.2.0/24 10.0.0.5):%></label>
+		<textarea id="exclude-nets" class="cbi-input-textarea" rows="3" style="width:100%;max-width:50em" placeholder="192.168.100.0/24"></textarea>
+	</div>
+</div>
+
+<div class="cbi-page-actions">
+	<button type="button" class="cbi-button cbi-button-apply" id="setting-save"><%:Save%></button>
+	<button type="button" class="cbi-button" id="setting-refresh"><%:Refresh%></button>
+</div>
+<span id="setting-tip"></span>
+
+<script type="text/javascript">
+(function(){
+	var _SavedSuccessfully = '<%:Saved successfully%>';
+	var _SaveFailed = '<%:Save failed%>';
+	var _Loading = '<%:Loading...%>';
+	var _LoadFailed = '<%:Load failed%>';
+
+	var apiGetDeviceList = '<%=url("admin/fwx/get_device_list")%>';
+	var apiGet = '<%=url("admin/fwx/get_dashboard_param")%>';
+	var apiSet = '<%=url("admin/fwx/set_dashboard_param")%>';
+
+	function protoMaskFromBoxes() {
+		var m = 0;
+		if (document.getElementById('ex-proto-icmp').checked) m |= (1 << 1);
+		if (document.getElementById('ex-proto-tcp').checked) m |= (1 << 6);
+		if (document.getElementById('ex-proto-udp').checked) m |= (1 << 17);
+		return m >>> 0;
+	}
+
+	function applyProtoMask(m) {
+		m = parseInt(m, 10) || 0;
+		document.getElementById('ex-proto-icmp').checked = !!(m & (1 << 1));
+		document.getElementById('ex-proto-tcp').checked = !!(m & (1 << 6));
+		document.getElementById('ex-proto-udp').checked = !!(m & (1 << 17));
+	}
+
+	function showModal(msg, ok) {
+		if (typeof showCommonModal === 'function') {
+			showCommonModal(msg, 2000, ok ? 'success' : 'error');
+		} else {
+			alert(msg);
+		}
+	}
+
+	function loadDeviceList() {
+		$('#setting-tip').text(_Loading);
+		$.getJSON(apiGetDeviceList, function(resp){
+			if (resp && resp.code === 2000 && resp.data && resp.data.device_list) {
+				var deviceList = resp.data.device_list;
+				var $select = $('#monitor-device');
+				$select.empty();
+				if (Array.isArray(deviceList)) {
+					deviceList.forEach(function(device) {
+						var value = typeof device === 'string' ? device : (device.value || device.name || device);
+						$select.append($('<option/>').val(value).text(value));
+					});
+				}
+				refresh();
+			} else {
+				$('#setting-tip').text(_LoadFailed);
+			}
+		}).fail(function(){
+			$('#setting-tip').text(_LoadFailed);
+		});
+	}
+
+	function refresh() {
+		$('#setting-tip').text(_Loading);
+		$.getJSON(apiGet, function(resp){
+			var d = (resp && resp.data) || {};
+			$('#monitor-device').val(d.monitor_device || '');
+			$('#exclude-lan-lan').prop('checked', d.exclude_lan_lan === '1' || d.exclude_lan_lan === 1);
+			applyProtoMask(d.exclude_proto_mask);
+			$('#exclude-nets').val(d.exclude_nets || '');
+			$('#setting-tip').text('');
+		}).fail(function(){
+			$('#setting-tip').text(_LoadFailed);
+		});
+	}
+
+	function save() {
+		var payload = {
+			monitor_device: $('#monitor-device').val() || '',
+			exclude_lan_lan: $('#exclude-lan-lan').is(':checked') ? '1' : '0',
+			exclude_proto_mask: String(protoMaskFromBoxes()),
+			exclude_nets: $('#exclude-nets').val() || ''
+		};
+		$('#setting-save').prop('disabled', true);
+		$.ajax({
+			url: apiSet,
+			method: 'POST',
+			data: payload
+		}).done(function(resp){
+			if (resp && (resp.code === 0 || resp.code === 2000)) {
+				showModal(_SavedSuccessfully, true);
+			} else {
+				showModal(_SaveFailed, false);
+			}
+		}).fail(function(){
+			showModal(_SaveFailed, false);
+		}).always(function(){
+			$('#setting-save').prop('disabled', false);
+		});
+	}
+
+	$('#setting-refresh').on('click', loadDeviceList);
+	$('#setting-save').on('click', save);
+	$(loadDeviceList);
+})();
+</script>
+
+<%+footer%>

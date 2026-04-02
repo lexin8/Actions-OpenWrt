@@ -28,10 +28,10 @@ jobs:
     steps:
       - name: Check Server Performance
         run: |
-          echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc-l)"
+          echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc-l)" && df -hT
-          
+          echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v '[1-9]' | wc -l)" && df -hT
+
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -44,7 +44,7 @@ jobs:
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-          
+
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
@@ -62,6 +62,11 @@ jobs:
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
+      - name: Apply FWX traffic-stat patches (package/fcm kmod-fwx + fwxd)
+        run: |
+          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh"
+          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
+
       - name: Cache DL
         uses: actions/cache@v4
         with:
@@ -75,13 +80,13 @@ jobs:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-all-${{ github.run_id }}
           restore-keys: ccache-all-
-            
+
       - name: Setup CCache
         run: |
           mkdir -p $CCACHE_DIR
           ccache -M $CCACHE_MAXSIZE -o compression=true
           ccache -s
-          
+
       - name: Fix Toolchain Compilation
         run: |
           export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
@@ -89,7 +94,7 @@ jobs:
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
           echo "Toolchain fix done"
 
-# ==================== Build Homeproxy Firmware ====================
+      # ==================== Build Homeproxy Firmware ====================
       - name: Configure Feeds (Homeproxy)
         run: |
           cd $OPENWRT_PATH
@@ -104,6 +109,8 @@ jobs:
           EOF
           ./scripts/feeds clean
           ./scripts/feeds update -a
+          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh"
+          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
           ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
           rm -rf feeds/packages/utils/yq
           mkdir -p feeds/packages/utils/yq
@@ -113,53 +120,6 @@ jobs:
           ./scripts/feeds install luci-app-homeproxy sing-box nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-theme-argon
           ./scripts/feeds install -a
 
-      - name: Patch 监控流量不统计(Web勾选+IP列表版)
-        run: |
-          set -e
-          OPENWRT_PATH="/home/runner/work/Actions-OpenWrt/Actions-OpenWrt/openwrt"
-          cd "$OPENWRT_PATH/package/fcm/fwxd/src"
-
-          sed -i '/#include "fwx_user.h"/a #include "fwx_config.h"' fwx_netlink.c
-          sed -i '/total_down_bytes > 0/a \
-          if (g_monitor_enable && fwx_config_match_ip(node->ip)) { json_object_put(root); return; }' fwx_netlink.c
-
-          printf '%s\n' '#include <string.h>' > fwx_config.c
-          printf '%s\n' '#include <stdio.h>' >> fwx_config.c
-          printf '%s\n' 'int g_monitor_enable = 1;' >> fwx_config.c
-          printf '%s\n' 'static char monitor_ip_list[512] = {0};' >> fwx_config.c
-          printf '%s\n' 'int fwx_config_match_ip(const char *ip) {' >> fwx_config.c
-          printf '%s\n' '    if (!ip || !*monitor_ip_list) return 0;' >> fwx_config.c
-          printf '%s\n' '    return strstr(monitor_ip_list, ip) ? 1 : 0;' >> fwx_config.c
-          printf '%s\n' '}' >> fwx_config.c
-
-          echo "extern int g_monitor_enable;" >> fwx_config.h
-          echo "int fwx_config_match_ip(const char *ip);" >> fwx_config.h
-
-          WEB_DIR="$OPENWRT_PATH/feeds/fanchmwrt/luci-app-fwx-macfilter"
-          mkdir -p "$WEB_DIR/root/etc/config"
-
-          echo "config fwx 'setting'" > "$WEB_DIR/root/etc/config/fwx"
-          echo "    option monitor_enable '1'" >> "$WEB_DIR/root/etc/config/fwx"
-          echo "    option monitor_ip_list ''" >> "$WEB_DIR/root/etc/config/fwx"
-
-          sed -i '/<div class=\"cbi-section cbi-tblsection\">/i \
-          <div class=\"cbi-section\"> \
-              <h3>监控流量设置</h3> \
-              <div class=\"cbi-value\"> \
-                  <label class=\"cbi-value-title\">监控流量不统计</label> \
-                  <div class=\"cbi-value-field\"> \
-                      <input type=\"checkbox\" name=\"monitor_enable\" value=\"1\" <%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_enable\",\"1\")==\"1\" ? \"checked\" : \"\"%>> \
-                      <label>启用</label> \
-                  </div> \
-              </div> \
-              <div class=\"cbi-value\"> \
-                  <label class=\"cbi-value-title\">监控设备IP列表</label> \
-                  <div class=\"cbi-value-field\"> \
-                      <textarea name=\"monitor_ip_list\" rows=\"3\" placeholder=\"多个IP用空格分隔\"><%=luci.model.uci.cursor():get(\"fwx\",\"setting\",\"monitor_ip_list\",\"\")%></textarea> \
-                  </div> \
-              </div> \
-          </div>' "$WEB_DIR/luasrc/view/macfilter/rules.htm"
-          
       - name: Configure Firmware (Homeproxy)
         run: |
           cd $OPENWRT_PATH
@@ -284,19 +244,22 @@ jobs:
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
+          CONFIG_PACKAGE_kmod-fwx=y
+          CONFIG_PACKAGE_fwxd=y
+          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
           EOF
           make defconfig
-          
+
       - name: Copy ImmortalWrt base-files
         run: |
-         cd $OPENWRT_PATH
-         git clone --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/immortalwrt.git immortalwrt-tmp
-         cd immortalwrt-tmp
-         git sparse-checkout set target/linux/x86/base-files
-         cd ..
-         cp -r immortalwrt-tmp/target/linux/x86/base-files/* target/linux/x86/base-files/
-         rm -rf immortalwrt-tmp
-          
+          cd $OPENWRT_PATH
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/immortalwrt.git immortalwrt-tmp
+          cd immortalwrt-tmp
+          git sparse-checkout set target/linux/x86/base-files
+          cd ..
+          cp -r immortalwrt-tmp/target/linux/x86/base-files/* target/linux/x86/base-files/
+          rm -rf immortalwrt-tmp
+
       - name: Compile Homeproxy
         run: |
           cd $OPENWRT_PATH
@@ -305,7 +268,7 @@ jobs:
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          
+
       - name: Package Homeproxy
         run: |
           cd $FIRMWARE_OUTPUT_PATH
@@ -314,7 +277,7 @@ jobs:
           cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/firmware-homeproxy/config.txt
           cd $GITHUB_WORKSPACE
           tar -czvf FanchmWrt-homeproxy.tar.gz -C firmware-homeproxy .
-          
+
       - name: Upload Homeproxy
         uses: actions/upload-artifact@v4
         with:
@@ -325,8 +288,8 @@ jobs:
       - name: Clean build files
         run: |
           rm -rf $OPENWRT_PATH/build_dir $OPENWRT_PATH/bin $OPENWRT_PATH/.config
-          
-# ==================== Build OpenClash Firmware ====================
+
+      # ==================== Build OpenClash Firmware ====================
       - name: Configure Feeds (OpenClash)
         run: |
           cd $OPENWRT_PATH
@@ -340,6 +303,8 @@ jobs:
           EOF
           ./scripts/feeds clean
           ./scripts/feeds update -a
+          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh"
+          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
           ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
           rm -rf feeds/packages/utils/yq
           mkdir -p feeds/packages/utils/yq
@@ -348,7 +313,7 @@ jobs:
           ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
           ./scripts/feeds install luci-app-openclash clash-meta luci-theme-argon
           ./scripts/feeds install -a
-          
+
       - name: Configure Firmware (OpenClash)
         run: |
           cd $OPENWRT_PATH
@@ -471,14 +436,17 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
+          CONFIG_PACKAGE_kmod-fwx=y
+          CONFIG_PACKAGE_fwxd=y
+          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
           EOF
           make defconfig
-          
+
       - name: Compile rust fix
         run: |
           cd $OPENWRT_PATH
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
-          
+
       - name: Compile OpenClash
         run: |
           cd $OPENWRT_PATH
@@ -487,7 +455,7 @@ jobs:
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-          
+
       - name: Package OpenClash
         run: |
           cd $FIRMWARE_OUTPUT_PATH
@@ -496,7 +464,7 @@ jobs:
           cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/firmware-openclash/config.txt
           cd $GITHUB_WORKSPACE
           tar -czvf FanchmWrt-openclash.tar.gz -C firmware-openclash .
-          
+
       - name: Upload OpenClash
         uses: actions/upload-artifact@v4
         with:
