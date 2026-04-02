@@ -98,8 +98,10 @@ jobs:
           CONFIG_PACKAGE_luci-lib-jsonc=y
           CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
           EOF
-          # Do not call olddefconfig here; some OpenWrt trees don't provide that target.
-          # Continue compilation using the modified .config.
+          echo "Selected CONFIG_TARGET_*=y lines:"
+          grep -E '^CONFIG_TARGET_[A-Za-z0-9_]+=y' .config || true
+          # Re-run kconfig processing to ensure the tree generates correct target makefiles.
+          make -j1 oldconfig V=s
 
       - name: Compile kmod-fwx (test)
         run: |
