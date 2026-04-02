@@ -94,8 +94,8 @@ jobs:
           CONFIG_PACKAGE_luci-lib-jsonc=y\n\
           CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y\n\
           " >> .config
-          # Use single-thread + verbose to surface any Kconfig/feature errors.
-          make -j1 olddefconfig V=s
+          # Do not call olddefconfig here; some OpenWrt trees don't provide that target.
+          # Continue compilation using the modified .config.
 
       - name: Compile kmod-fwx (test)
         run: |
