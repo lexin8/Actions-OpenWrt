@@ -80,27 +80,16 @@ jobs:
 
       - name: Configure minimal .config
         run: |
-          cd "$OPENWRT_PATH"
-          make defconfig
-          # Ensure only x86_64 target is selected.
-          # Remove all "CONFIG_TARGET_* = y" lines to avoid building other targets/toolchains (e.g. mips).
-          sed -i '/^CONFIG_TARGET_[A-Za-z0-9_]*=y$/d' .config
-          cat >> .config <<'EOF'
-
+          cd $OPENWRT_PATH
+          cat > .config << 'EOF'
+          CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_PACKAGE_kmod-fwx=y
-          CONFIG_PACKAGE_fwxd=y
-          CONFIG_PACKAGE_kmod-ipt-conntrack=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-compat=y
-          CONFIG_PACKAGE_luci-lib-jsonc=y
-          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
           EOF
-          echo "Selected CONFIG_TARGET_*=y lines:"
-          grep -E '^CONFIG_TARGET_[A-Za-z0-9_]+=y' .config || true
-          # Re-run kconfig processing to ensure the tree generates correct target makefiles.
           make -j1 oldconfig V=s
 
       - name: Compile kmod-fwx (test)
