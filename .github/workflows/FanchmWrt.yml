@@ -1,4 +1,4 @@
-name: FanchmWrt
+name: FanchmWrt 25
 
 on:
   workflow_dispatch:
@@ -9,8 +9,7 @@ env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_URL2: https://github.com/fanchmwrt/fanchmwrt
-  REPO_BRANCH: openwrt-24.10
-  REPO_BRANCH2: fanchmwrt-24.10.4
+  REPO_BRANCH: openwrt-25.12
   FIRMWARE_NAME: immortalwrt-x86-64
   CCACHE_DIR: ${{ github.workspace }}/ccache
   CCACHE_MAXSIZE: 5G
@@ -19,7 +18,7 @@ env:
   FIRMWARE_OUTPUT_PATH: ${{ github.workspace }}/openwrt/bin/targets/x86/64
 
 jobs:
-  build:
+  build_all:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -30,8 +29,8 @@ jobs:
         run: |
           echo "CPU物理数量: $(cat /proc/cpuinfo | grep 'physical id' | sort | uniq | wc -l)"
           echo "CPU核心数量: $(nproc)"
-          echo "硬盘数量: $(ls /dev/sd* 2>/dev/null | grep -v '[1-9]' | wc -l)" && df -hT
-
+          echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
+          
       - name: Initialization Environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -40,11 +39,11 @@ jobs:
           sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
           sudo -E apt-get -y update
           sudo -E apt-get -y install build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget qemu-utils curl git subversion libelf-dev autoconf automake libtool autopoint device-tree-compiler swig pkg-config libmnl-dev libidn2-0-dev libcap-dev libseccomp-dev libnftnl-dev ccache libpam0g-dev liblzma-dev libev-dev golang-go
-          sudo -E systemctl daemon-reload
+          sudo systemctl daemon-reload
           sudo -E apt-get -y autoremove --purge
           sudo -E apt-get -y clean
           sudo timedatectl set-timezone "$TZ"
-
+          
       - name: Maximize Build Space
         uses: easimon/maximize-build-space@master
         with:
@@ -58,50 +57,21 @@ jobs:
 
       - name: Clone fanchmwrt Source
         run: |
-          git clone --depth 1 -b $REPO_BRANCH2 $REPO_URL2 openwrt
+          git clone --depth 1 $REPO_URL2 openwrt
           cd openwrt
           echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-      - name: Apply FWX traffic-stat patches (package/fcm kmod-fwx + fwxd)
-        run: |
-          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh"
-          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-package-fcm.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
-
-      - name: Cache DL
-        uses: actions/cache@v4
-        with:
-          path: openwrt/dl
-          key: dl-cache-${{ hashFiles('openwrt/feeds.conf.default') }}
-          restore-keys: dl-cache-
-
-      - name: Cache CCache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-all-${{ github.run_id }}
-          restore-keys: ccache-all-
-
-      - name: Setup CCache
-        run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE -o compression=true
-          ccache -s
-
-      - name: Fix Toolchain Compilation
-        run: |
-          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
-          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
-          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
-          echo "Toolchain fix done"
-
-      # ==================== Build Homeproxy Firmware ====================
-      - name: Configure Feeds (Homeproxy)
+      # ==============================
+      # 添加 Node 源，解决 25.12 无 Node 问题
+      # ==============================
+      - name: Configure Feeds and Fix Dependencies
         run: |
           cd $OPENWRT_PATH
           cp $FEEDS_CONF $FEEDS_CONF.bak
           cat >> $FEEDS_CONF << 'EOF'
-          src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100
-          src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99
+          src-git node https://github.com/nxhack/openwrt-node-packages.git;openwrt-25.12
+          src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-25.12 priority=100
+          src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-25.12 priority=99
           src-git kenzo https://github.com/kenzok8/openwrt-packages priority=98
           src-git small https://github.com/kenzok8/small priority=97
           src-git Music https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
@@ -109,20 +79,49 @@ jobs:
           EOF
           ./scripts/feeds clean
           ./scripts/feeds update -a
-          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh"
-          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
+          ./scripts/feeds install -a -p node
           ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
           rm -rf feeds/packages/utils/yq
           mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/immortalwrt/packages/openwrt-24.10/utils/yq/Makefile
+          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/immortalwrt/packages/openwrt-25.12/utils/yq/Makefile
           ./scripts/feeds install -p immortalwrt_luci luci-base luci-app-dockerman luci-lib-docker
           ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
-          ./scripts/feeds install luci-app-homeproxy sing-box nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-theme-argon
+          ./scripts/feeds install luci-app-homeproxy sing-box nikki luci-app-nikki luci-i18n-nikki-zh-cn luci-theme-argon luci-app-openclash clash-meta
           ./scripts/feeds install -a
+          
+      - name: Cache DL
+        uses: actions/cache@v4
+        with:
+          path: openwrt/dl
+          key: dl-${{ github.run_id }}
+          restore-keys: dl-
 
-      - name: Configure Firmware (Homeproxy)
+      - name: Cache CCache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ github.run_id }}
+          restore-keys: ccache-
+            
+      - name: Setup CCache
         run: |
-          cd $OPENWRT_PATH
+          mkdir -p $CCACHE_DIR
+          ccache -M $CCACHE_MAXSIZE -o compression=true
+          ccache -s
+          
+      - name: Fix Toolchain Compilation
+        run: |
+          export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
+          export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
+          echo "工具链修复完成"
+          
+      # ==============================
+      # 第一次编译：Homeproxy + Nikki
+      # ==============================
+      - name: Configure Firmware (Homeproxy + Nikki)
+        run: |
+          cd openwrt
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -244,79 +243,72 @@ jobs:
           CONFIG_PACKAGE_luci-app-nikki=y
           CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_kmod-fwx=y
-          CONFIG_PACKAGE_fwxd=y
-          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
+          CONFIG_PACKAGE_node=y
+          CONFIG_PACKAGE_npm=y
           EOF
           make defconfig
 
-      - name: Copy ImmortalWrt base-files
+      - name: Upload OpenWRT Config (Homeproxy)
+        if: always()
+        id: upload-config-homeproxy
         run: |
-          cd $OPENWRT_PATH
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/immortalwrt.git immortalwrt-tmp
-          cd immortalwrt-tmp
-          git sparse-checkout set target/linux/x86/base-files
-          cd ..
-          cp -r immortalwrt-tmp/target/linux/x86/base-files/* target/linux/x86/base-files/
-          rm -rf immortalwrt-tmp
+          tar -czvf openwrt-config-homeproxy.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config-homeproxy.tar.gz" >> $GITHUB_OUTPUT
 
-      - name: Compile Homeproxy
+      - name: Copy ImmortalWrt x86 base-files
         run: |
-          cd $OPENWRT_PATH
+         cd $OPENWRT_PATH
+         git clone --depth 1 --filter=blob:none --sparse https://github.com/immortalwrt/immortalwrt.git immortalwrt-tmp
+         cd immortalwrt-tmp
+         git sparse-checkout set target/linux/x86/base-files
+         cd ..
+         cp -r immortalwrt-tmp/target/linux/x86/base-files/* target/linux/x86/base-files/
+         rm -rf immortalwrt-tmp
+          
+      - name: Upload Config Artifact (Homeproxy)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-config-homeproxy
+          path: openwrt-config-homeproxy.tar.gz
+          retention-days: 7
+          
+      - name: Compile Firmware (Homeproxy)
+        run: |
+          cd openwrt
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-
-      - name: Package Homeproxy
+          
+      - name: Package Firmware (Homeproxy)
+        if: always()
+        id: package-firmware-homeproxy
         run: |
           cd $FIRMWARE_OUTPUT_PATH
-          mkdir -p $GITHUB_WORKSPACE/firmware-homeproxy
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/firmware-homeproxy/ 2>/dev/null || true
-          cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/firmware-homeproxy/config.txt
+          mkdir -p $GITHUB_WORKSPACE/firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/firmware/config.txt
           cd $GITHUB_WORKSPACE
-          tar -czvf FanchmWrt-homeproxy.tar.gz -C firmware-homeproxy .
-
-      - name: Upload Homeproxy
+          tar -czvf FanchmWrt-homeproxy-firmware.tar.gz -C firmware .
+          echo "firmware-path=$GITHUB_WORKSPACE/FanchmWrt-homeproxy-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Firmware (Homeproxy)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: FanchmWrt-homeproxy
-          path: FanchmWrt-homeproxy.tar.gz
+          path: FanchmWrt-homeproxy-firmware.tar.gz
           retention-days: 30
 
-      - name: Clean build files
+      # ==============================
+      # 增量编译：切换为 OpenClash
+      # ==============================
+      - name: Clean & Switch to OpenClash Config
         run: |
-          rm -rf $OPENWRT_PATH/build_dir $OPENWRT_PATH/bin $OPENWRT_PATH/.config
-
-      # ==================== Build OpenClash Firmware ====================
-      - name: Configure Feeds (OpenClash)
-        run: |
-          cd $OPENWRT_PATH
-          cp $FEEDS_CONF.bak $FEEDS_CONF
-          cat >> $FEEDS_CONF << 'EOF'
-          src-git immortalwrt_luci https://github.com/immortalwrt/luci.git;openwrt-24.10 priority=100
-          src-git immortalwrt_pkgs https://github.com/immortalwrt/packages.git;openwrt-24.10 priority=99
-          src-git Music https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
-          src-git kenzo https://github.com/kenzok8/openwrt-packages
-          src-git small https://github.com/kenzok8/small
-          EOF
-          ./scripts/feeds clean
-          ./scripts/feeds update -a
-          chmod +x "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh"
-          bash "$GITHUB_WORKSPACE/scripts/apply-fwx-luci-dashboard-setting.sh" "$OPENWRT_PATH" "$GITHUB_WORKSPACE"
-          ./scripts/feeds uninstall luci-base docker ttyd dockerd docker-compose ucode-mod-socket luci-app-dockerman luci-lib-docker golang yq
-          rm -rf feeds/packages/utils/yq
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/immortalwrt/packages/openwrt-24.10/utils/yq/Makefile
-          ./scripts/feeds install -p immortalwrt_luci luci-base luci-app-dockerman luci-lib-docker
-          ./scripts/feeds install -p immortalwrt_pkgs docker ttyd dockerd docker-compose ucode-mod-socket golang yq
-          ./scripts/feeds install luci-app-openclash clash-meta luci-theme-argon
-          ./scripts/feeds install -a
-
-      - name: Configure Firmware (OpenClash)
-        run: |
-          cd $OPENWRT_PATH
+          cd openwrt
+          make clean
           cat > .config << 'EOF'
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
@@ -436,38 +428,56 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_kmod-fwx=y
-          CONFIG_PACKAGE_fwxd=y
-          CONFIG_PACKAGE_luci-app-fwx-dashboard-setting=y
+          CONFIG_PACKAGE_node=y
+          CONFIG_PACKAGE_npm=y
           EOF
           make defconfig
 
-      - name: Compile rust fix
+      - name: Upload OpenWRT Config (OpenClash)
+        if: always()
+        id: upload-config-openclash
         run: |
-          cd $OPENWRT_PATH
-          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
+          tar -czvf openwrt-config-openclash.tar.gz -C $GITHUB_WORKSPACE/openwrt .config
+          echo "config-path=$GITHUB_WORKSPACE/openwrt-config-openclash.tar.gz" >> $GITHUB_OUTPUT
 
-      - name: Compile OpenClash
+      - name: Compile rust (OpenClash)
         run: |
-          cd $OPENWRT_PATH
+          cd openwrt
+          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
+          
+      - name: Compile Firmware (OpenClash)
+        run: |
+          cd openwrt
           make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
           make -j$(nproc) V=s || make -j1 V=s
           ccache -s
-
-      - name: Package OpenClash
+          
+      - name: Package Firmware (OpenClash)
+        if: always()
+        id: package-firmware-openclash
         run: |
           cd $FIRMWARE_OUTPUT_PATH
-          mkdir -p $GITHUB_WORKSPACE/firmware-openclash
-          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/firmware-openclash/ 2>/dev/null || true
-          cp -v $OPENWRT_PATH/.config $GITHUB_WORKSPACE/firmware-openclash/config.txt
+          mkdir -p $GITHUB_WORKSPACE/firmware
+          cp -v *.img.gz *.manifest config.buildinfo sha256sums $GITHUB_WORKSPACE/firmware/ 2>/dev/null || true
+          cp -v $GITHUB_WORKSPACE/openwrt/.config $GITHUB_WORKSPACE/firmware/config.txt
           cd $GITHUB_WORKSPACE
-          tar -czvf FanchmWrt-openclash.tar.gz -C firmware-openclash .
-
-      - name: Upload OpenClash
+          tar -czvf FanchmWrt-openclash-firmware.tar.gz -C firmware .
+          echo "firmware-path=$GITHUB_WORKSPACE/FanchmWrt-openclash-firmware.tar.gz" >> $GITHUB_OUTPUT
+          
+      - name: Upload Firmware (OpenClash)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: FanchmWrt-openclash
-          path: FanchmWrt-openclash.tar.gz
+          path: FanchmWrt-openclash-firmware.tar.gz
           retention-days: 30
+
+      - name: Completion
+        run: |
+          echo "=========================================="
+          echo "✅ 编译完成！"
+          echo "📦 已生成：Homeproxy 版 + OpenClash 版"
+          echo "✅ Node 已修复，网易云音乐插件正常编译"
+          echo "=========================================="
