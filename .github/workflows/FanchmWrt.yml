@@ -262,16 +262,13 @@ jobs:
          cp -r immortalwrt-tmp/target/linux/x86/base-files/* target/linux/x86/base-files/
          rm -rf immortalwrt-tmp
           
-      # ==============================
-      # 【优化】编译命令：4核专用 -j4
-      # ==============================
-      - name: Compile Firmware (Homeproxy)
+      - name: make OpenWRT   
         run: |
           cd openwrt
+          make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
           ccache -s
-          make download -j4
-          make -j4 V=s || make -j1 V=s
+          make -j$(nproc) V=s || make -j1 V=s
           ccache -s
           
       - name: Package Firmware (Homeproxy)
@@ -291,9 +288,6 @@ jobs:
           path: FanchmWrt-homeproxy-firmware.tar.gz
           retention-days: 30
 
-      # ==============================
-      # 【优化】切换配置，不 make clean，增量编译！
-      # ==============================
       - name: Switch to OpenClash Config
         run: |
           cd openwrt
@@ -428,15 +422,13 @@ jobs:
           cd openwrt
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile
           
-      # ==============================
-      # 【优化】二次编译，极快
-      # ==============================
-      - name: Compile Firmware (OpenClash)
+      - name: make OpenWRT   
         run: |
           cd openwrt
+          make download -j$(nproc)
           export CCACHE_DIR=$CCACHE_DIR USE_CCACHE=1 PATH="/usr/lib/ccache:$PATH"
-          make download -j4
-          make -j4 V=s || make -j1 V=s
+          ccache -s
+          make -j$(nproc) V=s || make -j1 V=s
           ccache -s
           
       - name: Package Firmware (OpenClash)
