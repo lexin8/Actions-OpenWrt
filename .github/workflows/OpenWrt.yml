@@ -65,18 +65,18 @@ jobs:
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
-          src-git luci-lib-docker https://github.com/lisaac/luci-lib-docker.git
+          src-git docker https://github.com/lisaac/luci-lib-docker.git
           EOF
           
           echo "📡 更新第三方 feeds..."
-          ./scripts/feeds update unblockneteasemusic openclash dockerman luci-lib-docker
+          ./scripts/feeds update unblockneteasemusic openclash dockerman docker
           
           echo ""
           echo "📦 安装第三方 feeds..."
           ./scripts/feeds install -a -p unblockneteasemusic
           ./scripts/feeds install -a -p openclash
           ./scripts/feeds install -a -p dockerman
-          ./scripts/feeds install -a -p luci-lib-docker
+          ./scripts/feeds install -a -p docker
           
           echo "✅ Feeds 配置完成"
           echo ""
@@ -89,7 +89,7 @@ jobs:
           echo "✅ Feeds 配置完成"
           echo ""
           echo "当前 feeds 配置:"
-          cat feeds.conf
+          cat feeds.conf.default
           echo ""
           echo "已安装的 feeds:"
           ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\."
