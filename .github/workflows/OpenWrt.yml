@@ -62,45 +62,21 @@ jobs:
       - name: Add third-party feeds for LuCI apps (from original authors)
         run: |
           cat >> feeds.conf << 'EOF'
-          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git;js
+          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
           src-git luci-lib-docker https://github.com/lisaac/luci-lib-docker.git
           EOF
           
           echo "📡 更新第三方 feeds..."
-          
-          # Retry logic for feeds update
-          for feed in unblockneteasemusic openclash dockerman luci-lib-docker; do
-            echo "⏳ 尝试更新 $feed feed (最多 3 次)..."
-            for attempt in 1 2 3; do
-              echo "  尝试 $attempt/3..."
-              if ./scripts/feeds update $feed; then
-                echo "  ✅ $feed feed 更新成功"
-                break
-              else
-                if [ $attempt -lt 3 ]; then
-                  echo "  ⚠️ $feed feed 更新失败，等待 5 秒后重试..."
-                  sleep 5
-                else
-                  echo "  ❌ $feed feed 更新失败（已重试 3 次）"
-                fi
-              fi
-            done
-          done
+          ./scripts/feeds update unblockneteasemusic openclash dockerman luci-lib-docker
           
           echo ""
           echo "📦 安装第三方 feeds..."
-          
-          # Install feeds, continue even if some fail
-          for feed in unblockneteasemusic openclash dockerman luci-lib-docker; do
-            if [ -d "feeds/$feed" ]; then
-              echo "📦 安装 $feed..."
-              ./scripts/feeds install -a -p $feed || echo "⚠️ $feed 部分包安装失败，继续..."
-            else
-              echo "⚠️ feeds/$feed 不存在，跳过"
-            fi
-          done
+          ./scripts/feeds install -a -p unblockneteasemusic
+          ./scripts/feeds install -a -p openclash
+          ./scripts/feeds install -a -p dockerman
+          ./scripts/feeds install -a -p luci-lib-docker
           
           echo "✅ Feeds 配置完成"
           echo ""
@@ -108,7 +84,15 @@ jobs:
           cat feeds.conf
           echo ""
           echo "已安装的 feeds:"
-          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\." || echo "无额外 feeds"
+          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\."
+          
+          echo "✅ Feeds 配置完成"
+          echo ""
+          echo "当前 feeds 配置:"
+          cat feeds.conf
+          echo ""
+          echo "已安装的 feeds:"
+          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\."
       
       - name: Install build-time dependencies (yq, nodejs, npm, ruby)
         run: |
