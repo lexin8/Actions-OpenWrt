@@ -1,4 +1,4 @@
-name: Firmware 25
+name: Build OpenWrt Firmware with LuCI Apps
 
 on:
   workflow_dispatch:
@@ -60,7 +60,7 @@ jobs:
           sudo apt-get install -y \
             build-essential libncurses5-dev gawk git subversion \
             libssl-dev gettext zlib1g-dev swig unzip time rsync \
-            python3 python3-distutils wget file jq xxd \
+            python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
       
       - name: Update and install official feeds
