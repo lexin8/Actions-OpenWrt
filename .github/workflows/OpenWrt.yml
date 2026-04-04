@@ -347,8 +347,8 @@ jobs:
             echo "⚠️ 固件目录为空或不存在，跳过打包"
           fi
       
-      - name: Upload firmware artifacts
-        if: steps.build.outputs.build_status == 'success' && fileExists('openwrt-x86_64-*.tar.gz') == true
+      - name: Upload firmware archive
+        if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-x86_64-firmware
