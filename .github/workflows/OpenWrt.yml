@@ -1,4 +1,4 @@
-name: Build OpenWrt Firmware - Split Test with Fixed Go
+name: Build OpenWrt Firmware
 
 on:
   workflow_dispatch:
@@ -176,7 +176,7 @@ jobs:
       - name: Replace golang feed with community version (1.26)
         run: |
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 26.x feeds/packages/lang/golang
           ./scripts/feeds update golang
           ./scripts/feeds install -a
 
@@ -260,7 +260,7 @@ jobs:
       - name: Replace golang feed with community version (1.26)
         run: |
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 26.x feeds/packages/lang/golang
           ./scripts/feeds update golang
           ./scripts/feeds install -a
 
@@ -352,7 +352,7 @@ jobs:
       - name: Replace golang feed with community version (1.26)
         run: |
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 26.x feeds/packages/lang/golang
           ./scripts/feeds update golang
           ./scripts/feeds install -a
 
@@ -443,7 +443,7 @@ jobs:
       - name: Replace golang feed with community version (1.26)
         run: |
           rm -rf feeds/packages/lang/golang
-          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 26.x feeds/packages/lang/golang
           ./scripts/feeds update golang
           ./scripts/feeds install -a
 
