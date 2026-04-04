@@ -61,7 +61,7 @@ jobs:
       
       - name: Add third-party feeds for LuCI apps (from original authors)
         run: |
-          cat >> feeds.conf << 'EOF'
+          cat >> feeds.conf.default << 'EOF'
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
