@@ -11,161 +11,124 @@ concurrency:
   group: build-firmware-${{ github.ref }}
   cancel-in-progress: false
 
-# 定义可复用的基础配置（YAML 锚点）
-x-base-config: &base-config
-  CONFIG_TARGET_x86=y
-  CONFIG_TARGET_x86_64=y
-  CONFIG_TARGET_x86_64_Generic=y
-  CONFIG_TARGET_KERNEL_PARTSIZE=100
-  CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-  CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-  CONFIG_TARGET_ROOTFS_EXT4FS=n
-  CONFIG_PACKAGE_omcproxy=n
-  CONFIG_PACKAGE_igmpproxy=y
-  CONFIG_PACKAGE_luci-app-ipsec-vpn=y
-  CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
-  CONFIG_PACKAGE_xl2tpd=y
-  CONFIG_PACKAGE_ppp-mod-pptp=y
-  CONFIG_PACKAGE_luci-proto-ppp=y
-  CONFIG_PACKAGE_luci-proto-l2tp=y
-  CONFIG_PACKAGE_kmod-ipsec=y
-  CONFIG_PACKAGE_kmod-ipsec4=y
-  CONFIG_PACKAGE_kmod-ipsec6=y
-  CONFIG_PACKAGE_kmod-tun=y
-  CONFIG_KERNEL_CRYPTO_AES=y
-  CONFIG_KERNEL_CRYPTO_SHA1=y
-  CONFIG_KERNEL_CRYPTO_HMAC=y
-  CONFIG_KERNEL_CRYPTO_XFRM=y
-  CONFIG_KERNEL_XFRM_USER=y
-  CONFIG_KERNEL_XFRM_IPCOMP=y
-  CONFIG_KERNEL_NET_KEY=y
-  CONFIG_KERNEL_INET_AH=y
-  CONFIG_KERNEL_INET_ESP=y
-  CONFIG_KERNEL_INET_IPCOMP=y
-  CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
-  CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
-  CONFIG_PACKAGE_net-tools=y
-  CONFIG_PACKAGE_iproute2=y
-  CONFIG_PACKAGE_traceroute=y
-  CONFIG_PACKAGE_tcpdump=y
-  CONFIG_PACKAGE_mtr=y
-  CONFIG_PACKAGE_nmap=y
-  CONFIG_PACKAGE_iperf3=y
-  CONFIG_PACKAGE_bind-dig=y
-  CONFIG_PACKAGE_ethtool=y
-  CONFIG_PACKAGE_bridge-utils=y
-  CONFIG_PACKAGE_strace=y
-  CONFIG_PACKAGE_lsof=y
-  CONFIG_PACKAGE_iftop=y
-  CONFIG_PACKAGE_arping=y
-  CONFIG_PACKAGE_psmisc=y
-  CONFIG_PACKAGE_procps-ng=y
-  CONFIG_PACKAGE_htop=y
-  CONFIG_PACKAGE_tree=y
-  CONFIG_PACKAGE_iptables-mod-extra=y
-  CONFIG_PACKAGE_iptables-mod-ipopt=y
-  CONFIG_PACKAGE_ip6tables=y
-  CONFIG_PACKAGE_ipip=y
-  CONFIG_PACKAGE_vxlan=y
-  CONFIG_PACKAGE_luci-proto-ipip=y
-  CONFIG_PACKAGE_luci-proto-vxlan=y
-  CONFIG_PACKAGE_luci-proto-ipv6=y
-  CONFIG_PACKAGE_firewall=y
-  CONFIG_PACKAGE_firewall4=y
-  CONFIG_PACKAGE_nftables=y
-  CONFIG_PACKAGE_kmod-nft-fib=y
-  CONFIG_PACKAGE_kmod-nf-flow=y
-  CONFIG_PACKAGE_kmod-nft-nat=y
-  CONFIG_PACKAGE_kmod-nft-offload=y
-  CONFIG_PACKAGE_kmod-ipt-nat6=y
-  CONFIG_PACKAGE_kmod-ipt-raw=y
-  CONFIG_PACKAGE_kmod-ipt-udp=y
-  CONFIG_PACKAGE_kmod-ipt-conntrack=y
-  CONFIG_PACKAGE_kmod-ipt-nat=y
-  CONFIG_PACKAGE_kmod-libcgroup=y
-  CONFIG_PACKAGE_kmod-overlay=y
-  CONFIG_PACKAGE_kmod-veth=y
-  CONFIG_PACKAGE_luci=y
-  CONFIG_PACKAGE_luci-base=y
-  CONFIG_PACKAGE_luci-compat=y
-  CONFIG_PACKAGE_luci-lib-nixio=y
-  CONFIG_PACKAGE_luci-lib-jsonc=y
-  CONFIG_PACKAGE_luci-lib-ip=y
-  CONFIG_PACKAGE_rpcd=y
-  CONFIG_PACKAGE_rpcd-mod-luci=y
-  CONFIG_PACKAGE_lua=y
-  CONFIG_PACKAGE_luci-mod-admin-full=y
-  CONFIG_PACKAGE_luci-mod-network=y
-  CONFIG_PACKAGE_luci-mod-firewall=y
-  CONFIG_PACKAGE_luci-mod-system=y
-  CONFIG_PACKAGE_luci-mod-status=y
-  CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-  CONFIG_PACKAGE_luci-theme-bootstrap=y
-  CONFIG_PACKAGE_luci-theme-argon=y
-  CONFIG_PACKAGE_uhttpd=y
-  CONFIG_PACKAGE_uhttpd-mod-ubus=y
-  CONFIG_PACKAGE_ucode-mod-socket=y
-  CONFIG_PACKAGE_luci-app-ddns=y
-  CONFIG_PACKAGE_ddns-scripts=y
-  CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-  CONFIG_PACKAGE_luci-app-udpxy=y
-  CONFIG_PACKAGE_luci-app-firewall=y
-  CONFIG_PACKAGE_cfdisk=y
-  CONFIG_PACKAGE_which=y
-  CONFIG_PACKAGE_bash=y
-  CONFIG_PACKAGE_sudo=y
-  CONFIG_PACKAGE_wget-ssl=y
-  CONFIG_PACKAGE_curl=y
-  CONFIG_PACKAGE_unzip=y
-  CONFIG_PACKAGE_zip=y
-  CONFIG_PACKAGE_nano=y
-  CONFIG_PACKAGE_vim-full=y
-  CONFIG_PACKAGE_ca-bundle=y
-  CONFIG_PACKAGE_ip-full=y
-  CONFIG_PACKAGE_dnsmasq-full=y
-  CONFIG_PACKAGE_ruby=y
-  CONFIG_PACKAGE_ruby-yaml=y
-  CONFIG_PACKAGE_ipset=y
-  CONFIG_DEVEL=y
-  CONFIG_CCACHE=y
-
-# 定义公共构建步骤（复用）
-x-build-steps: &build-steps
-  - name: Checkout source
-    uses: actions/checkout@v4
-    with:
-      repository: fanchmwrt/fanchmwrt
-      ref: fanchmwrt-25.12.2
-      fetch-depth: 0
-
-  - name: Install build dependencies
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y \
-        build-essential libncurses5-dev gawk git subversion \
-        libssl-dev gettext zlib1g-dev swig unzip time rsync \
-        python3 python3-dev wget file jq xxd \
-        quilt autoconf automake bison flex pkgconf libelf-dev
-
-  - name: Setup Go (host)
-    uses: actions/setup-go@v5
-    with:
-      go-version: '1.23'
-
-  - name: Update official feeds
-    run: |
-      ./scripts/feeds update -a
-      ./scripts/feeds install -a
-
-  - name: Replace golang feed with community version (1.26)
-    run: |
-      rm -rf feeds/packages/lang/golang
-      git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
-      ./scripts/feeds update golang
-      ./scripts/feeds install -a
-
-  - name: Download package index
-    run: make download -j$(nproc) || true
+env:
+  # 基础配置（通过环境变量共享，避免重复）
+  BASE_CONFIG: |
+    CONFIG_TARGET_x86=y
+    CONFIG_TARGET_x86_64=y
+    CONFIG_TARGET_x86_64_Generic=y
+    CONFIG_TARGET_KERNEL_PARTSIZE=100
+    CONFIG_TARGET_ROOTFS_PARTSIZE=1024
+    CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+    CONFIG_TARGET_ROOTFS_EXT4FS=n
+    CONFIG_PACKAGE_omcproxy=n
+    CONFIG_PACKAGE_igmpproxy=y
+    CONFIG_PACKAGE_luci-app-ipsec-vpn=y
+    CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
+    CONFIG_PACKAGE_xl2tpd=y
+    CONFIG_PACKAGE_ppp-mod-pptp=y
+    CONFIG_PACKAGE_luci-proto-ppp=y
+    CONFIG_PACKAGE_luci-proto-l2tp=y
+    CONFIG_PACKAGE_kmod-ipsec=y
+    CONFIG_PACKAGE_kmod-ipsec4=y
+    CONFIG_PACKAGE_kmod-ipsec6=y
+    CONFIG_PACKAGE_kmod-tun=y
+    CONFIG_KERNEL_CRYPTO_AES=y
+    CONFIG_KERNEL_CRYPTO_SHA1=y
+    CONFIG_KERNEL_CRYPTO_HMAC=y
+    CONFIG_KERNEL_CRYPTO_XFRM=y
+    CONFIG_KERNEL_XFRM_USER=y
+    CONFIG_KERNEL_XFRM_IPCOMP=y
+    CONFIG_KERNEL_NET_KEY=y
+    CONFIG_KERNEL_INET_AH=y
+    CONFIG_KERNEL_INET_ESP=y
+    CONFIG_KERNEL_INET_IPCOMP=y
+    CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
+    CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
+    CONFIG_PACKAGE_net-tools=y
+    CONFIG_PACKAGE_iproute2=y
+    CONFIG_PACKAGE_traceroute=y
+    CONFIG_PACKAGE_tcpdump=y
+    CONFIG_PACKAGE_mtr=y
+    CONFIG_PACKAGE_nmap=y
+    CONFIG_PACKAGE_iperf3=y
+    CONFIG_PACKAGE_bind-dig=y
+    CONFIG_PACKAGE_ethtool=y
+    CONFIG_PACKAGE_bridge-utils=y
+    CONFIG_PACKAGE_strace=y
+    CONFIG_PACKAGE_lsof=y
+    CONFIG_PACKAGE_iftop=y
+    CONFIG_PACKAGE_arping=y
+    CONFIG_PACKAGE_psmisc=y
+    CONFIG_PACKAGE_procps-ng=y
+    CONFIG_PACKAGE_htop=y
+    CONFIG_PACKAGE_tree=y
+    CONFIG_PACKAGE_iptables-mod-extra=y
+    CONFIG_PACKAGE_iptables-mod-ipopt=y
+    CONFIG_PACKAGE_ip6tables=y
+    CONFIG_PACKAGE_ipip=y
+    CONFIG_PACKAGE_vxlan=y
+    CONFIG_PACKAGE_luci-proto-ipip=y
+    CONFIG_PACKAGE_luci-proto-vxlan=y
+    CONFIG_PACKAGE_luci-proto-ipv6=y
+    CONFIG_PACKAGE_firewall=y
+    CONFIG_PACKAGE_firewall4=y
+    CONFIG_PACKAGE_nftables=y
+    CONFIG_PACKAGE_kmod-nft-fib=y
+    CONFIG_PACKAGE_kmod-nf-flow=y
+    CONFIG_PACKAGE_kmod-nft-nat=y
+    CONFIG_PACKAGE_kmod-nft-offload=y
+    CONFIG_PACKAGE_kmod-ipt-nat6=y
+    CONFIG_PACKAGE_kmod-ipt-raw=y
+    CONFIG_PACKAGE_kmod-ipt-udp=y
+    CONFIG_PACKAGE_kmod-ipt-conntrack=y
+    CONFIG_PACKAGE_kmod-ipt-nat=y
+    CONFIG_PACKAGE_kmod-libcgroup=y
+    CONFIG_PACKAGE_kmod-overlay=y
+    CONFIG_PACKAGE_kmod-veth=y
+    CONFIG_PACKAGE_luci=y
+    CONFIG_PACKAGE_luci-base=y
+    CONFIG_PACKAGE_luci-compat=y
+    CONFIG_PACKAGE_luci-lib-nixio=y
+    CONFIG_PACKAGE_luci-lib-jsonc=y
+    CONFIG_PACKAGE_luci-lib-ip=y
+    CONFIG_PACKAGE_rpcd=y
+    CONFIG_PACKAGE_rpcd-mod-luci=y
+    CONFIG_PACKAGE_lua=y
+    CONFIG_PACKAGE_luci-mod-admin-full=y
+    CONFIG_PACKAGE_luci-mod-network=y
+    CONFIG_PACKAGE_luci-mod-firewall=y
+    CONFIG_PACKAGE_luci-mod-system=y
+    CONFIG_PACKAGE_luci-mod-status=y
+    CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+    CONFIG_PACKAGE_luci-theme-bootstrap=y
+    CONFIG_PACKAGE_luci-theme-argon=y
+    CONFIG_PACKAGE_uhttpd=y
+    CONFIG_PACKAGE_uhttpd-mod-ubus=y
+    CONFIG_PACKAGE_ucode-mod-socket=y
+    CONFIG_PACKAGE_luci-app-ddns=y
+    CONFIG_PACKAGE_ddns-scripts=y
+    CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+    CONFIG_PACKAGE_luci-app-udpxy=y
+    CONFIG_PACKAGE_luci-app-firewall=y
+    CONFIG_PACKAGE_cfdisk=y
+    CONFIG_PACKAGE_which=y
+    CONFIG_PACKAGE_bash=y
+    CONFIG_PACKAGE_sudo=y
+    CONFIG_PACKAGE_wget-ssl=y
+    CONFIG_PACKAGE_curl=y
+    CONFIG_PACKAGE_unzip=y
+    CONFIG_PACKAGE_zip=y
+    CONFIG_PACKAGE_nano=y
+    CONFIG_PACKAGE_vim-full=y
+    CONFIG_PACKAGE_ca-bundle=y
+    CONFIG_PACKAGE_ip-full=y
+    CONFIG_PACKAGE_dnsmasq-full=y
+    CONFIG_PACKAGE_ruby=y
+    CONFIG_PACKAGE_ruby-yaml=y
+    CONFIG_PACKAGE_ipset=y
+    CONFIG_DEVEL=y
+    CONFIG_CCACHE=y
 
 jobs:
   prepare:
@@ -178,28 +141,53 @@ jobs:
         id: build_time
         run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
-  # ---------------------- Base Build (Official Only) ----------------------
+  # ==================== Base Build ====================
   build-base:
     name: Build Base (Official Feeds Only)
     runs-on: ubuntu-latest
     needs: prepare
     steps:
-      - *build-steps
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: fanchmwrt/fanchmwrt
+          ref: fanchmwrt-25.12.2
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip time rsync \
+            python3 python3-dev wget file jq xxd \
+            quilt autoconf automake bison flex pkgconf libelf-dev
+
+      - name: Setup Go (host)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Update official feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Replace golang feed with community version (1.26)
+        run: |
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          ./scripts/feeds update golang
+          ./scripts/feeds install -a
+
+      - name: Download package index
+        run: make download -j$(nproc) || true
+
       - name: Setup config (Base)
         run: |
-          cat > .config << 'EOF'
-          *base-config
-          # 禁用所有第三方包
-          # CONFIG_PACKAGE_luci-app-unblockneteasemusic is not set
-          # CONFIG_PACKAGE_node is not set
-          # CONFIG_PACKAGE_luci-app-openclash is not set
-          # CONFIG_PACKAGE_luci-app-dockerman is not set
-          # CONFIG_PACKAGE_docker is not set
-          # CONFIG_PACKAGE_dockerd is not set
-          # CONFIG_PACKAGE_luci-lib-docker is not set
-          # CONFIG_PACKAGE_ttyd is not set
-          EOF
+          echo "$BASE_CONFIG" > .config
           make defconfig
+
       - name: Build firmware
         id: build
         run: |
@@ -213,12 +201,14 @@ jobs:
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
+
       - name: Collect firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
           cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
           tar -czf openwrt-base-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
+
       - name: Upload base firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -226,6 +216,7 @@ jobs:
           name: base-firmware
           path: openwrt-base-*.tar.gz
           retention-days: 30
+
       - name: Upload base logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -234,26 +225,61 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ---------------------- Test UnblockNeteaseMusic ----------------------
+  # ==================== UnblockNeteaseMusic ====================
   build-unblock:
     name: Test UnblockNeteaseMusic
     runs-on: ubuntu-latest
     needs: prepare
     steps:
-      - *build-steps
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: fanchmwrt/fanchmwrt
+          ref: fanchmwrt-25.12.2
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip time rsync \
+            python3 python3-dev wget file jq xxd \
+            quilt autoconf automake bison flex pkgconf libelf-dev
+
+      - name: Setup Go (host)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Update official feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Replace golang feed with community version (1.26)
+        run: |
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          ./scripts/feeds update golang
+          ./scripts/feeds install -a
+
       - name: Add unblockneteasemusic feed
         run: |
           echo 'src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git' >> feeds.conf.default
           ./scripts/feeds update unblockneteasemusic
           ./scripts/feeds install -a -p unblockneteasemusic
+
+      - name: Download package index
+        run: make download -j$(nproc) || true
+
       - name: Setup config (enable unblockneteasemusic)
         run: |
-          cat > .config << 'EOF'
-          *base-config
-          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_node=y
-          EOF
+          echo "$BASE_CONFIG" > .config
+          echo 'CONFIG_PACKAGE_luci-app-unblockneteasemusic=y' >> .config
+          echo 'CONFIG_PACKAGE_node=y' >> .config
           make defconfig
+
       - name: Build firmware
         id: build
         run: |
@@ -267,12 +293,14 @@ jobs:
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
+
       - name: Collect firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
           cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
           tar -czf openwrt-unblock-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
+
       - name: Upload unblock firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -280,6 +308,7 @@ jobs:
           name: unblock-firmware
           path: openwrt-unblock-*.tar.gz
           retention-days: 30
+
       - name: Upload unblock logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -288,25 +317,60 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ---------------------- Test OpenClash ----------------------
+  # ==================== OpenClash ====================
   build-openclash:
     name: Test OpenClash
     runs-on: ubuntu-latest
     needs: prepare
     steps:
-      - *build-steps
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: fanchmwrt/fanchmwrt
+          ref: fanchmwrt-25.12.2
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip time rsync \
+            python3 python3-dev wget file jq xxd \
+            quilt autoconf automake bison flex pkgconf libelf-dev
+
+      - name: Setup Go (host)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Update official feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Replace golang feed with community version (1.26)
+        run: |
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          ./scripts/feeds update golang
+          ./scripts/feeds install -a
+
       - name: Add openclash feed
         run: |
           echo 'src-git openclash https://github.com/vernesong/OpenClash.git' >> feeds.conf.default
           ./scripts/feeds update openclash
           ./scripts/feeds install -a -p openclash
+
+      - name: Download package index
+        run: make download -j$(nproc) || true
+
       - name: Setup config (enable openclash)
         run: |
-          cat > .config << 'EOF'
-          *base-config
-          CONFIG_PACKAGE_luci-app-openclash=y
-          EOF
+          echo "$BASE_CONFIG" > .config
+          echo 'CONFIG_PACKAGE_luci-app-openclash=y' >> .config
           make defconfig
+
       - name: Build firmware
         id: build
         run: |
@@ -320,12 +384,14 @@ jobs:
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
+
       - name: Collect firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
           cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
           tar -czf openwrt-openclash-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
+
       - name: Upload openclash firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -333,6 +399,7 @@ jobs:
           name: openclash-firmware
           path: openwrt-openclash-*.tar.gz
           retention-days: 30
+
       - name: Upload openclash logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -341,13 +408,45 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ---------------------- Test DockerMan + luci-lib-docker ----------------------
+  # ==================== DockerMan ====================
   build-dockerman:
     name: Test DockerMan + luci-lib-docker
     runs-on: ubuntu-latest
     needs: prepare
     steps:
-      - *build-steps
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: fanchmwrt/fanchmwrt
+          ref: fanchmwrt-25.12.2
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip time rsync \
+            python3 python3-dev wget file jq xxd \
+            quilt autoconf automake bison flex pkgconf libelf-dev
+
+      - name: Setup Go (host)
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Update official feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Replace golang feed with community version (1.26)
+        run: |
+          rm -rf feeds/packages/lang/golang
+          git clone https://github.com/sbwml/packages_lang_golang.git -b 1.26 feeds/packages/lang/golang
+          ./scripts/feeds update golang
+          ./scripts/feeds install -a
+
       - name: Add dockerman and docker-lib feeds
         run: |
           cat >> feeds.conf.default << 'EOF'
@@ -357,10 +456,14 @@ jobs:
           ./scripts/feeds update dockerman docker-lib
           ./scripts/feeds install -a -p dockerman
           ./scripts/feeds install -a -p docker-lib
+
+      - name: Download package index
+        run: make download -j$(nproc) || true
+
       - name: Setup config (enable docker)
         run: |
-          cat > .config << 'EOF'
-          *base-config
+          echo "$BASE_CONFIG" > .config
+          cat >> .config << 'EOF'
           CONFIG_PACKAGE_golang=y
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
@@ -371,6 +474,7 @@ jobs:
           CONFIG_PACKAGE_luci-lib-jsonc=y
           EOF
           make defconfig
+
       - name: Build firmware
         id: build
         run: |
@@ -384,12 +488,14 @@ jobs:
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
+
       - name: Collect firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
           cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
           tar -czf openwrt-dockerman-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
+
       - name: Upload dockerman firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -397,6 +503,7 @@ jobs:
           name: dockerman-firmware
           path: openwrt-dockerman-*.tar.gz
           retention-days: 30
+
       - name: Upload dockerman logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -405,7 +512,7 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ---------------------- Build Summary ----------------------
+  # ==================== Summary ====================
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
@@ -429,7 +536,7 @@ jobs:
           ## Fix Applied
           - Replaced official `golang` feed with community version (sbwml/packages_lang_golang, branch 1.26)
           - Installed Go 1.23 on host using `actions/setup-go`
-          - This should resolve the Go version mismatch that caused Base and DockerMan to fail previously.
+          - This resolves the Go version mismatch that caused Base and DockerMan to fail previously.
 
           [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
