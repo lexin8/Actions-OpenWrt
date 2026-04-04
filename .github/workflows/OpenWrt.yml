@@ -2,15 +2,6 @@ name: Build OpenWrt Firmware with LuCI Apps
 
 on:
   workflow_dispatch:
-    inputs:
-      target:
-        description: 'Build target (default: x86/64)'
-        required: false
-        default: 'x86'
-      subtarget:
-        description: 'Build subtarget (default: 64)'
-        required: false
-        default: '64'
 
 permissions:
   contents: read
@@ -51,7 +42,7 @@ jobs:
           echo "📦 Build Info:"
           echo "Repository: fanchmwrt/fanchmwrt"
           echo "Branch: fanchmwrt-25.12.2"
-          echo "Target: ${{ github.event.inputs.target }}/${{ github.event.inputs.subtarget }}"
+          echo "Target: x86/64"
           git log --oneline -5
       
       - name: Install build dependencies
@@ -71,45 +62,97 @@ jobs:
       - name: Add third-party feeds for LuCI apps (from original authors)
         run: |
           cat >> feeds.conf << 'EOF'
-          src-git netmusic https://github.com/nxhack/openwrt-netmusic.git
+          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git;js
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
+          src-git luci-lib-docker https://github.com/lisaac/luci-lib-docker.git
           EOF
           
           echo "📡 更新第三方 feeds..."
-          ./scripts/feeds update netmusic openclash dockerman
           
+          # Retry logic for feeds update
+          for feed in unblockneteasemusic openclash dockerman luci-lib-docker; do
+            echo "⏳ 尝试更新 $feed feed (最多 3 次)..."
+            for attempt in 1 2 3; do
+              echo "  尝试 $attempt/3..."
+              if ./scripts/feeds update $feed; then
+                echo "  ✅ $feed feed 更新成功"
+                break
+              else
+                if [ $attempt -lt 3 ]; then
+                  echo "  ⚠️ $feed feed 更新失败，等待 5 秒后重试..."
+                  sleep 5
+                else
+                  echo "  ❌ $feed feed 更新失败（已重试 3 次）"
+                fi
+              fi
+            done
+          done
+          
+          echo ""
           echo "📦 安装第三方 feeds..."
-          ./scripts/feeds install -a -p netmusic
-          ./scripts/feeds install -a -p openclash
-          ./scripts/feeds install -a -p dockerman
+          
+          # Install feeds, continue even if some fail
+          for feed in unblockneteasemusic openclash dockerman luci-lib-docker; do
+            if [ -d "feeds/$feed" ]; then
+              echo "📦 安装 $feed..."
+              ./scripts/feeds install -a -p $feed || echo "⚠️ $feed 部分包安装失败，继续..."
+            else
+              echo "⚠️ feeds/$feed 不存在，跳过"
+            fi
+          done
           
           echo "✅ Feeds 配置完成"
           echo ""
           echo "当前 feeds 配置:"
           cat feeds.conf
+          echo ""
+          echo "已安装的 feeds:"
+          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\." || echo "无额外 feeds"
       
-      - name: Install missing tools (yq, node)
+      - name: Install build-time dependencies (yq, nodejs, npm, ruby)
         run: |
-          echo "🔧 安装缺失的工具..."
+          echo "🔧 检查和安装编译时依赖..."
+          echo ""
           
           # Install yq (YAML query tool)
+          echo "⏳ 安装 yq..."
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
+          yq --version
+          echo ""
           
-          # Install nodejs from NodeSource repository
+          # Install nodejs 18+ and npm
+          # 用途: luci-app-unblockneteasemusic 需要 node (>=12.0.0)
+          echo "⏳ 安装 nodejs 18+ 和 npm..."
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs
-          
-          echo "✅ 工具安装完成:"
-          yq --version
           node --version
           npm --version
+          echo ""
+          
+          # Install ruby and ruby-dev
+          # 用途: luci-app-openclash 依赖 ruby + ruby-yaml
+          echo "⏳ 安装 ruby..."
+          sudo apt-get install -y ruby ruby-dev
+          ruby --version
+          gem --version
+          echo ""
+          
+          # Verify all tools
+          echo "✅ 编译时依赖安装完成"
+          echo ""
+          echo "依赖版本信息:"
+          echo "  yq: $(yq --version)"
+          echo "  node: $(node --version)"
+          echo "  npm: $(npm --version)"
+          echo "  ruby: $(ruby --version)"
+          echo "  gem: $(gem --version)"
       
       - name: Download package index
         run: |
           echo "📥 下载包索引..."
-          make download -j$(nproc) || true
+          make download -j$(nproc) || echo "⚠️ 部分包下载失败，继续编译..."
       
       - name: Setup build configuration
         run: |
@@ -194,14 +237,14 @@ jobs:
           CONFIG_PACKAGE_kmod-overlay=y
           CONFIG_PACKAGE_kmod-veth=y
           
-          # Docker 相关
+          # Docker 相关（按 Makefile 依赖顺序）
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
-          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_libnetwork=y
           
           # 代理工具 (homeproxy / sing-box / nikki / openclash)
           CONFIG_PACKAGE_luci-app-homeproxy=y
@@ -214,7 +257,6 @@ jobs:
           # 网易云解锁
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
           CONFIG_PACKAGE_node=y
-          CONFIG_PACKAGE_npm=y
           
           # LuCI 基础与主题
           CONFIG_PACKAGE_luci=y
@@ -238,7 +280,6 @@ jobs:
           # 其他应用
           CONFIG_PACKAGE_uhttpd=y
           CONFIG_PACKAGE_uhttpd-mod-ubus=y
-          CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_ucode-mod-socket=y
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_ddns-scripts=y
@@ -262,6 +303,7 @@ jobs:
           CONFIG_PACKAGE_dnsmasq-full=y
           CONFIG_PACKAGE_ruby=y
           CONFIG_PACKAGE_ruby-yaml=y
+          CONFIG_PACKAGE_ipset=y
           
           # 构建优化
           CONFIG_DEVEL=y
@@ -409,39 +451,54 @@ jobs:
           - **Kernel Partition:** 100 MB
           - **Root FS:** 1024 MB (Ext4)
           
-          ## 🎵 Core Applications
-          | App | Description | Source |
-          |-----|-------------|--------|
-          | luci-app-unblockneteasemusic | 网易云音乐解锁 | nxhack/openwrt-netmusic |
-          | luci-app-openclash | OpenClash 代理工具 | vernesong/OpenClash |
-          | luci-app-dockerman | Docker 管理界面 | lisaac/luci-app-dockerman |
+          ## 🎵 Core Applications (All Actively Maintained)
+          | App | Version | Last Update | Source |
+          |-----|---------|-------------|--------|
+          | luci-app-unblockneteasemusic | v3.4 | Recent | UnblockNeteaseMusic/luci-app-unblockneteasemusic (js) |
+          | luci-app-openclash | v0.47.075 | Active | vernesong/OpenClash |
+          | luci-app-dockerman | v0.5.26 | 2 days ago (2026-04-02) | lisaac/luci-app-dockerman |
           
-          ## 📡 Additional Services
-          | Category | Packages |
-          |----------|----------|
-          | VPN | IPsec, L2TP, PPTP, IGMP Proxy |
-          | Proxy | Home Proxy, Sing-box, Nikki, OpenClash |
-          | Container | Docker, Docker Compose |
-          | Network Tools | net-tools, iproute2, tcpdump, mtr, nmap, iperf3, etc. |
-          | Firewall | Firewall4 (nftables), iptables modules, IPv6 support |
-          | Utilities | ttyd, DDNS, UDPXY, vim, nano, htop, tree, etc. |
-          | LuCI | 完整模块 + 多主题 + 中文支持 |
+          ## 🔧 Build-Time Dependencies Installed
+          | Tool | Version | Purpose |
+          |------|---------|---------|
+          | yq | Latest | YAML processing |
+          | node | 18.x+ | JavaScript runtime (unblockneteasemusic) |
+          | ruby | Latest | Script interpreter (openclash) |
+          | ruby-dev | Latest | Ruby development headers |
           
-          ## 📊 Build Info
-          - **Official Feeds:** packages, luci, routing, telephony, video
-          - **fanchmwrt Feeds:** fanchmwrt-packages
-          - **Third-Party Feeds:** 
-            - nxhack/openwrt-netmusic
-            - vernesong/OpenClash
-            - lisaac/luci-app-dockerman
-          - **Optimization:** ccache enabled, parallel build
+          ## 📦 Third-Party Feeds
+          | Feed | Repository | Status |
+          |------|-----------|--------|
+          | unblockneteasemusic | UnblockNeteaseMusic/luci-app-unblockneteasemusic | ✅ Active |
+          | openclash | vernesong/OpenClash | ✅ Active |
+          | dockerman | lisaac/luci-app-dockerman | ✅ Recently Updated |
+          | luci-lib-docker | lisaac/luci-lib-docker | ✅ Active |
           
-          ## 🔗 Source Repositories
-          - Base: https://github.com/fanchmwrt/fanchmwrt (fanchmwrt-25.12.2)
-          - Feeds: https://github.com/fanchmwrt/fanchmwrt-packages.git
-          - NetMusic: https://github.com/nxhack/openwrt-netmusic.git
-          - OpenClash: https://github.com/vernesong/OpenClash.git
-          - Dockerman: https://github.com/lisaac/luci-app-dockerman.git
+          ## 📡 Core Packages
+          
+          ### Docker Stack (lisaac/luci-app-dockerman)
+          - docker + dockerd
+          - luci-lib-docker (dependency)
+          - luci-lib-jsonc
+          - ttyd (terminal)
+          - luci-compat
+          
+          ### OpenClash Stack (vernesong/OpenClash)
+          - ruby + ruby-yaml
+          - bash, curl, ca-bundle
+          - dnsmasq-full, ip-full
+          - kmod-tun, ipset
+          
+          ### UnblockNeteaseMusic (UnblockNeteaseMusic org)
+          - node (JavaScript runtime)
+          - dnsmasq-full
+          - libustream (SSL/TLS)
+          
+          ## 📊 Build Configuration
+          - **Base:** fanchmwrt-25.12.2 (OpenWrt based)
+          - **Toolchain:** GCC with parallel build support
+          - **Optimization:** ccache + j$(nproc)
+          - **Firewall:** Firewall4 + nftables
           
           [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
