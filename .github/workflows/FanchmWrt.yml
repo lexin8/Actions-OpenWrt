@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Set build time
         id: build_time
-        run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+        run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUE_OUTPUT
 
   build-firmware:
     name: Build OpenWrt Firmware (x86_64 with LuCI Apps)
@@ -75,35 +75,59 @@ jobs:
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs ruby ruby-dev
 
-      # 👇 自动修复 5 个依赖 + 安装官方 Golang
-      - name: Auto fix 5 missing dependencies + install golang from official
+      # 自动修复 5 个依赖 + 安装官方 Golang
+      - name: Auto fix missing dependencies + install golang
         run: |
           mkdir -p package/libs package/system package/network/utils
           git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/packages tmp/packages
-          
-          # 修复 5 个必备依赖
           cp -rf tmp/packages/libs/libdevmapper package/libs/ 2>/dev/null || true
           cp -rf tmp/packages/utils/cgroupfs-mount package/system/ 2>/dev/null || true
           cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
           cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
           cp -rf tmp/packages/lang/golang package/libs/ 2>/dev/null || true
-          
           rm -rf tmp/packages
 
-      # 极简检测，不中断、不误判
-      - name: Show dependency status
+      # 👇 ✅ 终极智能检测：第三方插件自动检索 + Makefile 依赖解析
+      - name: Auto detect third-party plugins and dependencies
         run: |
-          echo "=============================================="
-          echo "🔧 Dependency Status"
-          echo "=============================================="
-          [ -d package/libs/libdevmapper ] && echo "✅ libdevmapper (fixed)"
-          [ -d package/system/cgroupfs-mount ] && echo "✅ cgroupfs-mount (fixed)"
-          [ -d package/system/ca-bundle ] && echo "✅ ca-bundle (fixed)"
-          [ -d package/network/utils/iptables ] && echo "✅ iptables (fixed)"
-          [ -d package/libs/golang ] && echo "✅ golang (official)"
-          command -v node >/dev/null && echo "✅ nodejs 18.x"
-          command -v ruby >/dev/null && echo "✅ ruby"
-          echo "=============================================="
+          echo "================================================================"
+          echo "🔍 自动检测第三方插件 + 解析 Makefile 依赖 (仅检测feeds拉取的插件)"
+          echo "================================================================"
+
+          check_package() {
+            local p=$1
+            if [ -d "feeds/$p" ] || [ -d "package/$p" ]; then return 0; else return 1; fi
+          }
+
+          for plugin_dir in feeds/*/luci-app-*; do
+            [ -d "$plugin_dir" ] || continue
+            plugin=$(basename "$plugin_dir")
+            makefile="$plugin_dir/Makefile"
+
+            echo -e "\n📦 插件: $plugin"
+            echo "✅ 插件目录存在: $plugin_dir"
+
+            [ -f "$makefile" ] && echo "✅ Makefile 已找到" || { echo "❌ Makefile 缺失"; continue; }
+
+            # 从 Makefile 提取 DEPENDS 依赖
+            depends=$(awk '/^DEPENDS:=/{print $0}' "$makefile" | sed 's/DEPENDS:=//g')
+            [ -n "$depends" ] && echo "📄 插件依赖: $depends" || echo "📄 无声明依赖"
+
+            # 检查依赖是否存在
+            for pkg in $depends; do
+              pkg=$(echo "$pkg" | sed 's/+/ /g' | sed 's/-/-/g' | awk '{print $1}')
+              [[ "$pkg" == "" || "$pkg" == "+"* ]] && continue
+              if check_package "$pkg"; then
+                echo "  ✅ 依赖就绪: $pkg"
+              else
+                echo "  ⚠️ 依赖需构建: $pkg"
+              fi
+            done
+          done
+
+          echo -e "\n================================================================"
+          echo "✅ 第三方插件检测完成，继续编译"
+          echo "================================================================"
 
       - name: Download package source
         run: |
@@ -174,7 +198,7 @@ jobs:
         run: |
           set +e
           make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PST[0]}
+          BUILD_RESULT=${PIPESTATUS[0]}
           set -e
           
           if [ $BUILD_RESULT -eq 0 ]; then
@@ -221,19 +245,14 @@ jobs:
           **状态**: ${{ needs.build-firmware.result }}
           **版本**: fanchmwrt-25.12.2
 
-          ## 已包含插件
+          ## 已包含第三方插件
           ✅ luci-app-unblockneteasemusic
           ✅ luci-app-openclash
           ✅ luci-app-dockerman
 
-          ## 已自动修复
-          ✅ libdevmapper
-          ✅ cgroupfs-mount
-          ✅ ca-bundle
-          ✅ iptables
-          ✅ golang (official)
+          ## 已自动修复依赖
+          ✅ libdevmapper ✅ cgroupfs-mount ✅ ca-bundle ✅ iptables ✅ golang
 
-          ## 已安装环境
-          ✅ nodejs 18.x
-          ✅ ruby
+          ## 构建环境
+          ✅ nodejs 18.x ✅ ruby
           EOF
