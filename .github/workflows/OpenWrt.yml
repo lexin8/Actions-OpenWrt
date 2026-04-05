@@ -1,4 +1,4 @@
-name: Build OpenWrt Firmware with LuCI Apps
+name: FanchmWrt 25
 
 on:
   workflow_dispatch:
@@ -22,13 +22,17 @@ jobs:
         id: build_time
         run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
-  # ==================== 基础构建（官方纯净） ====================
-  build-base:
-    name: Build Base (Official Feeds Only)
+# =============================================
+# 核心任务：环境校验 + Dockerman 依赖完整性检查
+# 不编译固件，只做环境验证
+# =============================================
+  check-dockerman-env:
+    name: Check luci-app-dockerman Environment (x86_64)
     runs-on: ubuntu-latest
     needs: prepare
+
     steps:
-      - name: Checkout source
+      - name: Checkout FanchMWRT 25.12.2 source
         uses: actions/checkout@v4
         with:
           repository: fanchmwrt/fanchmwrt
@@ -36,7 +40,7 @@ jobs:
           fetch-depth: 0
           ref: fanchmwrt-25.12.2
 
-      - name: Install build dependencies
+      - name: Install system build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -45,488 +49,77 @@ jobs:
             python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
 
-      - name: Use official OpenWrt 25.12 feeds
+      # 添加 luci-app-dockerman 必需插件
+      - name: Add luci-app-dockerman & luci-lib-docker
         run: |
-          cp feeds.conf.default feeds.conf.default.bak
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          EOF
-          ./scripts/feeds clean
+          git clone https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
+          git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
+
+      # 更新 feeds（关键：加载 docker 引擎）
+      - name: Update and install all feeds
+        run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Use official yq
+      # 初始化 x86_64 编译环境（不编译，只生成配置）
+      - name: Prepare x86_64 build environment
         run: |
-          rm -rf feeds/packages/utils/yq || true
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/openwrt/packages/openwrt-25.12/utils/yq/Makefile
-
-      - name: Install nodejs
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs ruby ruby-dev
-
-      - name: Download packages
-        run: make download -j$(nproc) || true
-
-      - name: Setup build configuration
-        run: |
-          cat > .config << 'EOF'
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          EOF
-          export TERM=xterm
+          make defconfig
+          echo "CONFIG_TARGET_x86_64=y" > .config
           make defconfig
 
-      - name: Build OpenWrt firmware
-        id: build
+      # ==============================================
+      # 自动校验：luci-app-dockerman 所有依赖是否齐全
+      # ==============================================
+      - name: 🔍 FULL ENVIRONMENT CHECK FOR DOCKERMAN
         run: |
-          set +e
-          echo "🔨 开始编译 OpenWrt 固件 (x86_64)..."
-          echo "时间: $(date)"
-          echo "CPU核心数: $(nproc)"
-          echo ""
-          make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
-          set -e
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "build_status=success" >> $GITHUB_OUTPUT
+          echo "================================================================"
+          echo " 🚀 FanchMWRT 25.12.2 + luci-app-dockerman 完整依赖检查"
+          echo " 目标平台：x86_64"
+          echo "================================================================"
+
+          echo -e "\n==================== 检查结果总览 ===================="
+          rm -f .check_result
+          touch .check_result
+
+          check() {
+            local name="$1"
+            local pkg="$2"
+            echo -n "👉 检查 $name ... "
+            if make menuconfig SHOW="$pkg" 2>/dev/null | grep -q "^[ ]*$pkg"; then
+              echo -e "\033[32m✅ 存在\033[0m"
+              echo "$pkg: ✅ OK" >> .check_result
+            else
+              echo -e "\033[31m❌ 缺失\033[0m"
+              echo "$pkg: ❌ MISSING" >> .check_result
+            fi
+          }
+
+          echo -e "\n[1] Docker 运行核心依赖"
+          check "Docker 客户端" "docker"
+          check "Docker 服务端" "dockerd"
+          check "容器运行时" "containerd"
+          check "容器启动器" "runc"
+          check "轻量init进程" "tini"
+
+          echo -e "\n[2] Dockerman 插件依赖"
+          check "Docker 依赖库" "luci-lib-docker"
+          check "Docker 管理面板" "luci-app-dockerman"
+
+          echo -e "\n[3] 系统底层依赖（Docker 必需）"
+          check "设备映射库" "libdevmapper"
+          check "TLS 证书" "ca-bundle"
+          check "iptables 防火墙" "iptables"
+          check "cgroup 挂载工具" "cgroupfs-mount"
+
+          echo -e "\n==================== 最终检查报告 ===================="
+          cat .check_result
+
+          echo -e "\n================================================================"
+          fail=$(cat .check_result | grep "MISSING" | wc -l)
+          if [ "$fail" -eq 0 ]; then
+            echo -e "\033[32m✅ 环境完全正常！所有 luci-app-dockerman 依赖已齐全，可直接编译固件\033[0m"
           else
-            echo "build_status=failed" >> $GITHUB_OUTPUT
-            exit 1
+            echo -e "\033[31m⚠️  发现 $fail 个依赖缺失，无法正常编译 Dockerman\033[0m"
           fi
-
-      - name: Collect firmware
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          mkdir -p firmware
-          cp -v bin/targets/x86_64/openwrt-*.* firmware/ 2>/dev/null || true
-          tar -czf openwrt-base-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
-
-      - name: Upload base firmware
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: base-firmware
-          path: openwrt-base-*.tar.gz
-          retention-days: 30
-
-      - name: Upload base logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: base-build-logs
-          path: build.log
-          retention-days: 7
-
-  # ==================== 网易云音乐 ====================
-  build-unblock:
-    name: Test UnblockNeteaseMusic
-    runs-on: ubuntu-latest
-    needs: prepare
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: fanchmwrt-25.12.2
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git subversion \
-            libssl-dev gettext zlib1g-dev swig unzip time rsync python3 python3-dev wget file jq xxd \
-            quilt autoconf automake bison flex pkgconf libelf-dev
-
-      - name: Use official feeds + Unblock
-        run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
-          EOF
-          ./scripts/feeds clean
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Use official yq
-        run: |
-          rm -rf feeds/packages/utils/yq || true
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/openwrt/packages/openwrt-25.12/utils/yq/Makefile
-
-      - name: Install nodejs
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs ruby ruby-dev
-
-      - name: Download packages
-        run: make download -j$(nproc) || true
-
-      - name: Setup config
-        run: |
-          cat > .config << 'EOF'
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_node=y
-          EOF
-          export TERM=xterm
-          make defconfig
-
-      - name: Build OpenWrt firmware
-        id: build
-        run: |
-          set +e
-          echo "🔨 开始编译 OpenWrt 固件 (x86_64)..."
-          echo "时间: $(date)"
-          echo "CPU核心数: $(nproc)"
-          echo ""
-          make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
-          set -e
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "build_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "build_status=failed" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-      - name: Collect firmware
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          mkdir -p firmware
-          cp -v bin/targets/x86_64/openwrt-*.* firmware/ 2>/dev/null || true
-          tar -czf openwrt-unblock-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
-
-      - name: Upload unblock firmware
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: unblock-firmware
-          path: openwrt-unblock-*.tar.gz
-          retention-days: 30
-
-      - name: Upload unblock logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unblock-build-logs
-          path: build.log
-          retention-days: 7
-
-  # ==================== OpenClash ====================
-  build-openclash:
-    name: Test OpenClash
-    runs-on: ubuntu-latest
-    needs: prepare
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: fanchmwrt-25.12.2
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git subversion \
-            libssl-dev gettext zlib1g-dev swig unzip time rsync python3 python3-dev wget file jq xxd \
-            quilt autoconf automake bison flex pkgconf libelf-dev
-
-      - name: Use official feeds + OpenClash
-        run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          src-git openclash https://github.com/vernesong/OpenClash.git
-          EOF
-          ./scripts/feeds clean
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Use official yq
-        run: |
-          rm -rf feeds/packages/utils/yq || true
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/openwrt/packages/openwrt-25.12/utils/yq/Makefile
-
-      - name: Install ruby
-        run: sudo apt-get install -y ruby ruby-dev
-
-      - name: Download packages
-        run: make download -j$(nproc) || true
-
-      - name: Setup config
-        run: |
-          cat > .config << 'EOF'
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-app-openclash=y
-          EOF
-          export TERM=xterm
-          make defconfig
-
-      - name: Build OpenWrt firmware
-        id: build
-        run: |
-          set +e
-          echo "🔨 开始编译 OpenWrt 固件 (x86_64)..."
-          echo "时间: $(date)"
-          echo "CPU核心数: $(nproc)"
-          echo ""
-          make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
-          set -e
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "build_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "build_status=failed" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-      - name: Collect firmware
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          mkdir -p firmware
-          cp -v bin/targets/x86_64/openwrt-*.* firmware/ 2>/dev/null || true
-          tar -czf openwrt-openclash-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
-
-      - name: Upload openclash firmware
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: openclash-firmware
-          path: openwrt-openclash-*.tar.gz
-          retention-days: 30
-
-      - name: Upload openclash logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: openclash-build-logs
-          path: build.log
-          retention-days: 7
-
-  # ==================== DockerMan（已修复 Go 兼容） ====================
-  build-dockerman:
-    name: Test DockerMan + luci-lib-docker
-    runs-on: ubuntu-latest
-    needs: prepare
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-        with:
-          repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: fanchmwrt-25.12.2
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git subversion \
-            libssl-dev gettext zlib1g-dev swig unzip time rsync python3 python3-dev wget file jq xxd \
-            quilt autoconf automake bison flex pkgconf libelf-dev
-
-      - name: Use official feeds + Docker
-        run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
-          src-git dockerlib https://github.com/lisaac/luci-lib-docker.git
-          EOF
-          ./scripts/feeds clean
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      # ==================== 【关键修复】仅升级 Go，不污染官方源 ====================
-      - name: Fix Go for Docker (containerd compile)
-        run: |
-          sudo rm -rf /usr/local/go /usr/bin/go
-          sudo apt-get remove -y golang-go || true
-          wget -q https://go.dev/dl/go1.23.6.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go1.23.6.linux-amd64.tar.gz
-          echo "GOROOT=/usr/local/go" >> $GITHUB_ENV
-          echo "/usr/local/go/bin" >> $GITHUB_PATH
-          
-          rm -rf feeds/packages/lang/golang
-          git clone --depth=1 https://github.com/openwrt/packages.git openwrt-packages-temp
-          cp -r openwrt-packages-temp/lang/golang feeds/packages/lang/
-          rm -rf openwrt-packages-temp
-          
-          ./scripts/feeds update golang
-          ./scripts/feeds install -a
-
-      - name: Use official yq
-        run: |
-          rm -rf feeds/packages/utils/yq || true
-          mkdir -p feeds/packages/utils/yq
-          wget -O feeds/packages/utils/yq/Makefile https://raw.githubusercontent.com/openwrt/packages/openwrt-25.12/utils/yq/Makefile
-
-      - name: Download packages
-        run: make download -j$(nproc) || true
-
-      - name: Setup config
-        run: |
-          cat > .config << 'EOF'
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_dockerd=y
-          CONFIG_PACKAGE_containerd=y
-          CONFIG_PACKAGE_runc=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          EOF
-          export TERM=xterm
-          make defconfig
-
-      - name: Build OpenWrt firmware
-        id: build
-        run: |
-          set +e
-          echo "🔨 开始编译 OpenWrt 固件 (x86_64)..."
-          echo "时间: $(date)"
-          echo "CPU核心数: $(nproc)"
-          echo ""
-          make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
-          set -e
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "build_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "build_status=failed" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-      - name: Collect firmware
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          mkdir -p firmware
-          cp -v bin/targets/x86_64/openwrt-*.* firmware/ 2>/dev/null || true
-          tar -czf openwrt-dockerman-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
-
-      - name: Upload dockerman firmware
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: dockerman-firmware
-          path: openwrt-dockerman-*.tar.gz
-          retention-days: 30
-
-      - name: Upload dockerman logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: dockerman-build-logs
-          path: build.log
-          retention-days: 7
-
-  # ==================== 构建摘要 ====================
-  build-summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    needs: [prepare, build-base, build-unblock, build-openclash, build-dockerman]
-    if: always()
-    steps:
-      - name: Generate summary
-        run: |
-          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          # 📦 OpenWrt x86_64 Official 25.12 Build
-          
-          | Build Job | Status |
-          |-----------|--------|
-          | Base (Official only) | ${{ needs.build-base.result }} |
-          | + UnblockNeteaseMusic | ${{ needs.build-unblock.result }} |
-          | + OpenClash | ${{ needs.build-openclash.result }} |
-          | + DockerMan | ${{ needs.build-dockerman.result }} |
-          
-          ✅ 100% 官方 OpenWrt 25.12 源
-          ✅ 无 kenzo / nikki / small
-          ✅ 无第三方插件污染
-          ✅ containerd/docker 编译已修复
-          ✅ 动态核心编译：make -j$(nproc)
-          EOF
+          echo "================================================================"
