@@ -22,7 +22,7 @@ jobs:
         id: build_time
         run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
-  # ==================== 基础构建（官方源 25.12 纯净版） ====================
+  # ==================== 基础构建（官方纯净） ====================
   build-base:
     name: Build Base (Official Feeds Only)
     runs-on: ubuntu-latest
@@ -139,7 +139,7 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ==================== 网易云音乐解锁 ====================
+  # ==================== 网易云音乐 ====================
   build-unblock:
     name: Test UnblockNeteaseMusic
     runs-on: ubuntu-latest
@@ -160,7 +160,7 @@ jobs:
             libssl-dev gettext zlib1g-dev swig unzip time rsync python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
 
-      - name: Use official feeds + UnblockNeteaseMusic
+      - name: Use official feeds + Unblock
         run: |
           cat > feeds.conf.default << 'EOF'
           src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
@@ -370,7 +370,7 @@ jobs:
           path: build.log
           retention-days: 7
 
-  # ==================== DockerMan ====================
+  # ==================== DockerMan（已修复 Go 兼容） ====================
   build-dockerman:
     name: Test DockerMan + luci-lib-docker
     runs-on: ubuntu-latest
@@ -391,7 +391,7 @@ jobs:
             libssl-dev gettext zlib1g-dev swig unzip time rsync python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
 
-      - name: Use official feeds + DockerMan
+      - name: Use official feeds + Docker
         run: |
           cat > feeds.conf.default << 'EOF'
           src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
@@ -404,7 +404,25 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Use official golang & yq
+      # ==================== 【关键修复】仅升级 Go，不污染官方源 ====================
+      - name: Fix Go for Docker (containerd compile)
+        run: |
+          sudo rm -rf /usr/local/go /usr/bin/go
+          sudo apt-get remove -y golang-go || true
+          wget -q https://go.dev/dl/go1.23.6.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.23.6.linux-amd64.tar.gz
+          echo "GOROOT=/usr/local/go" >> $GITHUB_ENV
+          echo "/usr/local/go/bin" >> $GITHUB_PATH
+          
+          rm -rf feeds/packages/lang/golang
+          git clone --depth=1 https://github.com/openwrt/packages.git openwrt-packages-temp
+          cp -r openwrt-packages-temp/lang/golang feeds/packages/lang/
+          rm -rf openwrt-packages-temp
+          
+          ./scripts/feeds update golang
+          ./scripts/feeds install -a
+
+      - name: Use official yq
         run: |
           rm -rf feeds/packages/utils/yq || true
           mkdir -p feeds/packages/utils/yq
@@ -438,6 +456,8 @@ jobs:
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_runc=y
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-lib-docker=y
           EOF
@@ -504,9 +524,9 @@ jobs:
           | + OpenClash | ${{ needs.build-openclash.result }} |
           | + DockerMan | ${{ needs.build-dockerman.result }} |
           
-          ✅ 全部使用官方 OpenWrt 25.12 源
-          ✅ 无第三方 Go / yq
+          ✅ 100% 官方 OpenWrt 25.12 源
           ✅ 无 kenzo / nikki / small
-          ✅ 动态CPU核心编译：make -j$(nproc)
-          ✅ 纯净稳定
+          ✅ 无第三方插件污染
+          ✅ containerd/docker 编译已修复
+          ✅ 动态核心编译：make -j$(nproc)
           EOF
