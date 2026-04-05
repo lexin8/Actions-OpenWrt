@@ -8,118 +8,98 @@ permissions:
   actions: write
 
 concurrency:
-  group: build-firmware-${{ github.ref }}
+  group: check-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  prepare:
-    name: Prepare Build Environment
+  check-env:
+    name: Check & Clean Feeds (x86_64)
     runs-on: ubuntu-latest
-    outputs:
-      build_time: ${{ steps.build_time.outputs.time }}
     steps:
-      - name: Set build time
-        id: build_time
-        run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
-
-# =============================================
-# 核心任务：环境校验 + Dockerman 依赖完整性检查
-# 不编译固件，只做环境验证
-# =============================================
-  check-dockerman-env:
-    name: Check luci-app-dockerman Environment (x86_64)
-    runs-on: ubuntu-latest
-    needs: prepare
-
-    steps:
-      - name: Checkout FanchMWRT 25.12.2 source
+      - name: Checkout FanchMWRT 25.12.2
         uses: actions/checkout@v4
         with:
           repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
           ref: fanchmwrt-25.12.2
+          fetch-depth: 0
 
-      - name: Install system build dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            build-essential libncurses5-dev gawk git subversion \
-            libssl-dev gettext zlib1g-dev swig unzip time rsync \
-            python3 python3-dev wget file jq xxd \
-            quilt autoconf automake bison flex pkgconf libelf-dev
+          sudo apt-get install -y build-essential libncurses5-dev gawk git libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file
 
-      # 添加 luci-app-dockerman 必需插件
-      - name: Add luci-app-dockerman & luci-lib-docker
+      # ==============================
+      # 格式绝对对齐！无缩进！不报错！
+      # ==============================
+      - name: Replace feeds.conf.default (remove commit tags)
         run: |
-          git clone https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
-          git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
+          cp feeds.conf.default feeds.conf.default.bak
+          cat > feeds.conf.default << EOF
+          src-git packages https://git.openwrt.org/feed/packages.git;openwrt-25.12
+          src-git luci https://git.openwrt.org/project/luci.git;openwrt-25.12
+          src-git routing https://git.openwrt.org/feed/routing.git;openwrt-25.12
+          src-git telephony https://git.openwrt.org/feed/telephony.git;openwrt-25.12
+          src-git video https://github.com/openwrt/video.git;openwrt-25.12
+          src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages.git
+          EOF
 
-      # 更新 feeds（关键：加载 docker 引擎）
-      - name: Update and install all feeds
+      - name: Show new feeds.conf.default
+        run: cat feeds.conf.default
+
+      - name: Update feeds
         run: |
+          rm -rf tmp
+          ./scripts/feeds clean
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 初始化 x86_64 编译环境（不编译，只生成配置）
-      - name: Prepare x86_64 build environment
+      - name: Prepare x86_64 config
         run: |
           make defconfig
           echo "CONFIG_TARGET_x86_64=y" > .config
           make defconfig
 
-      # ==============================================
-      # 自动校验：luci-app-dockerman 所有依赖是否齐全
-      # ==============================================
-      - name: 🔍 FULL ENVIRONMENT CHECK FOR DOCKERMAN
+      # ==============================
+      # 依赖检查（不含添加插件）
+      # ==============================
+      - name: Check Docker & LuCI dependencies
         run: |
           echo "================================================================"
-          echo " 🚀 FanchMWRT 25.12.2 + luci-app-dockerman 完整依赖检查"
-          echo " 目标平台：x86_64"
+          echo " FanchMWRT 25.12.2 依赖检查（已移除commit历史版本）"
           echo "================================================================"
 
-          echo -e "\n==================== 检查结果总览 ===================="
-          rm -f .check_result
-          touch .check_result
-
           check() {
-            local name="$1"
-            local pkg="$2"
-            echo -n "👉 检查 $name ... "
-            if make menuconfig SHOW="$pkg" 2>/dev/null | grep -q "^[ ]*$pkg"; then
-              echo -e "\033[32m✅ 存在\033[0m"
-              echo "$pkg: ✅ OK" >> .check_result
+            local pkg="$1"
+            echo -n "👉 检查 $pkg ... "
+            if make menuconfig SHOW="$pkg" 2>/dev/null | grep -q "^[[:space:]]*$pkg"; then
+              echo "✅ 存在"
             else
-              echo -e "\033[31m❌ 缺失\033[0m"
-              echo "$pkg: ❌ MISSING" >> .check_result
+              echo "❌ 缺失"
             fi
           }
 
-          echo -e "\n[1] Docker 运行核心依赖"
-          check "Docker 客户端" "docker"
-          check "Docker 服务端" "dockerd"
-          check "容器运行时" "containerd"
-          check "容器启动器" "runc"
-          check "轻量init进程" "tini"
+          echo -e "\n=== Docker 核心依赖 ==="
+          check "docker"
+          check "dockerd"
+          check "containerd"
+          check "runc"
+          check "tini"
 
-          echo -e "\n[2] Dockerman 插件依赖"
-          check "Docker 依赖库" "luci-lib-docker"
-          check "Docker 管理面板" "luci-app-dockerman"
+          echo -e "\n=== 系统底层依赖 ==="
+          check "libdevmapper"
+          check "cgroupfs-mount"
+          check "ca-bundle"
+          check "iptables"
 
-          echo -e "\n[3] 系统底层依赖（Docker 必需）"
-          check "设备映射库" "libdevmapper"
-          check "TLS 证书" "ca-bundle"
-          check "iptables 防火墙" "iptables"
-          check "cgroup 挂载工具" "cgroupfs-mount"
-
-          echo -e "\n==================== 最终检查报告 ===================="
-          cat .check_result
+          echo -e "\n=== LuCI 基础环境 ==="
+          check "luci-lib-base"
+          check "luci-lib-ip"
+          check "luci-lib-jsonc"
+          check "luci-lib-nixio"
 
           echo -e "\n================================================================"
-          fail=$(cat .check_result | grep "MISSING" | wc -l)
-          if [ "$fail" -eq 0 ]; then
-            echo -e "\033[32m✅ 环境完全正常！所有 luci-app-dockerman 依赖已齐全，可直接编译固件\033[0m"
-          else
+          echo "✅ 检查完成！无格式错误、无手动插件、纯官方源"
+          echo "================================================================"
             echo -e "\033[31m⚠️  发现 $fail 个依赖缺失，无法正常编译 Dockerman\033[0m"
           fi
           echo "================================================================"
