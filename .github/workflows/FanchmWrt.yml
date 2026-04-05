@@ -29,7 +29,7 @@ jobs:
     needs: prepare
     
     steps:
-      - name: Checkout fanchmwrt source from original author
+      - name: Checkout fanchmwrt source
         uses: actions/checkout@v4
         with:
           repository: fanchmwrt/fanchmwrt
@@ -53,380 +53,144 @@ jobs:
             libssl-dev gettext zlib1g-dev swig unzip time rsync \
             python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
+
+      # ========== 官方 feeds 100% openwrt-25.12 ==========
+      - name: Use official OpenWrt 25.12 feeds
+        run: |
+          cat > feeds.conf.default << 'EOF'
+          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
+          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
+          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
+          EOF
       
-      - name: Update and install official feeds
+      - name: Update & install official feeds
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-      
-      # ========== 新增：安装宿主 Go 1.26 ==========
-      - name: Setup Go environment (host)
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.26'
-          check-latest: true
-      
-      # ========== 新增：替换 golang feed 为社区 26.x 版本 ==========
-      - name: Replace golang feed with community version (26.x)
-        run: |
-          rm -rf feeds/packages/lang/golang
-          git clone https://github.com/sbwml/packages_lang_golang.git -b 26.x feeds/packages/lang/golang
-          ./scripts/feeds update golang
-          ./scripts/feeds install -a
-      
-      - name: Add third-party feeds for LuCI apps (from original authors)
+
+      # ========== 第三方插件 feeds ==========
+      - name: Add third-party feeds
         run: |
           cat >> feeds.conf.default << 'EOF'
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
-          src-git docker https://github.com/lisaac/luci-lib-docker.git
+          src-git dockerlib https://github.com/lisaac/luci-lib-docker.git
           EOF
-          
-          echo "📡 更新第三方 feeds..."
-          ./scripts/feeds update unblockneteasemusic openclash dockerman docker
-          
-          echo ""
-          echo "📦 安装第三方 feeds..."
-          ./scripts/feeds install -a -p unblockneteasemusic
-          ./scripts/feeds install -a -p openclash
-          ./scripts/feeds install -a -p dockerman
-          ./scripts/feeds install -a -p docker
-          
-          echo "✅ Feeds 配置完成"
-          echo ""
-          echo "当前 feeds 配置:"
-          cat feeds.conf.default
-          echo ""
-          echo "已安装的 feeds:"
-          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\."
-          
-          echo "✅ Feeds 配置完成"
-          echo ""
-          echo "当前 feeds 配置:"
-          cat feeds.conf.default
-          echo ""
-          echo "已安装的 feeds:"
-          ls -la feeds/ | grep "^d" | awk '{print $NF}' | grep -v "^\."
-      
-      - name: Install build-time dependencies (yq, nodejs, npm, ruby)
+
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      # ========== 安装所有必需工具：yq + node + ruby（全部保留）==========
+      - name: Install yq, nodejs, ruby
         run: |
-          echo "🔧 检查和安装编译时依赖..."
-          echo ""
-          
-          # Install yq (YAML query tool)
-          echo "⏳ 安装 yq..."
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          # Install yq
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefar/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
-          yq --version
-          echo ""
-          
-          # Install nodejs 18+ and npm
-          # 用途: luci-app-unblockneteasemusic 需要 node (>=12.0.0)
-          echo "⏳ 安装 nodejs 18+ 和 npm..."
+
+          # Install nodejs 18.x
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          node --version
-          npm --version
-          echo ""
-          
-          # Install ruby and ruby-dev
-          # 用途: luci-app-openclash 依赖 ruby + ruby-yaml
-          echo "⏳ 安装 ruby..."
-          sudo apt-get install -y ruby ruby-dev
-          ruby --version
-          gem --version
-          echo ""
-          
-          # Verify all tools
-          echo "✅ 编译时依赖安装完成"
-          echo ""
-          echo "依赖版本信息:"
-          echo "  yq: $(yq --version)"
-          echo "  node: $(node --version)"
-          echo "  npm: $(npm --version)"
-          echo "  ruby: $(ruby --version)"
-          echo "  gem: $(gem --version)"
+          sudo apt-get install -y nodejs ruby ruby-dev
       
-      - name: Download package index
+      - name: Download package source
         run: |
-          echo "📥 下载包索引..."
-          make download -j$(nproc) || echo "⚠️ 部分包下载失败，继续编译..."
+          make download -j$(nproc) || true
       
+      # ========== 完整配置（所有插件都在）==========
       - name: Setup build configuration
         run: |
           cat > .config << 'EOF'
-          # 目标平台
+          # Target
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_TARGET_KERNEL_PARTSIZE=100
           CONFIG_TARGET_ROOTFS_PARTSIZE=1024
           CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_EXT4FS=n
-          
-          # 代理 / 组播 / VPN
-          CONFIG_PACKAGE_omcproxy=n
-          CONFIG_PACKAGE_igmpproxy=y
-          CONFIG_PACKAGE_luci-app-ipsec-vpn=y
-          CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
-          CONFIG_PACKAGE_xl2tpd=y
-          CONFIG_PACKAGE_ppp-mod-pptp=y
-          CONFIG_PACKAGE_luci-proto-ppp=y
-          CONFIG_PACKAGE_luci-proto-l2tp=y
-          CONFIG_PACKAGE_kmod-ipsec=y
-          CONFIG_PACKAGE_kmod-ipsec4=y
-          CONFIG_PACKAGE_kmod-ipsec6=y
-          CONFIG_PACKAGE_kmod-tun=y
-          
-          # 内核加密与 IPsec
-          CONFIG_KERNEL_CRYPTO_AES=y
-          CONFIG_KERNEL_CRYPTO_SHA1=y
-          CONFIG_KERNEL_CRYPTO_HMAC=y
-          CONFIG_KERNEL_CRYPTO_XFRM=y
-          CONFIG_KERNEL_XFRM_USER=y
-          CONFIG_KERNEL_XFRM_IPCOMP=y
-          CONFIG_KERNEL_NET_KEY=y
-          CONFIG_KERNEL_INET_AH=y
-          CONFIG_KERNEL_INET_ESP=y
-          CONFIG_KERNEL_INET_IPCOMP=y
-          CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
-          CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
-          
-          # 网络工具 / 防火墙 / nftables
-          CONFIG_PACKAGE_net-tools=y
-          CONFIG_PACKAGE_iproute2=y
-          CONFIG_PACKAGE_traceroute=y
-          CONFIG_PACKAGE_tcpdump=y
-          CONFIG_PACKAGE_mtr=y
-          CONFIG_PACKAGE_nmap=y
-          CONFIG_PACKAGE_iperf3=y
-          CONFIG_PACKAGE_bind-dig=y
-          CONFIG_PACKAGE_ethtool=y
-          CONFIG_PACKAGE_bridge-utils=y
-          CONFIG_PACKAGE_strace=y
-          CONFIG_PACKAGE_lsof=y
-          CONFIG_PACKAGE_iftop=y
-          CONFIG_PACKAGE_arping=y
-          CONFIG_PACKAGE_psmisc=y
-          CONFIG_PACKAGE_procps-ng=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_tree=y
-          CONFIG_PACKAGE_iptables-mod-extra=y
-          CONFIG_PACKAGE_iptables-mod-ipopt=y
-          CONFIG_PACKAGE_ip6tables=y
-          CONFIG_PACKAGE_ipip=y
-          CONFIG_PACKAGE_vxlan=y
-          CONFIG_PACKAGE_luci-proto-ipip=y
-          CONFIG_PACKAGE_luci-proto-vxlan=y
-          CONFIG_PACKAGE_luci-proto-ipv6=y
-          CONFIG_PACKAGE_firewall=y
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_nftables=y
-          CONFIG_PACKAGE_kmod-nft-fib=y
-          CONFIG_PACKAGE_kmod-nf-flow=y
-          CONFIG_PACKAGE_kmod-nft-nat=y
-          CONFIG_PACKAGE_kmod-nft-offload=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          CONFIG_PACKAGE_kmod-ipt-raw=y
-          CONFIG_PACKAGE_kmod-ipt-udp=y
-          CONFIG_PACKAGE_kmod-ipt-conntrack=y
-          CONFIG_PACKAGE_kmod-ipt-nat=y
-          CONFIG_PACKAGE_kmod-libcgroup=y
-          CONFIG_PACKAGE_kmod-overlay=y
-          CONFIG_PACKAGE_kmod-veth=y
-          
-          # Docker 相关（按 Makefile 依赖顺序）
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_dockerd=y
-          CONFIG_PACKAGE_luci-lib-jsonc=y
-          CONFIG_PACKAGE_luci-lib-docker=y
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          
-          # 代理工具 (homeproxy / sing-box / nikki / openclash)
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_nikki=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_PACKAGE_luci-app-openclash=y
-          
+
+          # Luci
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_uhttpd=y
+
           # 网易云解锁
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
           CONFIG_PACKAGE_node=y
-          
-          # LuCI 基础与主题
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-compat=y
-          CONFIG_PACKAGE_luci-lib-nixio=y
-          CONFIG_PACKAGE_luci-lib-jsonc=y
-          CONFIG_PACKAGE_luci-lib-ip=y
-          CONFIG_PACKAGE_rpcd=y
-          CONFIG_PACKAGE_rpcd-mod-luci=y
-          CONFIG_PACKAGE_lua=y
-          CONFIG_PACKAGE_luci-mod-admin-full=y
-          CONFIG_PACKAGE_luci-mod-network=y
-          CONFIG_PACKAGE_luci-mod-firewall=y
-          CONFIG_PACKAGE_luci-mod-system=y
-          CONFIG_PACKAGE_luci-mod-status=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-theme-argon=y
-          
-          # 其他应用
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_uhttpd-mod-ubus=y
-          CONFIG_PACKAGE_ucode-mod-socket=y
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          CONFIG_PACKAGE_luci-app-firewall=y
-          
-          # 基础工具
-          CONFIG_PACKAGE_cfdisk=y
-          CONFIG_PACKAGE_which=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_zip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_ca-bundle=y
-          CONFIG_PACKAGE_ip-full=y
-          CONFIG_PACKAGE_dnsmasq-full=y
+
+          # OpenClash
+          CONFIG_PACKAGE_luci-app-openclash=y
           CONFIG_PACKAGE_ruby=y
           CONFIG_PACKAGE_ruby-yaml=y
-          CONFIG_PACKAGE_ipset=y
-          
-          # 构建优化
-          CONFIG_DEVEL=y
-          CONFIG_CCACHE=y
+
+          # Docker 相关（全部来自官方 openwrt-25.12）
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_runc=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-compat=y
+
+          # dockerman
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+
+          # 基础工具
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_sudo=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_wget-ssl=y
+          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_vim-full=y
+          CONFIG_PACKAGE_htop=y
+
+          # Docker 内核模块
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-ipt-nat=y
+          CONFIG_PACKAGE_iptables-mod-extra=y
           EOF
           
-          echo "⚙️ 执行 defconfig..."
           make defconfig
-          echo "✅ 配置完成"
-          CONFIG_COUNT=$(grep -c "=" .config || echo "0")
-          echo "配置项数: $CONFIG_COUNT"
       
       - name: Build OpenWrt firmware
         id: build
         run: |
           set +e
-          echo "🔨 开始编译 OpenWrt 固件 (x86_64)..."
-          echo "时间: $(date)"
-          echo "CPU核心数: $(nproc)"
-          echo ""
           make -j$(nproc) V=s 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
           set -e
           
           if [ $BUILD_RESULT -eq 0 ]; then
-            echo ""
-            echo "✅ 编译成功！"
             echo "build_status=success" >> $GITHUB_OUTPUT
-            exit 0
           else
-            echo ""
-            echo "❌ 编译失败"
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
       
-      - name: Collect firmware files
+      - name: Collect firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
-          
-          # Copy firmware images
-          echo "📦 收集固件镜像..."
-          if [ -d "bin/targets/x86/64" ]; then
-            cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
-            ls -lh bin/targets/x86/64/openwrt-* 2>/dev/null | head -10
-          else
-            echo "⚠️ 未找到固件目录 bin/targets/x86/64"
-          fi
-          
-          # Copy packages
-          if [ -d "bin/packages" ]; then
-            echo "📦 收集架构相关包..."
-            mkdir -p firmware/packages
-            cp -rv bin/packages/* firmware/packages/ 2>/dev/null || true
-          fi
-          
-          # Copy target-specific packages
-          if [ -d "bin/targets/x86/64/packages" ]; then
-            echo "📦 收集目标相关包..."
-            mkdir -p firmware/target-packages
-            cp -rv bin/targets/x86/64/packages/* firmware/target-packages/ 2>/dev/null || true
-          fi
-          
-          echo ""
-          echo "📊 固件目录结构:"
-          du -sh firmware/
-          echo ""
-          ls -lh firmware/ | head -20
+          [ -d "bin/targets/x86/64" ] && cp -v bin/targets/x86/64/openwrt-*.* firmware/
+          tar -czf openwrt-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
       
-      - name: Create firmware archive
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          if [ -d "firmware" ] && [ "$(ls -A firmware)" ]; then
-            echo "📦 打包固件..."
-            cd firmware
-            tar -czf ../openwrt-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz *
-            cd ..
-            
-            echo "✅ 固件包信息:"
-            ls -lh openwrt-x86_64-*.tar.gz
-          else
-            echo "⚠️ 固件目录为空或不存在，跳过打包"
-          fi
-      
-      - name: Upload firmware archive
+      - name: Upload firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-x86_64-firmware
           path: openwrt-x86_64-*.tar.gz
           retention-days: 30
-          if-no-files-found: warn
       
-      - name: Upload all packages
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwrt-x86_64-packages-all
-          path: bin/
-          retention-days: 30
-          if-no-files-found: warn
-      
-      - name: Upload build logs
+      - name: Upload log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
+          name: build-log
           path: build.log
           retention-days: 7
-          if-no-files-found: warn
-      
-      - name: Show build summary on failure
-        if: failure() && steps.build.outcome == 'failure'
-        run: |
-          echo "❌ 编译失败"
-          echo ""
-          if [ -f build.log ]; then
-            echo "📋 最后 300 行构建日志:"
-            echo "============================================"
-            tail -n 300 build.log
-          else
-            echo "⚠️ build.log 不存在"
-          fi
 
   build-summary:
     name: Build Summary
@@ -435,71 +199,24 @@ jobs:
     if: always()
     
     steps:
-      - name: Generate build summary
+      - name: Generate summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          # 📦 OpenWrt x86_64 Firmware Build
-          
-          **Build Status:** ${{ needs.build-firmware.result }}
-          **Build Time:** ${{ needs.prepare.outputs.build_time }}
-          
-          ## Source Configuration
-          - **Repository:** fanchmwrt/fanchmwrt
-          - **Branch:** fanchmwrt-25.12.2
-          - **Platform:** x86_64 Generic
-          - **Kernel Partition:** 100 MB
-          - **Root FS:** 1024 MB (Ext4)
-          
-          ## 🎵 Core Applications (All Actively Maintained)
-          | App | Version | Last Update | Source |
-          |-----|---------|-------------|--------|
-          | luci-app-unblockneteasemusic | v3.4 | Recent | UnblockNeteaseMusic/luci-app-unblockneteasemusic (js) |
-          | luci-app-openclash | v0.47.075 | Active | vernesong/OpenClash |
-          | luci-app-dockerman | v0.5.26 | 2 days ago (2026-04-02) | lisaac/luci-app-dockerman |
-          
-          ## 🔧 Build-Time Dependencies Installed
-          | Tool | Version | Purpose |
-          |------|---------|---------|
-          | yq | Latest | YAML processing |
-          | node | 18.x+ | JavaScript runtime (unblockneteasemusic) |
-          | ruby | Latest | Script interpreter (openclash) |
-          | ruby-dev | Latest | Ruby development headers |
-          | Go | 1.26 | Go compiler for dockerd and other Go packages |
-          
-          ## 📦 Third-Party Feeds
-          | Feed | Repository | Status |
-          |------|-----------|--------|
-          | unblockneteasemusic | UnblockNeteaseMusic/luci-app-unblockneteasemusic | ✅ Active |
-          | openclash | vernesong/OpenClash | ✅ Active |
-          | dockerman | lisaac/luci-app-dockerman | ✅ Recently Updated |
-          | luci-lib-docker | lisaac/luci-lib-docker | ✅ Active |
-          
-          ## 📡 Core Packages
-          
-          ### Docker Stack (lisaac/luci-app-dockerman)
-          - docker + dockerd
-          - luci-lib-docker (dependency)
-          - luci-lib-jsonc
-          - ttyd (terminal)
-          - luci-compat
-          
-          ### OpenClash Stack (vernesong/OpenClash)
-          - ruby + ruby-yaml
-          - bash, curl, ca-bundle
-          - dnsmasq-full, ip-full
-          - kmod-tun, ipset
-          
-          ### UnblockNeteaseMusic (UnblockNeteaseMusic org)
-          - node (JavaScript runtime)
-          - dnsmasq-full
-          - libustream (SSL/TLS)
-          
-          ## 📊 Build Configuration
-          - **Base:** fanchmwrt-25.12.2 (OpenWrt based)
-          - **Toolchain:** GCC with parallel build support
-          - **Optimization:** ccache + j$(nproc)
-          - **Firewall:** Firewall4 + nftables
-          - **Go Version:** 1.26 (host + OpenWrt feed replaced with 26.x branch)
-          
-          [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          # 📦 FanchmWrt x86_64 构建完成
+          **状态**: ${{ needs.build-firmware.result }}
+          **版本**: fanchmwrt-25.12.2
+
+          ## 已包含插件
+          ✅ luci-app-unblockneteasemusic
+          ✅ luci-app-openclash
+          ✅ luci-app-dockerman
+
+          ## 已安装环境
+          ✅ yq
+          ✅ nodejs 18.x
+          ✅ ruby
+
+          ## 依赖来源（100% 规范）
+          官方 openwrt-25.12: golang, docker, dockerd, ttyd, luci-lib-jsonc
+          第三方: unblockneteasemusic, openclash, dockerman, luci-lib-docker
           EOF
