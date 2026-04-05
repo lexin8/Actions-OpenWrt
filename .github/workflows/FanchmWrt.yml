@@ -75,16 +75,47 @@ jobs:
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs ruby ruby-dev
 
-      # 自动修复缺失的 5 个 Docker 依赖
-      - name: Fix missing Docker dependencies
+      # 核心插件依赖+环境匹配校验（无报错版）
+      - name: Check core plugins dependency integrity
         run: |
-          mkdir -p package/libs package/system package/network/utils
-          git clone https://github.com/openwrt/openwrt tmp/openwrt --depth 1
-          cp -rf tmp/openwrt/package/libs/libdevmapper package/libs/
-          cp -rf tmp/openwrt/package/system/cgroupfs-mount package/system/
-          cp -rf tmp/openwrt/package/system/ca-bundle package/system/
-          cp -rf tmp/openwrt/package/network/utils/iptables package/network/utils/
-          rm -rf tmp/openwrt
+          echo "=============================================="
+          echo "🔍 核心插件依赖完整性校验"
+          echo "=============================================="
+          FAILED=0
+          check() {
+            local pkg=$1
+            local desc=$2
+            if ./scripts/feeds list -n | grep -qx "^$pkg$"; then
+              echo "✅ $desc ($pkg)"
+            else
+              echo "❌ $desc ($pkg) 缺失！"
+              FAILED=1
+            fi
+          }
+
+          echo -e "\n📌 网易云音乐解锁 依赖校验"
+          check luci-app-unblockneteasemusic "插件主程序"
+          check node "运行环境"
+
+          echo -e "\n📌 OpenClash 依赖校验"
+          check luci-app-openclash "插件主程序"
+          check ruby "运行环境"
+          check ruby-yaml "配置依赖"
+
+          echo -e "\n📌 Dockerman 依赖校验"
+          check luci-app-dockerman "插件主程序"
+          check luci-lib-docker "核心依赖库"
+          check docker "Docker核心"
+          check dockerd "Docker守护进程"
+
+          echo -e "\n=============================================="
+          if [ $FAILED -ne 0 ]; then
+            echo "❌ 依赖校验失败，终止编译！"
+            exit 1
+          else
+            echo "✅ 所有插件依赖完整，环境匹配！"
+          fi
+          echo "=============================================="
 
       - name: Download package source
         run: |
@@ -205,10 +236,6 @@ jobs:
           ✅ luci-app-dockerman
 
           ## 已安装环境
-          ✅ yq
           ✅ nodejs 18.x
           ✅ ruby
-
-          ## 已修复依赖
-          ✅ libdevmapper ✅ cgroupfs-mount ✅ ca-bundle ✅ iptables ✅ luci-lib-docker
           EOF
