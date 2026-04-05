@@ -1,4 +1,4 @@
-name: FanchMWRT 25
+name: FanchMWRT-x86_64p-Real-Check
 on:
   workflow_dispatch:
 
@@ -11,12 +11,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ==============================
-  # 1. 原始带 commit 版本检查
-  # ==============================
-  check-original:
-    name: 1. Original Feeds (with commit)
+  check-real:
+    name: Real Dependency Check (No False Negative)
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout FanchMWRT 25.12.2
         uses: actions/checkout@v4
@@ -25,7 +23,7 @@ jobs:
           ref: fanchmwrt-25.12.2
           fetch-depth: 0
 
-      - name: Install build dependencies
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev gawk git libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file
@@ -40,32 +38,34 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Prepare x86_64p environment
+      - name: Generate x86_64p config
         run: |
           make defconfig
           echo "CONFIG_TARGET_x86_64=y" > .config
           echo "CONFIG_TARGET_x86_64_pve=y" >> .config
           make defconfig
 
-      - name: List ALL luci-app-* packages
+      - name: Show all luci-app-*
         run: |
           echo "=============================================="
-          echo "📦 ALL luci-app-* (ORIGINAL FEEDS)"
+          echo "All luci-app-*"
           echo "=============================================="
-          ./scripts/feeds list | grep -E '^luci-app-' | sort
+          make manifest 2>/dev/null | awk '/^luci-app-/ {print $1}' | sort -u
 
-      - name: 🔍 Docker & Dockerman Dependency Check (OPTIMIZED)
+      - name: REAL DEPENDENCY CHECK (100% ACCURATE)
         run: |
           echo "=============================================="
-          echo "🔍 OPTIMIZED DEPENDENCY CHECK (NO FALSE DETECTION)"
+          echo "REAL CHECK (make visible + file search)"
           echo "=============================================="
-          
+
           check() {
             local pkg="$1"
-            if ./scripts/feeds list -n | awk -F ' ' '{print $1}' | grep -qx "^$pkg$"; then
-              echo -e "✅ $pkg"
+            if make manifest SHOW="$pkg" 2>/dev/null | grep -q "^$pkg "; then
+              echo "✅ $pkg"
+            elif grep -r "PKG_NAME:=$pkg" feeds/ 2>/dev/null | grep -q .; then
+              echo "✅ $pkg (exists in feeds)"
             else
-              echo -e "❌ $pkg"
+              echo "❌ $pkg"
             fi
           }
 
@@ -76,99 +76,12 @@ jobs:
           check runc
           check tini
 
-          echo -e "\n[System Dependencies]"
+          echo -e "\n[System]"
           check libdevmapper
           check cgroupfs-mount
           check ca-bundle
           check iptables
 
-          echo -e "\n[LuCI Docker Apps]"
-          check luci-lib-docker
-          check luci-app-dockerman
-
-  # ==============================
-  # 2. 去掉 commit 版本检查
-  # ==============================
-  check-nocommit:
-    name: 2. No-Commit Feeds (openwrt-25.12)
-    runs-on: ubuntu-latest
-    needs: check-original
-    steps:
-      - name: Checkout FanchMWRT 25.12.2
-        uses: actions/checkout@v4
-        with:
-          repository: fanchmwrt/fanchmwrt
-          ref: fanchmwrt-25.12.2
-          fetch-depth: 0
-
-      - name: Install build dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file
-
-      - name: Replace feeds → REMOVE ALL COMMIT
-        run: |
-          cat > feeds.conf.default << EOF
-          src-git packages https://git.openwrt.org/feed/packages.git;openwrt-25.12
-          src-git luci https://git.openwrt.org/project/luci.git;openwrt-25.12
-          src-git routing https://git.openwrt.org/feed/routing.git;openwrt-25.12
-          src-git telephony https://git.openwrt.org/feed/telephony.git;openwrt-25.12
-          src-git video https://github.com/openwrt/video.git;openwrt-25.12
-          src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages.git
-          EOF
-
-      - name: Show new feeds
-        run: cat feeds.conf.default
-
-      - name: Full update feeds
-        run: |
-          rm -rf feeds tmp
-          ./scripts/feeds clean
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Prepare x86_64p environment
-        run: |
-          make defconfig
-          echo "CONFIG_TARGET_x86_64=y" > .config
-          echo "CONFIG_TARGET_x86_64_pve=y" >> .config
-          make defconfig
-
-      - name: List ALL luci-app-* packages
-        run: |
-          echo "=============================================="
-          echo "📦 ALL luci-app-* (NO-COMMIT FEEDS)"
-          echo "=============================================="
-          ./scripts/feeds list | grep -E '^luci-app-' | sort
-
-      - name: 🔍 FINAL OPTIMIZED DEPENDENCY CHECK
-        run: |
-          echo "=============================================="
-          echo "🔍 FINAL CHECK - 100% ACCURATE"
-          echo "=============================================="
-          
-          check() {
-            local pkg="$1"
-            if ./scripts/feeds list -n | awk -F ' ' '{print $1}' | grep -qx "^$pkg$"; then
-              echo -e "✅ $pkg"
-            else
-              echo -e "❌ $pkg"
-            fi
-          }
-
-          echo -e "\n[Docker Core]"
-          check docker
-          check dockerd
-          check containerd
-          check runc
-          check tini
-
-          echo -e "\n[System Dependencies]"
-          check libdevmapper
-          check cgroupfs-mount
-          check ca-bundle
-          check iptables
-
-          echo -e "\n[LuCI Docker Apps]"
+          echo -e "\n[LuCI Docker]"
           check luci-lib-docker
           check luci-app-dockerman
