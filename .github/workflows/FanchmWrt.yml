@@ -54,49 +54,42 @@ jobs:
             python3 python3-dev wget file jq xxd \
             quilt autoconf automake bison flex pkgconf libelf-dev
 
-      # ========== 官方 feeds 100% openwrt-25.12 ==========
-      - name: Use official OpenWrt 25.12 feeds
-        run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/openwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/openwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          EOF
-      
-      - name: Update & install official feeds
+      - name: Update & install feeds
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # ========== 第三方插件 feeds ==========
       - name: Add third-party feeds
         run: |
           cat >> feeds.conf.default << 'EOF'
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
-          src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
           src-git dockerlib https://github.com/lisaac/luci-lib-docker.git
           EOF
 
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # ========== 安装所有必需工具：yq + node + ruby（全部保留）==========
-      - name: Install yq, nodejs, ruby
+      - name: Install yq ruby
         run: |
-          # Install yq
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefar/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
-          # Install nodejs 18.x
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs ruby ruby-dev
-      
+
+      # 自动修复缺失的 5 个 Docker 依赖
+      - name: Fix missing Docker dependencies
+        run: |
+          mkdir -p package/libs package/system package/network/utils
+          git clone https://github.com/openwrt/openwrt tmp/openwrt --depth 1
+          cp -rf tmp/openwrt/package/libs/libdevmapper package/libs/
+          cp -rf tmp/openwrt/package/system/cgroupfs-mount package/system/
+          cp -rf tmp/openwrt/package/system/ca-bundle package/system/
+          cp -rf tmp/openwrt/package/network/utils/iptables package/network/utils/
+          rm -rf tmp/openwrt
+
       - name: Download package source
         run: |
           make download -j$(nproc) || true
       
-      # ========== 完整配置（所有插件都在）==========
       - name: Setup build configuration
         run: |
           cat > .config << 'EOF'
@@ -124,7 +117,7 @@ jobs:
           CONFIG_PACKAGE_ruby=y
           CONFIG_PACKAGE_ruby-yaml=y
 
-          # Docker 相关（全部来自官方 openwrt-25.12）
+          # Docker 相关
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
           CONFIG_PACKAGE_containerd=y
@@ -216,7 +209,6 @@ jobs:
           ✅ nodejs 18.x
           ✅ ruby
 
-          ## 依赖来源（100% 规范）
-          官方 openwrt-25.12: golang, docker, dockerd, ttyd, luci-lib-jsonc
-          第三方: unblockneteasemusic, openclash, dockerman, luci-lib-docker
+          ## 已修复依赖
+          ✅ libdevmapper ✅ cgroupfs-mount ✅ ca-bundle ✅ iptables ✅ luci-lib-docker
           EOF
