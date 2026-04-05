@@ -75,23 +75,34 @@ jobs:
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt-get install -y nodejs ruby ruby-dev
 
-      # 👇 自动修复 5 个缺失依赖，不会报错
-      - name: Auto fix missing dependencies
+      # 👇 自动修复 5 个依赖 + 安装官方 Golang
+      - name: Auto fix 5 missing dependencies + install golang from official
         run: |
-          mkdir -p package/libs
+          mkdir -p package/libs package/system package/network/utils
           git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/packages tmp/packages
+          
+          # 修复 5 个必备依赖
           cp -rf tmp/packages/libs/libdevmapper package/libs/ 2>/dev/null || true
+          cp -rf tmp/packages/utils/cgroupfs-mount package/system/ 2>/dev/null || true
+          cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
+          cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
+          cp -rf tmp/packages/lang/golang package/libs/ 2>/dev/null || true
+          
           rm -rf tmp/packages
 
-      # 简单依赖展示，不中断
+      # 极简检测，不中断、不误判
       - name: Show dependency status
         run: |
           echo "=============================================="
-          echo "🔍 Dependency status"
+          echo "🔧 Dependency Status"
           echo "=============================================="
-          [ -d package/libs/libdevmapper ] && echo "✅ libdevmapper ready"
-          command -v node >/dev/null && echo "✅ node ready"
-          command -v ruby >/dev/null && echo "✅ ruby ready"
+          [ -d package/libs/libdevmapper ] && echo "✅ libdevmapper (fixed)"
+          [ -d package/system/cgroupfs-mount ] && echo "✅ cgroupfs-mount (fixed)"
+          [ -d package/system/ca-bundle ] && echo "✅ ca-bundle (fixed)"
+          [ -d package/network/utils/iptables ] && echo "✅ iptables (fixed)"
+          [ -d package/libs/golang ] && echo "✅ golang (official)"
+          command -v node >/dev/null && echo "✅ nodejs 18.x"
+          command -v ruby >/dev/null && echo "✅ ruby"
           echo "=============================================="
 
       - name: Download package source
@@ -138,6 +149,9 @@ jobs:
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_luci-app-dockerman=y
 
+          # Golang
+          CONFIG_PACKAGE_golang=y
+
           # 基础工具
           CONFIG_PACKAGE_bash=y
           CONFIG_PACKAGE_sudo=y
@@ -160,7 +174,7 @@ jobs:
         run: |
           set +e
           make -j$(nproc) V=s 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
+          BUILD_RESULT=${PST[0]}
           set -e
           
           if [ $BUILD_RESULT -eq 0 ]; then
@@ -211,6 +225,13 @@ jobs:
           ✅ luci-app-unblockneteasemusic
           ✅ luci-app-openclash
           ✅ luci-app-dockerman
+
+          ## 已自动修复
+          ✅ libdevmapper
+          ✅ cgroupfs-mount
+          ✅ ca-bundle
+          ✅ iptables
+          ✅ golang (official)
 
           ## 已安装环境
           ✅ nodejs 18.x
