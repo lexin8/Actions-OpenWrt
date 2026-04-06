@@ -26,10 +26,31 @@ jobs:
           fetch-depth: 0
           ref: fanchmwrt-25.12.2
 
+      # ==================== 新增：OpenWrt 编译缓存（加速二次编译） ====================
+      - name: Cache ccache and dl directory
+        uses: actions/cache@v4
+        with:
+          # 缓存路径：编译器缓存 + 源码下载目录
+          path: |
+            ~/.ccache
+            ./dl
+          # 缓存键：系统+分支，自动增量更新
+          key: ${{ runner.os }}-openwrt-${{ github.ref_name }}-cache
+          restore-keys: |
+            ${{ runner.os }}-openwrt-
+
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev
+          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev ccache
+
+      # ==================== 新增：启用 ccache 编译器缓存 ====================
+      - name: Enable ccache
+        run: |
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+          ccache -M 10G  # 设置缓存大小 10GB
+          ccache -s      # 显示缓存状态
 
       - name: Update feeds
         run: |
@@ -77,7 +98,7 @@ jobs:
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_PACKAGE_omcproxy=n
           CONFIG_PACKAGE_igmpproxy=y
-          # 基础工具（移除默认自带的ping/iputils-ping）
+          # 基础工具
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_which=y
           CONFIG_PACKAGE_bash=y
@@ -197,34 +218,153 @@ jobs:
           # CONFIG_PACKAGE_kmod-drm-i915 is not set
           EOF
           make defconfig
-
-      # 编译：多线程失败自动单线程重编出详细日志
-      - name: Build firmware
+          echo "✅ 配置完成"
+          grep -c "=" .config || true
+      
+      - name: Build OpenWrt firmware
+        id: build
         run: |
-          echo "🚀 开始多线程编译..."
-          if ! make -j$(nproc); then
-            echo -e "\n❌ 编译失败，切换单线程输出完整错误日志..."
+          set +e
+          echo "开始编译 OpenWrt 固件 (x86_64) - 多线程模式..."
+          # 多线程编译（无详细日志）
+          make -j$(nproc) 2>&1 | tee build.log
+          BUILD_RESULT=${PIPESTATUS[0]}
+          
+          # 多线程编译失败 → 自动单线程重编+输出详细日志
+          if [ $BUILD_RESULT -ne 0 ]; then
+            echo -e "\n❌ 多线程编译失败，切换单线程+详细日志重编..."
             make clean
-            make -j1 V=s
+            make -j1 V=s 2>&1 | tee -a build.log
+            BUILD_RESULT=${PIPESTATUS[0]}
           fi
-
-      - name: Collect firmware
+          
+          set -e
+          
+          # 显示 ccache 最终使用状态
+          ccache -s
+          
+          # 最终构建状态判断
+          if [ $BUILD_RESULT -eq 0 ]; then
+            echo "✅ 编译成功"
+            echo "build_status=success" >> $GITHUB_OUTPUT
+            exit 0
+          else
+            echo "❌ 编译失败"
+            echo "build_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: Collect firmware files
+        if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
-          if [ -d "bin/targets/x86_64" ]; then
-            cp -rf bin/targets/x86_64/* firmware/
+          
+          # Copy firmware images
+          echo "📦 收集固件镜像..."
+          cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
+          
+          # Copy packages
+          if [ -d "bin/packages" ]; then
+            echo "📦 收集架构相关包..."
+            mkdir -p firmware/packages
+            cp -rv bin/packages/* firmware/packages/ 2>/dev/null || true
           fi
-
-      - name: Upload firmware
+          
+          # Copy target-specific packages
+          if [ -d "bin/targets/x86/64/packages" ]; then
+            echo "📦 收集目标相关包..."
+            mkdir -p firmware/target-packages
+            cp -rv bin/targets/x86/64/packages/* firmware/target-packages/ 2>/dev/null || true
+          fi
+          
+          echo ""
+          echo "📊 固件目录结构:"
+          du -sh firmware/
+          ls -lh firmware/ | head -20
+      
+      - name: Create firmware archive
+        if: steps.build.outputs.build_status == 'success'
+        run: |
+          echo "📦 打包固件..."
+          cd firmware
+          tar -czf ../openwrt-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz *
+          cd ..
+          
+          echo "✅ 固件包信息:"
+          ls -lh openwrt-x86_64-*.tar.gz
+      
+      - name: Upload firmware artifacts
+        if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-x86_64-${{ needs.prepare.outputs.build_time }}
-          path: firmware/
-
-      - name: Upload log
+          name: openwrt-x86_64-firmware
+          path: openwrt-x86_64-*.tar.gz
+          retention-days: 30
+      
+      - name: Upload all packages
+        if: steps.build.outputs.build_status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-x86_64-packages-all
+          path: bin/
+          retention-days: 30
+      
+      - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
-          path: build.log
+          name: build-logs
+          path: |
+            build.log
+            logs/
           retention-days: 7
+      
+      - name: Show build summary on failure
+        if: failure()
+        run: |
+          echo "❌ 编译失败 - 显示最后 200 行构建日志:"
+          tail -n 200 build.log
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [prepare, build-firmware]
+    if: always()
+    
+    steps:
+      - name: Generate build summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # 📦 OpenWrt x86_64 Firmware Build
+          
+          **Build Status:** ${{ needs.build-firmware.result }}
+          **Build Time:** ${{ needs.prepare.outputs.build_time }}
+          
+          ## Target Configuration
+          - Platform: x86_64 Generic
+          - Branch: fanchmwrt-25.12.2
+          - Kernel Partition: 100 MB
+          - Root FS: 1024 MB (Ext4)
+          
+          ## 🎵 Core Applications
+          | App | Description | Source |
+          |-----|-------------|--------|
+          | luci-app-unblockneteasemusic | 网易云音乐解锁 | UnblockNeteaseMusic |
+          | luci-app-openclash | OpenClash 代理工具 | vernesong/OpenClash |
+          | luci-app-dockerman | Docker 管理界面 | lisaac/luci-app-dockerman |
+          
+          ## 📡 Additional Services
+          | Category | Packages |
+          |----------|----------|
+          | VPN | IPsec, L2TP, PPTP |
+          | Container | Docker, Docker Compose |
+          | Utilities | ttyd, DDNS, UDPXY |
+          | Firewall | Firewall4 (nftables) |
+          
+          ## 📊 Build Info
+          - Feeds: Official OpenWrt + 第三方插件源
+          - Included: 基础工具 + 网络套件 + LuCI中文界面
+          - Compilation: 并行编译 + 失败自动单线程重编 + ccache 缓存加速
+          
+          [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
