@@ -9,11 +9,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # ==================== OpenWrt 官方纯净版 ====================
           - type: official
             display: OpenWrt官方纯净版(25.12)
             repo: https://git.openwrt.org/openwrt/openwrt.git
             branch: openwrt-25.12
             extra_feeds: false
+
+          # ==================== fanchmwrt 定制版 ====================
           - type: fanchmwrt
             display: fanchmwrt定制版(25.12.2)
             repo: https://github.com/fanchmwrt/fanchmwrt.git
@@ -47,14 +50,14 @@ jobs:
           key: ccache-${{ matrix.type }}-${{ github.run_id }}
           restore-keys: ccache-${{ matrix.type }}-
 
-      - name: 配置CCache
+      - name: 配置CCache加速
         run: |
           mkdir -p ${{ github.workspace }}/ccache-${{ matrix.type }}
           ccache --set-config=cache_dir=${{ github.workspace }}/ccache-${{ matrix.type }}
           ccache -M 10G -o compression=true
           ccache -s
 
-      - name: 修复工具链
+      - name: 修复编译工具链
         run: |
           export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
@@ -66,46 +69,56 @@ jobs:
       - name: 配置软件源
         run: |
           cd openwrt
-          # 仅定制版添加第三方源，官方版完全不添加
-          if [ "${{ matrix.extra_feeds }}" = "true" ]; then
+          # 仅定制版添加第三方源 | 官方版纯官方源
+          if [ ${{ matrix.extra_feeds }} ]; then
             echo "src-git dockerman https://github.com/lisaac/luci-app-dockerman.git" >> feeds.conf.default
           fi
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 基础配置
+      - name: 生成编译配置
         run: |
           cd openwrt
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
+          # 启用官方自带 luci-app-dockerman
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
           EOF
           make defconfig
 
-      - name: 环境初始化
+      # ==============================================
+      # 🔥 核心：仅定制版执行环境初始化 | 官方版彻底跳过
+      # ==============================================
+      - name: 环境初始化 (仅定制版)
+        if: matrix.extra_feeds
         run: |
           cd openwrt
           make prepare CCACHE=1 -j$(nproc) V=s
 
       # ==============================================
-      # 🔥 核心：仅定制版编译依赖 + 直接编译 luci-app-dockerman
-      # 官方版：完全跳过，不编译任何包
+      # 仅定制版手动编译依赖 | 官方版使用系统默认
       # ==============================================
-      - name: 定制版编译全套（官方版跳过）
-        if: matrix.extra_feeds == 'true'
+      - name: 手动编译依赖 (仅定制版)
+        if: matrix.extra_feeds
         run: |
           cd openwrt
           make package/libuv/compile CCACHE=1 V=s -j$(nproc)
           make package/libwebsockets/compile CCACHE=1 V=s -j$(nproc)
           make package/ttyd/compile CCACHE=1 V=s -j$(nproc)
           make package/ucode-mod-socket/compile CCACHE=1 V=s -j$(nproc)
-          make package/runc/compile CCACHE=1 V=s -j$(nproc)
-          make package/containerd/compile CCACHE=1 V=s -j$(nproc)
-          make package/dockerd/compile CCACHE=1 V=s -j$(nproc)
-          make package/docker/compile CCACHE=1 V=s -j$(nproc)
-          # 直接编译目标插件
+
+      # ==============================================
+      # 双版本统一编译 luci-app-dockerman
+      # ==============================================
+      - name: 编译 luci-app-dockerman
+        run: |
+          cd openwrt
           make package/luci-app-dockerman/compile CCACHE=1 V=s -j$(nproc)
+          make package/index CCACHE=1 V=s -j$(nproc)
 
       - name: 上传编译产物
         uses: actions/upload-artifact@v4
