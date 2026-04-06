@@ -42,7 +42,6 @@ jobs:
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
-          src-git lisaac https://github.com/lisaac/luci-lib-docker.git
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -65,40 +64,6 @@ jobs:
           cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
           cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
           rm -rf tmp/packages
-
-      # 仅检测 luci-app-dockerman
-      - name: Check third-party plugin dependencies (仅检测 luci-app-dockerman)
-        run: |
-          echo "================================================================"
-          echo "🔍 第三方插件依赖检测（仅检查 luci-app-dockerman）"
-          echo "================================================================"
-
-          FEEDS_LIST=$(./scripts/feeds list | awk '{print $1}')
-          check_pkg() { echo "$FEEDS_LIST" | grep -qx "$1"; }
-
-          plugin_dir="feeds/dockerman/luci-app-dockerman"
-          [ -d "$plugin_dir" ] || { echo "❌ 未找到插件目录"; exit 0; }
-          name=$(basename "$plugin_dir")
-          makefile="$plugin_dir/Makefile"
-
-          echo -e "\n========================================================================"
-          echo "📦 插件：$name"
-          echo "========================================================================"
-
-          depends=$(cat "$makefile" | tr -d '\n\\' | grep -o "DEPENDS:=[^]*" | grep -o '\+[a-zA-Z0-9_-]\+' | tr -d '+' | sort -u)
-
-          if [ -z "$depends" ]; then
-            echo "ℹ️  未找到DEPENDS依赖"
-          else
-            echo "🧩 依赖检查结果："
-            for pkg in $depends; do
-              check_pkg "$pkg" && echo "  ✅ $pkg" || echo "  ❌ $pkg"
-            done
-          fi
-
-          echo -e "\n================================================================"
-          echo "✅ 检测完成"
-          echo "================================================================"
 
       - name: Build config
         run: |
@@ -166,7 +131,6 @@ jobs:
           CONFIG_PACKAGE_docker-compose=y
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_libnetwork=y
           CONFIG_PACKAGE_kmod-nft-fib=y
           CONFIG_PACKAGE_kmod-nf-flow=y
