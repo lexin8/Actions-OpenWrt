@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Set build time
         id: build_time
-        run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUE_OUTPUT
+        run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
   build-firmware:
     name: Build OpenWrt Firmware (x86_64 with LuCI Apps)
