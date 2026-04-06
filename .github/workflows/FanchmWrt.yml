@@ -46,6 +46,10 @@ jobs:
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          
+      - name: Fix rust
+        run: |
+          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
       - name: Install nodejs ruby
         run: |
@@ -226,6 +230,7 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
+          # CONFIG_PACKAGE_kmod-drm-i915 is not set
           EOF
           make defconfig
 
