@@ -15,7 +15,7 @@ jobs:
         run: echo "time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
   build-ipk:
-    runs-on: ubuntu-22.04  # 关键：必须用22.04，24.04会编译lua失败
+    runs-on: ubuntu-latest
     needs: prepare
     steps:
       - name: Checkout source
@@ -26,12 +26,11 @@ jobs:
           fetch-depth: 0
           ref: fanchmwrt-25.12.2
 
+      # 修复：安装完整系统依赖（包含lua编译必需的库）
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev
-          # 修复lua/host编译缺失的关键依赖
-          sudo apt install -y libreadline-dev liblua5.1-dev lua5.1
+          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev lua5.1 liblua5.1-dev libreadline-dev
 
       - name: Update feeds
         run: |
@@ -48,11 +47,11 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Fix rust & lua host compile
+      - name: Fix rust & lua compile
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-          # 强制跳过host lua编译错误（IPK编译不需要完整host工具链）
-          sed -i 's/host-compile/host-install/' package/utils/lua/Makefile 2>/dev/null || true
+          # 修复lua宿主编译权限/配置问题
+          chmod +x package/utils/lua/src/Makefile 2>/dev/null || true
 
       - name: Install nodejs ruby
         run: |
@@ -69,48 +68,50 @@ jobs:
           cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
           rm -rf tmp/packages
 
-      - name: Build config (最小化配置，仅用于IPK编译)
+      # 修复：最小化编译配置（必需）
+      - name: Build config
         run: |
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_DEVEL=y
-          CONFIG_BUILD_ALL=n
-          # 禁用host工具链强制编译（核心修复）
-          CONFIG_BUILD_HOST_TOOLCHAIN=n
+          CONFIG_BUILDBOT=y
           EOF
           make defconfig
 
-      # ==================== 按顺序编译IPK ====================
-      - name: Build luci-app-dockerman
+      # 核心修复：先编译宿主工具链（解决lua host编译失败）
+      - name: Build host tools & toolchain
         run: |
-          make package/luci-app-dockerman/compile V=s -j1
+          make tools/install -j$(nproc) V=s
+          make toolchain/install -j$(nproc) V=s
+
+      # 按顺序编译3个插件IPK
+      - name: Build luci-app-dockerman
+        run: make package/luci-app-dockerman/compile V=s -j$(nproc)
 
       - name: Build luci-app-openclash
         run: |
-          make package/luci-app-openclash/compile V=s -j1
-          make package/clash-meta/compile V=s -j1
+          make package/luci-app-openclash/compile V=s -j$(nproc)
+          make package/clash-meta/compile V=s -j$(nproc)
 
       - name: Build luci-app-unblockneteasemusic
-        run: |
-          make package/luci-app-unblockneteasemusic/compile V=s -j1
+        run: make package/luci-app-unblockneteasemusic/compile V=s -j$(nproc)
 
-      # 收集所有生成的 IPK 包
+      # 收集所有IPK
       - name: Collect all IPK files
         run: |
           mkdir -p ipk-packages
           find ./bin -name "*.ipk" | grep -E "(dockerman|openclash|unblockneteasemusic|clash-meta)" | xargs -I {} cp {} ipk-packages/
           ls -lh ipk-packages/
 
-      # 上传 IPK 插件
+      # 上传产物
       - name: Upload IPK packages
         uses: actions/upload-artifact@v4
         with:
           name: ipk-plugins-${{ needs.prepare.outputs.build_time }}
           path: ipk-packages/
 
-      # 上传编译日志
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
