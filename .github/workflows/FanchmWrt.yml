@@ -66,45 +66,58 @@ jobs:
       - name: Check third-party plugin dependencies (Makefile +LUCI_DEPENDS)
         run: |
           echo "================================================================"
-          echo "🔍 第三方插件依赖自动检测（仅检查feeds拉取的插件）"
+          echo "🔍 第三方插件依赖检测（仅检查 feeds 拉取的插件）"
           echo "================================================================"
-          FEEDS_LIST=$(./scripts/feeds list)
 
-          check_pkg() {
-            if grep -qw "$1" <<< "$FEEDS_LIST"; then return 0; else return 1; fi
+          FEEDS_LIST=$(./scripts/feeds list | awk '{print $1}')
+
+          check_package() {
+            local pkg="$1"
+            if echo "$FEEDS_LIST" | grep -qx "$pkg"; then
+              return 0
+            else
+              return 1
+            fi
           }
 
-          for plugin_path in feeds/unblockneteasemusic/luci-app-* \
-                              feeds/openclash/luci-app-* \
-                              feeds/dockerlib/luci-app-*; do
-            [ -d "$plugin_path" ] || continue
-            plugin_name=$(basename "$plugin_path")
-            makefile="$plugin_path/Makefile"
+          # 只扫描你在 third-party feeds 里添加的 3 个源
+          for feed in unblockneteasemusic openclash dockerlib; do
+            for plugin_dir in feeds/$feed/luci-app-*; do
+              [ -d "$plugin_dir" ] || continue
+              plugin_name=$(basename "$plugin_dir")
+              makefile="$plugin_dir/Makefile"
 
-            echo -e "\n📦 插件：$plugin_name"
-            echo "📂 路径：$plugin_path"
+              echo -e "\n========================================================================"
+              echo "📦 插件：$plugin_name"
+              echo "📂 来源：feeds/$feed"
+              echo "========================================================================"
 
-            [ -f "$makefile" ] || { echo "❌ 无Makefile，跳过"; continue; }
-
-            # 提取所有 +xxx 格式的依赖（完全匹配你给的格式）
-            depends=$(awk '/LUCI_DEPENDS|DEPENDS/{print $0}' "$makefile" | \
-                      tr -d '+' | \
-                      grep -Eo '[a-zA-Z0-9_-]+' | \
-                      grep -vE 'LUCI_DEPENDS|DEPENDS|@|\(|\)')
-
-            echo "🧩 提取依赖组件："
-            for pkg in $depends; do
-              [ -z "$pkg" ] && continue
-              if check_pkg "$pkg"; then
-                echo "  ✅ $pkg"
-              else
-                echo "  ❌ $pkg （缺失）"
+              if [ ! -f "$makefile" ]; then
+                echo "❌ 缺失 Makefile"
+                continue
               fi
+
+              # 稳定提取所有依赖（支持多行 + 带 \ 换行 + 带 + 号）
+              depends=$(sed 's/\\$//g' "$makefile" | awk '/^LUCI_DEPENDS|^DEPENDS/{flag=1; next} /^$/{flag=0} flag' | cat - <(grep "^LUCI_DEPENDS\|^DEPENDS" "$makefile") | tr -s ' \t' '\n' | grep -E '^\+[a-zA-Z0-9_-]+$' | sed 's/^+//g' | sort -u)
+
+              if [ -z "$depends" ]; then
+                echo "📌 未提取到依赖"
+                continue
+              fi
+
+              echo "🧩 依赖组件检查结果："
+              for pkg in $depends; do
+                if check_package "$pkg"; then
+                  echo "  ✅ $pkg"
+                else
+                  echo "  ❌ $pkg"
+                fi
+              done
             done
           done
 
           echo -e "\n================================================================"
-          echo "✅ 第三方插件依赖检测完成"
+          echo "✅ 所有第三方插件依赖检测完成"
           echo "================================================================"
 
       - name: Download packages
