@@ -1,16 +1,9 @@
-name: 双版本
+name: fanchmwrt 25
 on:
   workflow_dispatch:
 
-# 全局环境配置
-env:
-  CCACHE_DIR: ${{ github.workspace }}/ccache-${{ matrix.type }}
-  CCACHE_MAXSIZE: 10G
-  GIT_DISCOVERY_ACROSS_FILESYS: 1
-
 jobs:
   build:
-    # 并行编译两个版本
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -39,7 +32,7 @@ jobs:
           g++-multilib gettext git libncurses-dev libssl-dev python3-distutils \
           python3-pip python3-setuptools rsync unzip zlib1g-dev file wget ccache
 
-      # 源码缓存（版本隔离）
+      # 隔离缓存：官方版/定制版互不干扰
       - name: Cache DL
         uses: actions/cache@v4
         with:
@@ -47,32 +40,34 @@ jobs:
           key: dl-${{ matrix.type }}-${{ hashFiles('openwrt/feeds.conf.default') }}
           restore-keys: dl-${{ matrix.type }}-
 
-      # 编译缓存（版本隔离）
       - name: Cache CCache
         uses: actions/cache@v4
         with:
-          path: ${{ env.CCACHE_DIR }}
+          path: ${{ github.workspace }}/ccache-${{ matrix.type }}
           key: ccache-${{ matrix.type }}-${{ github.run_id }}
           restore-keys: ccache-${{ matrix.type }}-
 
       - name: 配置CCache
         run: |
-          mkdir -p $CCACHE_DIR
-          ccache -M $CCACHE_MAXSIZE -o compression=true
+          mkdir -p ${{ github.workspace }}/ccache-${{ matrix.type }}
+          ccache --set-config=cache_dir=${{ github.workspace }}/ccache-${{ matrix.type }}
+          ccache -M 10G -o compression=true
           ccache -s
 
-      # 工具链编译修复
+      # 工具链修复（你仓库原生配置）
       - name: 修复工具链编译环境
         run: |
           export CFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
+          echo "工具链修复完成"
 
       # 克隆对应源码
       - name: 克隆 ${{ matrix.display }} 源码
         run: git clone --depth 1 ${{ matrix.repo }} -b ${{ matrix.branch }} openwrt
 
-      # 仅定制版添加第三方源 | 官方版不执行
+      # 官方版：纯原生，不添加任何第三方
+      # 定制版：自动添加dockerman第三方源
       - name: 配置软件源
         run: |
           cd openwrt
@@ -82,8 +77,8 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      # 统一编译配置（官方版无第三方插件）
-      - name: 生成编译配置
+      # 统一编译配置
+      - name: 生成.config
         run: |
           cd openwrt
           cat > .config << EOF
@@ -98,13 +93,13 @@ jobs:
           EOF
           make defconfig
 
-      - name: 初始化编译环境
+      - name: 官方标准环境初始化
         run: |
           cd openwrt
           make prepare CCACHE=1 -j$(nproc) V=s
 
-      # 分版本编译
-      - name: 编译核心组件
+      # 核心依赖编译（双版本通用）
+      - name: 编译基础组件
         run: |
           cd openwrt
           make package/libuv/compile CCACHE=1 V=s -j$(nproc)
@@ -115,16 +110,16 @@ jobs:
           make package/containerd/compile CCACHE=1 V=s -j$(nproc)
           make package/dockerd/compile CCACHE=1 V=s -j$(nproc)
           make package/docker/compile CCACHE=1 V=s -j$(nproc)
-          
-      # 仅定制版编译第三方插件
-      - name: 编译 luci-app-dockerman (仅定制版)
-        if: ${{ matrix.extra_feeds == 'true' }}
+
+      # 仅定制版编译第三方dockerman插件
+      - name: 编译 luci-app-dockerman
+        if: matrix.extra_feeds
         run: |
           cd openwrt
           make package/luci-app-dockerman/compile CCACHE=1 V=s -j$(nproc)
 
-      # 上传产物（隔离命名）
-      - name: 上传编译成果
+      # 上传产物（隔离命名，互不覆盖）
+      - name: 上传IPK包
         uses: actions/upload-artifact@v4
         with:
           name: ipk-${{ matrix.type }}
