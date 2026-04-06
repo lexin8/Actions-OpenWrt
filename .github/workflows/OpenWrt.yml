@@ -94,3 +94,24 @@ jobs:
           echo -e "\n=============================================="
           echo "✅ 检查完成，无任何错误"
           echo "=============================================="
+
+      # ========== 新增：提取并上传 .config 中所有 =y 的配置 ==========
+      - name: 📄 Extract all CONFIG_*=y from .config
+        run: |
+          if [ ! -f .config ]; then
+            echo "❌ .config not found! Did 'make defconfig' run successfully?"
+            exit 1
+          fi
+          grep '=y$' .config | sort > config_y.txt
+          echo "✅ Extracted $(wc -l < config_y.txt) config options with =y"
+          echo "📋 First 10 lines:"
+          head -10 config_y.txt || true
+
+      - name: 📦 Upload config artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-build-config
+          path: |
+            .config
+            config_y.txt
+          if-no-files-found: error
