@@ -1,121 +1,86 @@
-name: FanchmWrt-IPK
-on: workflow_dispatch
-permissions:
-  contents: read
-  actions: write
+name: fanchmwrt 25
+on:
+  workflow_dispatch:  # 仅手动触发
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    outputs:
-      build_time: ${{ steps.build_time.outputs.time }}
+  test:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Set build time
-        id: build_time
-        run: echo "time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-
-  build-ipk:
-    runs-on: ubuntu-latest
-    needs: prepare
-    steps:
-      - name: Checkout source
+      - name: 初始化环境
         uses: actions/checkout@v4
-        with:
-          repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: fanchmwrt-25.12.2
 
-      # 修复：安装完整系统依赖（包含lua编译必需的库）
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev lua5.1 liblua5.1-dev libreadline-dev
+      # 最小化依赖安装，提速
+      - name: 安装编译依赖
+        run: sudo apt update && sudo apt install -y build-essential git libncurses-dev python3
 
-      - name: Update feeds
+      # 浅层克隆源码，速度最快
+      - name: 克隆 fanchmwrt-25.12.2
+        run: git clone --depth 1 https://github.com/fanchmwrt/fanchmwrt.git -b fanchmwrt-25.12.2 openwrt
+
+      - name: 更新软件源
         run: |
-          ./scripts/feeds update -a
+          cd openwrt
+          ./scripts/feeds update packages luci
           ./scripts/feeds install -a
 
-      - name: Add third-party feeds
+      # ===================== 核心1：检测源码是否原生自带插件 =====================
+      - name: 检测原生 luci-app-dockerman
         run: |
-          cat >> feeds.conf.default << EOF
-          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
-          src-git openclash https://github.com/vernesong/OpenClash.git
-          src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
-          EOF
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          cd openwrt
+          echo -e "\033[1;36m========== 检测：源码是否原生自带插件 ==========\033[0m"
+          if [ -d "feeds/luci/applications/luci-app-dockerman" ] || [ -d "package/luci-app-dockerman" ]; then
+            echo -e "\033[1;32m✅ fanchmwrt 原生自带 luci-app-dockerman\033[0m"
+          else
+            echo -e "\033[1;31m❌ fanchmwrt 无原生插件，自动拉取第三方\033[0m"
+            echo "src-git dockerman https://github.com/lisaac/luci-app-dockerman.git" >> feeds.conf.default
+            ./scripts/feeds update dockerman
+            ./scripts/feeds install luci-app-dockerman luci-lib-docker
+          fi
 
-      - name: Fix rust & lua compile
+      # ===================== 核心2：编译【插件+全套依赖组件】 =====================
+      - name: 编译 Dockerman 全套依赖IPK
         run: |
-          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-          # 修复lua宿主编译权限/配置问题
-          chmod +x package/utils/lua/src/Makefile 2>/dev/null || true
-
-      - name: Install nodejs ruby
-        run: |
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt install -y nodejs ruby ruby-dev
-
-      - name: Auto fix missing dependencies
-        run: |
-          mkdir -p package/libs package/system package/network/utils
-          git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/packages tmp/packages
-          cp -rf tmp/packages/libs/libdevmapper package/libs/ 2>/dev/null || true
-          cp -rf tmp/packages/utils/cgroupfs-mount package/system/ 2>/dev/null || true
-          cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
-          cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
-          rm -rf tmp/packages
-
-      # 修复：最小化编译配置（必需）
-      - name: Build config
-        run: |
-          cat > .config << EOF
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_DEVEL=y
-          CONFIG_BUILDBOT=y
-          EOF
+          cd openwrt
+          echo -e "\033[1;36m========== 开始编译：插件+所有依赖组件 ==========\033[0m"
           make defconfig
+          
+          # 编译顺序：依赖库 → 核心组件 → 主插件（保证编译成功）
+          # 1. LuCI依赖库
+          make package/luci-lib-docker/compile V=s -j$(nproc)
+          # 2. Docker核心组件
+          make package/docker/compile V=s -j$(nproc)
+          make package/dockerd/compile V=s -j$(nproc)
+          make package/containerd/compile V=s -j$(nproc)
+          make package/runc/compile V=s -j$(nproc)
+          make package/docker-compose/compile V=s -j$(nproc)
+          # 3. 主插件
+          make package/luci-app-dockerman/compile V=s -j$(nproc)
 
-      # 核心修复：先编译宿主工具链（解决lua host编译失败）
-      - name: Build host tools & toolchain
+      # ===================== 核心3：校验所有组件是否编译成功 =====================
+      - name: 最终校验+结果报告
         run: |
-          make tools/install -j$(nproc) V=s
-          make toolchain/install -j$(nproc) V=s
+          cd openwrt
+          echo -e "\033[1;36m========== 最终检测报告 ==========\033[0m"
+          # 定义所有关键文件
+          MAIN_IPK=$(find bin/packages/ -name "luci-app-dockerman*.ipk" | head -1)
+          LIB_IPK=$(find bin/packages/ -name "luci-lib-docker*.ipk" | head -1)
+          DOCKERD_IPK=$(find bin/packages/ -name "dockerd*.ipk" | head -1)
 
-      # 按顺序编译3个插件IPK
-      - name: Build luci-app-dockerman
-        run: make package/luci-app-dockerman/compile V=s -j$(nproc)
+          # 校验结果
+          if [ -n "$MAIN_IPK" ] && [ -n "$LIB_IPK" ] && [ -n "$DOCKERD_IPK" ]; then
+            echo -e "\033[1;32m🎉 测试完全通过！"
+            echo -e "✅ 插件+全套依赖编译成功"
+            echo -e "📦 主插件：$MAIN_IPK"
+            echo -e "📦 依赖库：$LIB_IPK"
+            echo -e "📦 服务端：$DOCKERD_IPK\033[0m"
+          else
+            echo -e "\033[1;31m💥 测试失败！部分组件编译失败\033[0m"
+            exit 1
+          fi
 
-      - name: Build luci-app-openclash
-        run: |
-          make package/luci-app-openclash/compile V=s -j$(nproc)
-          make package/clash-meta/compile V=s -j$(nproc)
-
-      - name: Build luci-app-unblockneteasemusic
-        run: make package/luci-app-unblockneteasemusic/compile V=s -j$(nproc)
-
-      # 收集所有IPK
-      - name: Collect all IPK files
-        run: |
-          mkdir -p ipk-packages
-          find ./bin -name "*.ipk" | grep -E "(dockerman|openclash|unblockneteasemusic|clash-meta)" | xargs -I {} cp {} ipk-packages/
-          ls -lh ipk-packages/
-
-      # 上传产物
-      - name: Upload IPK packages
+      # 上传所有编译好的IPK（插件+全套依赖）
+      - name: 上传全套IPK组件
         uses: actions/upload-artifact@v4
         with:
-          name: ipk-plugins-${{ needs.prepare.outputs.build_time }}
-          path: ipk-packages/
-
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ipk-build-log
-          path: logs/
-          retention-days: 7
+          name: dockerman-full-ipk
+          path: openwrt/bin/packages/**/*.ipk
