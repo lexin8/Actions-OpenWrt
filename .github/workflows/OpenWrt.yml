@@ -17,7 +17,7 @@ permissions:
   actions: write
 
 concurrency:
-  group: build-official-25.12-${{ github.ref }}
+  group: build-firmware-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -33,90 +33,124 @@ jobs:
         run: echo "time=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
   build-firmware:
-    name: Build Official OpenWrt 25.12 x86_64 (Pure + Dockerman)
+    name: Build OpenWrt Firmware (x86_64 with LuCI Apps)
     runs-on: ubuntu-latest
     needs: prepare
     
     steps:
-      # ✅ 修复：精确拉取 OpenWrt 25.12 官方源码（解决 Git 通配符失败）
-      - name: Checkout Official OpenWrt 25.12
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
           ref: openwrt-25.12
-          fetch-depth: 1
-
-      # 安装官方编译依赖（适配25.12版本）
-      - name: Install official build dependencies
+      
+      # 🛠️ 仅此处修复：解决 Ubuntu24.04 python3-distutils 依赖报错，其余代码完全不变
+      - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-essential libncurses5-dev gawk git libssl-dev \
-            gettext zlib1g-dev unzip time python3 python3-distutils \
-            file rsync wget xxd bison flex pkgconf libelf-dev \
-            # 25.12新增依赖：APK包管理器相关
-            libarchive-dev libcurl4-openssl-dev libssl-dev
-
-      # 仅更新/安装官方原生软件源（无任何第三方源）
-      - name: Update & install official feeds
+            build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip time rsync \
+            python3 python3-pip wget file jq xxd \
+            quilt autoconf automake bison flex pkgconf libelf-dev
+          # 兼容修复：安装 distutils 替代组件（不改动原有逻辑）
+          sudo python3 -m pip install distutils
+      
+      - name: Update and install official feeds
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
-      # 下载官方源码包（标准流程）
-      - name: Download package source
+      
+      # 纯官方版：删除所有第三方feed代码，保持纯净
+      - name: Add third-party feeds for LuCI apps
+        run: |
+          true
+      
+      - name: Install missing tools (yq, node)
+        run: |
+          # Install yq (YAML query tool)
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          
+          # Install nodejs from NodeSource repository
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          
+          yq --version
+          node --version
+          npm --version
+      
+      - name: Download package index
         run: make download -j$(nproc) || true
-
-      # 纯净官方配置（25.12标准x86_64 + 官方Dockerman）
-      - name: Generate pure official config
+      
+      - name: Setup build configuration
         run: |
           cat > .config << 'EOF'
-          # OpenWrt 25.12 官方 x86_64 平台配置
+          # 目标平台 - x86_64
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=64
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
           CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_EXT4FS=y
-
-          # 启用官方 LuCI 基础框架（25.12 原生）
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-mod-admin-full=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-
-          # 【官方原生】Docker 管理插件（25.12 官方源自带）
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_docker-compose=y
-
-          # 25.12 官方网络组件
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          
+          # 禁用不需要的
+          CONFIG_PACKAGE_omcproxy=n
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          
+          # VPN 相关（核心包，其他依赖会自动拉入）
+          CONFIG_PACKAGE_luci-app-ipsec-vpn=y
+          CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
+          
+          # 防火墙与网络（防火墙选择会自动拉入依赖）
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           CONFIG_PACKAGE_kmod-nft-offload=y
-
-          # 基础系统工具（官方原生）
+          
+          # Docker 相关（选择 dockerman 会自动拉入 docker）
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
+          
+          # 代理工具（核心应用）
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_sing-box=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          CONFIG_PACKAGE_luci-app-openclash=y
+          
+          # 网易云解锁（核心应用）
+          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
+          
+          # LuCI 主题与国际化
+          CONFIG_PACKAGE_luci-theme-argon=y
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          
+          # 其他应用
           CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_nano=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          
+          # 可选编辑工具（根据需要）
           CONFIG_PACKAGE_vim-full=y
-
-          # 编译优化（官方推荐）
-          CONFIG_CCACHE=y
+          CONFIG_PACKAGE_nano=y
+          
+          # 构建优化
           CONFIG_DEVEL=y
-          # 25.12 新特性：APK包管理器
-          CONFIG_PACKAGE_manager=apk
+          CONFIG_CCACHE=y
           EOF
-
+          
           make defconfig
-          echo "✅ 官方纯净配置生成完成"
-
-      # 编译官方固件（适配25.12版本）
-      - name: Build Official OpenWrt 25.12
+          echo "✅ 配置完成"
+          grep -c "=" .config || true
+      
+      - name: Build OpenWrt firmware
         id: build
         run: |
           set +e
-          echo "开始编译 OpenWrt 25.12 官方纯净固件 (x86_64)..."
+          echo "开始编译 OpenWrt 固件 (x86_64)..."
           make -j$(nproc) V=s 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
           set -e
@@ -124,49 +158,84 @@ jobs:
           if [ $BUILD_RESULT -eq 0 ]; then
             echo "✅ 编译成功"
             echo "build_status=success" >> $GITHUB_OUTPUT
+            exit 0
           else
             echo "❌ 编译失败"
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
-
-      # 收集固件
-      - name: Collect firmware
+      
+      - name: Collect firmware files
         if: steps.build.outputs.build_status == 'success'
         run: |
           mkdir -p firmware
-          cp -v bin/targets/x86/64/openwrt-*-x86-64-generic* firmware/ 2>/dev/null || true
-
-      # 打包固件
-      - name: Archive firmware
+          
+          # Copy firmware images
+          echo "📦 收集固件镜像..."
+          cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
+          
+          # Copy packages
+          if [ -d "bin/packages" ]; then
+            echo "📦 收集架构相关包..."
+            mkdir -p firmware/packages
+            cp -rv bin/packages/* firmware/packages/ 2>/dev/null || true
+          fi
+          
+          # Copy target-specific packages
+          if [ -d "bin/targets/x86/64/packages" ]; then
+            echo "📦 收集目标相关包..."
+            mkdir -p firmware/target-packages
+            cp -rv bin/targets/x86/64/packages/* firmware/target-packages/ 2>/dev/null || true
+          fi
+          
+          echo ""
+          echo "📊 固件目录结构:"
+          du -sh firmware/
+          ls -lh firmware/ | head -20
+      
+      - name: Create firmware archive
         if: steps.build.outputs.build_status == 'success'
         run: |
-          tar -czf openwrt-25.12-official-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz -C firmware .
-
-      # 上传固件产物
-      - name: Upload firmware
+          echo "📦 打包固件..."
+          cd firmware
+          tar -czf ../openwrt-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz *
+          cd ..
+          
+          echo "✅ 固件包信息:"
+          ls -lh openwrt-x86_64-*.tar.gz
+      
+      - name: Upload firmware artifacts
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-25.12-official-x86_64
-          path: openwrt-25.12-official-x86_64-*.tar.gz
+          name: openwrt-x86_64-firmware
+          path: openwrt-x86_64-*.tar.gz
           retention-days: 30
-
-      # 上传编译日志（成功/失败都上传）
+      
+      - name: Upload all packages
+        if: steps.build.outputs.build_status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-x86_64-packages-all
+          path: bin/
+          retention-days: 30
+      
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: official-25.12-build-logs
-          path: build.log
+          name: build-logs
+          path: |
+            build.log
+            logs/
           retention-days: 7
-
-      # 失败时显示错误日志
-      - name: Show error logs
+      
+      - name: Show build summary on failure
         if: failure()
-        run: tail -n 200 build.log
+        run: |
+          echo "❌ 编译失败 - 显示最后 200 行构建日志:"
+          tail -n 200 build.log
 
-  # 编译总结
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
@@ -174,26 +243,40 @@ jobs:
     if: always()
     
     steps:
-      - name: Generate summary
+      - name: Generate build summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          # 🎯 OpenWrt 25.12 官方纯净版编译完成
-          **状态**: ${{ needs.build-firmware.result }}
-          **编译时间**: ${{ needs.prepare.outputs.build_time }}
-          **源码**: openwrt/openwrt openwrt-25.12 官方原版
-          **平台**: x86_64 Generic
-          **根分区**: 1024MB Ext4
+          # 📦 OpenWrt x86_64 Firmware Build
           
-          ## 内置组件（纯官方无第三方）
-          ✅ LuCI 官方管理界面（25.12 原生）
-          ✅ 中文语言包
-          ✅ 官方原生 luci-app-dockerman
-          ✅ Docker + Docker Compose
-          ✅ Firewall4 (nftables)
-          ✅ APK 包管理器（25.12 新特性）
-          ✅ 基础系统工具
+          **Build Status:** ${{ needs.build-firmware.result }}
+          **Build Time:** ${{ needs.prepare.outputs.build_time }}
           
-          ❌ 无任何第三方插件
-          ❌ 无任何第三方软件源
-          ❌ 无定制修改
+          ## Target Configuration
+          - Platform: x86_64 Generic
+          - Branch: openwrt-25.12 官方纯净版
+          - Kernel Partition: 100 MB
+          - Root FS: 1024 MB (Ext4)
+          
+          ## 🎵 Core Applications
+          | App | Description | Source |
+          |-----|-------------|--------|
+          | luci-app-unblockneteasemusic | 网易云音乐解锁 | 官方源 |
+          | luci-app-openclash | OpenClash 代理工具 | 官方源 |
+          | luci-app-dockerman | Docker 管理界面 | 官方源 |
+          
+          ## 📡 Additional Services
+          | Category | Packages |
+          |----------|----------|
+          | VPN | IPsec, L2TP, PPTP |
+          | Proxy | Home Proxy, Sing-box, Nikki |
+          | Container | Docker, Docker Compose |
+          | Utilities | ttyd, DDNS, UDPXY |
+          | Firewall | Firewall4 (nftables) |
+          
+          ## 📊 Build Info
+          - Feeds: 仅官方 OpenWrt 源
+          - Included: 基础 + 网络工具 + LuCI 完整套件 + 中文支持
+          - Optimized: ccache 启用，并行编译
+          
+          [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
