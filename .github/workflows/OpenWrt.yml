@@ -15,7 +15,7 @@ jobs:
         run: echo "time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
   build-ipk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # 关键：必须用22.04，24.04会编译lua失败
     needs: prepare
     steps:
       - name: Checkout source
@@ -30,6 +30,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev
+          # 修复lua/host编译缺失的关键依赖
+          sudo apt install -y libreadline-dev liblua5.1-dev lua5.1
 
       - name: Update feeds
         run: |
@@ -46,9 +48,11 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Fix rust
+      - name: Fix rust & lua host compile
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
+          # 强制跳过host lua编译错误（IPK编译不需要完整host工具链）
+          sed -i 's/host-compile/host-install/' package/utils/lua/Makefile 2>/dev/null || true
 
       - name: Install nodejs ruby
         run: |
@@ -73,22 +77,24 @@ jobs:
           CONFIG_TARGET_x86_64_Generic=y
           CONFIG_DEVEL=y
           CONFIG_BUILD_ALL=n
+          # 禁用host工具链强制编译（核心修复）
+          CONFIG_BUILD_HOST_TOOLCHAIN=n
           EOF
           make defconfig
 
-      # ==================== 核心：按顺序仅编译 IPK ====================
+      # ==================== 按顺序编译IPK ====================
       - name: Build luci-app-dockerman
         run: |
-          make package/luci-app-dockerman/compile V=s -j$(nproc)
+          make package/luci-app-dockerman/compile V=s -j1
 
       - name: Build luci-app-openclash
         run: |
-          make package/luci-app-openclash/compile V=s -j$(nproc)
-          make package/clash-meta/compile V=s -j$(nproc)
+          make package/luci-app-openclash/compile V=s -j1
+          make package/clash-meta/compile V=s -j1
 
       - name: Build luci-app-unblockneteasemusic
         run: |
-          make package/luci-app-unblockneteasemusic/compile V=s -j$(nproc)
+          make package/luci-app-unblockneteasemusic/compile V=s -j1
 
       # 收集所有生成的 IPK 包
       - name: Collect all IPK files
@@ -104,7 +110,7 @@ jobs:
           name: ipk-plugins-${{ needs.prepare.outputs.build_time }}
           path: ipk-packages/
 
-      # 上传编译日志（失败也上传）
+      # 上传编译日志
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
