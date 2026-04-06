@@ -41,7 +41,8 @@ jobs:
           cat >> feeds.conf.default << EOF
           src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
-          src-git dockerlib https://github.com/lisaac/luci-lib-docker.git
+          src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
+          src-git lisaac https://github.com/lisaac/luci-lib-docker.git
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -51,7 +52,7 @@ jobs:
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs ruby ruby-dev
 
-      - name: Auto fix 5 dependencies + golang
+      - name: Auto fix missing dependencies
         run: |
           mkdir -p package/libs package/system package/network/utils
           git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/packages tmp/packages
@@ -59,30 +60,19 @@ jobs:
           cp -rf tmp/packages/utils/cgroupfs-mount package/system/ 2>/dev/null || true
           cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
           cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
-          cp -rf tmp/packages/lang/golang package/libs/ 2>/dev/null || true
           rm -rf tmp/packages
 
-      # 🔥 修复核心报错：自动去掉 luci-lib-docker 版本号的 v 前缀
-      - name: Fix luci-lib-docker invalid version (remove v prefix)
-        run: |
-          makefile_path="feeds/dockerlib/collections/luci-lib-docker/Makefile"
-          if [ -f "$makefile_path" ]; then
-            sed -i 's/PKG_VERSION:=v/PKG_VERSION:=/' "$makefile_path"
-            echo "✅ 已修复 luci-lib-docker 版本号：移除非法 v 前缀"
-          fi
-
+      # 仅检测 luci-app-dockerman
       - name: Check third-party plugin dependencies (仅检测 luci-app-dockerman)
         run: |
           echo "================================================================"
           echo "🔍 第三方插件依赖检测（仅检查 luci-app-dockerman）"
           echo "================================================================"
 
-          # 获取包列表
           FEEDS_LIST=$(./scripts/feeds list | awk '{print $1}')
           check_pkg() { echo "$FEEDS_LIST" | grep -qx "$1"; }
 
-          # 仅指定检测 dockerman 插件
-          plugin_dir="feeds/dockerlib/luci-app-dockerman"
+          plugin_dir="feeds/dockerman/luci-app-dockerman"
           [ -d "$plugin_dir" ] || { echo "❌ 未找到插件目录"; exit 0; }
           name=$(basename "$plugin_dir")
           makefile="$plugin_dir/Makefile"
@@ -91,8 +81,7 @@ jobs:
           echo "📦 插件：$name"
           echo "========================================================================"
 
-          # 稳定提取 DEPENDS 依赖（兼容多行、反斜杠、+号）
-          depends=$(cat "$makefile" | tr -d '\n\\' | grep -o "DEPENDS:=[^ ]*" | grep -o "\+[a-zA-Z0-9_-]\+" | tr -d '+' | sort -u)
+          depends=$(cat "$makefile" | tr -d '\n\\' | grep -o "DEPENDS:=[^]*" | grep -o '\+[a-zA-Z0-9_-]\+' | tr -d '+' | sort -u)
 
           if [ -z "$depends" ]; then
             echo "ℹ️  未找到DEPENDS依赖"
@@ -104,11 +93,8 @@ jobs:
           fi
 
           echo -e "\n================================================================"
-          echo "✅ 插件依赖检测完成"
+          echo "✅ 检测完成"
           echo "================================================================"
-
-      - name: Download packages
-        run: make download -j$(nproc) || true
 
       - name: Build config
         run: |
@@ -131,7 +117,6 @@ jobs:
           CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_luci-lib-docker=y
           CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_golang=y
           EOF
           make defconfig
 
