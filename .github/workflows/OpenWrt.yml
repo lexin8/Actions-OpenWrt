@@ -15,6 +15,7 @@ jobs:
             repo: https://git.openwrt.org/openwrt/openwrt.git
             branch: openwrt-25.12
             extra_feeds: false
+            build_dir: openwrt-official
 
           # ==================== fanchmwrt 定制版 ====================
           - type: fanchmwrt
@@ -22,6 +23,7 @@ jobs:
             repo: https://github.com/fanchmwrt/fanchmwrt.git
             branch: fanchmwrt-25.12.2
             extra_feeds: true
+            build_dir: openwrt-fanchmwrt
 
     name: ${{ matrix.display }}
     steps:
@@ -39,8 +41,8 @@ jobs:
       - name: Cache DL
         uses: actions/cache@v4
         with:
-          path: openwrt/dl
-          key: dl-${{ matrix.type }}-${{ hashFiles('openwrt/feeds.conf.default') }}
+          path: ${{ matrix.build_dir }}/dl
+          key: dl-${{ matrix.type }}-${{ hashFiles('${{ matrix.build_dir }}/feeds.conf.default') }}
           restore-keys: dl-${{ matrix.type }}-
 
       - name: Cache CCache
@@ -63,12 +65,13 @@ jobs:
           export CXXFLAGS="-U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0"
           export LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lssp"
 
+      # 🔥 核心修复：独立目录克隆，永不冲突
       - name: 克隆源码
-        run: git clone --depth 1 ${{ matrix.repo }} -b ${{ matrix.branch }} openwrt
+        run: git clone --depth 1 ${{ matrix.repo }} -b ${{ matrix.branch }} ${{ matrix.build_dir }}
 
       - name: 配置软件源
         run: |
-          cd openwrt
+          cd ${{ matrix.build_dir }}
           # 仅定制版添加第三方源 | 官方版纯官方源
           if [ ${{ matrix.extra_feeds }} ]; then
             echo "src-git dockerman https://github.com/lisaac/luci-app-dockerman.git" >> feeds.conf.default
@@ -78,45 +81,38 @@ jobs:
 
       - name: 生成编译配置
         run: |
-          cd openwrt
+          cd ${{ matrix.build_dir }}
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
-          # 启用官方自带 luci-app-dockerman
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
           EOF
           make defconfig
 
-      # ==============================================
-      # 🔥 核心：仅定制版执行环境初始化 | 官方版彻底跳过
-      # ==============================================
+      # 🔥 官方版跳过环境初始化 | 仅定制版执行
       - name: 环境初始化 (仅定制版)
         if: matrix.extra_feeds
         run: |
-          cd openwrt
+          cd ${{ matrix.build_dir }}
           make prepare CCACHE=1 -j$(nproc) V=s
 
-      # ==============================================
-      # 仅定制版手动编译依赖 | 官方版使用系统默认
-      # ==============================================
+      # 🔥 仅定制版手动编译依赖 | 官方版使用默认
       - name: 手动编译依赖 (仅定制版)
         if: matrix.extra_feeds
         run: |
-          cd openwrt
+          cd ${{ matrix.build_dir }}
           make package/libuv/compile CCACHE=1 V=s -j$(nproc)
           make package/libwebsockets/compile CCACHE=1 V=s -j$(nproc)
           make package/ttyd/compile CCACHE=1 V=s -j$(nproc)
           make package/ucode-mod-socket/compile CCACHE=1 V=s -j$(nproc)
 
-      # ==============================================
       # 双版本统一编译 luci-app-dockerman
-      # ==============================================
       - name: 编译 luci-app-dockerman
         run: |
-          cd openwrt
+          cd ${{ matrix.build_dir }}
           make package/luci-app-dockerman/compile CCACHE=1 V=s -j$(nproc)
           make package/index CCACHE=1 V=s -j$(nproc)
 
@@ -124,4 +120,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ipk-${{ matrix.type }}
-          path: openwrt/bin/packages/**/*.ipk
+          path: ${{ matrix.build_dir }}/bin/packages/**/*.ipk
