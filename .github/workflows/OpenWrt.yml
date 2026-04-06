@@ -9,78 +9,79 @@ jobs:
       - name: 初始化环境
         uses: actions/checkout@v4
 
-      # 最小化依赖安装，提速
       - name: 安装编译依赖
         run: sudo apt update && sudo apt install -y build-essential git libncurses-dev python3
 
-      # 浅层克隆源码，速度最快
-      - name: 克隆 fanchmwrt-25.12.2
+      # 1. 克隆指定源码
+      - name: 克隆 fanchmwrt-25.12.2 源码
         run: git clone --depth 1 https://github.com/fanchmwrt/fanchmwrt.git -b fanchmwrt-25.12.2 openwrt
 
-      - name: 更新软件源
-        run: |
-          cd openwrt
-          ./scripts/feeds update packages luci
-          ./scripts/feeds install -a
-
-      # ===================== 核心1：检测源码是否原生自带插件 =====================
+      # 2. 检测源码是否原生自带插件
       - name: 检测原生 luci-app-dockerman
         run: |
           cd openwrt
           echo -e "\033[1;36m========== 检测：源码是否原生自带插件 ==========\033[0m"
-          if [ -d "feeds/luci/applications/luci-app-dockerman" ] || [ -d "package/luci-app-dockerman" ]; then
-            echo -e "\033[1;32m✅ fanchmwrt 原生自带 luci-app-dockerman\033[0m"
-          else
-            echo -e "\033[1;31m❌ fanchmwrt 无原生插件，自动拉取第三方\033[0m"
+          if [ ! -d "feeds/luci/applications/luci-app-dockerman" ] && [ ! -d "package/luci-app-dockerman" ]; then
+            echo -e "\033[1;31m❌ fanchmwrt 无原生插件，自动拉取第三方仓库\033[0m"
             echo "src-git dockerman https://github.com/lisaac/luci-app-dockerman.git" >> feeds.conf.default
-            ./scripts/feeds update dockerman
-            ./scripts/feeds install luci-app-dockerman luci-lib-docker
+          else
+            echo -e "\033[1;32m✅ fanchmwrt 原生自带 luci-app-dockerman\033[0m"
           fi
 
-      # ===================== 核心2：编译【插件+全套依赖组件】 =====================
-      - name: 编译 Dockerman 全套依赖IPK
+      # 3. 【必做】更新并安装所有软件源（让系统识别所有包）
+      - name: 更新并安装 feeds
         run: |
           cd openwrt
-          echo -e "\033[1;36m========== 开始编译：插件+所有依赖组件 ==========\033[0m"
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      # 4. 生成基础配置
+      - name: 生成编译配置
+        run: |
+          cd openwrt
           make defconfig
-          
-          # 编译顺序：依赖库 → 核心组件 → 主插件（保证编译成功）
-          # 1. LuCI依赖库
-          make package/luci-lib-docker/compile V=s -j$(nproc)
-          # 2. Docker核心组件
-          make package/docker/compile V=s -j$(nproc)
-          make package/dockerd/compile V=s -j$(nproc)
-          make package/containerd/compile V=s -j$(nproc)
+
+      # 5. 【严格按照Makefile依赖编译】无luci-lib-docker！
+      - name: 编译插件 + 全部官方依赖
+        run: |
+          cd openwrt
+          echo -e "\033[1;36m========== 开始编译：插件+全套依赖 ==========\033[0m"
+          # Docker核心运行环境
           make package/runc/compile V=s -j$(nproc)
+          make package/containerd/compile V=s -j$(nproc)
+          make package/dockerd/compile V=s -j$(nproc)
+          make package/docker/compile V=s -j$(nproc)
           make package/docker-compose/compile V=s -j$(nproc)
-          # 3. 主插件
+          # 插件强制依赖
+          make package/ttyd/compile V=s -j$(nproc)
+          make package/ucode-mod-socket/compile V=s -j$(nproc)
+          # 主插件（最后编译）
           make package/luci-app-dockerman/compile V=s -j$(nproc)
 
-      # ===================== 核心3：校验所有组件是否编译成功 =====================
-      - name: 最终校验+结果报告
+      # 6. 校验编译结果（匹配Makefile所有核心组件）
+      - name: 最终校验结果
         run: |
           cd openwrt
           echo -e "\033[1;36m========== 最终检测报告 ==========\033[0m"
-          # 定义所有关键文件
-          MAIN_IPK=$(find bin/packages/ -name "luci-app-dockerman*.ipk" | head -1)
-          LIB_IPK=$(find bin/packages/ -name "luci-lib-docker*.ipk" | head -1)
-          DOCKERD_IPK=$(find bin/packages/ -name "dockerd*.ipk" | head -1)
-
-          # 校验结果
-          if [ -n "$MAIN_IPK" ] && [ -n "$LIB_IPK" ] && [ -n "$DOCKERD_IPK" ]; then
+          
+          # 查找核心文件
+          PLUGIN=$(find bin/packages/ -name "luci-app-dockerman*.ipk" | head -1)
+          DOCKERD=$(find bin/packages/ -name "dockerd*.ipk" | head -1)
+          
+          # 判断结果
+          if [ -n "$PLUGIN" ] && [ -n "$DOCKERD" ]; then
             echo -e "\033[1;32m🎉 测试完全通过！"
-            echo -e "✅ 插件+全套依赖编译成功"
-            echo -e "📦 主插件：$MAIN_IPK"
-            echo -e "📦 依赖库：$LIB_IPK"
-            echo -e "📦 服务端：$DOCKERD_IPK\033[0m"
+            echo -e "✅ fanchmwrt 支持编译 luci-app-dockerman"
+            echo -e "✅ 所有依赖组件编译成功"
+            echo -e "📦 插件路径：$PLUGIN\033[0m"
           else
-            echo -e "\033[1;31m💥 测试失败！部分组件编译失败\033[0m"
+            echo -e "\033[1;31m💥 编译失败！\033[0m"
             exit 1
           fi
 
-      # 上传所有编译好的IPK（插件+全套依赖）
-      - name: 上传全套IPK组件
+      # 7. 上传所有IPK安装包
+      - name: 上传编译成果
         uses: actions/upload-artifact@v4
         with:
-          name: dockerman-full-ipk
+          name: dockerman-ipk
           path: openwrt/bin/packages/**/*.ipk
