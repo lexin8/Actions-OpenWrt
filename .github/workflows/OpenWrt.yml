@@ -1,125 +1,114 @@
-name: FanchMWRT 25
-on:
-  workflow_dispatch:
-
+name: FanchmWrt-IPK
+on: workflow_dispatch
 permissions:
   contents: read
   actions: write
 
-concurrency:
-  group: check-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  check-final:
-    name: Final Docker Env Check (NO ERRORS)
+  prepare:
     runs-on: ubuntu-latest
-
+    outputs:
+      build_time: ${{ steps.build_time.outputs.time }}
     steps:
-      - name: Checkout FanchMWRT 25.12.2
+      - name: Set build time
+        id: build_time
+        run: echo "time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+  build-ipk:
+    runs-on: ubuntu-latest
+    needs: prepare
+    steps:
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
           repository: fanchmwrt/fanchmwrt
-          ref: fanchmwrt-25.12.2
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: fanchmwrt-25.12.2
 
-      - name: Install build dependencies
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev gawk git libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file
+          sudo apt update
+          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev
 
       - name: Update feeds
         run: |
-          rm -rf tmp
-          ./scripts/feeds clean
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: Prepare x86_64p config
+      - name: Add third-party feeds
+        run: |
+          cat >> feeds.conf.default << EOF
+          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
+          src-git openclash https://github.com/vernesong/OpenClash.git
+          src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
+          EOF
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Fix rust
+        run: |
+          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
+
+      - name: Install nodejs ruby
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt install -y nodejs ruby ruby-dev
+
+      - name: Auto fix missing dependencies
+        run: |
+          mkdir -p package/libs package/system package/network/utils
+          git clone --depth 1 -b openwrt-25.12 https://github.com/openwrt/packages tmp/packages
+          cp -rf tmp/packages/libs/libdevmapper package/libs/ 2>/dev/null || true
+          cp -rf tmp/packages/utils/cgroupfs-mount package/system/ 2>/dev/null || true
+          cp -rf tmp/packages/base/ca-bundle package/system/ 2>/dev/null || true
+          cp -rf tmp/packages/network/iptables package/network/utils/ 2>/dev/null || true
+          rm -rf tmp/packages
+
+      - name: Build config (最小化配置，仅用于IPK编译)
         run: |
           cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_PACKAGE_omcproxy=n
-          CONFIG_PACKAGE_igmpproxy=y
+          CONFIG_DEVEL=y
+          CONFIG_BUILD_ALL=n
           EOF
           make defconfig
 
-      - name: List ALL luci-app-*
+      # ==================== 核心：按顺序仅编译 IPK ====================
+      - name: Build luci-app-dockerman
         run: |
-          echo "=============================================="
-          echo "📦 ALL luci-app-*"
-          echo "=============================================="
-          make manifest 2>/dev/null | grep -E "^luci-app-" | sort -u
+          make package/luci-app-dockerman/compile V=s -j$(nproc)
 
-      - name: 🔍 FINAL REAL CHECK (100% NO FALSE, NO ERROR)
+      - name: Build luci-app-openclash
         run: |
-          echo "=============================================="
-          echo "🐳 DOCKER & DOCKERMAN DEPENDENCY CHECK"
-          echo "=============================================="
+          make package/luci-app-openclash/compile V=s -j$(nproc)
+          make package/clash-meta/compile V=s -j$(nproc)
 
-          check() {
-            local pkg="$1"
-            found=0
-            
-            # 检查 make 是否能识别
-            if make manifest SHOW="$pkg" 2>/dev/null | grep -q "^$pkg "; then
-              found=1
-            # 检查 feeds 里是否存在 Makefile
-            elif find feeds/ package/ -name "Makefile" -exec grep -q "PKG_NAME:=$pkg" {} \; 2>/dev/null; then
-              found=1
-            fi
-
-            if [ $found -eq 1 ]; then
-              echo -e "✅ $pkg"
-            else
-              echo -e "❌ $pkg"
-            fi
-          }
-
-          echo -e "\n[Docker 核心]"
-          check docker
-          check dockerd
-          check containerd
-          check runc
-          check tini
-
-          echo -e "\n[系统底层依赖]"
-          check libdevmapper
-          check cgroupfs-mount
-          check ca-bundle
-          check iptables
-
-          echo -e "\n[LuCI 依赖]"
-          check luci-lib-docker
-          check luci-app-dockerman
-
-          echo -e "\n=============================================="
-          echo "✅ 检查完成，无任何错误"
-          echo "=============================================="
-
-      # ========== 新增：提取并上传 .config 中所有 =y 的配置 ==========
-      - name: 📄 Extract all CONFIG_*=y from .config
+      - name: Build luci-app-unblockneteasemusic
         run: |
-          if [ ! -f .config ]; then
-            echo "❌ .config not found! Did 'make defconfig' run successfully?"
-            exit 1
-          fi
-          grep '=y$' .config | sort > config_y.txt
-          echo "✅ Extracted $(wc -l < config_y.txt) config options with =y"
-          echo "📋 First 10 lines:"
-          head -10 config_y.txt || true
+          make package/luci-app-unblockneteasemusic/compile V=s -j$(nproc)
 
-      - name: 📦 Upload config artifact
+      # 收集所有生成的 IPK 包
+      - name: Collect all IPK files
+        run: |
+          mkdir -p ipk-packages
+          find ./bin -name "*.ipk" | grep -E "(dockerman|openclash|unblockneteasemusic|clash-meta)" | xargs -I {} cp {} ipk-packages/
+          ls -lh ipk-packages/
+
+      # 上传 IPK 插件
+      - name: Upload IPK packages
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-build-config
-          path: |
-            .config
-            config_y.txt
-          if-no-files-found: error
+          name: ipk-plugins-${{ needs.prepare.outputs.build_time }}
+          path: ipk-packages/
+
+      # 上传编译日志（失败也上传）
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipk-build-log
+          path: logs/
+          retention-days: 7
