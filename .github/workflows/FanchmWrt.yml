@@ -69,46 +69,41 @@ jobs:
           echo "🔍 第三方插件依赖检测（仅检查 feeds 拉取的插件）"
           echo "================================================================"
 
-          # 安全检测包是否存在（无管道、无Broken pipe）
-          check_pkg() {
+          # 固定第三方源（和你 Add third-party feeds 完全一致）
+          FEEDS=("unblockneteasemusic" "openclash" "dockerlib")
+
+          # 安全检查包是否存在
+          has_package() {
             local pkg="$1"
-            [ -d "feeds/packages/$pkg" ] || [ -d "package/$pkg" ] || [ -d "feeds/base/$pkg" ]
+            ./scripts/feeds list 2>/dev/null | awk '{print $1}' | grep -qx "$pkg"
           }
 
-          # 定义必须检测的第三方插件路径（固定写死，确保全覆盖）
-          PLUGINS=(
-            "feeds/openclash/luci-app-openclash"
-            "feeds/unblockneteasemusic/luci-app-unblockneteasemusic"
-            "feeds/dockerlib/luci-app-dockerman"
-          )
+          # 遍历所有第三方插件
+          for feed in "${FEEDS[@]}"; do
+            for plugin in feeds/$feed/luci-app-*; do
+              [ -d "$plugin" ] || continue
+              name=$(basename "$plugin")
+              makefile="$plugin/Makefile"
+              [ -f "$makefile" ] || continue
 
-          # 遍历所有插件
-          for plugin_path in "${PLUGINS[@]}"; do
-            if [ -d "$plugin_path" ]; then
-              plugin_name=$(basename "$plugin_path")
-              makefile="$plugin_path/Makefile"
-              
               echo -e "\n========================================================================"
-              echo "📦 插件：$plugin_name"
+              echo "📦 插件：$name | 来源：$feed"
               echo "========================================================================"
 
-              # 暴力稳定提取 DEPENDS 所有依赖（兼容所有格式）
-              depends=$(tr -d '\n\\' < "$makefile" | grep -o "DEPENDS:=[^]*" | grep -Eo "\+[a-zA-Z0-9_-]+" | tr -d '+' | sort -u)
+              # 🔥 核心：严格提取 + 后面无空格的组件（+xxx ✅  | + xxx ❌）
+              depends=$(sed 's/\\//g' "$makefile" | tr -d '\n' | \
+                grep -Eo '\+[a-zA-Z0-9_-]+' | sed 's/^+//g' | sort -u | uniq)
 
               if [ -z "$depends" ]; then
-                echo "✅ 无声明依赖"
+                echo "ℹ️  未匹配到有效依赖组件"
                 continue
               fi
 
-              echo "🧩 依赖检查结果："
+              echo "🧩 有效依赖检查结果："
               for pkg in $depends; do
-                if check_pkg "$pkg"; then
-                  echo "  ✅ $pkg"
-                else
-                  echo "  ⚠️ $pkg (编译时自动构建)"
-                fi
+                has_package "$pkg" && echo "  ✅ $pkg" || echo "  ❌ $pkg"
               done
-            fi
+            done
           done
 
           echo -e "\n================================================================"
