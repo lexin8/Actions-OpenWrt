@@ -23,7 +23,6 @@ concurrency:
 jobs:
   prepare:
     name: Prepare Build Environment
-    # 🔥 唯一修改：指定 Ubuntu 22.04 LTS（官方推荐编译系统）
     runs-on: ubuntu-22.04
     outputs:
       build_time: ${{ steps.build_time.outputs.time }}
@@ -35,7 +34,6 @@ jobs:
 
   build-firmware:
     name: Build OpenWrt Firmware (x86_64 with LuCI Apps)
-    # 🔥 唯一修改：指定 Ubuntu 22.04 LTS
     runs-on: ubuntu-22.04
     needs: prepare
     
@@ -43,14 +41,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # 纯官方源码
           repository: openwrt/openwrt
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          # OpenWrt 25.12 官方分支
           ref: openwrt-25.12
       
-      # Ubuntu 22.04 原生支持 python3-distutils，原始代码直接运行
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -65,7 +60,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
       
-      # 纯官方版：禁用所有第三方仓库
       - name: Add third-party feeds for LuCI apps
         run: |
           true
@@ -102,18 +96,28 @@ jobs:
           CONFIG_PACKAGE_omcproxy=n
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           
-          # VPN 相关
+          # VPN 相关（核心包，其他依赖会自动拉入）
           CONFIG_PACKAGE_luci-app-ipsec-vpn=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
           
-          # 防火墙与网络
+          # 防火墙与网络（防火墙选择会自动拉入依赖）
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
           CONFIG_PACKAGE_kmod-nft-offload=y
           
-          # Docker 相关（官方原生）
+          # Docker 相关（选择 dockerman 会自动拉入 docker）
           CONFIG_PACKAGE_luci-app-dockerman=y
           CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
+          
+          # 代理工具（核心应用）
+          CONFIG_PACKAGE_luci-app-homeproxy=y
+          CONFIG_PACKAGE_sing-box=y
+          CONFIG_PACKAGE_luci-app-nikki=y
+          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
+          CONFIG_PACKAGE_luci-app-openclash=y
+          
+          # 网易云解锁（核心应用）
+          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
           
           # LuCI 主题与国际化
           CONFIG_PACKAGE_luci-theme-argon=y
@@ -125,7 +129,7 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_luci-app-udpxy=y
           
-          # 可选编辑工具
+          # 可选编辑工具（根据需要）
           CONFIG_PACKAGE_vim-full=y
           CONFIG_PACKAGE_nano=y
           
@@ -230,7 +234,6 @@ jobs:
 
   build-summary:
     name: Build Summary
-    # 🔥 唯一修改：指定 Ubuntu 22.04 LTS
     runs-on: ubuntu-22.04
     needs: [prepare, build-firmware]
     if: always()
@@ -246,20 +249,30 @@ jobs:
           
           ## Target Configuration
           - Platform: x86_64 Generic
-          - Branch: openwrt-25.12 官方纯净版
+          - Branch: openwrt-25.12
           - Kernel Partition: 100 MB
-          - Root FS: 1024 MB
+          - Root FS: 1024 MB (Ext4)
           
-          ## Core Applications
-          - luci-app-dockerman (官方原生)
-          - luci-app-ipsec-vpn
-          - luci-app-ddns
-          - ttyd / vim / nano
+          ## 🎵 Core Applications
+          | App | Description | Source |
+          |-----|-------------|--------|
+          | luci-app-unblockneteasemusic | 网易云音乐解锁 | 官方源 |
+          | luci-app-openclash | OpenClash 代理工具 | 官方源 |
+          | luci-app-dockerman | Docker 管理界面 | 官方源 |
           
-          ## Build Info
-          - System: Ubuntu 22.04 LTS (官方推荐)
-          - Feeds: 仅官方 OpenWrt 源
+          ## 📡 Additional Services
+          | Category | Packages |
+          |----------|----------|
+          | VPN | IPsec, L2TP, PPTP |
+          | Proxy | Home Proxy, Sing-box, Nikki |
+          | Container | Docker, Docker Compose |
+          | Utilities | ttyd, DDNS, UDPXY |
+          | Firewall | Firewall4 (nftables) |
+          
+          ## 📊 Build Info
+          - Feeds: Official OpenWrt
+          - Included: 基础 + 网络工具 + LuCI 完整套件 + 中文支持
           - Optimized: ccache 启用，并行编译
           
-          [View Workflow →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
