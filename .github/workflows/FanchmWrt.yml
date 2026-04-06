@@ -62,52 +62,49 @@ jobs:
           cp -rf tmp/packages/lang/golang package/libs/ 2>/dev/null || true
           rm -rf tmp/packages
 
-      # 👇 👇 👇 你要的【完美第三方插件依赖检测】在这里 👇 👇 👇
-      - name: Check third-party plugin dependencies (Makefile +LUCI_DEPENDS)
+      # 🔥 修复核心报错：自动去掉 luci-lib-docker 版本号的 v 前缀
+      - name: Fix luci-lib-docker invalid version (remove v prefix)
+        run: |
+          makefile_path="feeds/dockerlib/collections/luci-lib-docker/Makefile"
+          if [ -f "$makefile_path" ]; then
+            sed -i 's/PKG_VERSION:=v/PKG_VERSION:=/' "$makefile_path"
+            echo "✅ 已修复 luci-lib-docker 版本号：移除非法 v 前缀"
+          fi
+
+      - name: Check third-party plugin dependencies (仅检测 luci-app-dockerman)
         run: |
           echo "================================================================"
-          echo "🔍 第三方插件依赖检测（仅检查 feeds 拉取的插件）"
+          echo "🔍 第三方插件依赖检测（仅检查 luci-app-dockerman）"
           echo "================================================================"
 
-          # 固定第三方源（和你 Add third-party feeds 完全一致）
-          FEEDS=("unblockneteasemusic" "openclash" "dockerlib")
+          # 获取包列表
+          FEEDS_LIST=$(./scripts/feeds list | awk '{print $1}')
+          check_pkg() { echo "$FEEDS_LIST" | grep -qx "$1"; }
 
-          # 安全检查包是否存在
-          has_package() {
-            local pkg="$1"
-            ./scripts/feeds list 2>/dev/null | awk '{print $1}' | grep -qx "$pkg"
-          }
+          # 仅指定检测 dockerman 插件
+          plugin_dir="feeds/dockerlib/luci-app-dockerman"
+          [ -d "$plugin_dir" ] || { echo "❌ 未找到插件目录"; exit 0; }
+          name=$(basename "$plugin_dir")
+          makefile="$plugin_dir/Makefile"
 
-          # 遍历所有第三方插件
-          for feed in "${FEEDS[@]}"; do
-            for plugin in feeds/$feed/luci-app-*; do
-              [ -d "$plugin" ] || continue
-              name=$(basename "$plugin")
-              makefile="$plugin/Makefile"
-              [ -f "$makefile" ] || continue
+          echo -e "\n========================================================================"
+          echo "📦 插件：$name"
+          echo "========================================================================"
 
-              echo -e "\n========================================================================"
-              echo "📦 插件：$name | 来源：$feed"
-              echo "========================================================================"
+          # 稳定提取 DEPENDS 依赖（兼容多行、反斜杠、+号）
+          depends=$(cat "$makefile" | tr -d '\n\\' | grep -o "DEPENDS:=[^ ]*" | grep -o "\+[a-zA-Z0-9_-]\+" | tr -d '+' | sort -u)
 
-              # 🔥 核心：严格提取 + 后面无空格的组件（+xxx ✅  | + xxx ❌）
-              depends=$(sed 's/\\//g' "$makefile" | tr -d '\n' | \
-                grep -Eo '\+[a-zA-Z0-9_-]+' | sed 's/^+//g' | sort -u | uniq)
-
-              if [ -z "$depends" ]; then
-                echo "ℹ️  未匹配到有效依赖组件"
-                continue
-              fi
-
-              echo "🧩 有效依赖检查结果："
-              for pkg in $depends; do
-                has_package "$pkg" && echo "  ✅ $pkg" || echo "  ❌ $pkg"
-              done
+          if [ -z "$depends" ]; then
+            echo "ℹ️  未找到DEPENDS依赖"
+          else
+            echo "🧩 依赖检查结果："
+            for pkg in $depends; do
+              check_pkg "$pkg" && echo "  ✅ $pkg" || echo "  ❌ $pkg"
             done
-          done
+          fi
 
           echo -e "\n================================================================"
-          echo "✅ 所有第三方插件依赖检测完成"
+          echo "✅ 插件依赖检测完成"
           echo "================================================================"
 
       - name: Download packages
@@ -138,7 +135,8 @@ jobs:
           EOF
           make defconfig
 
-      - name: Build (auto retry single thread on failure)
+      # 编译：多线程失败自动单线程重编出详细日志
+      - name: Build firmware
         run: |
           echo "🚀 开始多线程编译..."
           if ! make -j$(nproc); then
@@ -164,3 +162,4 @@ jobs:
         with:
           name: build-log
           path: build.log
+          retention-days: 7
