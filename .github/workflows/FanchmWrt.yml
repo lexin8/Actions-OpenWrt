@@ -70,17 +70,11 @@ jobs:
           echo "================================================================"
 
           FEEDS_LIST=$(./scripts/feeds list | awk '{print $1}')
-
           check_package() {
             local pkg="$1"
-            if echo "$FEEDS_LIST" | grep -qx "$pkg"; then
-              return 0
-            else
-              return 1
-            fi
+            if echo "$FEEDS_LIST" | grep -qx "$pkg"; then return 0; else return 1; fi
           }
 
-          # 只扫描你在 third-party feeds 里添加的 3 个源
           for feed in unblockneteasemusic openclash dockerlib; do
             for plugin_dir in feeds/$feed/luci-app-*; do
               [ -d "$plugin_dir" ] || continue
@@ -92,13 +86,10 @@ jobs:
               echo "📂 来源：feeds/$feed"
               echo "========================================================================"
 
-              if [ ! -f "$makefile" ]; then
-                echo "❌ 缺失 Makefile"
-                continue
-              fi
+              if [ ! -f "$makefile" ]; then echo "❌ 缺失 Makefile"; continue; fi
 
-              # 稳定提取所有依赖（支持多行 + 带 \ 换行 + 带 + 号）
-              depends=$(sed 's/\\$//g' "$makefile" | awk '/^LUCI_DEPENDS|^DEPENDS/{flag=1; next} /^$/{flag=0} flag' | cat - <(grep "^LUCI_DEPENDS\|^DEPENDS" "$makefile") | tr -s ' \t' '\n' | grep -E '^\+[a-zA-Z0-9_-]+$' | sed 's/^+//g' | sort -u)
+              # 👇 修复版：精准提取 DEPENDS:=+xxx 依赖
+              depends=$(sed -n '/^DEPENDS:=/,/^$/p' "$makefile" | tr -d '\\' | tr -s ' ' '\n' | grep '^+' | sed 's/^+//g' | sort -u)
 
               if [ -z "$depends" ]; then
                 echo "📌 未提取到依赖"
