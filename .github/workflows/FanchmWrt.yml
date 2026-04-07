@@ -112,6 +112,15 @@ jobs:
           sudo apt install -y nodejs ruby ruby-dev
           npm config set registry https://registry.npmmirror.com
 
+      - name: Remove BUILDONLY flag from node package
+        run: |
+          if [ -f feeds/packages/lang/node/Makefile ]; then
+            sed -i '/BUILDONLY:=1/d' feeds/packages/lang/node/Makefile
+            echo "BUILDONLY flag removed successfully."
+          else
+            echo "Warning: node Makefile not found at feeds/packages/lang/node/Makefile"
+          fi
+
       - name: Auto fix missing dependencies
         run: |
           mkdir -p package/libs package/system package/network/utils
