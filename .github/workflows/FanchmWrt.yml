@@ -106,26 +106,27 @@ jobs:
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
-      - name: Check and override feeds node package with ImmortalWrt version
-        run: |
-          echo "⚠️ 覆盖前，feeds/packages/lang/ 目录内容："
-          ls -la feeds/packages/lang/ || echo "目录不存在或为空"
 
-          # 克隆 ImmortalWrt openwrt-25.12 分支的 lang/node
+      - name: Override node package from ImmortalWrt
+        run: |
+          # 卸载官方 node（如果有）
+          ./scripts/feeds uninstall node
+          # 创建自定义包目录
+          mkdir -p package/lang/node
+          # 克隆 ImmortalWrt openwrt-25.12 分支的 node 包
           git clone --depth 1 --filter=blob:none --sparse -b openwrt-25.12 https://github.com/immortalwrt/packages.git immortal_tmp
           cd immortal_tmp
           git sparse-checkout set lang/node
-          
-          # 覆盖 feeds/packages/lang/node 目录
-          cp -rf lang/node/* ../feeds/packages/lang/node/
+          cp -r lang/node/* ../package/lang/node/
           cd ..
           rm -rf immortal_tmp
-
-          # 覆盖后再次验证
-          echo "✅ 覆盖后，feeds/packages/lang/node/ 内容："
-          ls -la feeds/packages/lang/node/
-
-          echo "✅ 覆盖完成"
+          # 移除可能存在的 BUILDONLY 标志
+          if grep -q "BUILDONLY:=1" package/lang/node/Makefile; then
+            sed -i '/BUILDONLY:=1/d' package/lang/node/Makefile
+            echo "✅ 已移除 BUILDONLY 标志"
+          fi
+          echo "✅ node 包已放置到 package/lang/node/"
+          ls -la package/lang/node/
 
       - name: Build config
         run: |
