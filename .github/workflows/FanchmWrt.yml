@@ -60,12 +60,13 @@ jobs:
       - name: Add third-party feeds
         run: |
           cat >> feeds.conf.default << EOF
-          src-git unblockneteasemusic https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git
           src-git openclash https://github.com/vernesong/OpenClash.git
           # src-git dockerman https://github.com/lisaac/luci-app-dockerman.git
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+          mkdir -p package/luci-app-unblockneteasemusic
+          git clone --depth 1 -b js https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
           
       - name: Fix rust
         run: |
@@ -216,7 +217,6 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_nodejs=y
           # CONFIG_PACKAGE_kmod-drm-i915 is not set
           EOF
           make defconfig
