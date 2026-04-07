@@ -107,17 +107,6 @@ jobs:
           CONFIG_PACKAGE_nftables=y
           CONFIG_PACKAGE_kmod-nft-offload=y
           
-          # Docker 相关（选择 dockerman 会自动拉入 docker）
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          
-          # 代理工具（核心应用）
-          CONFIG_PACKAGE_luci-app-homeproxy=y
-          CONFIG_PACKAGE_sing-box=y
-          CONFIG_PACKAGE_luci-app-nikki=y
-          CONFIG_PACKAGE_luci-i18n-nikki-zh-cn=y
-          CONFIG_PACKAGE_luci-app-openclash=y
-          
           # 网易云解锁（核心应用）
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
           
