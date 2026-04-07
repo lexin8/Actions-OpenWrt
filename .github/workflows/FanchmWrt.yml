@@ -124,7 +124,15 @@ jobs:
 
       - name: Build config
         run: |
+          # 1. 仅格式化时间部分：20260407171140 → 26.4.7
+          RAW_BUILD_TIME="${{ needs.prepare.outputs.build_time }}"
+          YEAR=${RAW_BUILD_TIME:2:2}    # 截取年份后两位：2026 → 26
+          MONTH=$(echo ${RAW_BUILD_TIME:4:2} | sed 's/^0//') # 月份去0：04 → 4
+          DAY=$(echo ${RAW_BUILD_TIME:6:2} | sed 's/^0//')   # 日期去0：07 → 7
+          OPTIMIZED_DATE="${YEAR}.${MONTH}.${DAY}"
           cat > .config << EOF
+          CONFIG_VERSION_DISTRO="FanchmWrt"
+          CONFIG_VERSION_EXTRA="${OPTIMIZED_DATE}"
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
