@@ -71,10 +71,11 @@ jobs:
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
-      - name: Install nodejs ruby
+      - name: Install nodejs for OpenWrt build
         run: |
           curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
           sudo apt install -y nodejs ruby ruby-dev
+          npm config set registry https://registry.npmmirror.com
 
       - name: Auto fix missing dependencies
         run: |
