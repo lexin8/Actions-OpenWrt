@@ -254,71 +254,47 @@ jobs:
             exit 1
           fi
       
-      - name: Collect firmware files
+      - name: Compress squashfs firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
-          mkdir -p firmware
+          echo "📦 开始压缩 squashfs 固件文件..."
           
-          # Copy firmware images
-          echo "📦 收集固件镜像..."
-          cp -v bin/targets/x86/64/openwrt-*.* firmware/ 2>/dev/null || true
-          
-          # Copy packages
-          if [ -d "bin/packages" ]; then
-            echo "📦 收集架构相关包..."
-            mkdir -p firmware/packages
-            cp -rv bin/packages/* firmware/packages/ 2>/dev/null || true
-          fi
-          
-          # Copy target-specific packages
-          if [ -d "bin/targets/x86/64/packages" ]; then
-            echo "📦 收集目标相关包..."
-            mkdir -p firmware/target-packages
-            cp -rv bin/targets/x86/64/packages/* firmware/target-packages/ 2>/dev/null || true
-          fi
+          # 遍历压缩所有架构的 squashfs 固件
+          for firmware_file in bin/targets/*/*/*squashfs*; do
+            if [ -f "${firmware_file}" ]; then
+              echo "✅ 压缩固件: ${firmware_file}"
+              gzip "${firmware_file}"
+            fi
+          done
           
           echo ""
-          echo "📊 固件目录结构:"
-          du -sh firmware/
-          ls -lh firmware/ | head -20
-      
-      - name: Create firmware archive
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          echo "📦 打包固件..."
-          cd firmware
-          tar -czf ../openwrt-x86_64-${{ needs.prepare.outputs.build_time }}.tar.gz *
-          cd ..
-          
-          echo "✅ 固件包信息:"
-          ls -lh openwrt-x86_64-*.tar.gz
-      
-      - name: Upload firmware artifacts
+          echo "📊 压缩完成，生成文件列表:"
+          ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
+
+      - name: Upload compressed squashfs firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-x86_64-firmware
-          path: openwrt-x86_64-*.tar.gz
+          name: openwrt-squashfs-${{ needs.prepare.outputs.build_time }}
+          path: bin/targets/*/*/*squashfs*.gz
           retention-days: 30
-      
-      - name: Upload all packages
+
+      - name: Upload build config file
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-x86_64-packages-all
-          path: bin/
+          name: openwrt-build-config
+          path: .config
           retention-days: 30
-      
+
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: |
-            build.log
-            logs/
+          path: build.log
           retention-days: 7
-      
+
       - name: Show build summary on failure
         if: failure()
         run: |
