@@ -65,34 +65,10 @@ jobs:
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          mkdir -p package/luci-app-unblockneteasemusic
-          git clone --depth 1 -b js https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
           
       - name: Fix rust
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-
-
-      - name: Override node package from ImmortalWrt
-        run: |
-          # 卸载官方 node（如果有）
-          ./scripts/feeds uninstall node
-          # 创建自定义包目录
-          mkdir -p package/lang/node/node
-          # 克隆 ImmortalWrt openwrt-25.12 分支的 node 包
-          git clone --depth 1 --filter=blob:none --sparse -b openwrt-25.12 https://github.com/immortalwrt/packages.git immortal_tmp
-          cd immortal_tmp
-          git sparse-checkout set lang/node
-          cp -r lang/node/node/* ../package/lang/node/node/
-          cd ..
-          rm -rf immortal_tmp
-          # 移除可能存在的 BUILDONLY 标志
-          if grep -q "BUILDONLY:=1" package/lang/node/node/Makefile; then
-            sed -i '/BUILDONLY:=1/d' package/lang/node/node/Makefile
-            echo "✅ 已移除 BUILDONLY 标志"
-          fi
-          echo "✅ node 包已放置到 package/lang/node/node/"
-          ls -la package/lang/node/node/
 
       - name: Build config
         run: |
@@ -224,8 +200,6 @@ jobs:
           CONFIG_PACKAGE_luci-app-openclash=y
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
-          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          # CONFIG_PACKAGE_kmod-drm-i915 is not set
           EOF
           make defconfig
           echo "✅ 配置完成"
@@ -359,7 +333,6 @@ jobs:
           ## 🎵 Core Applications
           | App | Description | Source |
           |-----|-------------|--------|
-          | luci-app-unblockneteasemusic | 网易云音乐解锁 | UnblockNeteaseMusic |
           | luci-app-openclash | OpenClash 代理工具 | vernesong/OpenClash |
           | luci-app-dockerman | Docker 管理界面 | lisaac/luci-app-dockerman |
           
