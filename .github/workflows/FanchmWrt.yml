@@ -83,16 +83,16 @@ jobs:
           git clone --depth 1 --filter=blob:none --sparse -b openwrt-25.12 https://github.com/immortalwrt/packages.git immortal_tmp
           cd immortal_tmp
           git sparse-checkout set lang/node
-          cp -r lang/node/* ../package/lang/node/
+          cp -r lang/node/node/* ../package/lang/node/node/
           cd ..
           rm -rf immortal_tmp
           # 移除可能存在的 BUILDONLY 标志
-          if grep -q "BUILDONLY:=1" package/lang/node/Makefile; then
-            sed -i '/BUILDONLY:=1/d' package/lang/node/Makefile
+          if grep -q "BUILDONLY:=1" package/lang/node/node/Makefile; then
+            sed -i '/BUILDONLY:=1/d' package/lang/node/node/Makefile
             echo "✅ 已移除 BUILDONLY 标志"
           fi
-          echo "✅ node 包已放置到 package/lang/node/"
-          ls -la package/lang/node/
+          echo "✅ node 包已放置到 package/lang/node/node/"
+          ls -la package/lang/node/node/
 
       - name: Build config
         run: |
