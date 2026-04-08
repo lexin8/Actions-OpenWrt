@@ -67,40 +67,6 @@ jobs:
           ./scripts/feeds install -a
           mkdir -p package/luci-app-unblockneteasemusic
           git clone --depth 1 -b js https://github.com/UnblockNeteaseMusic/luci-app-unblockneteasemusic.git package/luci-app-unblockneteasemusic
-
-      # ==================== 新增：修改 Dockerman JS 菜单为独立顶级菜单 ====================
-      - name: Modify Dockerman JS menu to top-level
-        run: |
-          # 定位 luci-app-dockerman 的菜单配置文件
-          DOCKERMAN_MENU_FILE="package/luci-app-dockerman/root/usr/share/luci/menu.d/luci-app-dockerman.json"
-          
-          # 如果文件不存在，先从 feeds 复制（适配不同源码结构）
-          if [ ! -f "$DOCKERMAN_MENU_FILE" ]; then
-            # 查找 feeds 中的 dockerman 菜单文件
-            FEED_MENU_FILE=$(find feeds/ -name "luci-app-dockerman.json" | grep "menu.d" | head -n1)
-            if [ -f "$FEED_MENU_FILE" ]; then
-              # 创建目录并复制文件
-              mkdir -p $(dirname "$DOCKERMAN_MENU_FILE")
-              cp "$FEED_MENU_FILE" "$DOCKERMAN_MENU_FILE"
-              echo "✅ 从 feeds 复制 dockerman 菜单文件到 $DOCKERMAN_MENU_FILE"
-            else
-              echo "⚠️ 未找到 luci-app-dockerman.json，跳过菜单修改"
-              exit 0
-            fi
-          fi
-          
-          # 批量替换所有路径中的 admin/services/dockerman 为 admin/dockerman（删除 services 层级）
-          sed -i 's/admin\/services\/dockerman/admin\/dockerman/g' "$DOCKERMAN_MENU_FILE"
-          
-          # 可选：调整顶级菜单排序（order=15 放在「系统」和「网络」之间，可自行修改）
-          sed -i 's/"order": "60"/"order": "15"/g' "$DOCKERMAN_MENU_FILE"
-          
-          # 可选：修改菜单名称为「Docker」（替换 Dockerman JS）
-          sed -i 's/"title": "Dockerman JS"/"title": "Docker"/g' "$DOCKERMAN_MENU_FILE"
-          
-          # 验证修改结果
-          echo -e "\n✅ 已修改 Dockerman 菜单配置，关键内容："
-          grep -E '"admin/dockerman"|"order"|"title"' "$DOCKERMAN_MENU_FILE" | head -n10
           
       - name: Fix rust
         run: |
@@ -130,15 +96,9 @@ jobs:
 
       - name: Build config
         run: |
-          # 1. 仅格式化时间部分：20260407171140 → 26.4.7
-          RAW_BUILD_TIME="${{ needs.prepare.outputs.build_time }}"
-          YEAR=${RAW_BUILD_TIME:2:2}    # 截取年份后两位：2026 → 26
-          MONTH=$(echo ${RAW_BUILD_TIME:4:2} | sed 's/^0//') # 月份去0：04 → 4
-          DAY=$(echo ${RAW_BUILD_TIME:6:2} | sed 's/^0//')   # 日期去0：07 → 7
-          OPTIMIZED_DATE="${YEAR}.${MONTH}.${DAY}"
+          BUILD_DATE=$(date +'%Y%m%d')
           cat > .config << EOF
-          CONFIG_VERSION_DISTRO="FanchmWrt"
-          CONFIG_VERSION_EXTRA="${OPTIMIZED_DATE}"
+          CONFIG_VERSION_EXTRA="Build on ${BUILD_DATE}"
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
