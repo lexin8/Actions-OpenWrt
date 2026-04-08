@@ -78,7 +78,7 @@ jobs:
           # 卸载官方 node（如果有）
           ./scripts/feeds uninstall node
           # 创建自定义包目录
-          mkdir -p package/lang/node
+          mkdir -p package/lang/node/node
           # 克隆 ImmortalWrt openwrt-25.12 分支的 node 包
           git clone --depth 1 --filter=blob:none --sparse -b openwrt-25.12 https://github.com/immortalwrt/packages.git immortal_tmp
           cd immortal_tmp
