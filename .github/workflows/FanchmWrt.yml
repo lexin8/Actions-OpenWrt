@@ -59,14 +59,10 @@ jobs:
 
       - name: Add third-party feeds
         run: |
-          cat > feeds.conf.default << 'EOF'
-          src-git packages https://github.com/immortalwrt/packages.git;openwrt-25.12
-          src-git luci https://github.com/immortalwrt/luci.git;openwrt-25.12
-          src-git routing https://github.com/openwrt/routing.git;openwrt-25.12
-          src-git telephony https://github.com/openwrt/telephony.git;openwrt-25.12
-          src-git video https://github.com/openwrt/video.git;openwrt-25.12
+          cat >> feeds.conf.default << EOF
           src-git openclash https://github.com/vernesong/OpenClash.git
           EOF
+          sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
@@ -76,9 +72,7 @@ jobs:
 
       - name: Build config
         run: |
-          BUILD_DATE=$(date +'%Y%m%d')
           cat > .config << EOF
-          CONFIG_VERSION_EXTRA="Build on ${BUILD_DATE}"
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
