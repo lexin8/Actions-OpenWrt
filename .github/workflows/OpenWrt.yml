@@ -50,6 +50,7 @@ jobs:
         CONFIG_TARGET_ramips=y
         CONFIG_TARGET_ramips_mt7621=y
         CONFIG_TARGET_ramips_mt7621_DEVICE_newifi-d2=y
+        CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
 
         # 基本设置
         CONFIG_BUSYBOX_CUSTOM=y
@@ -116,6 +117,10 @@ jobs:
           echo " ⚠️ 未找到.config配置文件"
         fi
         echo -e "==================================================\n"
+
+    - name: Copy custom .config
+      run: |
+        cp ${{ github.workspace }}/.config openwrt/.config
 
     - name: Download Package
       run: |
