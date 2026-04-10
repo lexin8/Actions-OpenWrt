@@ -37,30 +37,24 @@ jobs:
     - name: Customize Configuration (diy-part1)
       run: |
         cd openwrt
-        # 添加 OpenClash 源码
+        # 添加 Nikki 源码（轻量级代理）
         git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/luci-app-nikki
-        # 添加你的自定义 feeds 或其他插件
-        # echo 'src-git yourrepo https://github.com/yourname/yourrepo.git' >> feeds.conf.default
+        # 如需 OpenClash，取消下面一行的注释（二选一）
+        # git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-openclash
 
     - name: Generate .config
       run: |
         cd openwrt
         cat > .config << "EOF"
-        # Target: Newifi 3 (D2)
         CONFIG_TARGET_ramips=y
         CONFIG_TARGET_ramips_mt7621=y
-        CONFIG_TARGET_ramips_mt7621_DEVICE_newifi-d2=y
         CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
 
         # 基本设置
-        CONFIG_BUSYBOX_CUSTOM=y
         CONFIG_IPV6=y
-        CONFIG_KERNEL_IO_URING=y
 
-        # 无线驱动 (默认 kmod-mt7603e / kmod-mt76x2e)
+        # 闭源无线驱动（mtwifi）
         CONFIG_PACKAGE_mtwifi=y
-        CONFIG_PACKAGE_kmod-mt7603e=y
-        CONFIG_PACKAGE_kmod-mt76x2e=y
 
         # DDNS 组件
         CONFIG_PACKAGE_luci-app-ddns=y
@@ -68,77 +62,73 @@ jobs:
         CONFIG_PACKAGE_ddns-scripts-cloudflare=y
         CONFIG_PACKAGE_curl=y
 
-        # OpenClash
+        # Nikki 代理（轻量，与 OpenClash 二选一）
         CONFIG_PACKAGE_luci-app-nikki=y
-        CONFIG_PACKAGE_luci-app-openclash=y
         CONFIG_PACKAGE_kmod-tun=y
         CONFIG_PACKAGE_kmod-inet-diag=y
 
-        # 额外常用包
-        CONFIG_PACKAGE_openssl-util=y
-        CONFIG_PACKAGE_luci-compat=y
-        CONFIG_PACKAGE_luci-lib-ipkg=y
+        # 接口分流 (MWAN3)
+        CONFIG_PACKAGE_mwan3=y
         CONFIG_PACKAGE_luci-app-mwan3=y
+
+        # L2TP 拨号
         CONFIG_PACKAGE_xl2tpd=y
         CONFIG_PACKAGE_kmod-l2tp=y
         CONFIG_PACKAGE_kmod-ppp=y
         CONFIG_PACKAGE_ppp=y
 
-        # 让 OpenWrt 自动处理依赖
+        # 额外工具
+        CONFIG_PACKAGE_openssl-util=y
+        CONFIG_PACKAGE_luci-compat=y
+        CONFIG_PACKAGE_luci-lib-ipkg=y
+
+        # 自动处理依赖
         CONFIG_DEVEL=y
         CONFIG_AUTOREMOVE=y
+
+        # 禁用不需要的插件
         CONFIG_PACKAGE_luci-app-accesscontrol=n
         CONFIG_PACKAGE_luci-app-nlbwmon=n
         CONFIG_PACKAGE_luci-app-rclone=n
         CONFIG_PACKAGE_luci-app-upnp=n
         CONFIG_PACKAGE_luci-app-vlmcsd=n
         CONFIG_PACKAGE_luci-app-vsftpd=n
-        CONFIG_PACKAGE_luci-app-turboacc=n
-        CONFIG_PACKAGE_luci-app-autoreboot=n
         CONFIG_PACKAGE_luci-app-wol=n
+        CONFIG_PACKAGE_luci-app-autoreboot=n
         EOF
+
         make defconfig
 
-    - name: 列出所有luci-app-*插件编译状态
+    - name: List all luci-app-* packages status
       run: |
         cd openwrt
         echo -e "\n=================================================="
-        echo -e "📋 所有 luci-app-* 插件（已选中 ✔️ | 未选中 ❌）"
+        echo -e "📋 All luci-app-* packages (✔️ enabled | ❌ disabled)"
         echo -e "==================================================\n"
-
-        # 读取所有luci-app-*插件（包含选中+未选中）
         if [ -f .config ]; then
           grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
-           if echo "$line" | grep -q '=y\|=m'; then
-              # 已选中编译
+            if echo "$line" | grep -q '=y\|=m'; then
               name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
-             echo " ✔️ $name"
-           else
-             # 未选中编译
-             name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
-             echo " ❌ $name"
+              echo " ✔️ $name"
+            else
+              name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+              echo " ❌ $name"
             fi
-         done
+          done
         else
-          echo " ⚠️ 未找到.config配置文件"
+          echo " ⚠️ .config not found"
         fi
         echo -e "==================================================\n"
 
-    - name: Upload OpenWRT Config
-      if: always()
-      run: |
-        tar -czvf openwrt-config.tar.gz -C openwrt .config
-        echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
-
-    - name: Upload Config Artifact
+    - name: Upload .config as artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: openwrt-config
-        path: openwrt-config.tar.gz
+        path: openwrt/.config
         retention-days: 7
 
-    - name: Download Package
+    - name: Download package sources
       run: |
         cd openwrt
         make download -j8
@@ -146,18 +136,43 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
 
     - name: Build Firmware
+      id: build
       run: |
         cd openwrt
-        echo -e "$(nproc) thread build"
-        make -j$(nproc) || make -j1 V=s
+        set +e
+        echo "Starting multi-thread build..."
+        make -j$(nproc) 2>&1 | tee build.log
+        BUILD_RESULT=${PIPESTATUS[0]}
+
+        if [ $BUILD_RESULT -ne 0 ]; then
+          echo -e "\n❌ Multi-thread build failed, retrying with single thread and verbose output..."
+          make clean
+          make -j1 V=s 2>&1 | tee -a build.log
+          BUILD_RESULT=${PIPESTATUS[0]}
+        fi
+        set -e
+
+        ccache -s
+
+        if [ $BUILD_RESULT -eq 0 ]; then
+          echo "✅ Build succeeded"
+          echo "build_status=success" >> $GITHUB_OUTPUT
+          exit 0
+        else
+          echo "❌ Build failed"
+          echo "build_status=failed" >> $GITHUB_OUTPUT
+          exit 1
+        fi
 
     - name: Organize Firmware
+      if: steps.build.outputs.build_status == 'success'
       run: |
         cd openwrt/bin/targets/ramips/mt7621
         mkdir -p ../../../../../artifacts
-        cp -a *.bin ../../../../../artifacts/
+        cp -a *.bin ../../../../../artifacts/ || true
 
     - name: Upload Firmware
+      if: steps.build.outputs.build_status == 'success'
       uses: actions/upload-artifact@v4
       with:
         name: Newifi3_D2_OpenWrt
