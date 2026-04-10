@@ -70,6 +70,7 @@ jobs:
 
         # OpenClash
         CONFIG_PACKAGE_luci-app-nikki=y
+        CONFIG_PACKAGE_luci-app-openclash=y
         CONFIG_PACKAGE_kmod-tun=y
         CONFIG_PACKAGE_kmod-inet-diag=y
 
@@ -89,7 +90,7 @@ jobs:
         CONFIG_PACKAGE_luci-app-vsftpd=n
         CONFIG_PACKAGE_luci-app-turboacc=n
         CONFIG_PACKAGE_luci-app-autoreboot=n
-        CONFIG_PACKAGE_luci-app-passwall2=y
+        CONFIG_PACKAGE_luci-app-wol=n
         EOF
         make defconfig
 
