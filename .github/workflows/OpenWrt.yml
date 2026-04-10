@@ -88,6 +88,7 @@ jobs:
         CONFIG_PACKAGE_luci-app-vsftpd=n
         CONFIG_PACKAGE_luci-app-turboacc=n
         CONFIG_PACKAGE_luci-app-autoreboot=n
+        CONFIG_PACKAGE_luci-app-passwall2=y
         EOF
         make defconfig
 
