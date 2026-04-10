@@ -78,6 +78,11 @@ jobs:
         CONFIG_PACKAGE_openssl-util=y
         CONFIG_PACKAGE_luci-compat=y
         CONFIG_PACKAGE_luci-lib-ipkg=y
+        CONFIG_PACKAGE_luci-app-mwan3=y
+        CONFIG_PACKAGE_xl2tpd=y
+        CONFIG_PACKAGE_kmod-l2tp=y
+        CONFIG_PACKAGE_kmod-ppp=y
+        CONFIG_PACKAGE_ppp=y
 
         # 让 OpenWrt 自动处理依赖
         CONFIG_DEVEL=y
