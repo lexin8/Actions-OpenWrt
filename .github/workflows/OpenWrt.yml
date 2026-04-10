@@ -41,11 +41,14 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_htop=y
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_luci-app-mwan3=y
+          CONFIG_PACKAGE_luci-proto-l2tp=y
+          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
+          CONFIG_PACKAGE_kmod-pppol2tp=y
           CONFIG_PACKAGE_kmod-l2tp=y
-          CONFIG_PACKAGE_kmod-l2tp-ipsec=y
           CONFIG_PACKAGE_luci-app-accesscontrol=n
           CONFIG_PACKAGE_luci-app-nlbwmon=n
           CONFIG_PACKAGE_luci-app-rclone=n
