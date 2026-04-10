@@ -118,9 +118,19 @@ jobs:
         fi
         echo -e "==================================================\n"
 
-    - name: Copy custom .config
+    - name: Upload OpenWRT Config
+      if: always()
       run: |
-        cp ${{ github.workspace }}/.config openwrt/.config
+        tar -czvf openwrt-config.tar.gz -C openwrt .config
+        echo "config-path=$GITHUB_WORKSPACE/openwrt-config.tar.gz" >> $GITHUB_OUTPUT
+
+    - name: Upload Config Artifact
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: openwrt-config
+        path: openwrt-config.tar.gz
+        retention-days: 7
 
     - name: Download Package
       run: |
