@@ -83,6 +83,31 @@ jobs:
         EOF
         make defconfig
 
+    - name: 列出所有luci-app-*插件编译状态
+      run: |
+        cd openwrt
+        echo -e "\n=================================================="
+        echo -e "📋 所有 luci-app-* 插件（已选中 ✔️ | 未选中 ❌）"
+        echo -e "==================================================\n"
+
+        # 读取所有luci-app-*插件（包含选中+未选中）
+        if [ -f .config ]; then
+          grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+           if echo "$line" | grep -q '=y\|=m'; then
+              # 已选中编译
+              name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+             echo " ✔️ $name"
+           else
+             # 未选中编译
+             name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+             echo " ❌ $name"
+            fi
+         done
+        else
+          echo " ⚠️ 未找到.config配置文件"
+        fi
+        echo -e "==================================================\n"
+
     - name: Download Package
       run: |
         cd openwrt
