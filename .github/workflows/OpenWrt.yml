@@ -38,7 +38,7 @@ jobs:
       run: |
         cd openwrt
         # 添加 OpenClash 源码
-        git clone --depth 1 https://github.com/vernesong/OpenClash.git package/luci-app-openclash
+        git clone --depth 1 https://github.com/nikkinikki-org/OpenWrt-nikki.git package/luci-app-nikki
         # 添加你的自定义 feeds 或其他插件
         # echo 'src-git yourrepo https://github.com/yourname/yourrepo.git' >> feeds.conf.default
 
@@ -68,7 +68,7 @@ jobs:
         CONFIG_PACKAGE_curl=y
 
         # OpenClash
-        CONFIG_PACKAGE_luci-app-openclash=y
+        CONFIG_PACKAGE_luci-app-nikki=y
         CONFIG_PACKAGE_kmod-tun=y
         CONFIG_PACKAGE_kmod-inet-diag=y
 
@@ -86,7 +86,8 @@ jobs:
         CONFIG_PACKAGE_luci-app-upnp=n
         CONFIG_PACKAGE_luci-app-vlmcsd=n
         CONFIG_PACKAGE_luci-app-vsftpd=n
-        CONFIG_PACKAGE_luci-app-wol=n
+        CONFIG_PACKAGE_luci-app-turboacc=n
+        CONFIG_PACKAGE_luci-app-autoreboot=n
         EOF
         make defconfig
 
