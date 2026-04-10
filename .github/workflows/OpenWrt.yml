@@ -80,6 +80,13 @@ jobs:
         # 让 OpenWrt 自动处理依赖
         CONFIG_DEVEL=y
         CONFIG_AUTOREMOVE=y
+        CONFIG_PACKAGE_luci-app-accesscontrol=n
+        CONFIG_PACKAGE_luci-app-nlbwmon=n
+        CONFIG_PACKAGE_luci-app-rclone=n
+        CONFIG_PACKAGE_luci-app-upnp=n
+        CONFIG_PACKAGE_luci-app-vlmcsd=n
+        CONFIG_PACKAGE_luci-app-vsftpd=n
+        CONFIG_PACKAGE_luci-app-wol=n
         EOF
         make defconfig
 
@@ -119,7 +126,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(nproc) thread build"
-        make -j$(nproc) V=s || make -j1 V=s
+        make -j$(nproc) || make -j1 V=s
 
     - name: Organize Firmware
       run: |
