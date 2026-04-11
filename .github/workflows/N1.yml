@@ -19,57 +19,27 @@ jobs:
           python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion \
           swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
           
-      - name: Clone source & switch 5.4 kernel
+      - name: 拉取源码 + 强制切换5.4内核
         run: |
-          # 克隆Lean的LEDE源码（深度1加速）
           git clone --depth 1 https://github.com/coolsnowwolf/lede openwrt
           cd openwrt
           
-          # ========== 核心修改1：强制切换ramips/mt7621到5.4内核 ==========
-          # 直接修改target/linux/ramips/Makefile的KERNEL_PATCHVER
-          sed -i 's/^KERNEL_PATCHVER := .*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
-          # 验证修改结果
-          echo "验证内核版本配置："
+          # ==================== 修复1：强制修改内核为5.4（解决改不动5.10问题） ====================
+          sed -i 's/^KERNEL_PATCHVER :=.*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
+          sed -i 's/^KERNEL_PATCHVER:=.*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
+          echo "验证内核版本："
           grep "KERNEL_PATCHVER" target/linux/ramips/Makefile
           
-          # ========== 核心修改2：适配5.4内核的闭源MT驱动补丁（关键） ==========
-          # 修复mt76xx闭源驱动在5.4内核下的编译错误（dev_open/set_fs等API变更）
-          mkdir -p package/lean/mt/drivers/patches
-          cat > package/lean/mt/drivers/patches/916-fix-mtwifi-5.4.patch << 'EOF'
-          diff --git a/mt_wifi/embedded/main/linux/rt_main_dev.c b/mt_wifi/embedded/main/linux/rt_main_dev.c
-          index 1234567..89abcde 100644
-          --- a/mt_wifi/embedded/main/linux/rt_main_dev.c
-          +++ b/mt_wifi/embedded/main/linux/rt_main_dev.c
-          @@ -123,7 +123,11 @@ static int rt_usb_probe(struct usb_interface *intf, const struct usb_device_id *
-              dev->dev = &intf->dev;
-              dev->udev = usb_get_dev(interface_to_usbdev(intf));
-          
-          -   dev_open(dev);
-          +   // Adapt to Linux 5.4+ dev_open API
-          +   #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
-          +   dev_open(dev, NULL);
-          +   #else
-          +   dev_open(dev);
-          +   #endif
-          
-              rt_usb_intf_init(dev, intf);
-              rt_usb_endp_init(dev);
-          @@ -456,7 +460,7 @@ static int rt_usb_probe(struct usb_interface *intf, const struct usb_device_id *
-              // Set fs context
-          -   set_fs(get_ds());
-          +   set_fs(KERNEL_DS);
-          
-              ret = rt_probe(dev, &intf->dev);
-          EOF
-          
-          # 应用补丁到闭源驱动目录（以mt7612e为例，覆盖所有mtwifi驱动）
+          # ==================== 修复2：直接sed修改闭源驱动（删除补丁，永不报错） ====================
+          # 适配5.4内核 dev_open API
           for drv in mt7603e mt7612e mt7615d; do
-              if [ -d "package/lean/mt/drivers/$drv/src" ]; then
-                  patch -p1 -d package/lean/mt/drivers/$drv/src < package/lean/mt/drivers/patches/916-fix-mtwifi-5.4.patch || true
-              fi
+            file="package/lean/mt/drivers/$drv/src/mt_wifi/embedded/main/linux/rt_main_dev.c"
+            if [ -f "$file" ]; then
+              sed -i 's/dev_open(dev)/dev_open(dev, NULL)/g' $file
+              sed -i 's/set_fs(get_ds())/set_fs(KERNEL_DS)/g' $file
+            fi
           done
           
-          # 更新并安装feeds
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
