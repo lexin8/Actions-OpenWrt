@@ -66,24 +66,6 @@ jobs:
           CONFIG_PACKAGE_kmod-l2tp=y
           CONFIG_PACKAGE_kmod-pppol2tp=y
           CONFIG_PACKAGE_kmod-udptunnel4=y
-
-          CONFIG_PACKAGE_kmod-crypto-aes=y
-          CONFIG_PACKAGE_kmod-crypto-sha1=y
-          CONFIG_PACKAGE_kmod-crypto-sha256=y
-          CONFIG_PACKAGE_kmod-crypto-hmac=y
-          CONFIG_PACKAGE_kmod-crypto-ecb=y
-          CONFIG_PACKAGE_kmod-crypto-cbc=y
-          CONFIG_PACKAGE_kmod-xfrm-state=y
-          CONFIG_PACKAGE_kmod-xfrm-user=y
-          CONFIG_PACKAGE_kmod-xfrm-ipcomp=y
-
-          CONFIG_PACKAGE_strongswan=y
-          CONFIG_PACKAGE_strongswan-mod-kernel-libipsec=y
-          CONFIG_PACKAGE_strongswan-mod-openssl=y
-          CONFIG_PACKAGE_strongswan-mod-pkcs1=y
-          CONFIG_PACKAGE_strongswan-mod-xauth-generic=y
-          CONFIG_PACKAGE_strongswan-mod-xauth-eap=y
-
           CONFIG_PACKAGE_luci-proto-l2tp=y
           CONFIG_PACKAGE_luci-proto-ipsec=y
 
@@ -95,10 +77,10 @@ jobs:
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_luci-app-samba4=y
           CONFIG_PACKAGE_htop=y
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_luci-app-mwan3=y
+          CONFIG_PACKAGE_luci-app-homeproxy=y
 
           # ====================
           # 关闭无用插件
