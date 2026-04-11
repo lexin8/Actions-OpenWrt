@@ -115,6 +115,8 @@ jobs:
           CONFIG_PACKAGE_luci-app-vsftpd=n
           CONFIG_PACKAGE_luci-app-wol=n
           CONFIG_PACKAGE_luci-app-autoreboot=n
+          CONFIG_PACKAGE_fullconenat-nft=n
+          CONFIG_PACKAGE_luci-app-fullconenat=n
           EOF
           make defconfig
       
