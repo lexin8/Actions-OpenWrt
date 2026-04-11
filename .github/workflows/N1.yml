@@ -106,6 +106,13 @@ jobs:
           CONFIG_PACKAGE_kmod-ipt-tproxy=n
           CONFIG_PACKAGE_dnsmasq=n
 
+          # 关闭 fullconenat 解决编译错误
+          CONFIG_PACKAGE_fullconenat=n
+          CONFIG_PACKAGE_fullconenat-nft=n
+          CONFIG_PACKAGE_luci-app-fullconenat=n
+          CONFIG_PACKAGE_kmod-fullconenat=n
+          CONFIG_PACKAGE_kmod-fullconenat-nft=n
+
           # 关闭不常用插件
           CONFIG_PACKAGE_luci-app-accesscontrol=n
           CONFIG_PACKAGE_luci-app-nlbwmon=n
@@ -115,8 +122,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-vsftpd=n
           CONFIG_PACKAGE_luci-app-wol=n
           CONFIG_PACKAGE_luci-app-autoreboot=n
-          CONFIG_PACKAGE_fullconenat-nft=n
-          CONFIG_PACKAGE_luci-app-fullconenat=n
+
           EOF
           make defconfig
       
