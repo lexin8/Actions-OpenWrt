@@ -192,7 +192,7 @@ jobs:
         run: |
           cd openwrt
           # 首次编译用单线程（避免编译错误），失败则输出详细日志
-          make -j1 V=s || make -j1 V=s 2>&1 | tee build_error.log
+          make -j$(nproc) || make -j1 V=s 2>&1 | tee build_error.log
           # 若单线程成功，再用多线程加速（可选）
           # make -j$(nproc) V=s
       
