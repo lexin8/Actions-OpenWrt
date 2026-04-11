@@ -157,10 +157,10 @@ jobs:
           cd openwrt
           make download -j$(nproc)
       
-      - name: Build
+      - name: Build（多线程 + 失败自动单线程）
         run: |
           cd openwrt
-          make -j1 V=s
+          make -j$(nproc) V=s || make -j1 V=s
       
       - name: Upload
         uses: actions/upload-artifact@v4
