@@ -113,7 +113,7 @@ jobs:
       - name: Build
         run: |
           cd openwrt
-          make -j1 V=s
+          make -j4
       
       - name: Upload
         uses: actions/upload-artifact@v4
