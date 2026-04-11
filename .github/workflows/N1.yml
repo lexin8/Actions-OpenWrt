@@ -1,16 +1,16 @@
-name: D2
+name: D2-5.4-MT
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       
-      - name: Install dependencies
+      - name: Install deps
         run: |
           sudo apt update -y
-          sudo apt full-upgrade -y
           sudo apt install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
           bzip2 ccache clang cmake cpio curl device-tree-compiler flex gawk gcc-multilib g++-multilib gettext \
           genisoimage git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libfuse-dev libglib2.0-dev \
@@ -18,71 +18,38 @@ jobs:
           libreadline-dev libssl-dev libtool llvm lrzsz libnsl-dev ninja-build p7zip p7zip-full patch pkgconf \
           python3 python3-pyelftools python3-setuptools qemu-utils rsync scons squashfs-tools subversion \
           swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
-          
-      - name: 拉取源码 + 强制切换5.4内核
+      
+      - name: Source & Kernel 5.4
         run: |
           git clone --depth 1 https://github.com/coolsnowwolf/lede openwrt
           cd openwrt
-          
-          # ==================== 修复1：强制修改内核为5.4（解决改不动5.10问题） ====================
-          sed -i 's/^KERNEL_PATCHVER :=.*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
-          sed -i 's/^KERNEL_PATCHVER:=.*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
-          echo "验证内核版本："
-          grep "KERNEL_PATCHVER" target/linux/ramips/Makefile
-          
-          # ==================== 修复2：直接sed修改闭源驱动（删除补丁，永不报错） ====================
-          # 适配5.4内核 dev_open API
-          for drv in mt7603e mt7612e mt7615d; do
-            file="package/lean/mt/drivers/$drv/src/mt_wifi/embedded/main/linux/rt_main_dev.c"
-            if [ -f "$file" ]; then
-              sed -i 's/dev_open(dev)/dev_open(dev, NULL)/g' $file
-              sed -i 's/set_fs(get_ds())/set_fs(KERNEL_DS)/g' $file
-            fi
+          sed -i 's/^KERNEL_PATCHVER.*/KERNEL_PATCHVER := 5.4/' target/linux/ramips/Makefile
+          for d in mt7603e mt7612e; do
+            f="package/lean/mt/drivers/$d/src/mt_wifi/embedded/main/linux/rt_main_dev.c"
+            [ -f $f ] && sed -i 's/dev_open(dev)/dev_open(dev, NULL)/g;s/set_fs(get_ds())/set_fs(KERNEL_DS)/g' $f
           done
-          
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Generate config (5.4 + 闭源MT驱动)
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+      
+      - name: Config
         run: |
           cd openwrt
           cat > .config << EOF
-          # ========== 目标设备配置 ==========
           CONFIG_TARGET_ramips=y
           CONFIG_TARGET_ramips_mt7621=y
           CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
-          
-          # ========== 内核版本（由Makefile控制，此处仅做冗余确认） ==========
           CONFIG_KERNEL_PATCHVER="5.4"
-          CONFIG_LINUX_VERSION="5.4.243"  # 适配Lean源码的5.4最新版本
-          
-          # ========== 闭源MT WiFi驱动（Newifi D2硬件：MT7603(2.4G)+MT7612E(5G)） ==========
-          # 启用闭源驱动（编译进固件）
-          CONFIG_PACKAGE_kmod-mt7603e=y    # 2.4G闭源驱动
-          CONFIG_PACKAGE_kmod-mt7612e=y    # 5G闭源驱动
-          CONFIG_PACKAGE_luci-app-mtwifi=y # MT驱动LuCI配置界面
-          # 驱动功能开关
-          CONFIG_DRIVER_11AC_SUPPORT=y     # 启用11ac（5G）
-          CONFIG_DRIVER_11N_SUPPORT=y      # 启用11n
-          CONFIG_DRIVER_11W_SUPPORT=y      # 启用WMM
-          CONFIG_MT_AP_SUPPORT=y           # 启用AP模式
-          CONFIG_MT_STA_SUPPORT=y          # 启用STA模式
-          
-          # ========== 强制关闭开源MT驱动（避免冲突，核心！） ==========
+          CONFIG_PACKAGE_kmod-mt7603e=y
+          CONFIG_PACKAGE_kmod-mt7612e=y
+          CONFIG_PACKAGE_luci-app-mtwifi=y
+          CONFIG_DRIVER_11AC_SUPPORT=y
           CONFIG_PACKAGE_kmod-mt76=n
-          CONFIG_PACKAGE_kmod-mt76-core=n
           CONFIG_PACKAGE_kmod-mt7603=n
-          CONFIG_PACKAGE_kmod-mt76x02-common=n
           CONFIG_PACKAGE_kmod-mt76x2=n
-          CONFIG_PACKAGE_kmod-mt76x2-common=n
           CONFIG_PACKAGE_kmod-mt76x2e=n
-          # 关闭开源hostapd/wpad（闭源驱动用自带的）
+          CONFIG_PACKAGE_wpad=n
+          CONFIG_PACKAGE_wpad-basic=n
           CONFIG_PACKAGE_wpad-openssl=n
           CONFIG_PACKAGE_hostapd-common=n
-          CONFIG_PACKAGE_wpad-basic=n
-          CONFIG_PACKAGE_wpad=n
-          
-          # ========== L2TP/IPsec PSK 完整支持 ==========
           CONFIG_PACKAGE_xl2tpd=y
           CONFIG_PACKAGE_ppp=y
           CONFIG_PACKAGE_ppp-mod-pppol2tp=y
@@ -92,8 +59,6 @@ jobs:
           CONFIG_PACKAGE_kmod-udptunnel4=y
           CONFIG_PACKAGE_luci-proto-l2tp=y
           CONFIG_PACKAGE_luci-proto-ipsec=y
-          
-          # ========== 常用插件 ==========
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
@@ -103,8 +68,6 @@ jobs:
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_luci-app-mwan3=y
           CONFIG_PACKAGE_luci-app-homeproxy=y
-          
-          # ========== 关闭无用插件 ==========
           CONFIG_PACKAGE_luci-app-accesscontrol=n
           CONFIG_PACKAGE_luci-app-nlbwmon=n
           CONFIG_PACKAGE_luci-app-rclone=n
@@ -113,22 +76,21 @@ jobs:
           CONFIG_PACKAGE_luci-app-vsftpd=n
           CONFIG_PACKAGE_luci-app-wol=n
           CONFIG_PACKAGE_luci-app-autoreboot=n
-          
-          # ========== 编译优化（可选） ==========
-          CONFIG_CPU_TYPE="mips32r2"       # 适配MT7621的mips32r2架构
-          CONFIG_OPTIMIZE_FOR_PERFORMANCE=y
-          CONFIG_STRIP_KERNEL_EXPORTS=y
-          CONFIG_STRIP_UPX=y
           EOF
-          
-          # 生成最终配置（合并默认配置+自定义配置）
           make defconfig
-          
+      
+      - name: Check kernel
+        run: |
+          cd openwrt
+          echo "===== Kernel Version ====="
+          grep KERNEL_PATCHVER target/linux/ramips/Makefile
+          grep KERNEL_PATCHVER .config
+      
       - name: List luci-app status
         run: |
           cd openwrt
           echo -e "\n=================================================="
-          echo -e "luci-app plugins status"
+          echo -e "luci-app plugins"
           echo -e "==================================================\n"
           if [ -f .config ]; then
             grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
@@ -140,37 +102,21 @@ jobs:
                 echo " ❌ $name"
               fi
             done
-          else
-            echo " ❌ .config file not found"
           fi
-          # 额外验证：内核版本和驱动配置
-          echo -e "\n=================================================="
-          echo -e "Kernel & Driver config check"
-          echo -e "==================================================\n"
-          grep -E 'KERNEL_PATCHVER|mt76' .config | grep -v '#' || true
           echo -e "==================================================\n"
       
-      - name: Download dependencies
+      - name: Download
         run: |
           cd openwrt
-          # 多线程下载依赖（避免超时）
           make download -j$(nproc)
-          # 验证下载完整性
-          find dl -type f -name "*.dl" -delete || true
       
-      - name: Build firmware
+      - name: Build
         run: |
           cd openwrt
-          # 首次编译用单线程（避免编译错误），失败则输出详细日志
-          make -j$(nproc) || make -j1 V=s 2>&1 | tee build_error.log
-          # 若单线程成功，再用多线程加速（可选）
-          # make -j$(nproc) V=s
+          make -j1 V=s
       
-      - name: Upload firmware
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: NewifiD2-LEDE-5.4-mtwifi
-          path: |
-            openwrt/bin/targets/ramips/mt7621/*.bin
-            openwrt/build_error.log  # 上传错误日志（若有）
-          retention-days: 30  # 固件保留30天
+          name: NewifiD2-5.4-MT
+          path: openwrt/bin/targets/ramips/mt7621/*.bin
