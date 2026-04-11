@@ -20,7 +20,6 @@ jobs:
           
       - name: Clone source
         run: |
-          # git clone --depth 1 -b openwrt-24.10 https://github.com/immortalwrt/immortalwrt.git openwrt
           git clone --depth 1 https://github.com/coolsnowwolf/lede openwrt
           cd openwrt
           ./scripts/feeds update -a
