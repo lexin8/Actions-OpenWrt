@@ -1,4 +1,4 @@
-name: Newifi D2 LEDE
+name: N1
 on:
   workflow_dispatch:
 jobs:
@@ -20,7 +20,7 @@ jobs:
           
       - name: Clone source
         run: |
-          git clone --depth 1 -b 24.10 https://github.com/immortalwrt/immortalwrt.git openwrt
+          git clone --depth 1 -b openwrt-24.10 https://github.com/immortalwrt/immortalwrt.git openwrt
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
