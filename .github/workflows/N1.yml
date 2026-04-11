@@ -80,7 +80,6 @@ jobs:
           CONFIG_PACKAGE_luci-app-homeproxy=y
           CONFIG_PACKAGE_sing-box=y
           CONFIG_PACKAGE_sing-box-extra=y
-          CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_kmod-nft-tproxy=y
           CONFIG_PACKAGE_ucode-mod-digest=y
 
@@ -152,8 +151,7 @@ jobs:
       - name: 编译
         run: |
           cd openwrt
-          rm -rf package/network/services/fullconenat* || true
-          make -j1 V=s
+          make -j$(nproc)
 
       - name: Upload
         uses: actions/upload-artifact@v4
