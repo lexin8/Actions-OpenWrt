@@ -124,19 +124,26 @@ jobs:
           make defconfig
 
       # ========== 优化4：检查配置（便于调试） ==========
-      - name: Check Luci App Configuration
+      - name: List luci-app status
         run: |
-          cd ${{ env.OPENWRT_DIR }}
-          echo -e "\n===== Luci App Status ====="
-          grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
-            if echo "$line" | grep -q '=y\|=m'; then
-              echo " ✔️ $(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')"
-            else
-              echo " ❌ $(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')"
-            fi
-          done
-          echo -e "===== Kernel Version Check ====="
-          grep -E 'KERNEL_PATCHVER|LINUX_VERSION' .config
+          cd openwrt
+          echo -e "\n=================================================="
+          echo -e "luci-app plugins"
+          echo -e "==================================================\n"
+          if [ -f .config ]; then
+            grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+              if echo "$line" | grep -q '=y\|=m'; then
+                name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+                echo " ✔️ $name"
+              else
+                name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+                echo " ❌ $name"
+              fi
+            done
+          else
+            echo " no .config"
+          fi
+          echo -e "==================================================\n"
 
       # ========== 优化5：下载依赖（多线程+断点续传） ==========
       - name: Download Build Dependencies
