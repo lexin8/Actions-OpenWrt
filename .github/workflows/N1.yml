@@ -75,6 +75,22 @@ jobs:
           CONFIG_PACKAGE_htop=y
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_luci-app-mwan3=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+
+          # 启用 iptables 相关
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_iptables=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_kmod-ipt-core=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack=y
+          CONFIG_PACKAGE_kmod-ipt-nat=y
+          CONFIG_PACKAGE_kmod-ipt-tproxy=y
+
+          # 禁用 firewall4 及 nftables 相关
+          CONFIG_PACKAGE_firewall4=n
+          CONFIG_PACKAGE_kmod-nft-core=n
+          CONFIG_PACKAGE_kmod-nft-fullcone=n
+          CONFIG_PACKAGE_nftables-json=n
 
           # HomeProxy 核心
           CONFIG_PACKAGE_luci-app-homeproxy=y
