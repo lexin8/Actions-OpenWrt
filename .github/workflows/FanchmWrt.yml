@@ -52,10 +52,6 @@ jobs:
           ccache -M 10G  # 设置缓存大小 10GB
           ccache -s      # 显示缓存状态
 
-      - name: Update feeds
-        run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
 
       - name: Add third-party feeds
         run: |
