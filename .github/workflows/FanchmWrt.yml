@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Set build time
         id: build_time
-        run: echo "time=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+        run: echo "time=$(TZ=Asia/Shanghai date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
   build-firmware:
     runs-on: ubuntu-latest
