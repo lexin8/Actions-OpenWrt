@@ -17,6 +17,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: 安装基础依赖
+        run: sudo apt-get install -y python3-pip python3-yaml
 
       - name: 克隆 AutoMergePublicNodes 仓库
         run: git clone https://github.com/chengaopan/AutoMergePublicNodes.git --depth=1
@@ -25,28 +29,35 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
+          # 修复编码解码报错
+          sed -i 's/base64.b64decode(ss.encode.*)/base64.b64decode(ss.encode("utf-8"), validate=False)/' fetch.py
+          # 修复hysteria2空密码报错
+          sed -i 's/unquote(parsed.username)/unquote(parsed.username or "")/' fetch.py
 
-      - name: 安装依赖库
+      - name: 安装Python依赖
         run: |
           cd AutoMergePublicNodes
-          pip install -r requirements.txt
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -r requirements.txt
 
-      - name: 运行 fetch.py 获取 AutoMergePublicNodes 节点
+      - name: 运行fetch.py抓取节点
         run: |
           cd AutoMergePublicNodes
-          python fetch.py 2>&1 | tee output.log || true
+          python3 fetch.py 2>&1 | tee output.log || true
 
-      - name: 复制 list.meta.yml 到 nodes 目录
+      - name: 复制生成的节点文件
         run: |
           mkdir -p nodes
-          cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
+          [ -f AutoMergePublicNodes/list.meta.yml ] && cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
 
-      - name: 获取所有订阅源
+      - name: 获取稳定订阅源（替换失效源）
         run: |
           mkdir -p sources
+          rm -f readme.tmp all_urls_raw.txt sub_urls.txt
 
+          # 替换为长期稳定的公开订阅源
           readme1='https://github.com/free-nodes/clashfree/blob/main/README.md'
-          readme2='https://github.com/free18/v2ray/blob/main/README.md'
+          readme2='https://github.com/ripaojiedian/freenode/blob/main/README.md'
           readme3=''
           readme4=''
           readme5=''
@@ -65,87 +76,136 @@ jobs:
               if [[ "$input" =~ github\.com.*/blob/ ]]; then
                 input=$(echo "$input" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
               fi
-              echo "  下载 README: $input"
-              curl -s -L "$input" > readme.tmp
+              echo "  下载README: $input"
+              curl -s -L --connect-timeout 10 --max-time 30 "$input" > readme.tmp || { echo "下载失败"; return; }
               
-              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"''),]\+$//' > all_urls_raw.txt
-              echo "  找到的所有链接（清理后）:"
-              cat all_urls_raw.txt
-              
+              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"'''),]\+$//' > all_urls_raw.txt
               grep -E '\.ya?ml$' all_urls_raw.txt > sub_urls.txt || true
               if [ -s sub_urls.txt ]; then
-                echo "  ✅ 找到订阅链接 (.yml/.yaml):"
-                cat sub_urls.txt
-                echo "  开始下载..."
+                echo "  找到订阅链接"
                 while read -r url; do
                   if [[ "$url" =~ github\.com.*/blob/ ]]; then
                     url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
                   fi
-                  echo "    下载: $url"
-                  curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
+                  curl -s -L --connect-timeout 10 --max-time 30 -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
                 done < sub_urls.txt
               else
-                echo "  ⚠️ 未找到订阅链接 (.yml/.yaml)"
-                if grep -q '^proxies:' readme.tmp; then
-                  echo "  📄 检测到 README 直接包含 Clash 配置，保存为配置文件"
-                  cp readme.tmp "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml"
-                else
-                  echo "  ❌ 未找到任何可用内容"
-                fi
+                grep -q '^proxies:' readme.tmp && cp readme.tmp "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml"
               fi
             else
-              echo "  直接订阅链接，开始下载..."
-              curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
+              curl -s -L --connect-timeout 10 --max-time 30 -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
             fi
           }
 
           for url in "$readme1" "$readme2" "$readme3" "$readme4" "$readme5"; do
             [ -n "$url" ] && fetch_source "$url" "readme"
           done
-
           for url in "$sub1" "$sub2" "$sub3" "$sub4" "$sub5"; do
             [ -n "$url" ] && fetch_source "$url" "sub"
           done
 
-          echo "========================================"
-          echo "下载的源文件列表："
-          ls -la sources/ || true
-
-      - name: 合并节点
+      - name: 合并所有节点（容错空文件）
         run: |
           python3 << 'EOF'
           import yaml, glob, os
           all_proxies = []
           source_files = ['nodes/list.meta.yml'] + glob.glob('sources/*.yml')
           for f in source_files:
-              if not os.path.exists(f): continue
+              if not os.path.exists(f) or os.path.getsize(f) == 0:
+                  continue
               try:
-                  data = yaml.safe_load(open(f, encoding='utf-8'))
-                  proxies = data.get('proxies', [])
-                  print(f"从 {f} 获取 {len(proxies)} 个节点")
-                  all_proxies.extend(proxies)
+                  with open(f, 'r', encoding='utf-8', errors='ignore') as fp:
+                      data = yaml.safe_load(fp)
+                  if data and 'proxies' in data:
+                      all_proxies.extend(data['proxies'])
               except Exception as e:
-                  print(f"读取 {f} 失败: {e}")
-          print(f"合并后总节点数: {len(all_proxies)}")
+                  print(f"跳过无效文件 {f}: {e}")
+          # 去重
+          unique_proxies = []
+          names = set()
+          for p in all_proxies:
+              name = p.get('name')
+              if name and name not in names:
+                  names.add(name)
+                  unique_proxies.append(p)
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
-              yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
+              yaml.dump({'proxies': unique_proxies}, f, sort_keys=False)
           EOF
 
-      - name: 初步TCP测速过滤失效节点
+      - name: TCP连通性过滤失效节点
         run: |
           python3 << 'EOF'
-          import yaml, asyncio, time
-          TIMEOUT = 3
-          TEST_TIMES = 10
-          SUCCESS_THRESHOLD = 5
-
-          async def test_node_once(server, port):
+          import yaml, asyncio, os
+          if not os.path.exists('merged_config.yaml') or os.path.getsize('merged_config.yaml') == 0:
+              with open('preliminary_valid.yaml', 'w') as f:
+                  yaml.dump({'proxies': []}, f)
+              exit()
+          async def test_node(server, port):
               try:
-                  start = time.time()
-                  _, writer = await asyncio.wait_for(asyncio.open_connection(server, port), timeout=TIMEOUT)
-                  writer.close(); await writer.wait_closed()
-                  return True, time.time() - start
+                  _, writer = await asyncio.wait_for(asyncio.open_connection(server, port), timeout=3)
+                  writer.close()
+                  await writer.wait_closed()
+                  return True
               except:
+                  return False
+          async def main():
+              with open('merged_config.yaml') as f:
+                  data = yaml.safe_load(f) or {'proxies': []}
+                  proxies = data['proxies']
+              valid = [n for n in proxies if n.get('server') and n.get('port') and await test_node(n['server'], n['port'])]
+              with open('preliminary_valid.yaml', 'w') as f:
+                  yaml.dump({'proxies': valid}, f)
+          asyncio.run(main())
+          EOF
+
+      - name: 安装Go环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: 安装clash-speedtest
+        run: go install github.com/faceair/clash-speedtest@latest
+
+      - name: 精确测速过滤优质节点
+        run: |
+          if [ -s preliminary_valid.yaml ]; then
+            ~/go/bin/clash-speedtest \
+              -c preliminary_valid.yaml \
+              -output filtered.yaml \
+              -max-latency 800ms \
+              -min-download-speed 5 \
+              -concurrent 10 \
+              -timeout 5s || true
+          else
+            echo "无有效节点，生成空文件"
+            echo "proxies: []" > filtered.yaml
+          fi
+
+      - name: 生成最终订阅文件
+        run: |
+          mkdir -p nodes
+          cp filtered.yaml nodes/proxies.yml
+          python3 << 'EOF'
+          import yaml
+          try:
+              with open('filtered.yaml') as f:
+                  proxies = yaml.safe_load(f).get('proxies', [])
+          except:
+              proxies = []
+          with open('nodes/links.txt', 'w') as f:
+              for p in proxies:
+                  f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
+          print(f"最终有效节点: {len(proxies)}")
+          EOF
+
+      - name: 提交并推送更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin master --rebase --autostash || true
+          git add nodes/
+          git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
+          git push origin HEAD:master
                   return False, None
 
           async def test_node(node):
