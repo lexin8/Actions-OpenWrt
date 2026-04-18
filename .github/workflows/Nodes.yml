@@ -29,9 +29,7 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
-          # 修复编码解码报错
           sed -i 's/base64.b64decode(ss.encode.*)/base64.b64decode(ss.encode("utf-8"), validate=False)/' fetch.py
-          # 修复hysteria2空密码报错
           sed -i 's/unquote(parsed.username)/unquote(parsed.username or "")/' fetch.py
 
       - name: 安装Python依赖
@@ -50,12 +48,12 @@ jobs:
           mkdir -p nodes
           [ -f AutoMergePublicNodes/list.meta.yml ] && cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
 
-      - name: 获取稳定订阅源（替换失效源）
+      - name: 获取稳定订阅源（修复Shell语法错误）
         run: |
           mkdir -p sources
           rm -f readme.tmp all_urls_raw.txt sub_urls.txt
 
-          # 替换为长期稳定的公开订阅源
+          # 稳定订阅源
           readme1='https://github.com/free-nodes/clashfree/blob/main/README.md'
           readme2='https://github.com/ripaojiedian/freenode/blob/main/README.md'
           readme3=''
@@ -79,7 +77,8 @@ jobs:
               echo "  下载README: $input"
               curl -s -L --connect-timeout 10 --max-time 30 "$input" > readme.tmp || { echo "下载失败"; return; }
               
-              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"'''),]\+$//' > all_urls_raw.txt
+              # 修复：删除错误的引号嵌套，修正正则语法
+              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"'\'']\+$//' > all_urls_raw.txt
               grep -E '\.ya?ml$' all_urls_raw.txt > sub_urls.txt || true
               if [ -s sub_urls.txt ]; then
                 echo "  找到订阅链接"
@@ -104,7 +103,7 @@ jobs:
             [ -n "$url" ] && fetch_source "$url" "sub"
           done
 
-      - name: 合并所有节点（容错空文件）
+      - name: 合并所有节点（去重+容错）
         run: |
           python3 << 'EOF'
           import yaml, glob, os
@@ -120,7 +119,6 @@ jobs:
                       all_proxies.extend(data['proxies'])
               except Exception as e:
                   print(f"跳过无效文件 {f}: {e}")
-          # 去重
           unique_proxies = []
           names = set()
           for p in all_proxies:
@@ -206,76 +204,3 @@ jobs:
           git add nodes/
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
           git push origin HEAD:master
-                  return False, None
-
-          async def test_node(node):
-              server, port = node.get('server'), node.get('port')
-              if not server or not port: return node, 0, None
-              success, latencies = 0, []
-              for _ in range(TEST_TIMES):
-                  ok, lat = await test_node_once(server, port)
-                  if ok:
-                      success += 1
-                      latencies.append(lat)
-              avg_lat = sum(latencies)/len(latencies) if latencies else None
-              return node, success, avg_lat
-
-          async def main():
-              with open('merged_config.yaml') as f:
-                  proxies = yaml.safe_load(f).get('proxies', [])
-              print(f"测试 {len(proxies)} 个节点 (每个 {TEST_TIMES} 次)...")
-              results = await asyncio.gather(*[test_node(n) for n in proxies])
-              valid = []
-              for node, success, avg in results:
-                  if success >= SUCCESS_THRESHOLD:
-                      valid.append(node)
-                      print(f"✅ {node.get('name')} : {success}/{TEST_TIMES} 成功, 延迟 {avg:.2f}s")
-                  else:
-                      print(f"❌ {node.get('name')} : {success}/{TEST_TIMES} 失败")
-              print(f"初步有效节点: {len(valid)} / {len(proxies)}")
-              with open('preliminary_valid.yaml', 'w') as f:
-                  yaml.dump({'proxies': valid}, f, allow_unicode=True, sort_keys=False)
-
-          asyncio.run(main())
-          EOF
-
-      - name: 安装 Go 环境
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
-
-      - name: 安装 clash-speedtest
-        run: go install github.com/faceair/clash-speedtest@latest
-
-      - name: clash-speedtest 精确测速
-        run: |
-          ~/go/bin/clash-speedtest \
-            -c preliminary_valid.yaml \
-            -output filtered.yaml \
-            -max-latency 800ms \
-            -min-download-speed 5 \
-            -concurrent 10 \
-            -timeout 5s \
-            2>&1 | tee speedtest.log
-
-      - name: 保存最终订阅文件
-        run: |
-          cp filtered.yaml nodes/proxies.yml
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
-          python3 << 'EOF'
-          import yaml
-          with open('filtered.yaml') as f:
-              proxies = yaml.safe_load(f).get('proxies', [])
-          with open('nodes/links.txt', 'w') as f:
-              for p in proxies:
-                  f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
-          EOF
-      - name: 提交并推送更新
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 拉取远程最新更改，避免推送冲突
-          git pull --rebase origin master || true
-          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
-          git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
-          git push origin master
