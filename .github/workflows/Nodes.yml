@@ -262,7 +262,7 @@ jobs:
         run: |
           INPUT_FILE="cleaned_proxies.yaml"
           OUTPUT_FILE="filtered.yaml"
-          MAX_RETRIES=10
+          MAX_RETRIES=50
           retry_count=0
           cp "$INPUT_FILE" current_config.yaml
 
