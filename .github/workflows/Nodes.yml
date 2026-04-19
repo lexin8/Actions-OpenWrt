@@ -258,117 +258,106 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: clash-speedtest 智能重试测速（自动剔除错误节点）
+      # ---------- 1. 拆分 VLESS 和非 VLESS 节点 ----------
+      - name: 拆分 VLESS 和非 VLESS 节点
         run: |
-          INPUT_FILE="cleaned_proxies.yaml"
-          OUTPUT_FILE="filtered.yaml"
-          MAX_RETRIES=50
-          retry_count=0
-          cp "$INPUT_FILE" current_config.yaml
-
-          while [ $retry_count -lt $MAX_RETRIES ]; do
-            echo "=========================================="
-            echo "尝试测速 (第 $((retry_count+1)) 次)..."
-
-            # 执行测速，捕获错误输出
-            ~/go/bin/clash-speedtest \
-              -c current_config.yaml \
-              -output "$OUTPUT_FILE" \
-              -max-latency 800ms \
-              -min-download-speed 5 \
-              -concurrent 10 \
-              -timeout 5s \
-              2>&1 | tee speedtest.log
-
-            # 检查是否成功
-            if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
-              echo "✅ 测速成功！"
-              break
-            fi
-
-            # 提取错误信息中的节点编号
-            error_line=$(grep -E "proxy [0-9]+: invalid" speedtest.log | head -1)
-            if [ -z "$error_line" ]; then
-              echo "❌ 未识别的错误，无法自动修复，退出。"
-              exit 1
-            fi
-
-            bad_index=$(echo "$error_line" | grep -oE "proxy [0-9]+" | awk '{print $2}')
-            echo "⚠️ 发现错误节点索引: $bad_index"
-
-            # 通过环境变量传递索引给 Python
-            export BAD_INDEX="$bad_index"
-            python3 << 'PYTHON_SCRIPT'
+          python3 << 'EOF'
           import yaml
-          import os
-
-          bad_idx_str = os.environ.get('BAD_INDEX', '')
-          if not bad_idx_str.isdigit():
-              print(f"错误：无效索引值 '{bad_idx_str}'")
-              exit(1)
-          bad_idx = int(bad_idx_str)
-
-          with open("current_config.yaml", "r", encoding="utf-8") as f:
+          with open('cleaned_proxies.yaml', 'r', encoding='utf-8') as f:
               data = yaml.safe_load(f)
-          proxies = data.get("proxies", [])
-          if 1 <= bad_idx <= len(proxies):
-              removed = proxies.pop(bad_idx - 1)
-              print(f"🗑️ 已移除节点: {removed.get('name', '未知')}")
-          else:
-              print(f"⚠️ 索引 {bad_idx} 超出范围（1~{len(proxies)}），无法移除")
-              # 即使超出范围也退出循环，避免死循环
-              exit(1)
-          with open("current_config.yaml", "w", encoding="utf-8") as f:
-              yaml.dump({"proxies": proxies}, f, allow_unicode=True, sort_keys=False)
-          PYTHON_SCRIPT
+          proxies = data.get('proxies', [])
+          
+          vless = [p for p in proxies if p.get('type') == 'vless']
+          non_vless = [p for p in proxies if p.get('type') != 'vless']
+          
+          print(f"VLESS 节点数: {len(vless)}")
+          print(f"非 VLESS 节点数: {len(non_vless)}")
+          
+          with open('vless_only.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump({'proxies': vless}, f, allow_unicode=True, sort_keys=False)
+          with open('non_vless.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump({'proxies': non_vless}, f, allow_unicode=True, sort_keys=False)
+          EOF
 
-            # 检查 Python 脚本是否成功
-            if [ $? -ne 0 ]; then
-              echo "❌ Python 脚本执行失败，停止重试。"
-              exit 1
-            fi
-
-            retry_count=$((retry_count + 1))
-            remaining=$(python3 -c "import yaml; print(len(yaml.safe_load(open('current_config.yaml'))['proxies']))")
-            echo "移除后剩余节点数: $remaining"
-          done
-
-          if [ $retry_count -ge $MAX_RETRIES ]; then
-            echo "❌ 达到最大重试次数，测速失败。"
-            exit 1
-          fi
-
-      - name: 保存最终订阅文件（带降级逻辑）
+      # ---------- 2. 对非 VLESS 节点进行下载测速 ----------
+      - name: 非 VLESS 节点下载测速
+        continue-on-error: true
         run: |
-          if [ -f filtered.yaml ] && [ -s filtered.yaml ]; then
-            echo "✅ 使用测速后的节点"
-            FINAL_FILE="filtered.yaml"
-          else
-            echo "⚠️ 测速步骤未生成有效文件，降级使用清洗后的节点"
-            FINAL_FILE="cleaned_proxies.yaml"
-          fi
+          echo "对非 VLESS 节点进行下载测速..."
+          ~/go/bin/clash-speedtest \
+            -c non_vless.yaml \
+            -output filtered_non_vless.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest_non_vless.log || true
 
-          cp "$FINAL_FILE" nodes/proxies.yml
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('$FINAL_FILE'))['proxies']))"
+      # ---------- 3. 对 VLESS 节点进行快速延迟测试 ----------
+      - name: VLESS 节点快速延迟测试
+        continue-on-error: true
+        run: |
+          echo "对 VLESS 节点进行快速延迟测试..."
+          ~/go/bin/clash-speedtest \
+            -c vless_only.yaml \
+            -speed-mode fast \
+            -output filtered_vless.yaml \
+            -max-latency 800ms \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest_vless.log || true
 
+      # ---------- 4. 合并测速结果 ----------
+      - name: 合并测速结果
+        run: |
           python3 << 'EOF'
           import yaml
           import os
-          FINAL = os.environ.get('FINAL_FILE', 'filtered.yaml')
-          with open(FINAL) as f:
+          
+          all_proxies = []
+          
+          # 加载非 VLESS 测速结果（如果存在）
+          if os.path.exists('filtered_non_vless.yaml'):
+              with open('filtered_non_vless.yaml', 'r', encoding='utf-8') as f:
+                  data = yaml.safe_load(f)
+                  all_proxies.extend(data.get('proxies', []))
+                  print(f"非 VLESS 通过测速: {len(data.get('proxies', []))} 个")
+          else:
+              # 降级：使用原始非 VLESS 节点
+              with open('non_vless.yaml', 'r', encoding='utf-8') as f:
+                  data = yaml.safe_load(f)
+                  all_proxies.extend(data.get('proxies', []))
+                  print(f"非 VLESS 测速失败，使用原始节点: {len(data.get('proxies', []))} 个")
+          
+          # 加载 VLESS 延迟测试结果（如果存在）
+          if os.path.exists('filtered_vless.yaml'):
+              with open('filtered_vless.yaml', 'r', encoding='utf-8') as f:
+                  data = yaml.safe_load(f)
+                  all_proxies.extend(data.get('proxies', []))
+                  print(f"VLESS 通过延迟测试: {len(data.get('proxies', []))} 个")
+          else:
+              # 降级：使用原始 VLESS 节点
+              with open('vless_only.yaml', 'r', encoding='utf-8') as f:
+                  data = yaml.safe_load(f)
+                  all_proxies.extend(data.get('proxies', []))
+                  print(f"VLESS 延迟测试失败，使用原始节点: {len(data.get('proxies', []))} 个")
+          
+          print(f"合并后总节点数: {len(all_proxies)}")
+          with open('filtered.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
+          EOF
+
+      # ---------- 5. 保存最终订阅文件 ----------
+      - name: 保存最终订阅文件
+        run: |
+          cp filtered.yaml nodes/proxies.yml
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
+          
+          python3 << 'EOF'
+          import yaml
+          with open('filtered.yaml') as f:
               proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
-        env:
-          FINAL_FILE: "${{ env.FINAL_FILE || 'filtered.yaml' }}"
-
-      - name: 提交并推送更新
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin ${{ github.ref_name }} || true
-          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
-          git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
-          git push origin ${{ github.ref_name }}
