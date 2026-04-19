@@ -131,6 +131,17 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
+      # ---------- 新增：打包上传节点文件 ----------
+      - name: 打包上传节点文件（用于分析格式）
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodes-for-analysis
+          path: |
+            merged_config.yaml
+            nodes/list.meta.yml
+            sources/*.yml
+          retention-days: 3
+
       - name: 初步TCP测速过滤失效节点
         run: |
           python3 << 'EOF'
@@ -179,53 +190,6 @@ jobs:
           asyncio.run(main())
           EOF
 
-      # ---------- 新增：清洗无效节点配置 ----------
-      - name: 清洗无效节点配置（修复 short-id 等错误）
-        run: |
-          python3 << 'EOF'
-          import yaml
-          import re
-
-          INPUT_FILE = "preliminary_valid.yaml"
-          OUTPUT_FILE = "cleaned_proxies.yaml"
-
-          def is_valid_short_id(short_id):
-              if short_id is None:
-                  return False
-              if not isinstance(short_id, str):
-                  return False
-              # 允许空字符串（某些实现会忽略）
-              if short_id == "":
-                  return True
-              # 长度不超过32，且全为十六进制字符
-              if len(short_id) > 32:
-                  return False
-              return bool(re.fullmatch(r"[0-9a-fA-F]+", short_id))
-
-          with open(INPUT_FILE, 'r', encoding='utf-8') as f:
-              data = yaml.safe_load(f)
-
-          proxies = data.get('proxies', [])
-          cleaned = []
-          removed_count = 0
-
-          for idx, p in enumerate(proxies):
-              # 检查 VLESS + REALITY 节点中的 short-id
-              if p.get('type') == 'vless' and 'reality-opts' in p:
-                  opts = p['reality-opts']
-                  short_id = opts.get('short-id')
-                  if not is_valid_short_id(short_id):
-                      print(f"❌ 移除节点 #{idx+1}: {p.get('name')} (无效 short-id: {short_id})")
-                      removed_count += 1
-                      continue
-              cleaned.append(p)
-
-          print(f"清洗完成：保留 {len(cleaned)} 个节点，移除了 {removed_count} 个无效节点。")
-
-          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-              yaml.dump({'proxies': cleaned}, f, allow_unicode=True, sort_keys=False)
-          EOF
-
       - name: 安装 Go 环境
         uses: actions/setup-go@v5
         with:
@@ -234,11 +198,10 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      # ---------- 修改：使用清洗后的文件作为测速输入 ----------
       - name: clash-speedtest 精确测速
         run: |
           ~/go/bin/clash-speedtest \
-            -c cleaned_proxies.yaml \
+            -c preliminary_valid.yaml \
             -output filtered.yaml \
             -max-latency 800ms \
             -min-download-speed 5 \
@@ -259,7 +222,6 @@ jobs:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
 
-      # ---------- 优化：使用动态分支名推送 ----------
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
