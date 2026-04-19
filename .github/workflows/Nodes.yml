@@ -280,27 +280,34 @@ jobs:
               -timeout 5s \
               2>&1 | tee speedtest.log
 
-            # 检查是否成功（输出文件存在且非空）
+            # 检查是否成功
             if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
               echo "✅ 测速成功！"
               break
             fi
 
-            # 提取错误信息中的节点编号（例如 "proxy 15: invalid REALITY short ID"）
+            # 提取错误信息中的节点编号
             error_line=$(grep -E "proxy [0-9]+: invalid" speedtest.log | head -1)
             if [ -z "$error_line" ]; then
               echo "❌ 未识别的错误，无法自动修复，退出。"
               exit 1
             fi
 
-            # 提取节点索引（数字）
             bad_index=$(echo "$error_line" | grep -oE "proxy [0-9]+" | awk '{print $2}')
             echo "⚠️ 发现错误节点索引: $bad_index"
 
-            # 使用 Python 从配置中移除该节点（索引从 1 开始，对应 proxies 数组的第 N 个）
+            # 通过环境变量传递索引给 Python
+            export BAD_INDEX="$bad_index"
             python3 << 'PYTHON_SCRIPT'
           import yaml
-          bad_idx = int("$bad_index")
+          import os
+
+          bad_idx_str = os.environ.get('BAD_INDEX', '')
+          if not bad_idx_str.isdigit():
+              print(f"错误：无效索引值 '{bad_idx_str}'")
+              exit(1)
+          bad_idx = int(bad_idx_str)
+
           with open("current_config.yaml", "r", encoding="utf-8") as f:
               data = yaml.safe_load(f)
           proxies = data.get("proxies", [])
@@ -308,13 +315,22 @@ jobs:
               removed = proxies.pop(bad_idx - 1)
               print(f"🗑️ 已移除节点: {removed.get('name', '未知')}")
           else:
-              print(f"⚠️ 索引 {bad_idx} 超出范围，无法移除")
+              print(f"⚠️ 索引 {bad_idx} 超出范围（1~{len(proxies)}），无法移除")
+              # 即使超出范围也退出循环，避免死循环
+              exit(1)
           with open("current_config.yaml", "w", encoding="utf-8") as f:
               yaml.dump({"proxies": proxies}, f, allow_unicode=True, sort_keys=False)
           PYTHON_SCRIPT
 
+            # 检查 Python 脚本是否成功
+            if [ $? -ne 0 ]; then
+              echo "❌ Python 脚本执行失败，停止重试。"
+              exit 1
+            fi
+
             retry_count=$((retry_count + 1))
-            echo "移除后剩余节点数: $(python3 -c "import yaml; print(len(yaml.safe_load(open('current_config.yaml'))['proxies']))")"
+            remaining=$(python3 -c "import yaml; print(len(yaml.safe_load(open('current_config.yaml'))['proxies']))")
+            echo "移除后剩余节点数: $remaining"
           done
 
           if [ $retry_count -ge $MAX_RETRIES ]; then
