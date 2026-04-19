@@ -131,7 +131,7 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      # ---------- 新增：打包上传节点文件 ----------
+      # ---------- 新增：打包上传节点文件（用于分析格式）----------
       - name: 打包上传节点文件（用于分析格式）
         uses: actions/upload-artifact@v4
         with:
@@ -190,6 +190,68 @@ jobs:
           asyncio.run(main())
           EOF
 
+      # ---------- 强化清洗步骤：移除 short-id 缺失/非法的 REALITY 节点 ----------
+      - name: 深度清洗节点配置（移除非法 REALITY 节点）
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import re
+
+          INPUT_FILE = "preliminary_valid.yaml"
+          OUTPUT_FILE = "cleaned_proxies.yaml"
+
+          def is_valid_short_id(val):
+              """严格校验 short-id 是否符合 mihomo 要求"""
+              if val is None:
+                  return False
+              if not isinstance(val, str):
+                  return False
+              if val.strip() == "":
+                  return False
+              if len(val) < 2 or len(val) > 32:
+                  return False
+              if not re.fullmatch(r"[0-9a-fA-F]+", val):
+                  return False
+              return True
+
+          def clean_node(node, idx):
+              # 只处理 VLESS + reality-opts 节点
+              if node.get('type') != 'vless':
+                  return True, None
+              if 'reality-opts' not in node:
+                  return True, None
+
+              opts = node['reality-opts']
+              if not isinstance(opts, dict):
+                  return False, "reality-opts 不是字典"
+
+              short_id = opts.get('short-id')
+              if not is_valid_short_id(short_id):
+                  return False, f"无效 short-id: {short_id}"
+
+              return True, None
+
+          with open(INPUT_FILE, 'r', encoding='utf-8') as f:
+              data = yaml.safe_load(f)
+
+          proxies = data.get('proxies', [])
+          cleaned = []
+          removed_count = 0
+
+          for idx, p in enumerate(proxies):
+              valid, reason = clean_node(p, idx)
+              if valid:
+                  cleaned.append(p)
+              else:
+                  print(f"❌ 移除节点 #{idx+1}: {p.get('name', '未知')} - {reason}")
+                  removed_count += 1
+
+          print(f"\n清洗结果：保留 {len(cleaned)} 个节点，移除了 {removed_count} 个格式非法节点。")
+
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+              yaml.dump({'proxies': cleaned}, f, allow_unicode=True, sort_keys=False)
+          EOF
+
       - name: 安装 Go 环境
         uses: actions/setup-go@v5
         with:
@@ -198,10 +260,12 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: clash-speedtest 精确测速
+      # ---------- 测速步骤（允许失败，降级使用清洗后的节点）----------
+      - name: clash-speedtest 精确测速（允许失败）
+        continue-on-error: true
         run: |
           ~/go/bin/clash-speedtest \
-            -c preliminary_valid.yaml \
+            -c cleaned_proxies.yaml \
             -output filtered.yaml \
             -max-latency 800ms \
             -min-download-speed 5 \
@@ -209,18 +273,33 @@ jobs:
             -timeout 5s \
             2>&1 | tee speedtest.log
 
-      - name: 保存最终订阅文件
+      - name: 保存最终订阅文件（带降级逻辑）
         run: |
-          cp filtered.yaml nodes/proxies.yml
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
+          # 如果测速成功且生成了 filtered.yaml，则使用它；否则回退到清洗后的节点
+          if [ -f filtered.yaml ] && [ -s filtered.yaml ]; then
+            echo "✅ 使用测速后的节点"
+            FINAL_FILE="filtered.yaml"
+          else
+            echo "⚠️ 测速步骤未生成有效文件，降级使用清洗后的节点"
+            FINAL_FILE="cleaned_proxies.yaml"
+          fi
+
+          cp "$FINAL_FILE" nodes/proxies.yml
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('$FINAL_FILE'))['proxies']))"
+
+          # 生成 links.txt
           python3 << 'EOF'
           import yaml
-          with open('filtered.yaml') as f:
+          import os
+          FINAL = os.environ.get('FINAL_FILE', 'filtered.yaml')
+          with open(FINAL) as f:
               proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
+        env:
+          FINAL_FILE: "${{ env.FINAL_FILE || 'filtered.yaml' }}"
 
       - name: 提交并推送更新
         run: |
