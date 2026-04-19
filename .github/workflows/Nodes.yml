@@ -222,13 +222,14 @@ jobs:
           python3 << 'EOF'
           import yaml
           import subprocess
-          import sys
           import os
+          import shutil
 
           INPUT_FILE = "preliminary_valid.yaml"
           OUTPUT_FILE = "filtered.yaml"
+          SPEEDTEST_BIN = os.path.expanduser("~/go/bin/clash-speedtest")
           SPEEDTEST_CMD = [
-              "~/go/bin/clash-speedtest",
+              SPEEDTEST_BIN,
               "-c", "temp_config.yaml",
               "-output", OUTPUT_FILE,
               "-max-latency", "800ms",
@@ -253,6 +254,8 @@ jobs:
                   return success, result.stderr
               except subprocess.TimeoutExpired:
                   return False, "Timeout"
+              except Exception as e:
+                  return False, str(e)
 
           def find_bad_nodes(proxies, depth=0):
               """递归二分查找导致失败的节点"""
@@ -262,14 +265,12 @@ jobs:
               
               if success:
                   print(f"{indent}✅ 该组节点通过测速")
-                  return []   # 无坏节点
+                  return []
               
               if len(proxies) == 1:
-                  # 单个节点失败 -> 它就是坏节点
                   print(f"{indent}❌ 发现嫌疑节点: {proxies[0].get('name', '未知')}")
                   return proxies
               
-              # 失败且多于1个节点，二分
               mid = len(proxies) // 2
               left = proxies[:mid]
               right = proxies[mid:]
@@ -279,6 +280,11 @@ jobs:
               bad_right = find_bad_nodes(right, depth+1)
               
               return bad_left + bad_right
+
+          # 检查 clash-speedtest 是否存在
+          if not os.path.exists(SPEEDTEST_BIN):
+              print(f"错误: 未找到 clash-speedtest 可执行文件: {SPEEDTEST_BIN}")
+              sys.exit(1)
 
           # 加载初步有效节点
           with open(INPUT_FILE, "r", encoding="utf-8") as f:
@@ -295,7 +301,7 @@ jobs:
 
           print(f"\n定位完成，共发现 {len(suspect_proxies)} 个嫌疑节点，已保存至 suspect_nodes.yaml")
 
-          # 同时保存剩余的安全节点（可选，用于最终输出）
+          # 安全节点
           safe_proxies = [p for p in all_proxies if p not in suspect_proxies]
           with open("safe_proxies.yaml", "w", encoding="utf-8") as f:
               yaml.dump({"proxies": safe_proxies}, f, allow_unicode=True, sort_keys=False)
@@ -312,7 +318,7 @@ jobs:
             temp_config.yaml
           retention-days: 7
 
-      - name: 使用安全节点作为最终输出（若存在）
+      - name: 使用安全节点作为最终输出
         run: |
           if [ -f safe_proxies.yaml ] && [ -s safe_proxies.yaml ]; then
             echo "✅ 使用二分过滤后的安全节点"
