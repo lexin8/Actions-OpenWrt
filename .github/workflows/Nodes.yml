@@ -131,16 +131,6 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 打包上传节点文件（用于分析格式）
-        uses: actions/upload-artifact@v4
-        with:
-          name: nodes-for-analysis
-          path: |
-            merged_config.yaml
-            nodes/list.meta.yml
-            sources/*.yml
-          retention-days: 3
-
       - name: 初步TCP测速过滤失效节点
         run: |
           python3 << 'EOF'
@@ -224,6 +214,9 @@ jobs:
                   return False, f"reality-opts 不是字典 (类型: {type(opts).__name__})"
 
               short_id = opts.get('short-id')
+              # 调试输出：打印每个 VLESS+REALITY 节点的 short-id 值
+              print(f"DEBUG: 节点 #{idx+1} ({node.get('name', '未知')}) short-id = {repr(short_id)}")
+
               valid, reason = is_valid_short_id(short_id)
               if not valid:
                   return False, f"short-id 无效: {short_id} ({reason})"
@@ -258,6 +251,19 @@ jobs:
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               yaml.dump({'proxies': cleaned}, f, allow_unicode=True, sort_keys=False)
           EOF
+
+      # ---------- 移动后的上传步骤 ----------
+      - name: 打包上传节点文件（用于分析格式）
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodes-for-analysis
+          path: |
+            merged_config.yaml
+            preliminary_valid.yaml
+            cleaned_proxies.yaml
+            nodes/list.meta.yml
+            sources/*.yml
+          retention-days: 3
 
       - name: 安装 Go 环境
         uses: actions/setup-go@v5
