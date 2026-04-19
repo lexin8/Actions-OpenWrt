@@ -229,6 +229,15 @@ jobs:
             -timeout 5s \
             2>&1 | tee speedtest.log
 
+      - name: 上传测速日志和输入文件（用于分析）
+        uses: actions/upload-artifact@v4
+        with:
+          name: speedtest-debug
+          path: |
+            speedtest.log
+            preliminary_valid.yaml
+          retention-days: 3
+
       - name: 保存最终订阅文件（带降级逻辑）
         run: |
           if [ -f filtered.yaml ] && [ -s filtered.yaml ]; then
