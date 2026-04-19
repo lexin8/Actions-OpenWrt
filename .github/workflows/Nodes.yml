@@ -25,10 +25,6 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
-          # 修复编码报错
-          sed -i 's/base64.b64decode(ss.encode.*)/base64.b64decode(ss.encode("utf-8"), validate=False)/' fetch.py
-          # 修复hysteria2空密码报错
-          sed -i 's/unquote(parsed.username)/unquote(parsed.username or "")/' fetch.py
 
       - name: 安装依赖库
         run: |
@@ -45,9 +41,6 @@ jobs:
           mkdir -p nodes
           cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
 
-      # ==============================================
-  # 👇 👇 👇 这一段 **完全保留你原始代码**，只修语法错误
-      # ==============================================
       - name: 获取所有订阅源
         run: |
           mkdir -p sources
@@ -73,12 +66,11 @@ jobs:
                 input=$(echo "$input" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
               fi
               echo "  下载 README: $input"
-              curl -s -L "$input" > readme.tmp || return 0
+              curl -s -L "$input" > readme.tmp
               
-              # 👉 只修复这里的引号语法错误，其余完全不动
-              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"'\'']\+$//' > all_urls_raw.txt
+              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed 's/[)"''),]\+$//' > all_urls_raw.txt
               echo "  找到的所有链接（清理后）:"
-              cat all_urls_raw.txt 2>/dev/null
+              cat all_urls_raw.txt
               
               grep -E '\.ya?ml$' all_urls_raw.txt > sub_urls.txt || true
               if [ -s sub_urls.txt ]; then
@@ -90,29 +82,29 @@ jobs:
                     url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
                   fi
                   echo "    下载: $url"
-                  curl -s -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url" || true
+                  curl -L -o "sources/${prefix}_$(date +%s)_$RANDOM.yml" "$url"
                 done < sub_urls.txt
               else
                 echo "  ⚠️ 未找到订阅链接 (.yml/.yaml)"
-                if grep -q '^proxies:' readme.tmp 2>/dev/null; then
+                if grep -q '^proxies:' readme.tmp; then
                   echo "  📄 检测到 README 直接包含 Clash 配置，保存为配置文件"
-                  cp readme.tmp "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" || true
+                  cp readme.tmp "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml"
                 else
                   echo "  ❌ 未找到任何可用内容"
                 fi
               fi
             else
               echo "  直接订阅链接，开始下载..."
-              curl -s -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input" || true
+              curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
             fi
           }
 
           for url in "$readme1" "$readme2" "$readme3" "$readme4" "$readme5"; do
-            [ -n "$url" ] && fetch_source "$url" "readme" || true
+            [ -n "$url" ] && fetch_source "$url" "readme"
           done
 
           for url in "$sub1" "$sub2" "$sub3" "$sub4" "$sub5"; do
-            [ -n "$url" ] && fetch_source "$url" "sub" || true
+            [ -n "$url" ] && fetch_source "$url" "sub"
           done
 
           echo "========================================"
@@ -128,7 +120,7 @@ jobs:
           for f in source_files:
               if not os.path.exists(f): continue
               try:
-                  data = yaml.safe_load(open(f, encoding='utf-8', errors='ignore'))
+                  data = yaml.safe_load(open(f, encoding='utf-8'))
                   proxies = data.get('proxies', [])
                   print(f"从 {f} 获取 {len(proxies)} 个节点")
                   all_proxies.extend(proxies)
@@ -142,7 +134,7 @@ jobs:
       - name: 初步TCP测速过滤失效节点
         run: |
           python3 << 'EOF'
-          import yaml, asyncio, time, os
+          import yaml, asyncio, time
           TIMEOUT = 3
           TEST_TIMES = 10
           SUCCESS_THRESHOLD = 5
@@ -169,10 +161,6 @@ jobs:
               return node, success, avg_lat
 
           async def main():
-              if not os.path.exists('merged_config.yaml'):
-                  with open('preliminary_valid.yaml', 'w') as f:
-                      yaml.dump({'proxies': []}, f)
-                  return
               with open('merged_config.yaml') as f:
                   proxies = yaml.safe_load(f).get('proxies', [])
               print(f"测试 {len(proxies)} 个节点 (每个 {TEST_TIMES} 次)...")
@@ -191,51 +179,92 @@ jobs:
           asyncio.run(main())
           EOF
 
+      # ---------- 新增：清洗无效节点配置 ----------
+      - name: 清洗无效节点配置（修复 short-id 等错误）
+        run: |
+          python3 << 'EOF'
+          import yaml
+          import re
+
+          INPUT_FILE = "preliminary_valid.yaml"
+          OUTPUT_FILE = "cleaned_proxies.yaml"
+
+          def is_valid_short_id(short_id):
+              if short_id is None:
+                  return False
+              if not isinstance(short_id, str):
+                  return False
+              # 允许空字符串（某些实现会忽略）
+              if short_id == "":
+                  return True
+              # 长度不超过32，且全为十六进制字符
+              if len(short_id) > 32:
+                  return False
+              return bool(re.fullmatch(r"[0-9a-fA-F]+", short_id))
+
+          with open(INPUT_FILE, 'r', encoding='utf-8') as f:
+              data = yaml.safe_load(f)
+
+          proxies = data.get('proxies', [])
+          cleaned = []
+          removed_count = 0
+
+          for idx, p in enumerate(proxies):
+              # 检查 VLESS + REALITY 节点中的 short-id
+              if p.get('type') == 'vless' and 'reality-opts' in p:
+                  opts = p['reality-opts']
+                  short_id = opts.get('short-id')
+                  if not is_valid_short_id(short_id):
+                      print(f"❌ 移除节点 #{idx+1}: {p.get('name')} (无效 short-id: {short_id})")
+                      removed_count += 1
+                      continue
+              cleaned.append(p)
+
+          print(f"清洗完成：保留 {len(cleaned)} 个节点，移除了 {removed_count} 个无效节点。")
+
+          with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+              yaml.dump({'proxies': cleaned}, f, allow_unicode=True, sort_keys=False)
+          EOF
+
       - name: 安装 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
       - name: 安装 clash-speedtest
-        run: go install github.com/faceair/clash-speedtest@latest || true
+        run: go install github.com/faceair/clash-speedtest@latest
 
+      # ---------- 修改：使用清洗后的文件作为测速输入 ----------
       - name: clash-speedtest 精确测速
         run: |
-          if [ -s preliminary_valid.yaml ]; then
-            ~/go/bin/clash-speedtest \
-              -c preliminary_valid.yaml \
-              -output filtered.yaml \
-              -max-latency 800ms \
-              -min-download-speed 5 \
-              -concurrent 10 \
-              -timeout 5s \
-              2>&1 | tee speedtest.log || true
-          else
-            echo "proxies: []" > filtered.yaml
-          fi
+          ~/go/bin/clash-speedtest \
+            -c cleaned_proxies.yaml \
+            -output filtered.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest.log
 
       - name: 保存最终订阅文件
         run: |
-          mkdir -p nodes
-          cp filtered.yaml nodes/proxies.yml || true
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))" || true
+          cp filtered.yaml nodes/proxies.yml
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
           import yaml
-          try:
-              with open('filtered.yaml') as f:
-                  proxies = yaml.safe_load(f).get('proxies', [])
-          except:
-              proxies = []
+          with open('filtered.yaml') as f:
+              proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
 
+      # ---------- 优化：使用动态分支名推送 ----------
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin master || true
-          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt 2>/dev/null
+          git pull --rebase origin ${{ github.ref_name }} || true
+          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
-          git push origin master || true
+          git push origin ${{ github.ref_name }}
