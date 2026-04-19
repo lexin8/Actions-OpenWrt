@@ -179,7 +179,7 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 深度清洗节点配置（彻底移除非法 REALITY 节点）
+      - name: 深度清洗节点配置
         run: |
           python3 << 'EOF'
           import yaml
@@ -203,26 +203,6 @@ jobs:
                   return False, "包含非十六进制字符"
               return True, None
 
-          def clean_node(node, idx):
-              if node.get('type') != 'vless':
-                  return True, None
-              if 'reality-opts' not in node:
-                  return True, None
-
-              opts = node['reality-opts']
-              if not isinstance(opts, dict):
-                  return False, f"reality-opts 不是字典 (类型: {type(opts).__name__})"
-
-              short_id = opts.get('short-id')
-              # 调试输出：打印每个 VLESS+REALITY 节点的 short-id 值
-              print(f"DEBUG: 节点 #{idx+1} ({node.get('name', '未知')}) short-id = {repr(short_id)}")
-
-              valid, reason = is_valid_short_id(short_id)
-              if not valid:
-                  return False, f"short-id 无效: {short_id} ({reason})"
-
-              return True, None
-
           with open(INPUT_FILE, 'r', encoding='utf-8') as f:
               data = yaml.safe_load(f)
 
@@ -233,21 +213,26 @@ jobs:
           print(f"开始清洗，共 {len(proxies)} 个节点")
 
           for idx, p in enumerate(proxies):
-              valid, reason = clean_node(p, idx)
-              if valid:
-                  cleaned.append(p)
-              else:
-                  name = p.get('name', '未知')
-                  print(f"❌ 移除节点 #{idx+1}: {name} - {reason}")
-                  removed_count += 1
+              # 只处理 VLESS + reality-opts 节点
+              if p.get('type') == 'vless' and 'reality-opts' in p:
+                  opts = p['reality-opts']
+                  short_id = opts.get('short-id')
+                  print(f"DEBUG: 节点 #{idx+1} ({p.get('name', '未知')}) short-id = {repr(short_id)}")
+
+                  if not isinstance(opts, dict):
+                      print(f"❌ 移除节点 #{idx+1}: {p.get('name')} - reality-opts 不是字典")
+                      removed_count += 1
+                      continue
+
+                  valid, reason = is_valid_short_id(short_id)
+                  if not valid:
+                      print(f"❌ 移除节点 #{idx+1}: {p.get('name')} - short-id 无效 ({reason})")
+                      removed_count += 1
+                      continue
+
+              cleaned.append(p)
 
           print(f"\n清洗完成：保留 {len(cleaned)} 个节点，移除了 {removed_count} 个非法节点。")
-
-          if removed_count == 0 and len(proxies) > 0:
-              reality_nodes = [p for p in proxies if p.get('type') == 'vless' and 'reality-opts' in p]
-              if reality_nodes:
-                  print(f"  仍有 {len(reality_nodes)} 个 VLESS+REALITY 节点通过检查。")
-
           with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
               yaml.dump({'proxies': cleaned}, f, allow_unicode=True, sort_keys=False)
           EOF
