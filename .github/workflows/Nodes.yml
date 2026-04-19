@@ -258,17 +258,69 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: clash-speedtest 精确测速（允许失败）
-        continue-on-error: true
+      - name: clash-speedtest 智能重试测速（自动剔除错误节点）
         run: |
-          ~/go/bin/clash-speedtest \
-            -c cleaned_proxies.yaml \
-            -output filtered.yaml \
-            -max-latency 800ms \
-            -min-download-speed 5 \
-            -concurrent 10 \
-            -timeout 5s \
-            2>&1 | tee speedtest.log
+          INPUT_FILE="cleaned_proxies.yaml"
+          OUTPUT_FILE="filtered.yaml"
+          MAX_RETRIES=10
+          retry_count=0
+          cp "$INPUT_FILE" current_config.yaml
+
+          while [ $retry_count -lt $MAX_RETRIES ]; do
+            echo "=========================================="
+            echo "尝试测速 (第 $((retry_count+1)) 次)..."
+
+            # 执行测速，捕获错误输出
+            ~/go/bin/clash-speedtest \
+              -c current_config.yaml \
+              -output "$OUTPUT_FILE" \
+              -max-latency 800ms \
+              -min-download-speed 5 \
+              -concurrent 10 \
+              -timeout 5s \
+              2>&1 | tee speedtest.log
+
+            # 检查是否成功（输出文件存在且非空）
+            if [ -f "$OUTPUT_FILE" ] && [ -s "$OUTPUT_FILE" ]; then
+              echo "✅ 测速成功！"
+              break
+            fi
+
+            # 提取错误信息中的节点编号（例如 "proxy 15: invalid REALITY short ID"）
+            error_line=$(grep -E "proxy [0-9]+: invalid" speedtest.log | head -1)
+            if [ -z "$error_line" ]; then
+              echo "❌ 未识别的错误，无法自动修复，退出。"
+              exit 1
+            fi
+
+            # 提取节点索引（数字）
+            bad_index=$(echo "$error_line" | grep -oE "proxy [0-9]+" | awk '{print $2}')
+            echo "⚠️ 发现错误节点索引: $bad_index"
+
+            # 使用 Python 从配置中移除该节点（索引从 1 开始，对应 proxies 数组的第 N 个）
+            python3 << 'PYTHON_SCRIPT'
+          import yaml
+          bad_idx = int("$bad_index")
+          with open("current_config.yaml", "r", encoding="utf-8") as f:
+              data = yaml.safe_load(f)
+          proxies = data.get("proxies", [])
+          if 1 <= bad_idx <= len(proxies):
+              removed = proxies.pop(bad_idx - 1)
+              print(f"🗑️ 已移除节点: {removed.get('name', '未知')}")
+          else:
+              print(f"⚠️ 索引 {bad_idx} 超出范围，无法移除")
+          with open("current_config.yaml", "w", encoding="utf-8") as f:
+              yaml.dump({"proxies": proxies}, f, allow_unicode=True, sort_keys=False)
+          PYTHON_SCRIPT
+
+            retry_count=$((retry_count + 1))
+            echo "移除后剩余节点数: $(python3 -c "import yaml; print(len(yaml.safe_load(open('current_config.yaml'))['proxies']))")"
+          done
+
+          if [ $retry_count -ge $MAX_RETRIES ]; then
+            echo "❌ 达到最大重试次数，测速失败。"
+            exit 1
+          fi
 
       - name: 保存最终订阅文件（带降级逻辑）
         run: |
