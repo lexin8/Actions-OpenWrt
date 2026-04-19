@@ -131,8 +131,8 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      # ---------- 新增：修复节点名称，避免 clash-speedtest 解析 bug ----------
-      - name: 修复节点名称（将 "数字|" 替换为 "数字-"）
+      # ---------- 新增：删除节点名称开头的“数字|” ----------
+      - name: 清理节点名称（删除开头的数字|）
         run: |
           python3 << 'EOF'
           import yaml
@@ -142,16 +142,26 @@ jobs:
               data = yaml.safe_load(f)
 
           proxies = data.get('proxies', [])
-          for proxy in proxies:
-              if 'name' in proxy and isinstance(proxy['name'], str):
-                  # 将开头为 "数字|" 的名称替换为 "数字-"
-                  proxy['name'] = re.sub(r'^(\d+)\|', r'\1-', proxy['name'])
+          for p in proxies:
+              if 'name' in p and isinstance(p['name'], str):
+                  # 删除开头的 "数字|"，例如 "13|US_speednode_0021" -> "US_speednode_0021"
+                  p['name'] = re.sub(r'^\d+\|', '', p['name'])
 
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
               yaml.dump(data, f, allow_unicode=True, sort_keys=False)
-          
-          print("✅ 节点名称修复完成")
+
+          print("节点名称清理完成")
           EOF
+
+      - name: 打包上传节点文件（用于分析格式）
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodes-for-analysis
+          path: |
+            merged_config.yaml
+            nodes/list.meta.yml
+            sources/*.yml
+          retention-days: 3
 
       - name: 初步TCP测速过滤失效节点
         run: |
