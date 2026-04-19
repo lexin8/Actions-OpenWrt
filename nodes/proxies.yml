@@ -183,24 +183,18 @@ proxies:
     headers:
       Host: d23iuljn5k9z1j.cloudfront.net
     path: /
-- name: US_speednode_0022
-  port: 443
-  reality-opts:
-    public-key: A1OvYDljz8ZJr7_1xe4j2H1AHsMuYEKifyjdWhdybzk
-    short-id: 11e2
-  server: 216.57.105.74
-  servername: yahoo.com
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 73c0a723-c0ab-4ad8-8f25-799b9bd54e36
 - name: 🇨🇦 CA SS-01 | free-nodes
   server: 148.113.139.160
   port: 46534
   type: ss
   cipher: chacha20-ietf-poly1305
   password: 7a106afc33eaa261
+- name: 🇨🇳 TW SS-23 | free-nodes
+  server: r3mrcg001286ek2.cybervena.com
+  port: 50099
+  type: ss
+  cipher: chacha20-ietf-poly1305
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
 - name: 🇨🇳 TW SS-25 | free-nodes
   server: r3mrcg007117fb8.cybervena.com
   port: 50099
