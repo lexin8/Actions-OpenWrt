@@ -131,8 +131,7 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      # ---------- 新增：删除节点名称开头的“数字|” ----------
-      - name: 清理节点名称（删除开头的数字|）
+      - name: 清理节点名称（删除数字列表前缀）
         run: |
           python3 << 'EOF'
           import yaml
@@ -144,8 +143,7 @@ jobs:
           proxies = data.get('proxies', [])
           for p in proxies:
               if 'name' in p and isinstance(p['name'], str):
-                  # 删除开头的 "数字|"，例如 "13|US_speednode_0021" -> "US_speednode_0021"
-                  p['name'] = re.sub(r'^\d+\|', '', p['name'])
+                  p['name'] = re.sub(r'^\d+(?:,\d+)*\|', '', p['name'])
 
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
               yaml.dump(data, f, allow_unicode=True, sort_keys=False)
@@ -153,7 +151,7 @@ jobs:
           print("节点名称清理完成")
           EOF
 
-      - name: 打包上传节点文件（用于分析格式）
+      - name: 打包上传节点文件（用于分析）
         uses: actions/upload-artifact@v4
         with:
           name: nodes-for-analysis
@@ -219,7 +217,8 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: clash-speedtest 精确测速
+      - name: clash-speedtest 精确测速（允许失败）
+        continue-on-error: true
         run: |
           ~/go/bin/clash-speedtest \
             -c preliminary_valid.yaml \
@@ -230,18 +229,31 @@ jobs:
             -timeout 5s \
             2>&1 | tee speedtest.log
 
-      - name: 保存最终订阅文件
+      - name: 保存最终订阅文件（带降级逻辑）
         run: |
-          cp filtered.yaml nodes/proxies.yml
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
+          if [ -f filtered.yaml ] && [ -s filtered.yaml ]; then
+            echo "✅ 使用测速后的节点"
+            FINAL_FILE="filtered.yaml"
+          else
+            echo "⚠️ 测速步骤失败，降级使用初步测速后的节点"
+            FINAL_FILE="preliminary_valid.yaml"
+          fi
+
+          cp "$FINAL_FILE" nodes/proxies.yml
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('$FINAL_FILE'))['proxies']))"
+
           python3 << 'EOF'
           import yaml
-          with open('filtered.yaml') as f:
+          import os
+          FINAL = os.environ.get('FINAL_FILE', 'preliminary_valid.yaml')
+          with open(FINAL) as f:
               proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
+        env:
+          FINAL_FILE: "${{ env.FINAL_FILE || 'preliminary_valid.yaml' }}"
 
       - name: 提交并推送更新
         run: |
