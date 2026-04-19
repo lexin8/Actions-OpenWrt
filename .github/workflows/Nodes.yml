@@ -217,26 +217,110 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: clash-speedtest 精确测速（允许失败）
-        continue-on-error: true
+      - name: 二分定位导致崩溃的节点
         run: |
-          ~/go/bin/clash-speedtest \
-            -c preliminary_valid.yaml \
-            -output filtered.yaml \
-            -max-latency 800ms \
-            -min-download-speed 5 \
-            -concurrent 10 \
-            -timeout 5s \
-            2>&1 | tee speedtest.log
+          python3 << 'EOF'
+          import yaml
+          import subprocess
+          import sys
+          import os
 
-      - name: 上传测速日志和输入文件（用于分析）
+          INPUT_FILE = "preliminary_valid.yaml"
+          OUTPUT_FILE = "filtered.yaml"
+          SPEEDTEST_CMD = [
+              "~/go/bin/clash-speedtest",
+              "-c", "temp_config.yaml",
+              "-output", OUTPUT_FILE,
+              "-max-latency", "800ms",
+              "-min-download-speed", "5",
+              "-concurrent", "10",
+              "-timeout", "5s"
+          ]
+
+          def run_speedtest(proxies):
+              """运行测速，返回 (成功与否, 错误输出)"""
+              config = {"proxies": proxies}
+              with open("temp_config.yaml", "w", encoding="utf-8") as f:
+                  yaml.dump(config, f, allow_unicode=True, sort_keys=False)
+              try:
+                  result = subprocess.run(
+                      SPEEDTEST_CMD,
+                      capture_output=True,
+                      text=True,
+                      timeout=120
+                  )
+                  success = result.returncode == 0 and os.path.exists(OUTPUT_FILE) and os.path.getsize(OUTPUT_FILE) > 0
+                  return success, result.stderr
+              except subprocess.TimeoutExpired:
+                  return False, "Timeout"
+
+          def find_bad_nodes(proxies, depth=0):
+              """递归二分查找导致失败的节点"""
+              indent = "  " * depth
+              print(f"{indent}测试 {len(proxies)} 个节点...")
+              success, stderr = run_speedtest(proxies)
+              
+              if success:
+                  print(f"{indent}✅ 该组节点通过测速")
+                  return []   # 无坏节点
+              
+              if len(proxies) == 1:
+                  # 单个节点失败 -> 它就是坏节点
+                  print(f"{indent}❌ 发现嫌疑节点: {proxies[0].get('name', '未知')}")
+                  return proxies
+              
+              # 失败且多于1个节点，二分
+              mid = len(proxies) // 2
+              left = proxies[:mid]
+              right = proxies[mid:]
+              
+              print(f"{indent}失败，拆分为 {len(left)} + {len(right)} 继续探测")
+              bad_left = find_bad_nodes(left, depth+1)
+              bad_right = find_bad_nodes(right, depth+1)
+              
+              return bad_left + bad_right
+
+          # 加载初步有效节点
+          with open(INPUT_FILE, "r", encoding="utf-8") as f:
+              data = yaml.safe_load(f)
+          all_proxies = data.get("proxies", [])
+          print(f"开始二分定位，总节点数: {len(all_proxies)}")
+
+          # 执行递归二分
+          suspect_proxies = find_bad_nodes(all_proxies)
+
+          # 保存嫌疑节点
+          with open("suspect_nodes.yaml", "w", encoding="utf-8") as f:
+              yaml.dump({"proxies": suspect_proxies}, f, allow_unicode=True, sort_keys=False)
+
+          print(f"\n定位完成，共发现 {len(suspect_proxies)} 个嫌疑节点，已保存至 suspect_nodes.yaml")
+
+          # 同时保存剩余的安全节点（可选，用于最终输出）
+          safe_proxies = [p for p in all_proxies if p not in suspect_proxies]
+          with open("safe_proxies.yaml", "w", encoding="utf-8") as f:
+              yaml.dump({"proxies": safe_proxies}, f, allow_unicode=True, sort_keys=False)
+          print(f"安全节点数: {len(safe_proxies)}，已保存至 safe_proxies.yaml")
+          EOF
+
+      - name: 上传二分定位结果
         uses: actions/upload-artifact@v4
         with:
-          name: speedtest-debug
+          name: bisect-results
           path: |
-            speedtest.log
-            preliminary_valid.yaml
-          retention-days: 3
+            suspect_nodes.yaml
+            safe_proxies.yaml
+            temp_config.yaml
+          retention-days: 7
+
+      - name: 使用安全节点作为最终输出（若存在）
+        run: |
+          if [ -f safe_proxies.yaml ] && [ -s safe_proxies.yaml ]; then
+            echo "✅ 使用二分过滤后的安全节点"
+            cp safe_proxies.yaml filtered.yaml
+          else
+            echo "⚠️ 无安全节点，降级使用初步测速节点"
+            cp preliminary_valid.yaml filtered.yaml
+          fi
 
       - name: 保存最终订阅文件（带降级逻辑）
         run: |
