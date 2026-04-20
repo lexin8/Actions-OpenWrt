@@ -230,6 +230,21 @@ jobs:
           wget -qO- "https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.tar.gz" | \
           sudo tar --strip-components=1 -xz -C /usr/local
           cmake --version
+
+      # ---------- 👇 新增以下步骤 👇 ----------
+      - name: Replace OpenWrt's bundled CMake
+        run: |
+          # 查找OpenWrt自备CMake的bin目录，如果存在则替换
+          BUNDLED_CMAKE_PATH=$(find build_dir/host -maxdepth 3 -type d -name "cmake-*" -exec find {}/bin -name "cmake" \; 2>/dev/null | head -n 1)
+          if [ -n "$BUNDLED_CMAKE_PATH" ]; then
+            echo "找到OpenWrt自备CMake: $BUNDLED_CMAKE_PATH"
+            # 用新版cmake二进制文件替换旧版
+            sudo cp /usr/local/bin/cmake "$BUNDLED_CMAKE_PATH"
+            echo "替换完成。OpenWrt将使用以下版本的CMake:"
+            "$BUNDLED_CMAKE_PATH" --version
+          else
+            echo "未找到OpenWrt自备CMake，可能尚未构建。"
+          fi
       
       - name: Build OpenWrt firmware
         id: build
