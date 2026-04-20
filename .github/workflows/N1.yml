@@ -224,6 +224,12 @@ jobs:
             echo " ⚠️ 未找到.config配置文件"
           fi
           echo -e "==================================================\n"
+
+      - name: Upgrade CMake to 3.31+
+        run: |
+          wget -qO- "https://github.com/Kitware/CMake/releases/download/v3.31.6/cmake-3.31.6-linux-x86_64.tar.gz" | \
+          sudo tar --strip-components=1 -xz -C /usr/local
+          cmake --version
       
       - name: Build OpenWrt firmware
         id: build
