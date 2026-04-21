@@ -225,77 +225,93 @@ jobs:
           fi
           echo -e "==================================================\n"
 
-      # ---------- 检测 CMake 补丁环境 ----------
-      - name: Analyze CMake patch environment
+      - name: Advanced CMake patch compatibility check
+        id: patch-check
         run: |
           echo "============================================================="
-          echo "🔍 CMake 补丁环境分析"
+          echo "🔬 进阶检测：CMake 补丁兼容性分析"
           echo "============================================================="
 
-          # 1. 定位 CMake 补丁目录
-          CMAKE_PATCH_DIR=""
-          if [ -d "./tools/cmake/patches" ]; then
-            CMAKE_PATCH_DIR="./tools/cmake/patches"
-          elif [ -d "./feeds/packages/utils/cmake/patches" ]; then
-            CMAKE_PATCH_DIR="./feeds/packages/utils/cmake/patches"
-          else
-            echo "⚠️ 未找到 CMake 补丁目录"
+          # 1. 读取当前 Makefile 中定义的 CMake 版本
+          CMAKE_MK="./tools/cmake/Makefile"
+          if [ ! -f "$CMAKE_MK" ]; then
+            echo "::error::未找到 $CMAKE_MK"
+            exit 1
           fi
+          CURRENT_VERSION=$(grep -E '^PKG_VERSION:=' "$CMAKE_MK" | cut -d '=' -f2 | tr -d ' ')
+          echo "📌 当前 Makefile 中的 CMake 版本: $CURRENT_VERSION"
 
-          if [ -n "$CMAKE_PATCH_DIR" ]; then
-            echo "📁 补丁目录: $CMAKE_PATCH_DIR"
-            echo ""
-            echo "📑 补丁文件列表:"
-            ls -la "$CMAKE_PATCH_DIR"/*.patch 2>/dev/null || echo "  未找到 .patch 文件"
-            echo ""
-
-            echo "🔬 补丁目标文件分析:"
-            for PATCH_FILE in "$CMAKE_PATCH_DIR"/*.patch; do
-              if [ ! -f "$PATCH_FILE" ]; then
-                continue
-              fi
-              PATCH_NAME=$(basename "$PATCH_FILE")
-              echo "  --- $PATCH_NAME ---"
-              grep -E '^\+\+\+ ' "$PATCH_FILE" | head -n1 | sed 's/^+++ [ab]\///' | while read -r TARGET; do
-                echo "    目标文件: $TARGET"
-              done
-              grep -E '^@@ ' "$PATCH_FILE" | head -n1 | while read -r HUNK; do
-                echo "    修改位置: $HUNK"
-              done
-            done
-          fi
-
-          # 2. 读取 CMake Makefile 版本
-          CMAKE_MK=""
-          if [ -f "./tools/cmake/Makefile" ]; then
-            CMAKE_MK="./tools/cmake/Makefile"
-          elif [ -f "./feeds/packages/utils/cmake/Makefile" ]; then
-            CMAKE_MK="./feeds/packages/utils/cmake/Makefile"
-          fi
-
-          if [ -n "$CMAKE_MK" ]; then
-            echo ""
-            echo "📄 CMake Makefile: $CMAKE_MK"
-            CURRENT_VERSION=$(grep -E '^PKG_VERSION:=' "$CMAKE_MK" | cut -d '=' -f2 | tr -d ' ')
-            echo "🔢 当前 PKG_VERSION: $CURRENT_VERSION"
-          else
-            echo "⚠️ 未找到 CMake Makefile"
-          fi
-
-          # 3. 检查已构建的 CMake 源码
-          CMAKE_SRC_DIR=$(find build_dir/host -maxdepth 2 -type d -name "cmake-*" 2>/dev/null | head -n1)
-          if [ -n "$CMAKE_SRC_DIR" ]; then
-            echo ""
-            echo "📂 已构建的 CMake 源码: $CMAKE_SRC_DIR"
-            if [ -f "$CMAKE_SRC_DIR/Utilities/cmcurl/CMakeLists.txt" ]; then
-              echo "   目标文件 Utilities/cmcurl/CMakeLists.txt 存在"
-              echo "   其中 clock_gettime 相关代码:"
-              grep -n -A 2 -B 2 "clock_gettime" "$CMAKE_SRC_DIR/Utilities/cmcurl/CMakeLists.txt" 2>/dev/null | head -20 || echo "   未找到 clock_gettime"
+          # 2. 获取目标检测版本（优先使用输入，否则获取最新 3.x 版）
+          TARGET_VERSION="${{ inputs.cmake_version }}"
+          if [ -z "$TARGET_VERSION" ]; then
+            echo "🔍 未指定目标版本，正在获取最新 CMake 3.x 稳定版..."
+            API_URL="https://api.github.com/repos/Kitware/CMake/releases?per_page=100"
+            if [ -n "$GITHUB_TOKEN" ]; then
+              AUTH_HEADER="Authorization: token $GITHUB_TOKEN"
+            else
+              AUTH_HEADER=""
             fi
+            TARGET_VERSION=$(curl -s ${AUTH_HEADER:+-H "$AUTH_HEADER"} "$API_URL" | \
+              jq -r '.[] | select(.tag_name | test("^v3\\.")) | select(.prerelease == false) | .tag_name' | \
+              head -n1 | sed 's/^v//')
+            if [ -z "$TARGET_VERSION" ]; then
+              echo "::error::无法获取最新版本，请检查网络或 API 限制。"
+              exit 1
+            fi
+          fi
+          echo "🎯 检测目标版本: $TARGET_VERSION"
+          echo "target_version=$TARGET_VERSION" >> $GITHUB_OUTPUT
+
+          # 3. 下载目标版本的 Utilities/cmcurl/CMakeLists.txt 文件
+          TMP_DIR=$(mktemp -d)
+          cd "$TMP_DIR"
+          FILE_URL="https://raw.githubusercontent.com/Kitware/CMake/v${TARGET_VERSION}/Utilities/cmcurl/CMakeLists.txt"
+          echo "📥 下载文件: $FILE_URL"
+          if ! curl -fsSL "$FILE_URL" -o CMakeLists.txt; then
+            echo "::error::下载失败，请确认版本 $TARGET_VERSION 存在且文件路径未变更。"
+            exit 1
+          fi
+          echo "✅ 文件下载成功"
+
+          # 4. 显示 clock_gettime 相关上下文
+          echo ""
+          echo "📋 Utilities/cmcurl/CMakeLists.txt 中 clock_gettime 的上下文:"
+          grep -n -B 2 -A 5 "clock_gettime" CMakeLists.txt || echo "⚠️ 未找到 clock_gettime 相关内容"
+
+          # 5. 分析关键补丁 120-curl-fix-libressl-linking.patch
+          PATCH_FILE="${GITHUB_WORKSPACE}/tools/cmake/patches/120-curl-fix-libressl-linking.patch"
+          echo ""
+          echo "🔧 分析补丁: $(basename "$PATCH_FILE")"
+
+          if [ ! -f "$PATCH_FILE" ]; then
+            echo "⚠️ 补丁文件不存在，跳过分析。"
           else
-            echo "📂 CMake 源码尚未构建"
+            # 提取补丁期望的行号和上下文
+            HUNK_LINE=$(grep -E '^@@ ' "$PATCH_FILE" | head -n1)
+            EXPECTED_LINE=$(echo "$HUNK_LINE" | sed -n 's/.*-\([0-9]*\),.*/\1/p')
+            echo "补丁期望修改起始行号: $EXPECTED_LINE"
+
+            # 显示补丁中的关键上下文（前几行）
+            echo "补丁上下文片段:"
+            grep -A 8 '^@@ ' "$PATCH_FILE" | head -n 10
+
+            # 6. 对比实际行号
+            ACTUAL_LINE=$(grep -n "check_symbol_exists(clock_gettime" CMakeLists.txt | cut -d ':' -f1 | head -n1)
+            if [ -z "$ACTUAL_LINE" ]; then
+              echo "❌ 未在目标文件中找到 clock_gettime，补丁可能已过时。"
+              echo "compatible=false" >> $GITHUB_OUTPUT
+            elif [ "$EXPECTED_LINE" -eq "$ACTUAL_LINE" ]; then
+              echo "✅ 行号完全匹配 (期望 $EXPECTED_LINE = 实际 $ACTUAL_LINE)，补丁可能可直接应用。"
+              echo "compatible=true" >> $GITHUB_OUTPUT
+            else
+              echo "⚠️ 行号不匹配 (期望 $EXPECTED_LINE ≠ 实际 $ACTUAL_LINE)，补丁需要手动调整。"
+              echo "compatible=false" >> $GITHUB_OUTPUT
+            fi
           fi
 
+          # 7. 清理临时目录
+          cd "${GITHUB_WORKSPACE}"
+          rm -rf "$TMP_DIR"
           echo "============================================================="
       
       - name: Build OpenWrt firmware
