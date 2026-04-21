@@ -55,9 +55,9 @@ jobs:
 
       - name: Add third-party feeds
         run: |
+          sed -i 's/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
           cat >> feeds.conf.default << EOF
           src-git openclash https://github.com/vernesong/OpenClash.git
-          sed -i 's/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
