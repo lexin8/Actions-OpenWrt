@@ -62,10 +62,6 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-      - name: Fix rust
-        run: |
-          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-
       - name: Build config
         run: |
           cat > .config << EOF
