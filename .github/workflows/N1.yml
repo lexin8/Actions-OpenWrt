@@ -58,7 +58,6 @@ jobs:
           cat >> feeds.conf.default << EOF
           src-git openclash https://github.com/vernesong/OpenClash.git
           EOF
-          sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
