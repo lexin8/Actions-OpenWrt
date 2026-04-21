@@ -238,12 +238,18 @@ jobs:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
+          
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # 拉取远程最新更改，避免推送冲突
-          git pull --rebase origin master || true
+    
+          # 先提交本次的所有变更（如果有）
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
+    
+          # 拉取远程最新提交并变基，自动处理未暂存内容
+          git pull --rebase --autostash origin master
+    
+          # 再次推送（此时本地提交已在远程提交之上）
           git push origin master
