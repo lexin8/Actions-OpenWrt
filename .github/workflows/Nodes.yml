@@ -131,30 +131,6 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 清理节点名称（删除数字列表前缀）
-        run: |
-          python3 << 'EOF'
-          import yaml, re
-          with open('merged_config.yaml', 'r', encoding='utf-8') as f:
-              data = yaml.safe_load(f)
-          for p in data.get('proxies', []):
-              if 'name' in p and isinstance(p['name'], str):
-                  p['name'] = re.sub(r'^\d+(?:,\d+)*\|', '', p['name'])
-          with open('merged_config.yaml', 'w', encoding='utf-8') as f:
-              yaml.dump(data, f, allow_unicode=True, sort_keys=False)
-          print("节点名称清理完成")
-          EOF
-
-      - name: 打包上传节点文件（用于分析）
-        uses: actions/upload-artifact@v4
-        with:
-          name: nodes-for-analysis
-          path: |
-            merged_config.yaml
-            nodes/list.meta.yml
-            sources/*.yml
-          retention-days: 3
-
       - name: 初步TCP测速过滤失效节点
         run: |
           python3 << 'EOF'
@@ -211,116 +187,35 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      - name: 二分定位崩溃节点并测速
+      - name: clash-speedtest 精确测速
         run: |
-          python3 << 'EOF'
-          import yaml, subprocess, os, sys
-
-          INPUT_FILE = "preliminary_valid.yaml"
-          SUSPECT_FILE = "suspect_nodes.yaml"
-          SAFE_FILE = "safe_proxies.yaml"
-          FINAL_OUTPUT = "filtered.yaml"
-          SPEEDTEST_BIN = os.path.expanduser("~/go/bin/clash-speedtest")
-          BASE_ARGS = ["-max-latency", "800ms", "-min-download-speed", "5", "-concurrent", "10", "-timeout", "5s"]
-
-          def run_test(proxies):
-              if not proxies: return True
-              config = {"proxies": proxies}
-              with open("temp_config.yaml", "w", encoding="utf-8") as f:
-                  yaml.dump(config, f, allow_unicode=True, sort_keys=False)
-              cmd = [SPEEDTEST_BIN, "-c", "temp_config.yaml", "-output", "temp_out.yaml"] + BASE_ARGS
-              try:
-                  result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
-                  return result.returncode == 0 and os.path.exists("temp_out.yaml") and os.path.getsize("temp_out.yaml") > 0
-              except:
-                  return False
-
-          def bisect(proxies, depth=0):
-              indent = "  " * depth
-              if run_test(proxies):
-                  print(f"{indent}✅ 通过: {len(proxies)} 个节点")
-                  return [], proxies[:]
-              if len(proxies) == 1:
-                  print(f"{indent}❌ 嫌疑节点: {proxies[0].get('name', '未知')}")
-                  return proxies[:], []
-              mid = len(proxies) // 2
-              left, right = proxies[:mid], proxies[mid:]
-              print(f"{indent}拆分 {len(proxies)} -> {len(left)} + {len(right)}")
-              bad1, good1 = bisect(left, depth+1)
-              bad2, good2 = bisect(right, depth+1)
-              return bad1 + bad2, good1 + good2
-
-          if not os.path.exists(SPEEDTEST_BIN):
-              print("clash-speedtest 未安装")
-              sys.exit(1)
-
-          with open(INPUT_FILE, "r", encoding="utf-8") as f:
-              all_proxies = yaml.safe_load(f).get("proxies", [])
-          print(f"开始二分定位，总数: {len(all_proxies)}")
-
-          bad, good = bisect(all_proxies)
-          print(f"嫌疑: {len(bad)}, 安全: {len(good)}")
-
-          with open(SUSPECT_FILE, "w", encoding="utf-8") as f:
-              yaml.dump({"proxies": bad}, f, allow_unicode=True, sort_keys=False)
-          with open(SAFE_FILE, "w", encoding="utf-8") as f:
-              yaml.dump({"proxies": good}, f, allow_unicode=True, sort_keys=False)
-
-          if good:
-              print("对安全节点执行完整测速...")
-              with open("temp_good.yaml", "w", encoding="utf-8") as f:
-                  yaml.dump({"proxies": good}, f, allow_unicode=True, sort_keys=False)
-              cmd = [SPEEDTEST_BIN, "-c", "temp_good.yaml", "-output", FINAL_OUTPUT] + ["-concurrent", "20"] + BASE_ARGS[1:]
-              subprocess.run(cmd, timeout=180)
-              if os.path.exists(FINAL_OUTPUT) and os.path.getsize(FINAL_OUTPUT) > 0:
-                  with open(FINAL_OUTPUT, "r", encoding="utf-8") as f:
-                      final_count = len(yaml.safe_load(f).get("proxies", []))
-                  print(f"最终高质量节点: {final_count}")
-              else:
-                  print("完整测速失败，使用安全节点作为最终输出")
-                  with open(FINAL_OUTPUT, "w", encoding="utf-8") as f:
-                      yaml.dump({"proxies": good}, f, allow_unicode=True, sort_keys=False)
-          else:
-              print("无安全节点，降级使用初步结果")
-              with open(FINAL_OUTPUT, "w", encoding="utf-8") as f:
-                  yaml.dump({"proxies": all_proxies}, f, allow_unicode=True, sort_keys=False)
-
-          for tmp in ["temp_config.yaml", "temp_out.yaml", "temp_good.yaml"]:
-              if os.path.exists(tmp): os.remove(tmp)
-          EOF
-
-      - name: 上传二分定位结果
-        uses: actions/upload-artifact@v4
-        with:
-          name: bisect-results
-          path: |
-            suspect_nodes.yaml
-            safe_proxies.yaml
-            filtered.yaml
-          retention-days: 7
+          ~/go/bin/clash-speedtest \
+            -c preliminary_valid.yaml \
+            -output filtered.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest.log
 
       - name: 保存最终订阅文件
         run: |
-          if [ -f filtered.yaml ] && [ -s filtered.yaml ]; then
-            cp filtered.yaml nodes/proxies.yml
-          else
-            cp preliminary_valid.yaml nodes/proxies.yml
-          fi
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('nodes/proxies.yml'))['proxies']))"
+          cp filtered.yaml nodes/proxies.yml
+          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
           import yaml
-          with open('nodes/proxies.yml') as f:
+          with open('filtered.yaml') as f:
               proxies = yaml.safe_load(f).get('proxies', [])
           with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
-
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin ${{ github.ref_name }} || true
+          # 拉取远程最新更改，避免推送冲突
+          git pull --rebase origin master || true
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
-          git push origin ${{ github.ref_name }}
+          git push origin master
