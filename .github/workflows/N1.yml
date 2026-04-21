@@ -225,35 +225,41 @@ jobs:
           fi
           echo -e "==================================================\n"
 
-      - name: Conditionally upgrade bundled CMake to 3.31.6
+      - name: Update CMake to 3.31.12 in Makefile
         run: |
           CMAKE_MK="./tools/cmake/Makefile"
-          TARGET_VERSION="3.31.6"
+          TARGET_VERSION="3.31.12"
+          TARGET_HASH="5f3fd5a54dfa65602bdbed64f981a72673cc19f2d304cc2955cf0dfa0cfd8272"
 
           if [ ! -f "$CMAKE_MK" ]; then
             echo "❌ 未找到 $CMAKE_MK，请检查路径。"
             exit 1
           fi
 
-          # 提取当前 Makefile 中定义的 PKG_VERSION
+          # 提取当前 Makefile 中的 PKG_VERSION
           CURRENT_VERSION=$(grep -E '^PKG_VERSION:=' "$CMAKE_MK" | cut -d '=' -f2 | tr -d ' ')
           if [ -z "$CURRENT_VERSION" ]; then
-            echo "⚠️ 无法从 Makefile 中提取 PKG_VERSION，跳过升级。"
+            echo "⚠️ 无法提取 PKG_VERSION，跳过升级。"
             exit 0
           fi
 
           echo "当前 OpenWrt 自备 CMake 版本: $CURRENT_VERSION"
           echo "目标升级版本: $TARGET_VERSION"
 
-          # 版本比较：使用 sort -V 判断 $CURRENT_VERSION 是否小于 $TARGET_VERSION
-          # 如果 CURRENT_VERSION < TARGET_VERSION，则返回 0（需要升级）
+          # 版本比较：若 CURRENT_VERSION < TARGET_VERSION 则进行升级
           if printf "%s\n%s\n" "$CURRENT_VERSION" "$TARGET_VERSION" | sort -V | head -n1 | grep -q "^$CURRENT_VERSION$" && [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
             echo "📦 当前版本低于目标版本，开始升级 Makefile ..."
             sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${TARGET_VERSION}/" "$CMAKE_MK"
-            # 注意：PKG_HASH 需要同步更新为对应版本的源码包哈希值
-            sed -i 's/^PKG_HASH:=.*/PKG_HASH:=c0a3b3f2912b2166f522d5010ffb6029d8454ee635f5ad7a3247e0be7f9a15c9/' "$CMAKE_MK"
+            sed -i "s/^PKG_HASH:=.*/PKG_HASH:=${TARGET_HASH}/" "$CMAKE_MK"
+
+            # 确保 PKG_SOURCE_URL 包含 GitHub Releases（如果尚未包含）
+            if ! grep -q "github.com/Kitware/CMake/releases" "$CMAKE_MK"; then
+              echo "➕ 添加 GitHub Releases 作为下载源..."
+              sed -i '/^PKG_SOURCE_URL:=/c\PKG_SOURCE_URL:=https://github.com/Kitware/CMake/releases/download/v$(PKG_VERSION)/ \\\n\thttps://cmake.org/files/v$(PKG_VERSION_MAJOR)/' "$CMAKE_MK"
+            fi
+
             echo "✅ 已更新 tools/cmake/Makefile："
-            grep -E "^(PKG_VERSION|PKG_HASH)" "$CMAKE_MK"
+            grep -E "^(PKG_VERSION|PKG_HASH|PKG_SOURCE_URL)" "$CMAKE_MK"
           else
             echo "✅ 当前版本已满足要求 (>= $TARGET_VERSION)，无需修改 Makefile。"
           fi
