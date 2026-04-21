@@ -179,131 +179,52 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 安装 Python 依赖 (用于 API 测速)
-        run: pip install requests pyyaml
-
-      - name: 下载并准备 Mihomo 内核
-        run: |
-          # 获取最新版本号
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/MetaCubeX/mihomo/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-          echo "最新 Mihomo 版本: $LATEST_VERSION"
-          
-          # 下载 Mihomo 内核
-          wget "https://github.com/MetaCubeX/mihomo/releases/download/${LATEST_VERSION}/mihomo-linux-amd64-${LATEST_VERSION}.gz"
-          gunzip "mihomo-linux-amd64-${LATEST_VERSION}.gz"
-          chmod +x "mihomo-linux-amd64-${LATEST_VERSION}"
-          mv "mihomo-linux-amd64-${LATEST_VERSION}" mihomo
-
-          # 创建 Mihomo 工作目录
-          mkdir -p mihomo_config
-          cp preliminary_valid.yaml mihomo_config/config.yaml
-          
-          # 追加 API 配置
-          cat >> mihomo_config/config.yaml <<EOF
-
-          # Mihomo RESTful API 配置
-          external-controller: 127.0.0.1:9090
-          # 日志级别设为 error 以减少输出
-          log-level: error
-          EOF
-
-      - name: 启动 Mihomo 内核
-        run: |
-          nohup ./mihomo -d mihomo_config > mihomo.log 2>&1 &
-          # 等待 Mihomo 启动并监听 API 端口
-          echo "等待 Mihomo 启动..."
-          for i in {1..10}; do
-            if curl -s http://127.0.0.1:9090/version > /dev/null 2>&1; then
-              echo "Mihomo 启动成功"
-              break
-            fi
-            sleep 1
-          done
-
-      - name: 通过 Mihomo API 精确测速并筛选
+      - name: 过滤 servername 为 yahoo.com 的节点（避免 clash-speedtest 报错）
         run: |
           python3 << 'EOF'
-          import requests, yaml, time, sys
-          from concurrent.futures import ThreadPoolExecutor, as_completed
+          import yaml
 
-          API_BASE = "http://127.0.0.1:9090"
-          TEST_URL = "http://www.gstatic.com/generate_204"
-          TIMEOUT = 800  # 毫秒
-          CONCURRENT = 10
+          with open('preliminary_valid.yaml', 'r', encoding='utf-8') as f:
+              data = yaml.safe_load(f)
 
-          def get_all_proxies():
-              """获取所有代理名称"""
-              resp = requests.get(f"{API_BASE}/proxies")
-              if resp.status_code != 200:
-                  raise Exception(f"无法获取代理列表: {resp.status_code}")
-              data = resp.json()
-              # 过滤掉特殊代理 (DIRECT, REJECT 等)
-              proxies = [name for name, info in data['proxies'].items() 
-                        if info['type'] not in ('Direct', 'Reject', 'Selector', 'URLTest')]
-              print(f"发现 {len(proxies)} 个可测速节点")
-              return proxies
+          proxies = data.get('proxies', [])
+          original_count = len(proxies)
 
-          def test_delay(proxy_name):
-              """测试单个节点延迟"""
-              try:
-                  url = f"{API_BASE}/proxies/{proxy_name}/delay"
-                  params = {"url": TEST_URL, "timeout": TIMEOUT}
-                  start = time.time()
-                  resp = requests.get(url, params=params, timeout=(TIMEOUT/1000)+2)
-                  if resp.status_code == 200:
-                      delay = resp.json().get('delay', 0)
-                      return proxy_name, delay, None
-                  else:
-                      return proxy_name, None, f"API错误 {resp.status_code}"
-              except Exception as e:
-                  return proxy_name, None, str(e)
+          filtered_proxies = []
+          removed = []
+          for p in proxies:
+              # 检查是否同时满足：有 reality-opts 且 servername 为 'yahoo.com'
+              if 'reality-opts' in p and p.get('servername') == 'yahoo.com':
+                  removed.append(p.get('name', 'unknown'))
+                  continue
+              filtered_proxies.append(p)
 
-          def main():
-              # 获取节点列表
-              try:
-                  all_proxies = get_all_proxies()
-              except Exception as e:
-                  print(f"错误: {e}")
-                  sys.exit(1)
-              
-              # 并发测速
-              results = {}
-              with ThreadPoolExecutor(max_workers=CONCURRENT) as executor:
-                  future_to_name = {executor.submit(test_delay, name): name for name in all_proxies}
-                  for future in as_completed(future_to_name):
-                      name, delay, error = future.result()
-                      if delay is not None:
-                          results[name] = delay
-                          print(f"✅ {name}: {delay}ms")
-                      else:
-                          print(f"❌ {name}: 测速失败 ({error})")
-              
-              # 读取原始节点配置
-              with open('preliminary_valid.yaml', 'r', encoding='utf-8') as f:
-                  data = yaml.safe_load(f)
-                  all_nodes = data.get('proxies', [])
-              
-              # 筛选出测速成功的节点 (延迟 < TIMEOUT)
-              valid_nodes = [node for node in all_nodes if node.get('name') in results]
-              print(f"\n测速成功节点数: {len(valid_nodes)} / {len(all_nodes)}")
-              
-              # 保存最终结果
-              with open('filtered.yaml', 'w', encoding='utf-8') as f:
-                  yaml.dump({'proxies': valid_nodes}, f, allow_unicode=True, sort_keys=False)
-              
-              # 额外保存一个按延迟排序的版本 (可选)
-              sorted_nodes = sorted(valid_nodes, key=lambda n: results.get(n['name'], 9999))
-              with open('nodes/proxies_sorted.yml', 'w', encoding='utf-8') as f:
-                  yaml.dump({'proxies': sorted_nodes}, f, allow_unicode=True, sort_keys=False)
+          print(f"原始节点数: {original_count}")
+          print(f"移除了 {len(removed)} 个 servername=yahoo.com 的节点: {removed}")
 
-          if __name__ == "__main__":
-              main()
+          data['proxies'] = filtered_proxies
+          with open('preliminary_valid.yaml', 'w', encoding='utf-8') as f:
+              yaml.dump(data, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 停止 Mihomo 进程
-        if: always()
+      - name: 安装 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: 安装 clash-speedtest
+        run: go install github.com/faceair/clash-speedtest@latest
+
+      - name: clash-speedtest 精确测速
         run: |
-          pkill -f mihomo || true
+          ~/go/bin/clash-speedtest \
+            -c preliminary_valid.yaml \
+            -output filtered.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee speedtest.log
 
       - name: 保存最终订阅文件
         run: |
@@ -311,18 +232,18 @@ jobs:
           python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
           import yaml
-          with open('filtered.yaml', 'r', encoding='utf-8') as f:
+          with open('filtered.yaml') as f:
               proxies = yaml.safe_load(f).get('proxies', [])
-          with open('nodes/links.txt', 'w', encoding='utf-8') as f:
+          with open('nodes/links.txt', 'w') as f:
               for p in proxies:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
-
       - name: 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # 拉取远程最新更改，避免推送冲突
           git pull --rebase origin master || true
-          git add nodes/list.meta.yml nodes/proxies.yml nodes/proxies_sorted.yml nodes/links.txt
+          git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
           git push origin master
