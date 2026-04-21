@@ -225,47 +225,56 @@ jobs:
           fi
           echo -e "==================================================\n"
 
-      - name: Upgrade CMake version and refresh patches
-        id: cmake-upgrade
+      - name: Get latest CMake 3.x version
+        id: cmake
         run: |
-          echo "============================================================="
-          echo "📦 升级 CMake 版本并刷新补丁"
-          echo "============================================================="
-
-          CMAKE_MK="./tools/cmake/Makefile"
-          TARGET_VERSION="3.31.12"
-          TARGET_HASH="5f3fd5a54dfa65602bdbed64f981a72673cc19f2d304cc2955cf0dfa0cfd8272"
-
-          if [ ! -f "$CMAKE_MK" ]; then
-            echo "::error::未找到 $CMAKE_MK"
+          echo "🔍 获取最新 CMake 3.x 稳定版..."
+          API_URL="https://api.github.com/repos/Kitware/CMake/releases?per_page=100"
+          if [ -n "$GITHUB_TOKEN" ]; then
+            AUTH_HEADER="Authorization: token $GITHUB_TOKEN"
+          else
+            AUTH_HEADER=""
+          fi
+          LATEST_V3=$(curl -s ${AUTH_HEADER:+-H "$AUTH_HEADER"} "$API_URL" | \
+            jq -r '.[] | select(.tag_name | test("^v3\\.")) | select(.prerelease == false) | .tag_name' | \
+            head -n1 | sed 's/^v//')
+          if [ -z "$LATEST_V3" ]; then
+            echo "::error::无法获取最新 CMake 3.x 版本"
             exit 1
           fi
+          echo "最新版本: $LATEST_V3"
+          echo "version=$LATEST_V3" >> $GITHUB_OUTPUT
 
-          # 1. 更新 Makefile 中的版本和哈希
-          echo "📝 更新 Makefile 版本至 $TARGET_VERSION ..."
-          sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=${TARGET_VERSION}/" "$CMAKE_MK"
-          sed -i "s/^PKG_HASH:=.*/PKG_HASH:=${TARGET_HASH}/" "$CMAKE_MK"
-          echo "✅ Makefile 已更新"
-          grep -E "^(PKG_VERSION|PKG_HASH)" "$CMAKE_MK"
+      # 2. 编译 OpenWrt 自带的 CMake（低版本，但补丁完美）
+      - name: Build OpenWrt's bundled CMake
+        run: |
+          echo "🔨 编译 OpenWrt 自带的 CMake 工具（版本较低）..."
+          make tools/cmake/compile -j$(nproc) || make tools/cmake/compile -j1 V=s
+          echo "✅ 自带 CMake 编译完成"
 
-          # 2. 下载并准备源码（但不编译）
-          echo "⬇️ 下载 CMake ${TARGET_VERSION} 源码并准备补丁环境..."
-          make tools/cmake/prepare QUILT=1
+      # 3. 用最新版 CMake 二进制覆盖自备版本
+      - name: Replace bundled CMake with latest v3.x
+        run: |
+          VERSION="${{ steps.cmake.outputs.version }}"
+          echo "⬇️ 下载 CMake ${VERSION} 预编译二进制..."
+          wget -qO- "https://github.com/Kitware/CMake/releases/download/v${VERSION}/cmake-${VERSION}-linux-x86_64.tar.gz" | \
+            sudo tar --strip-components=1 -xz -C /usr/local
+          cmake --version
 
-          # 3. 自动刷新所有补丁
-          echo "🔧 刷新补丁（自动适配新版本）..."
-          make tools/cmake/refresh
-
-          # 4. 显示刷新后的补丁变更
-          echo "📑 刷新后的补丁变更："
-          git diff tools/cmake/patches/ || echo "无变更（补丁可能已完全适配）"
-
-          # 5. 清理可能产生的备份文件
-          rm -f tools/cmake/patches/*.rej tools/cmake/patches/*.orig 2>/dev/null || true
-
-          echo "============================================================="
-          echo "✅ 补丁刷新完成"
-          echo "============================================================="
+          echo "🔍 查找 OpenWrt 自备 CMake 路径..."
+          BUNDLED_CMAKE=$(find build_dir/host -type f -executable -name cmake -path "*/cmake-*/bin/cmake" 2>/dev/null | head -n1)
+          if [ -n "$BUNDLED_CMAKE" ]; then
+            echo "找到自备 CMake: $BUNDLED_CMAKE"
+            echo "替换前版本："
+            "$BUNDLED_CMAKE" --version
+            sudo cp /usr/local/bin/cmake "$BUNDLED_CMAKE"
+            echo "替换后版本："
+            "$BUNDLED_CMAKE" --version
+          else
+            echo "⚠️ 未找到自备 CMake，创建软链接到系统 CMake"
+            mkdir -p staging_dir/host/bin
+            ln -sf /usr/local/bin/cmake staging_dir/host/bin/cmake
+          fi
       
       - name: Build OpenWrt firmware
         id: build
