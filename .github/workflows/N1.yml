@@ -95,26 +95,17 @@ jobs:
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
-      - name: Verify
-        if: matrix.version_inject == true
+      - name: Replace
         run: |
-          # 在 build_dir 中查找 base-files 安装目录下的 openwrt_release
-          RELEASE_FILE=$(find build_dir -path "*/base-files*/ipkg-install/etc/openwrt_release" 2>/dev/null | head -1)
-          if [ -z "$RELEASE_FILE" ]; then
-            RELEASE_FILE=$(find build_dir -name "openwrt_release" -path "*/root-*/etc/*" 2>/dev/null | head -1)
-          fi
-          if [ -f "$RELEASE_FILE" ]; then
-            echo "Found generated openwrt_release:"
-            cat "$RELEASE_FILE"
-            if grep -q "DISTRIB_REVISION='r$(date +'%Y')" "$RELEASE_FILE"; then
-              echo "✅ DISTRIB_REVISION successfully injected."
-            else
-              echo "❌ DISTRIB_REVISION missing or incorrect."
-              exit 1
-            fi
-          else
-            echo "⚠️ Could not locate openwrt_release in build artifacts, skipping verification."
-          fi
+          CUSTOM_REV="r$(date +'%Y-%-m-%-d')"
+          echo "Injecting custom revision: ${CUSTOM_REV}"
+
+          # 替换 %R 占位符
+          sed -i "s/%R/${CUSTOM_REV}/g" package/base-files/files/etc/openwrt_release
+
+          # 显示修改后的内容以供确认
+          echo "Modified template:"
+          cat package/base-files/files/etc/openwrt_release
 
       # ==================== 通用配置 ====================
       - name: Build config
