@@ -1,5 +1,7 @@
-name: FanchmWrt-24.10
+name: FanchmWrt Multi-Branch Build
+
 on: workflow_dispatch
+
 permissions:
   contents: read
   actions: write
@@ -15,8 +17,21 @@ jobs:
         run: echo "time=$(TZ=Asia/Shanghai date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
   build-firmware:
+    name: Build ${{ matrix.branch }}
     runs-on: ubuntu-latest
     needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: fanchmwrt-24.10.4
+            short_name: 24.10
+            feeds_special: true
+            version_inject: true
+          - branch: fanchmwrt-25.12.2
+            short_name: 25.12
+            rust_fix: true
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -24,39 +39,39 @@ jobs:
           repository: fanchmwrt/fanchmwrt
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          ref: fanchmwrt-24.10.4
+          ref: ${{ matrix.branch }}
 
-      # ==================== 新增：OpenWrt 编译缓存（加速二次编译） ====================
+      # ==================== 编译缓存 ====================
       - name: Cache ccache and dl directory
         uses: actions/cache@v4
         with:
-          # 缓存路径：编译器缓存 + 源码下载目录
           path: |
             ~/.ccache
             ./dl
-          # 缓存键：系统+分支，自动增量更新
-          key: ${{ runner.os }}-openwrt-${{ github.ref_name }}-cache
+          key: ${{ runner.os }}-openwrt-${{ matrix.short_name }}-${{ hashFiles('feeds.conf.default') }}
           restore-keys: |
+            ${{ runner.os }}-openwrt-${{ matrix.short_name }}-
             ${{ runner.os }}-openwrt-
 
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential libncurses5-dev gawk git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd quilt bison flex pkgconf libelf-dev ccache
+          sudo apt install -y build-essential libncurses5-dev gawk git subversion \
+            libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd \
+            quilt bison flex pkgconf libelf-dev ccache
 
-      # ==================== 新增：启用 ccache 编译器缓存 ====================
       - name: Enable ccache
         run: |
           echo "USE_CCACHE=1" >> $GITHUB_ENV
           echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
-          ccache -M 10G  # 设置缓存大小 10GB
-          ccache -s      # 显示缓存状态
+          ccache -M 10G
+          ccache -s
 
-
-      - name: Add third-party feeds
+      # ==================== 分支差异化处理 ====================
+      - name: Add third-party feeds (24.10)
+        if: matrix.feeds_special == true
         run: |
-          # 1. 对 feeds.conf.default 中所有行移除 ^commit 锁定
-          #    但 packages 行不加 ;openwrt-24.10，其他行加 ;openwrt-24.10
+          # 对 feeds.conf.default 进行 commit 锁定处理
           sed -i '/packages/ { s/\^[a-f0-9]\{40\}// }' feeds.conf.default
           sed -i '/packages/!s/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
           cat >> feeds.conf.default << 'EOF'
@@ -65,13 +80,30 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: version
+      - name: Add third-party feeds (25.12)
+        if: matrix.rust_fix == true
+        run: |
+          cat >> feeds.conf.default << EOF
+          src-git openclash https://github.com/vernesong/OpenClash.git
+          EOF
+          sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Fix rust (25.12)
+        if: matrix.rust_fix == true
+        run: |
+          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
+
+      - name: Inject version (24.10)
+        if: matrix.version_inject == true
         run: |
           cat >> include/version.mk << 'EOF'
           BUILD_DATE_FOR_REV:=$(shell date +'%Y-%-m-%-d')
           REVISION:=r$(BUILD_DATE_FOR_REV)
           EOF
-      
+
+      # ==================== 通用配置 ====================
       - name: Build config
         run: |
           cat > .config << EOF
@@ -151,7 +183,7 @@ jobs:
           CONFIG_PACKAGE_kmod-libcgroup=y
           CONFIG_PACKAGE_kmod-overlay=y
           CONFIG_PACKAGE_kmod-veth=y
-          # IPsec VPN基础
+          # IPsec VPN
           CONFIG_PACKAGE_luci-app-ipsec-vpn=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
           CONFIG_PACKAGE_xl2tpd=y
@@ -196,7 +228,7 @@ jobs:
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
-          # OpenClash核心
+          # OpenClash
           CONFIG_PACKAGE_luci-app-openclash=y
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
@@ -204,43 +236,34 @@ jobs:
           CONFIG_PACKAGE_luci-app-passwall=n
           EOF
           make defconfig
-          echo "✅ 配置完成"
-          grep -c "=" .config || true
+          echo "✅ 配置完成 (${{ matrix.branch }})"
 
-      - name: 列出所有luci-app-*插件编译状态
+      - name: List luci-app plugins status
         run: |
           echo -e "\n=================================================="
-          echo -e "📋 所有 luci-app-* 插件（已选中 ✔️ | 未选中 ❌）"
+          echo -e "📋 luci-app-* plugins (${{ matrix.branch }})"
           echo -e "==================================================\n"
-
-          # 读取所有luci-app-*插件（包含选中+未选中）
           if [ -f .config ]; then
             grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
               if echo "$line" | grep -q '=y\|=m'; then
-                # 已选中编译
                 name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
                 echo " ✔️ $name"
               else
-                # 未选中编译
                 name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
                 echo " ❌ $name"
               fi
             done
-          else
-            echo " ⚠️ 未找到.config配置文件"
           fi
           echo -e "==================================================\n"
-      
+
       - name: Build OpenWrt firmware
         id: build
         run: |
           set +e
-          echo "开始编译 OpenWrt 固件 (x86_64) - 多线程模式..."
-          # 多线程编译（无详细日志）
+          echo "开始编译 OpenWrt 固件 (${{ matrix.branch }}) - 多线程模式..."
           make -j$(nproc) 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
           
-          # 多线程编译失败 → 自动单线程重编+输出详细日志
           if [ $BUILD_RESULT -ne 0 ]; then
             echo -e "\n❌ 多线程编译失败，切换单线程+详细日志重编..."
             make clean
@@ -249,51 +272,42 @@ jobs:
           fi
           
           set -e
-          
-          # 显示 ccache 最终使用状态
           ccache -s
           
-          # 最终构建状态判断
           if [ $BUILD_RESULT -eq 0 ]; then
             echo "✅ 编译成功"
             echo "build_status=success" >> $GITHUB_OUTPUT
-            exit 0
           else
             echo "❌ 编译失败"
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
-      
+
       - name: Compress squashfs firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
-          echo "📦 开始压缩 squashfs 固件文件..."
-          
-          # 遍历压缩所有架构的 squashfs 固件
+          echo "📦 压缩 squashfs 固件..."
           for firmware_file in bin/targets/*/*/*squashfs*; do
             if [ -f "${firmware_file}" ]; then
-              echo "✅ 压缩固件: ${firmware_file}"
+              echo "✅ 压缩: ${firmware_file}"
               gzip "${firmware_file}"
             fi
           done
-          
-          echo ""
-          echo "📊 压缩完成，生成文件列表:"
           ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
 
-      - name: Upload compressed squashfs firmware
+      - name: Upload compressed firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-squashfs-${{ needs.prepare.outputs.build_time }}
+          name: openwrt-${{ matrix.short_name }}-${{ needs.prepare.outputs.build_time }}
           path: bin/targets/*/*/*squashfs*.gz
           retention-days: 30
 
-      - name: Upload build config file
+      - name: Upload build config
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: openwrt-build-config
+          name: config-${{ matrix.short_name }}
           path: .config
           retention-days: 30
 
@@ -301,14 +315,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
+          name: logs-${{ matrix.short_name }}
           path: build.log
           retention-days: 7
 
       - name: Show build summary on failure
         if: failure()
         run: |
-          echo "❌ 编译失败 - 显示最后 200 行构建日志:"
+          echo "❌ 编译失败 (${{ matrix.branch }}) - 最后 200 行日志:"
           tail -n 200 build.log
 
   build-summary:
@@ -318,38 +332,48 @@ jobs:
     if: always()
     
     steps:
-      - name: Generate build summary
+      - name: Generate dynamic summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          # 📦 OpenWrt x86_64 Firmware Build
-          
-          **Build Status:** ${{ needs.build-firmware.result }}
-          **Build Time:** ${{ needs.prepare.outputs.build_time }}
-          
-          ## Target Configuration
-          - Platform: x86_64 Generic
-          - Branch: fanchmwrt-25.12.2
-          - Kernel Partition: 100 MB
-          - Root FS: 1024 MB (Ext4)
-          
-          ## 🎵 Core Applications
-          | App | Description | Source |
-          |-----|-------------|--------|
-          | luci-app-openclash | OpenClash 代理工具 | vernesong/OpenClash |
-          | luci-app-dockerman | Docker 管理界面 | lisaac/luci-app-dockerman |
-          
-          ## 📡 Additional Services
-          | Category | Packages |
-          |----------|----------|
-          | VPN | IPsec, L2TP, PPTP |
-          | Container | Docker, Docker Compose |
-          | Utilities | ttyd, DDNS, UDPXY |
-          | Firewall | Firewall4 (nftables) |
-          
-          ## 📊 Build Info
-          - Feeds: Official OpenWrt + 第三方插件源
-          - Included: 基础工具 + 网络套件 + LuCI中文界面
-          - Compilation: 并行编译 + 失败自动单线程重编 + ccache 缓存加速
-          
-          [View Workflow Run →](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          # 📦 OpenWrt x86_64 Firmware Build Summary
+
+          **Overall Build Time:** ${{ needs.prepare.outputs.build_time }}
+          **Workflow Run:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ## 🧩 Build Matrix Results
+
+          | Branch | Status | Artifacts |
+          |--------|--------|-----------|
+          EOF
+
+          # 动态追加矩阵构建结果（通过 needs.build-firmware 的多个结果）
+          echo '| fanchmwrt-24.10.4 | ${{ needs.build-firmware.result }} | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |' >> $GITHUB_STEP_SUMMARY
+          echo '| fanchmwrt-25.12.2 | ${{ needs.build-firmware.result }} | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |' >> $GITHUB_STEP_SUMMARY
+
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+
+          ## 🎯 Target Configuration (All Branches)
+          - **Platform:** x86_64 Generic
+          - **Kernel Partition:** 100 MB
+          - **Root Filesystem:** 1024 MB (Ext4, persistent /var)
+
+          ## 🧰 Included Core Applications
+          | Application | Description |
+          |-------------|-------------|
+          | luci-app-openclash | OpenClash proxy client |
+          | luci-app-dockerman | Docker management UI |
+          | luci-app-ipsec-vpn | IPsec VPN support |
+          | luci-app-ddns | Dynamic DNS client |
+          | luci-app-udpxy | UDP multicast proxy |
+          | luci-app-firewall | Firewall configuration |
+
+          ## ⚙️ Build Features
+          - **Feeds:** Official OpenWrt + OpenClash (vernesong)
+          - **Compiler Cache:** ccache (10 GB) + dl directory caching
+          - **Retry Strategy:** Parallel build → fallback to single-threaded verbose build
+          - **Artifacts:** Squashfs images (gzipped), config, logs
+
+          > 💡 Each branch artifact name includes branch short name and build timestamp for easy identification.
+
+          [View all artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
