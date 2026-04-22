@@ -341,43 +341,73 @@ jobs:
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           # 📦 OpenWrt x86_64 Firmware Build Summary
 
-          **Overall Build Time:** ${{ needs.prepare.outputs.build_time }}
-          **Workflow Run:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          <table>
+          <tr>
+            <td><strong>⏱️ Overall Build Time</strong></td>
+            <td><code>${{ needs.prepare.outputs.build_time }}</code></td>
+          </tr>
+          <tr>
+            <td><strong>🔗 Workflow Run</strong></td>
+            <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>#${{ github.run_id }}</code></a></td>
+          </tr>
+          </table>
+
+          ---
 
           ## 🧩 Build Matrix Results
 
-          | Branch | Status | Artifacts |
-          |--------|--------|-----------|
-          EOF
+          | 🌿 Branch | ✅ Status | 📦 Artifacts |
+          |-----------|----------|--------------|
+          | `fanchmwrt-24.10.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
+          | `fanchmwrt-25.12.2` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
 
-          # 动态追加矩阵构建结果（通过 needs.build-firmware 的多个结果）
-          echo '| fanchmwrt-24.10.4 | ${{ needs.build-firmware.result }} | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |' >> $GITHUB_STEP_SUMMARY
-          echo '| fanchmwrt-25.12.2 | ${{ needs.build-firmware.result }} | [Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |' >> $GITHUB_STEP_SUMMARY
+          > ℹ️ *Each branch artifact is timestamped and includes full build logs.*
 
-          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ---
 
           ## 🎯 Target Configuration (All Branches)
-          - **Platform:** x86_64 Generic
-          - **Kernel Partition:** 100 MB
-          - **Root Filesystem:** 1024 MB (Ext4, persistent /var)
+
+          <table>
+          <tr><td>🖥️ <strong>Platform</strong></td><td><code>x86_64 Generic</code></td></tr>
+          <tr><td>🧩 <strong>Kernel Partition</strong></td><td><code>100 MB</code></td></tr>
+          <tr><td>💾 <strong>Root Filesystem</strong></td><td><code>1024 MB (Ext4, persistent /var)</code></td></tr>
+          </table>
+
+          ---
 
           ## 🧰 Included Core Applications
-          | Application | Description |
-          |-------------|-------------|
-          | luci-app-openclash | OpenClash proxy client |
-          | luci-app-dockerman | Docker management UI |
-          | luci-app-ipsec-vpn | IPsec VPN support |
-          | luci-app-ddns | Dynamic DNS client |
-          | luci-app-udpxy | UDP multicast proxy |
-          | luci-app-firewall | Firewall configuration |
+
+          | 📱 Application | 📝 Description |
+          |----------------|----------------|
+          | `luci-app-openclash` | 🚀 OpenClash proxy client |
+          | `luci-app-dockerman` | 🐳 Docker management UI |
+          | `luci-app-ipsec-vpn` | 🔒 IPsec VPN support |
+          | `luci-app-ddns` | 🌐 Dynamic DNS client |
+          | `luci-app-udpxy` | 📺 UDP multicast proxy |
+          | `luci-app-firewall` | 🛡️ Firewall configuration |
+
+          ---
 
           ## ⚙️ Build Features
-          - **Feeds:** Official OpenWrt + OpenClash (vernesong)
-          - **Compiler Cache:** ccache (10 GB) + dl directory caching
-          - **Retry Strategy:** Parallel build → fallback to single-threaded verbose build
-          - **Artifacts:** Squashfs images (gzipped), config, logs
 
-          > 💡 Each branch artifact name includes branch short name and build timestamp for easy identification.
+          - **📡 Feeds:** Official OpenWrt + OpenClash (vernesong)
+          - **⚡ Compiler Cache:** `ccache` (10 GB) + `dl/` directory caching
+          - **🔄 Retry Strategy:** Parallel build → fallback to single-threaded verbose build
+          - **📦 Artifacts:** Squashfs images (gzipped), config, logs
 
-          [View all artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          <details>
+          <summary>🔍 Click to expand build environment details</summary>
+
+          - **Runner:** Ubuntu 24.04
+          - **Ccache max size:** 10 GiB
+          - **Parallel jobs:** `$(nproc)`
+          </details>
+
+          ---
+
+          <p align="center">
+            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
+              <img src="https://img.shields.io/badge/View%20All%20Artifacts-%F0%9F%93%A6-blue?style=for-the-badge" alt="View all artifacts">
+            </a>
+          </p>
           EOF
