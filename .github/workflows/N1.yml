@@ -53,7 +53,7 @@ jobs:
           ccache -s      # 显示缓存状态
 
 
-      - name: Add third-party feeds (方案2: packages 不锁定 commit)
+      - name: Add third-party feeds
         run: |
           # 1. 对 feeds.conf.default 中所有行移除 ^commit 锁定
           #    但 packages 行不加 ;openwrt-24.10，其他行加 ;openwrt-24.10
