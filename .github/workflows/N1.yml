@@ -53,23 +53,17 @@ jobs:
           ccache -s      # 显示缓存状态
 
 
-      - name: Add third-party feeds
+      - name: Add third-party feeds (方案2: packages 不锁定 commit)
         run: |
-          sed -i 's/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
-          cat >> feeds.conf.default << EOF
+          # 1. 对 feeds.conf.default 中所有行移除 ^commit 锁定
+          #    但 packages 行不加 ;openwrt-24.10，其他行加 ;openwrt-24.10
+          sed -i '/packages/ { s/\^[a-f0-9]\{40\}// }' feeds.conf.default
+          sed -i '/packages/!s/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
+          cat >> feeds.conf.default << 'EOF'
           src-git openclash https://github.com/vernesong/OpenClash.git
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-          
-      - name: Fix rust
-        run: |
-          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-
-      - name: Clean corrupted Rust source tarball
-        run: |
-          rm -f dl/rustc-1.90.0-src.tar.xz
-          rm -rf build_dir/target-*/host/rustc-1.90.0-src
 
       - name: version
         run: |
