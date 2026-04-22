@@ -95,13 +95,18 @@ jobs:
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
-      - name: Inject version (24.10)
+      - name: Verify version file content
         if: matrix.version_inject == true
         run: |
-          cat >> include/version.mk << 'EOF'
-          BUILD_DATE_FOR_REV:=$(shell date +'%Y-%-m-%-d')
-          REVISION:=r$(BUILD_DATE_FOR_REV)
-          EOF
+          echo "===== Content of include/version.mk ====="
+          cat include/version.mk
+          echo "========================================="
+          # 额外检查：确保 REVISION 不是空值
+          if ! grep -q "REVISION := r[0-9]" include/version.mk; then
+            echo "❌ Error: REVISION variable not found or has invalid format!"
+            exit 1
+          fi
+          echo "✅ Version file verification passed."
 
       # ==================== 通用配置 ====================
       - name: Build config
