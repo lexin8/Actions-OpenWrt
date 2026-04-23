@@ -327,8 +327,6 @@ jobs:
     steps:
       - name: Generate dynamic summary
         run: |
-          sudo apt-get install -y jq
-          
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           # 📦 OpenWrt x86_64 Firmware Build Summary
 
@@ -352,10 +350,16 @@ jobs:
           EOF
 
           echo '${{ toJson(needs.build-firmware) }}' | jq -r '
-            to_entries[] | 
+            to_entries[] |
             .value as $job |
-            $job.outputs.artifact_id as $id |
-            "| `\($job.matrix.branch)` | \($job.result) | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/\($id)) |"
+            ($job.outputs.artifact_id // "MISSING") as $id |
+            ($job.matrix.branch // "unknown") as $branch |
+            ($job.result // "unknown") as $result |
+            if $id != "MISSING" then
+              "| `\($branch)` | \($result) | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/\($id)) |"
+            else
+              "| `\($branch)` | \($result) | ⚠️ No artifact |"
+            end
           ' >> $GITHUB_STEP_SUMMARY
 
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
