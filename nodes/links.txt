@@ -1,4 +1,4 @@
-name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 304.54MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 246.17MB/s"
 network: ws
 port: 2096
 server: 104.18.32.47
@@ -13,23 +13,8 @@ ws-opts:
     Host: sni.111000.indevs.in
   path: /?ed
 
-name: "\U0001F3F3\uFE0F KZ 001 | \u2B07\uFE0F 287.40MB/s"
-network: ws
-port: 2096
-server: 194.59.5.238
-servername: sni.jpmj.dev
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.jpmj.dev
-  path: /?telegram%F0%9F%87%A8%F0%9F%87%B3+%40wangcai2=
-
 client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 243.17MB/s"
+name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 240.45MB/s"
 network: ws
 port: 2096
 server: 192.0.54.238
@@ -44,36 +29,97 @@ ws-opts:
     Host: sni.jpmj.dev
   path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
 
-name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 221.63MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 231.94MB/s"
 network: ws
-port: 443
-server: 91.193.58.200
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
+port: 2096
+server: 92.53.191.138
+servername: sni.111000.indevs.in
 tls: true
 type: vless
-udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 215.17MB/s"
-network: ws
-port: 443
-server: time.is
-servername: 2-ee1.pages.dev
-tls: true
-type: vless
-uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-ws-opts:
-  headers:
-    Host: 2-ee1.pages.dev
+    Host: sni.111000.indevs.in
   path: /
 
-name: "\U0001F1EC\U0001F1E7 GB 002 | \u2B07\uFE0F 209.53MB/s"
+name: "\U0001F1E9\U0001F1EA DE 001 | \u2B07\uFE0F 231.90MB/s"
+network: ws
+port: 2096
+server: 45.128.76.191
+servername: sni.my111000.tech
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.my111000.tech
+  path: "Telegram\U0001F1E8\U0001F1F3@WangCai2/"
+
+name: "\U0001F1E8\U0001F1E6 CA 003 | \u2B07\uFE0F 229.37MB/s"
+network: ws
+port: 2096
+server: 104.18.16.56
+servername: sni.111000.indevs.in
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.indevs.in
+  path: /
+
+name: "\U0001F3F3\uFE0F KZ 001 | \u2B07\uFE0F 223.27MB/s"
+network: ws
+port: 2096
+server: 194.59.5.238
+servername: sni.jpmj.dev
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.jpmj.dev
+  path: /?telegram%F0%9F%87%A8%F0%9F%87%B3+%40wangcai2=
+
+name: "\U0001F1E8\U0001F1FE CY 001 | \u2B07\uFE0F 214.42MB/s"
+network: ws
+port: 443
+server: 77.75.199.43
+servername: sni.111000.cc.cd
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.cc.cd
+  path: /
+
+alterId: 0
+cipher: auto
+name: "\U0001F1FA\U0001F1F8 US 002 | \u2B07\uFE0F 174.59MB/s"
+port: 180
+server: 82.198.246.37
+skip-cert-verify: false
+tls: false
+type: vmess
+uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+
+name: "\U0001F1FA\U0001F1F8 US 003 | \u2B07\uFE0F 157.63MB/s"
+network: ws
+port: 8443
+server: 45.62.117.35
+servername: sni.skylee4.cloudns.ch
+tls: true
+type: vless
+uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
+ws-opts:
+  headers:
+    Host: sni.skylee4.cloudns.ch
+  path: /proxyip=ProxyIP.CMLiussss.net
+
+name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 129.80MB/s"
 network: ws
 port: 443
 server: 91.193.58.247
@@ -88,21 +134,7 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 002 | \u2B07\uFE0F 181.56MB/s"
-network: ws
-port: 2053
-server: 138.128.192.254
-servername: sni.skylee4.cloudns.ch
-tls: true
-type: vless
-uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-ws-opts:
-  headers:
-    Host: sni.skylee4.cloudns.ch
-  path: /proxyip=ProxyIP.CMLiussss.net
-
-name: "\U0001F1EC\U0001F1E7 GB 003 | \u2B07\uFE0F 174.35MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 002 | \u2B07\uFE0F 117.04MB/s"
 network: ws
 port: 443
 server: 91.193.58.49
@@ -117,32 +149,20 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1EC\U0001F1E7 GB 004 | \u2B07\uFE0F 168.73MB/s"
+name: "\U0001F1FA\U0001F1F8 US 004 | \u2B07\uFE0F 113.72MB/s"
 network: ws
-port: 443
-server: 91.193.58.246
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
+port: 2053
+server: 154.17.229.84
+servername: sni.skylee4.cloudns.ch
 tls: true
 type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
 ws-opts:
   headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
+    Host: sni.skylee4.cloudns.ch
+  path: /proxyip=ProxyIP.CMLiussss.net
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 003 | \u2B07\uFE0F 167.57MB/s"
-port: 180
-server: 82.198.246.214
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-
-name: "\U0001F1EC\U0001F1E7 GB 005 | \u2B07\uFE0F 132.63MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 003 | \u2B07\uFE0F 99.12MB/s"
 network: ws
 port: 443
 server: 91.193.58.74
@@ -157,94 +177,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 004 | \u2B07\uFE0F 129.22MB/s"
-port: 180
-server: 82.198.246.37
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 005 | \u2B07\uFE0F 123.43MB/s"
-network: ws
-port: 8443
-server: 74.211.100.81
-servername: sni.skylee4.cloudns.ch
-tls: true
-type: vless
-uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-ws-opts:
-  headers:
-    Host: sni.skylee4.cloudns.ch
-  path: /proxyip=ProxyIP.CMLiussss.net
-
-name: "\U0001F1E8\U0001F1E6 CA 003 | \u2B07\uFE0F 86.31MB/s"
-network: ws
-port: 2053
-server: 23.173.104.237
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 004 | \u2B07\uFE0F 84.83MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 004 | \u2B07\uFE0F 98.70MB/s"
 network: ws
 port: 443
-server: 44.32.224.196
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 005 | \u2B07\uFE0F 84.64MB/s"
-network: ws
-port: 2053
-server: 23.173.104.226
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 006 | \u2B07\uFE0F 84.19MB/s"
-network: ws
-port: 443
-server: 23.173.104.205
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 007 | \u2B07\uFE0F 83.53MB/s"
-network: ws
-port: 2053
-server: 23.173.104.215
+server: 91.193.58.246
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -257,233 +193,7 @@ ws-opts:
   path: /?ed=2560
 
 client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1FA\U0001F1F8 US 006 | \u2B07\uFE0F 83.29MB/s"
-network: tcp
-port: 23576
-reality-opts:
-  public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-  short-id: '01'
-server: 15.204.97.195
-servername: fuck.rkn
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-
-name: "\U0001F1E8\U0001F1E6 CA 008 | \u2B07\uFE0F 82.79MB/s"
-network: ws
-port: 443
-server: 44.32.224.207
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 009 | \u2B07\uFE0F 82.39MB/s"
-network: ws
-port: 2053
-server: 23.173.104.239
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 010 | \u2B07\uFE0F 82.24MB/s"
-network: ws
-port: 443
-server: 23.173.104.194
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 011 | \u2B07\uFE0F 82.19MB/s"
-network: ws
-port: 2053
-server: 23.173.104.205
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 012 | \u2B07\uFE0F 82.04MB/s"
-network: ws
-port: 2053
-server: 23.173.104.222
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 013 | \u2B07\uFE0F 81.63MB/s"
-network: ws
-port: 2053
-server: 23.173.104.194
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 014 | \u2B07\uFE0F 81.54MB/s"
-network: ws
-port: 443
-server: 44.32.224.197
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 015 | \u2B07\uFE0F 81.53MB/s"
-network: ws
-port: 2053
-server: 23.173.104.213
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 016 | \u2B07\uFE0F 81.51MB/s"
-network: ws
-port: 2053
-server: 23.173.104.206
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 017 | \u2B07\uFE0F 81.46MB/s"
-network: ws
-port: 2053
-server: 23.173.104.214
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 018 | \u2B07\uFE0F 81.42MB/s"
-network: ws
-port: 2053
-server: 23.173.104.203
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 019 | \u2B07\uFE0F 81.27MB/s"
-network: ws
-port: 2053
-server: 23.173.104.233
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 020 | \u2B07\uFE0F 81.07MB/s"
-network: ws
-port: 2053
-server: 23.173.104.229
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 021 | \u2B07\uFE0F 80.97MB/s"
-network: ws
-port: 443
-server: 44.32.224.195
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 007 | \u2B07\uFE0F 80.30MB/s"
+name: "\U0001F1FA\U0001F1F8 US 005 | \u2B07\uFE0F 93.90MB/s"
 network: ws
 port: 8443
 server: 167.88.160.144
@@ -498,10 +208,10 @@ ws-opts:
     Host: sni.111000.indevs.in
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 022 | \u2B07\uFE0F 80.21MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 005 | \u2B07\uFE0F 89.65MB/s"
 network: ws
-port: 2053
-server: 23.173.104.225
+port: 443
+server: 91.193.58.200
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -513,127 +223,36 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 023 | \u2B07\uFE0F 80.12MB/s"
-network: ws
-port: 2053
-server: 23.173.104.204
-servername: sni.111000.v6.rocks
+client-fingerprint: random
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 006 | \u2B07\uFE0F 69.96MB/s"
+network: tcp
+port: 443
+server: s111.okgfw.top
+servername: u711541ud03ds111.okgfw.top
 skip-cert-verify: false
+tfo: false
 tls: true
 type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
+uuid: 872624ac-aa40-39b1-8232-f7270812c234
 
-name: "\U0001F1E8\U0001F1E6 CA 024 | \u2B07\uFE0F 79.85MB/s"
-network: ws
-port: 2053
-server: 23.173.104.231
-servername: sni.111000.v6.rocks
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 007 | \u2B07\uFE0F 67.89MB/s"
+network: tcp
+port: 23576
+reality-opts:
+  public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+  short-id: '01'
+server: 15.204.97.195
+servername: fuck.rkn
 skip-cert-verify: false
+tfo: false
 tls: true
 type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
+uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 
-name: "\U0001F1E8\U0001F1E6 CA 025 | \u2B07\uFE0F 79.79MB/s"
-network: ws
-port: 2053
-server: 44.32.224.208
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 026 | \u2B07\uFE0F 79.19MB/s"
-network: ws
-port: 2053
-server: 23.173.104.216
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 027 | \u2B07\uFE0F 78.87MB/s"
-network: ws
-port: 2053
-server: 44.32.224.207
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 028 | \u2B07\uFE0F 78.58MB/s"
-network: ws
-port: 2053
-server: 23.173.104.236
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 029 | \u2B07\uFE0F 78.34MB/s"
-network: ws
-port: 2053
-server: 23.173.104.207
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 030 | \u2B07\uFE0F 78.13MB/s"
-network: ws
-port: 2053
-server: 23.173.104.212
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E8\U0001F1E6 CA 031 | \u2B07\uFE0F 78.04MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 004 | \u2B07\uFE0F 64.20MB/s"
 network: ws
 port: 2053
 server: 23.173.104.202
@@ -648,10 +267,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 032 | \u2B07\uFE0F 77.87MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 005 | \u2B07\uFE0F 63.81MB/s"
 network: ws
 port: 2053
-server: 23.173.104.234
+server: 44.32.224.207
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -663,10 +282,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 033 | \u2B07\uFE0F 77.67MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 006 | \u2B07\uFE0F 63.69MB/s"
 network: ws
 port: 2053
-server: 23.173.104.217
+server: 23.173.104.222
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -678,10 +297,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 034 | \u2B07\uFE0F 75.73MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 007 | \u2B07\uFE0F 63.49MB/s"
 network: ws
 port: 2053
-server: 23.173.104.228
+server: 23.173.104.226
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -693,10 +312,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 035 | \u2B07\uFE0F 75.33MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 008 | \u2B07\uFE0F 62.79MB/s"
 network: ws
 port: 2053
-server: 44.32.224.198
+server: 23.173.104.224
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -708,7 +327,157 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 036 | \u2B07\uFE0F 65.30MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 009 | \u2B07\uFE0F 62.70MB/s"
+network: ws
+port: 443
+server: 44.32.224.195
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 010 | \u2B07\uFE0F 62.59MB/s"
+network: ws
+port: 2053
+server: 23.173.104.236
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 011 | \u2B07\uFE0F 62.54MB/s"
+network: ws
+port: 2053
+server: 23.173.104.214
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 012 | \u2B07\uFE0F 62.50MB/s"
+network: ws
+port: 2053
+server: 23.173.104.231
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 013 | \u2B07\uFE0F 62.50MB/s"
+network: ws
+port: 2053
+server: 23.173.104.233
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 014 | \u2B07\uFE0F 62.30MB/s"
+network: ws
+port: 2053
+server: 23.173.104.207
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 015 | \u2B07\uFE0F 61.79MB/s"
+network: ws
+port: 2053
+server: 23.173.104.213
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 016 | \u2B07\uFE0F 61.75MB/s"
+network: ws
+port: 443
+server: 23.173.104.194
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 017 | \u2B07\uFE0F 61.44MB/s"
+network: ws
+port: 2053
+server: 23.173.104.215
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 018 | \u2B07\uFE0F 61.33MB/s"
+network: ws
+port: 443
+server: 44.32.224.207
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 019 | \u2B07\uFE0F 61.26MB/s"
 network: ws
 port: 2053
 server: 23.173.104.201
@@ -723,7 +492,363 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1E6 CA 037 | \u2B07\uFE0F 57.85MB/s"
+client-fingerprint: chrome
+name: "\U0001F1E8\U0001F1E6 CA 020 | \u2B07\uFE0F 61.21MB/s"
+network: ws
+port: 2053
+server: 23.173.104.217
+servername: sni.111000.v6.rocks
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 021 | \u2B07\uFE0F 61.19MB/s"
+network: ws
+port: 2053
+server: 23.173.104.228
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 022 | \u2B07\uFE0F 61.13MB/s"
+network: ws
+port: 2053
+server: 23.173.104.206
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 023 | \u2B07\uFE0F 61.12MB/s"
+network: ws
+port: 2053
+server: 44.32.224.208
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 024 | \u2B07\uFE0F 61.09MB/s"
+network: ws
+port: 2053
+server: 23.173.104.204
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 025 | \u2B07\uFE0F 61.04MB/s"
+network: ws
+port: 2053
+server: 23.173.104.194
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 026 | \u2B07\uFE0F 61.00MB/s"
+network: ws
+port: 443
+server: 44.32.224.197
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 027 | \u2B07\uFE0F 60.94MB/s"
+network: ws
+port: 2053
+server: 23.173.104.212
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 028 | \u2B07\uFE0F 60.92MB/s"
+network: ws
+port: 2053
+server: 23.173.104.216
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 029 | \u2B07\uFE0F 60.77MB/s"
+network: ws
+port: 443
+server: 23.173.104.205
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 030 | \u2B07\uFE0F 60.77MB/s"
+network: ws
+port: 2053
+server: 23.173.104.203
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 031 | \u2B07\uFE0F 60.75MB/s"
+network: ws
+port: 2053
+server: 23.173.104.239
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 032 | \u2B07\uFE0F 60.23MB/s"
+network: ws
+port: 2053
+server: 23.173.104.205
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 033 | \u2B07\uFE0F 59.44MB/s"
+network: ws
+port: 2053
+server: 23.173.104.225
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 034 | \u2B07\uFE0F 58.73MB/s"
+network: ws
+port: 2053
+server: 44.32.224.198
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 035 | \u2B07\uFE0F 58.46MB/s"
+network: ws
+port: 2053
+server: 23.173.104.234
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E8\U0001F1E6 CA 036 | \u2B07\uFE0F 57.04MB/s"
+network: ws
+port: 443
+server: 44.32.224.196
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+client-fingerprint: random
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 008 | \u2B07\uFE0F 47.46MB/s"
+network: tcp
+port: 443
+server: s843.ccgfw.top
+servername: u711541uc91cs843.ccgfw.top
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 872624ac-aa40-39b1-8232-f7270812c234
+
+client-fingerprint: random
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 009 | \u2B07\uFE0F 41.53MB/s"
+network: tcp
+port: 443
+server: s844.ccgfw.top
+servername: u711541u55c0s844.ccgfw.top
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 872624ac-aa40-39b1-8232-f7270812c234
+
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 010 | \u2B07\uFE0F 37.89MB/s"
+network: tcp
+port: 443
+reality-opts:
+  public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
+  short-id: ff776ff77be48b88
+server: 152.53.80.40
+servername: sha.helper-internet.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: e6567a1e-260f-4b0e-8de3-e2e12f90e854
+
+client-fingerprint: random
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 011 | \u2B07\uFE0F 36.03MB/s"
+network: tcp
+port: 443
+server: s246.ccgfw.top
+servername: u711541u6aa4s246.ccgfw.top
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 872624ac-aa40-39b1-8232-f7270812c234
+
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1EC\U0001F1E7 GB 006 | \u2B07\uFE0F 33.03MB/s"
+password: W74XFALLLuw6m5IA
+port: 443
+server: series-a1.samanehha.co
+type: ss
+
+name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 31.64MB/s"
+password: e136d465-0558-43b9-b50c-b1f45d4cb2c2
+port: 24534
+server: jp2-8sb.6121999.dpdns.org
+skip-cert-verify: false
+sni: jp2-8sb.6121999.dpdns.org
+tls: true
+type: trojan
+
+name: "\U0001F1EC\U0001F1E7 GB 007 | \u2B07\uFE0F 30.73MB/s"
+network: tcp
+port: 8443
+server: uk1.fromblancwithlove.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+
+name: "\U0001F1E9\U0001F1EA DE 002 | \u2B07\uFE0F 30.28MB/s"
+network: ws
+password: '1234567890'
+port: 443
+server: 138.124.32.121
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
+
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW 001 | \u2B07\uFE0F 29.84MB/s"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg001269pz2.cybervena.com
+type: ss
+
+name: "\U0001F1E8\U0001F1E6 CA 037 | \u2B07\uFE0F 29.65MB/s"
 network: ws
 port: 443
 server: 68.183.207.130
@@ -738,478 +863,7 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 008 | \u2B07\uFE0F 57.58MB/s"
-port: 180
-server: 82.198.246.233
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 009 | \u2B07\uFE0F 52.48MB/s"
-network: ws
-port: 8443
-server: 69.63.201.145
-servername: sni.skylee4.cloudns.ch
-tls: true
-type: vless
-uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-ws-opts:
-  headers:
-    Host: sni.skylee4.cloudns.ch
-  path: /proxyip=ProxyIP.CMLiussss.net
-
-name: "\U0001F1FA\U0001F1F8 US 010 | \u2B07\uFE0F 51.61MB/s"
-network: ws
-port: 26977
-server: 38.147.160.49
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 011 | \u2B07\uFE0F 49.95MB/s"
-network: ws
-port: 45755
-server: 154.36.130.199
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 012 | \u2B07\uFE0F 49.58MB/s"
-network: ws
-port: 19207
-server: 154.36.129.64
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1FA\U0001F1F8 US 013 | \u2B07\uFE0F 36.81MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
-  short-id: ff776ff77be48b88
-server: 152.53.80.40
-servername: sha.helper-internet.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: e6567a1e-260f-4b0e-8de3-e2e12f90e854
-
-name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 35.60MB/s"
-network: ws
-port: 443
-server: 156.246.91.114
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 JP 002 | \u2B07\uFE0F 31.26MB/s"
-network: ws
-port: 8443
-server: 31.57.172.176
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1EC\U0001F1E7 GB 006 | \u2B07\uFE0F 31.18MB/s"
-password: W74XFALLLuw6m5IA
-port: 443
-server: series-a1.samanehha.co
-type: ss
-
-name: "\U0001F1E9\U0001F1EA DE 001 | \u2B07\uFE0F 30.83MB/s"
-network: ws
-password: '1234567890'
-port: 443
-server: 138.124.32.120
-skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
-  path: /?ed=2560
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 001 | \u2B07\uFE0F 30.55MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg001269pz2.cybervena.com
-type: ss
-
-name: "\U0001F1EC\U0001F1E7 GB 007 | \u2B07\uFE0F 30.09MB/s"
-network: ws
-port: 2053
-server: 206.189.125.53
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 29.81MB/s"
-network: ws
-port: 2053
-server: 95.85.44.26
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 002 | \u2B07\uFE0F 29.58MB/s"
-network: ws
-port: 2053
-server: 95.85.25.127
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 003 | \u2B07\uFE0F 29.40MB/s"
-network: ws
-port: 443
-server: 212.34.130.52
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 004 | \u2B07\uFE0F 29.38MB/s"
-network: ws
-port: 443
-server: 188.166.83.170
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 005 | \u2B07\uFE0F 29.37MB/s"
-network: ws
-port: 2087
-server: 188.226.143.148
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 006 | \u2B07\uFE0F 29.32MB/s"
-network: ws
-port: 443
-server: 146.185.179.81
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 007 | \u2B07\uFE0F 29.29MB/s"
-network: ws
-port: 2053
-server: 193.169.105.239
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EC\U0001F1E7 GB 008 | \u2B07\uFE0F 29.28MB/s"
-network: tcp
-port: 8443
-server: uk1.fromblancwithlove.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-
-name: "\U0001F1F3\U0001F1F1 NL 008 | \u2B07\uFE0F 29.25MB/s"
-network: ws
-port: 2096
-server: 209.38.34.137
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 29.19MB/s"
-network: ws
-port: 443
-server: 217.60.38.113
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 009 | \u2B07\uFE0F 29.14MB/s"
-network: ws
-port: 443
-server: 95.85.19.157
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 010 | \u2B07\uFE0F 29.10MB/s"
-network: ws
-port: 443
-server: 95.85.47.161
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 011 | \u2B07\uFE0F 29.08MB/s"
-network: ws
-port: 2083
-server: 95.85.42.135
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 012 | \u2B07\uFE0F 29.06MB/s"
-network: ws
-port: 443
-server: 188.226.166.176
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 013 | \u2B07\uFE0F 29.00MB/s"
-network: ws
-port: 2087
-server: 95.85.44.26
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 014 | \u2B07\uFE0F 29.00MB/s"
-network: ws
-port: 8443
-server: 95.85.8.177
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 015 | \u2B07\uFE0F 28.96MB/s"
-network: ws
-port: 443
-server: 5.101.101.166
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 016 | \u2B07\uFE0F 28.81MB/s"
-network: ws
-port: 443
-server: 143.244.218.122
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 017 | \u2B07\uFE0F 28.78MB/s"
-network: ws
-port: 8443
-server: 193.169.105.239
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 014 | \u2B07\uFE0F 28.57MB/s"
-network: ws
-port: 443
-server: 154.17.23.98
-servername: sni.skylee4.cloudns.ch
-tls: true
-type: vless
-uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-ws-opts:
-  headers:
-    Host: sni.skylee4.cloudns.ch
-  path: /proxyip=ProxyIP.CMLiussss.net
-
-name: "\U0001F1F3\U0001F1F1 NL 018 | \u2B07\uFE0F 28.46MB/s"
-network: ws
-port: 2083
-server: 209.38.100.127
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 019 | \u2B07\uFE0F 28.39MB/s"
-network: ws
-port: 443
-server: 209.38.101.190
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 020 | \u2B07\uFE0F 28.31MB/s"
-network: ws
-port: 8443
-server: 193.109.69.78
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 JP 003 | \u2B07\uFE0F 28.23MB/s"
-network: ws
-port: 443
-server: 154.19.186.66
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1ED\U0001F1F0 HK 002 | \u2B07\uFE0F 28.22MB/s"
-network: ws
-port: 443
-server: 8.223.63.189
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1EC\U0001F1E7 GB 009 | \u2B07\uFE0F 28.18MB/s"
+name: "\U0001F1EC\U0001F1E7 GB 008 | \u2B07\uFE0F 29.63MB/s"
 network: ws
 port: 443
 server: 68.168.31.169
@@ -1226,7 +880,7 @@ ws-opts:
 
 alpn:
 - h2
-name: "\U0001F1F3\U0001F1F1 NL 021 | \u2B07\uFE0F 27.78MB/s"
+name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 29.25MB/s"
 network: tcp
 port: 8443
 server: 195.181.173.199
@@ -1237,113 +891,21 @@ tls: true
 type: vless
 uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 
-name: "\U0001F1F3\U0001F1F1 NL 022 | \u2B07\uFE0F 27.52MB/s"
+name: "\U0001F1E9\U0001F1EA DE 003 | \u2B07\uFE0F 28.02MB/s"
 network: ws
-port: 2053
-server: 193.109.69.78
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|CA_speednode_0035
-network: ws
-port: 2053
-server: 23.173.104.224
-servername: sni.111000.v6.rocks
+password: '1234567890'
+port: 443
+server: 138.124.32.120
 skip-cert-verify: false
-tls: true
-type: vless
+sni: kfm-bn0.pages.dev
+type: trojan
 udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.v6.rocks
+    Host: kfm-bn0.pages.dev
   path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 71"
-network: ws
-port: 443
-server: 193.109.69.48
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 73"
-network: ws
-port: 8443
-server: 93.183.89.112
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 \u65E5\u672C 384"
-network: ws
-port: 443
-server: 156.246.91.9
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 90"
-network: ws
-port: 2053
-server: 193.176.190.234
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 91"
-network: ws
-port: 443
-server: 95.179.142.54
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 72"
-network: ws
-port: 8443
-server: 212.34.142.156
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|DE_speednode_0062
+name: "\U0001F1E9\U0001F1EA DE 004 | \u2B07\uFE0F 27.92MB/s"
 network: ws
 port: 44406
 server: 194.107.126.20
@@ -1358,107 +920,34 @@ ws-opts:
     Host: sni.latonyamadeline.ndjp.net
   path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 127"
+name: "\U0001F1E9\U0001F1EA DE 005 | \u2B07\uFE0F 25.41MB/s"
 network: ws
-port: 443
-server: 5.180.46.44
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 116"
-network: ws
-port: 443
-server: 193.233.16.39
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 412"
-network: ws
-port: 443
-server: 94.242.58.82
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB \u62C9\u8131\u7EF4\u4E9A 158"
-network: ws
-port: 443
-server: 193.68.89.220
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 416"
-network: ws
+password: '1234567890'
 port: 8443
-server: 193.168.197.37
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 \u65E5\u672C 264"
-password: e136d465-0558-43b9-b50c-b1f45d4cb2c2
-port: 24534
-server: jp2-8sb.6121999.dpdns.org
+server: 2.27.120.108
 skip-cert-verify: false
-sni: jp2-8sb.6121999.dpdns.org
-tls: true
+sni: kfm-bn0.pages.dev
 type: trojan
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 76"
-network: ws
-port: 8443
-server: 193.42.110.120
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 413"
-network: ws
+client-fingerprint: random
+flow: xtls-rprx-vision
+name: "\U0001F1F1\U0001F1F9 LT 001 | \u2B07\uFE0F 25.33MB/s"
 port: 443
-server: 206.168.212.162
-servername: sni.111000.dns.army
+reality-opts:
+  public-key: DoZSKLwNQjogQMlE7oEEuB8TqpNa-umXzG-2Q6dTTEY
+  short-id: 4fa44664f6a566d3
+server: lv.milas.click
+servername: lv.milas.click
 tls: true
 type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+uuid: 913c6074-a747-492b-a7e9-5abfcad6369d
 
-name: 13|SI_speednode_0135
+name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 25.15MB/s"
 network: ws
 port: 443
 server: 45.144.52.69
@@ -1473,52 +962,11 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1F1\U0001F1FB \u62C9\u8131\u7EF4\u4E9A 152"
-network: ws
-port: 8443
-server: 217.28.49.84
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|US_speednode_0149
-network: ws
-port: 443
-server: 144.31.19.131
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 126"
-network: ws
-port: 2053
-server: 31.15.18.56
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|SC_speednode_0124
+name: "\U0001F1E9\U0001F1EA DE 006 | \u2B07\uFE0F 24.10MB/s"
 network: ws
 password: '1234567890'
 port: 443
-server: 80.253.249.66
+server: 138.124.28.78
 skip-cert-verify: false
 sni: kfm-bn0.pages.dev
 type: trojan
@@ -1528,172 +976,17 @@ ws-opts:
     Host: kfm-bn0.pages.dev
   path: /?ed=2560
 
-name: 13|CH_speednode_0045
-network: ws
-password: '1234567890'
-port: 8443
-server: 138.124.87.163
-skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
-  path: /?ed=2560
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 95"
-network: ws
-port: 2053
-server: 195.226.194.222
-servername: sni.111000.dns.army
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1F7\U0001F1FA RU 001 | \u2B07\uFE0F 23.53MB/s"
+port: 52006
+server: cluster-russia-1.firstvideocdn.ru
+servername: cluster-russia-1.firstvideocdn.ru
 tls: true
 type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+uuid: 75807638-6f19-07d0-ae08-38492ee85c88
 
-name: 13|DE_speednode_0059
-network: ws
-password: '1234567890'
-port: 443
-server: 193.23.218.192
-skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
-  path: /?ed=2560
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 81"
-network: ws
-port: 8443
-server: 31.207.44.45
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 191"
-network: ws
-port: 22116
-server: 38.147.163.136
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|RU_speednode_0121
-network: ws
-port: 2053
-server: 176.125.240.147
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1EF\U0001F1F5 \u65E5\u672C 385"
-network: ws
-port: 443
-server: 156.246.92.195
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|NL_speednode_0117
-network: ws
-port: 443
-server: 217.144.185.221
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F8\U0001F1EC \u65B0\u52A0\u5761 517"
-network: ws
-port: 443
-server: 66.42.49.132
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EC\U0001F1E7 \u82F1\u56FD 550"
-network: ws
-port: 443
-server: 82.145.63.59
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|RU_speednode_0119
-network: ws
-port: 443
-server: 85.192.27.113
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: 13|SE_speednode_0126
-network: ws
-password: '1234567890'
-port: 443
-server: 194.87.77.91
-skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
-  path: /?ed=2560
-
-name: 13|RU_speednode_0120
+name: "\U0001F1F8\U0001F1EA SE 001 | \u2B07\uFE0F 23.48MB/s"
 network: ws
 port: 2053
 server: 176.125.240.63
@@ -1708,7 +1001,7 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: 13|AT_speednode_0002
+name: "\U0001F1E6\U0001F1F9 AT 001 | \u2B07\uFE0F 23.41MB/s"
 network: ws
 port: 443
 server: 212.113.119.194
@@ -1723,23 +1016,38 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 69"
+name: "\U0001F1E9\U0001F1EA DE 007 | \u2B07\uFE0F 23.08MB/s"
 network: ws
+password: '1234567890'
 port: 443
-server: 217.144.189.127
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+server: 148.253.215.61
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: 13|LB_speednode_0111
+name: "\U0001F1F8\U0001F1EA SE 002 | \u2B07\uFE0F 22.64MB/s"
+network: ws
+password: '1234567890'
+port: 443
+server: 194.87.77.91
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
+
+name: "\U0001F1F3\U0001F1F1 NL 002 | \u2B07\uFE0F 22.55MB/s"
 network: ws
 port: 443
-server: 213.165.38.161
+server: 217.144.185.221
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -1751,77 +1059,24 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 201"
+name: "\U0001F1E9\U0001F1EA DE 008 | \u2B07\uFE0F 22.20MB/s"
 network: ws
-port: 22078
-server: 38.55.111.81
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 75"
-network: ws
-port: 8443
-server: 5.180.21.56
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-client-fingerprint: chrome
-name: "\u672A\u77E5 VLESS-133 | free-nodes"
-network: tcp
+password: '1234567890'
 port: 443
-reality-opts:
-  public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
-  short-id: 5bfa0c
-server: fi1.cyphervpn.pro
-servername: fi1.cyphervpn.pro
+server: 144.31.218.10
 skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: f7bae22e-20ab-11f1-835c-0242ac110002
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 89"
-network: ws
-port: 443
-server: 193.33.153.228
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 194"
-network: ws
-port: 26490
-server: 38.47.114.208
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|AT_speednode_0003
+name: "\U0001F1E6\U0001F1F9 AT 002 | \u2B07\uFE0F 22.19MB/s"
 network: ws
 port: 443
-server: 212.113.106.4
+server: 85.192.27.113
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -1833,196 +1088,7 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 419"
-network: ws
-port: 8443
-server: 193.148.58.153
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|SG_speednode_0130
-network: ws
-port: 443
-server: 83.147.252.92
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 123"
-network: ws
-port: 443
-server: 217.180.14.212
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EC \u65B0\u52A0\u5761 518"
-network: ws
-port: 443
-server: 43.168.16.112
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|SG_speednode_0131
-network: ws
-port: 443
-server: 83.147.252.227
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 415"
-network: ws
-port: 443
-server: 193.188.21.205
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1F7\U0001F1FA \u4FC4\u7F57\u65AF 574"
-port: 52006
-server: cluster-russia-1.firstvideocdn.ru
-servername: cluster-russia-1.firstvideocdn.ru
-tls: true
-type: vless
-uuid: 75807638-6f19-07d0-ae08-38492ee85c88
-
-name: 13|IR_speednode_0105
-network: ws
-port: 8443
-server: 62.60.153.66
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1ED\U0001F1F0 \u9999\u6E2F 463"
-network: ws
-port: 2053
-server: 217.60.248.94
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|US_speednode_0158
-network: ws
-port: 443
-server: 83.219.97.178
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 410"
-network: ws
-port: 443
-server: 212.113.100.177
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 406"
-network: ws
-port: 443
-server: 193.188.20.163
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB \u62C9\u8131\u7EF4\u4E9A 153"
-network: ws
-port: 443
-server: 193.124.22.249
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|US_speednode_0157
-network: ws
-port: 443
-server: 144.31.7.95
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: 13|SG_speednode_0132
+name: "\U0001F1F8\U0001F1EA SE 003 | \u2B07\uFE0F 22.13MB/s"
 network: ws
 port: 443
 server: 83.147.254.14
@@ -2037,46 +1103,49 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 214"
+name: "\U0001F1E9\U0001F1EA DE 009 | \u2B07\uFE0F 21.94MB/s"
 network: ws
-port: 2087
-server: 154.36.128.5
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+password: '1234567890'
+port: 443
+server: 93.123.84.194
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 199"
+name: "\U0001F1E9\U0001F1EA DE 010 | \u2B07\uFE0F 21.78MB/s"
 network: ws
-port: 22802
-server: 38.47.116.107
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+password: '1234567890'
+port: 443
+server: 82.21.117.137
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 205"
+name: "\U0001F1E9\U0001F1EA DE 011 | \u2B07\uFE0F 21.76MB/s"
 network: ws
-port: 60004
-server: 38.47.116.97
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+password: '1234567890'
+port: 443
+server: 138.124.28.173
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: 13|SG_speednode_0133
+name: "\U0001F1F8\U0001F1EA SE 004 | \u2B07\uFE0F 21.69MB/s"
 network: ws
 port: 443
 server: 83.147.254.238
@@ -2091,122 +1160,95 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 245"
+name: "\U0001F1F1\U0001F1FB LV 001 | \u2B07\uFE0F 21.63MB/s"
 network: ws
-port: 16228
-server: 38.55.122.182
-servername: sni.111000.dns.army
+port: 2053
+server: 146.19.84.236
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 414"
+name: "\U0001F1E9\U0001F1EA DE 012 | \u2B07\uFE0F 21.63MB/s"
 network: ws
 port: 443
-server: 193.188.20.191
-servername: sni.111000.dns.army
+server: 138.124.32.78
+servername: sni.latonyamadeline.ndjp.net
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.latonyamadeline.ndjp.net
+  path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 88"
+name: "\U0001F1EB\U0001F1F7 FR 001 | \u2B07\uFE0F 21.47MB/s"
+network: ws
+port: 8443
+server: 62.60.153.66
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: "\U0001F1E6\U0001F1F9 AT 003 | \u2B07\uFE0F 21.30MB/s"
 network: ws
 port: 443
-server: 193.176.190.183
-servername: sni.111000.dns.army
+server: 212.113.106.4
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1ED\U0001F1F0 \u9999\u6E2F 448"
-network: ws
-port: 45274
-server: 38.55.106.247
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 200"
-network: ws
-port: 14364
-server: 38.207.169.61
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 248"
-network: ws
-port: 19739
-server: 38.207.171.169
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 408"
+name: "\U0001F1EB\U0001F1EE FI 002 | \u2B07\uFE0F 21.26MB/s"
 network: ws
 port: 443
-server: 193.188.20.72
-servername: sni.111000.dns.army
+server: 144.31.19.131
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 93"
+name: "\U0001F1F1\U0001F1FB LV 002 | \u2B07\uFE0F 21.25MB/s"
 network: ws
 port: 443
-server: 185.213.211.29
-servername: sni.111000.dns.army
+server: 169.40.4.32
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 237"
-network: ws
-port: 59466
-server: 38.207.190.247
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
 name: 13|HK_speednode_0099
 network: ws
@@ -2223,105 +1265,11 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 216"
-network: ws
-port: 27822
-server: 38.207.168.8
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1ED\U0001F1F0 \u9999\u6E2F 476"
-network: ws
-port: 18470
-server: 38.207.132.239
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 101"
-network: ws
-port: 8443
-server: 193.56.8.103
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|DE_speednode_0058
-network: ws
-port: 8443
-server: 193.23.219.205
-servername: sni.latonyamadeline.ndjp.net
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.latonyamadeline.ndjp.net
-  path: /?ed=2560
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 192"
-network: ws
-port: 20281
-server: 38.207.191.155
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 239"
-network: ws
-port: 48024
-server: 38.207.191.145
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 219"
-network: ws
-port: 443
-server: 23.188.72.153
-servername: 2-eox.pages.dev
-tls: true
-type: vless
-uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-ws-opts:
-  headers:
-    Host: 2-eox.pages.dev
-  path: /
-
-name: 13|DE_speednode_0064
+name: "\U0001F1E9\U0001F1EA DE 013 | \u2B07\uFE0F 20.38MB/s"
 network: ws
 password: '1234567890'
 port: 443
-server: 185.65.202.222
+server: 144.31.139.103
 skip-cert-verify: false
 sni: kfm-bn0.pages.dev
 type: trojan
@@ -2331,44 +1279,19 @@ ws-opts:
     Host: kfm-bn0.pages.dev
   path: /?ed=2560
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 409"
+name: "\U0001F1E9\U0001F1EA DE 014 | \u2B07\uFE0F 20.35MB/s"
+network: ws
+password: '1234567890'
 port: 443
-reality-opts:
-  public-key: fN3l3mYSDO44IWNPHWOQo2JMUw2isUGoOqrS6hCFfBQ
-  short-id: d1f93724859d75ac
-server: pl2-gws4.onnstreaming.ru
-servername: pl2-gws4.onnstreaming.ru
-tls: true
-type: vless
-uuid: 19ef3d02-1c55-4fec-9794-6def8cbac396
-
-name: "\U0001F1ED\U0001F1F0 \u9999\u6E2F 467"
-network: ws
-port: 2053
-server: 217.60.248.3
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+server: 144.31.216.160
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 \u7F8E\u56FD 225"
-network: ws
-port: 4443
-server: 154.64.236.238
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
 name: 13|LB_speednode_0109
 network: ws
@@ -2385,79 +1308,110 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EC \u65B0\u52A0\u5761 523"
+name: 13|SE_speednode_0128
 network: ws
-port: 443
-server: 43.160.207.33
-servername: sni.111000.dns.army
+port: 2053
+server: 46.226.164.44
+servername: sni.latonyamadeline.ndjp.net
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: 13|SC_speednode_0123
-network: ws
-password: '1234567890'
-port: 443
-server: 45.9.116.160
-skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
+    Host: sni.latonyamadeline.ndjp.net
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1FF \u6377\u514B 151"
+name: 13|SI_speednode_0134
 network: ws
 port: 443
-server: 193.124.254.52
-servername: sni.111000.dns.army
+server: 45.144.52.100
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-cipher: chacha20-ietf-poly1305
-name: "\u672A\u77E5 SS-53 | free-nodes"
-password: yKVMoB3AwiTEznpnoq2FYR
-port: 28687
-server: 193.47.60.186
-type: ss
-
-name: 13|US_speednode_0137
+name: 13|LB_speednode_0111
 network: ws
-password: '1234567890'
+port: 443
+server: 213.165.38.161
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: 13|DE_speednode_0058
+network: ws
 port: 8443
-server: 95.164.123.131
+server: 193.23.219.205
+servername: sni.latonyamadeline.ndjp.net
 skip-cert-verify: false
-sni: kfm-bn0.pages.dev
-type: trojan
-udp: true
-ws-opts:
-  headers:
-    Host: kfm-bn0.pages.dev
-  path: /?ed=2560
-
-name: "\U0001F1F8\U0001F1EA \u745E\u5178 417"
-network: ws
-port: 443
-server: 5.178.109.158
-servername: sni.111000.dns.army
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.latonyamadeline.ndjp.net
+  path: /?ed=2560
+
+name: 13|SG_speednode_0131
+network: ws
+port: 443
+server: 83.147.252.227
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: 13|US_speednode_0148
+network: ws
+port: 443
+server: 64.188.73.248
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: 13|AU_speednode_0006
+network: ws
+port: 443
+server: 82.117.84.161
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
 name: 13|RU_speednode_0122
 network: ws
@@ -2474,18 +1428,34 @@ ws-opts:
     Host: sni.latonyamadeline.ndjp.net
   path: /?ed=2560
 
-name: "\U0001F1E8\U0001F1FE \u585E\u6D66\u8DEF\u65AF 423"
+name: 13|SG_speednode_0130
 network: ws
-port: 2053
-server: 85.208.110.197
-servername: sni.111000.dns.army
+port: 443
+server: 83.147.252.92
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: 13|DE_speednode_0064
+network: ws
+password: '1234567890'
+port: 443
+server: 185.65.202.222
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
 name: 13|IN_speednode_0101
 network: ws
@@ -2502,183 +1472,43 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: 13|NL_speednode_0116
-network: ws
-port: 2053
-server: 146.19.84.236
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F3\U0001F1F1 \u8377\u5170 120"
-network: ws
-port: 2053
-server: 217.65.79.122
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 001 | \u2B07\uFE0F 17.87MB/s"
-network: ws
-port: 2053
-server: 193.124.254.99
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 023 | \u2B07\uFE0F 17.70MB/s"
-network: ws
-port: 2053
-server: 193.124.49.246
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1E9\U0001F1EA DE 002 | \u2B07\uFE0F 17.19MB/s"
-network: ws
-port: 2053
-server: 193.124.203.153
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 024 | \u2B07\uFE0F 17.05MB/s"
-network: ws
-port: 8443
-server: 217.65.79.122
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 025 | \u2B07\uFE0F 16.81MB/s"
-network: ws
-port: 443
-server: 95.179.132.188
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 002 | \u2B07\uFE0F 16.77MB/s"
-network: ws
-port: 443
-server: 193.124.254.98
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1ED\U0001F1F0 HK 003 | \u2B07\uFE0F 16.64MB/s"
-network: ws
-port: 19528
-server: 38.207.132.18
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 003 | \u2B07\uFE0F 16.46MB/s"
-network: ws
-port: 443
-server: 193.124.254.186
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
 client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F3\U0001F1F1 NL 026 | \u2B07\uFE0F 16.22MB/s"
+name: "\u672A\u77E5 VLESS-128 | free-nodes"
 network: tcp
-port: 443
+port: 8443
 reality-opts:
-  public-key: wBrGfTI9PaFf966aN6KaCY0cL6QRLlop4nzNa6bJsiQ
-  short-id: 9f35da6c9412b832
-server: 5.180.97.139
-servername: google.com
+  public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+server: 82.117.255.37
+servername: tradingview.com
 skip-cert-verify: false
 tfo: false
 tls: true
 type: vless
-uuid: a384c715-aeb5-45e8-859b-f687ca6c083f
+uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
 
-name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 15.37MB/s"
+cipher: chacha20-ietf-poly1305
+name: "\u672A\u77E5 SS-53 | free-nodes"
+password: yKVMoB3AwiTEznpnoq2FYR
+port: 28687
+server: 193.47.60.186
+type: ss
+
+name: 13|SC_speednode_0123
 network: ws
+password: '1234567890'
 port: 443
-server: 194.124.210.128
-servername: sni.111000.v6.rocks
+server: 45.9.116.160
 skip-cert-verify: false
-tls: true
-type: vless
+sni: kfm-bn0.pages.dev
+type: trojan
 udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.v6.rocks
+    Host: kfm-bn0.pages.dev
   path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EC SG 001 | \u2B07\uFE0F 15.29MB/s"
-network: ws
-port: 30383
-server: 149.104.25.115
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EB\U0001F1EE FI 002 | \u2B07\uFE0F 15.25MB/s"
+name: 13|VG_speednode_0169
 network: ws
 port: 443
 server: 46.243.6.25
@@ -2693,128 +1523,11 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1F8\U0001F1EC SG 002 | \u2B07\uFE0F 14.56MB/s"
-network: ws
-port: 64445
-server: 149.104.31.39
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 004 | \u2B07\uFE0F 14.06MB/s"
-network: ws
-port: 443
-server: 5.34.211.35
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1FF\U0001F1E6 ZA 001 | \u2B07\uFE0F 13.94MB/s"
-password: Xsy8Ox4yOV3xLlpxtjzs3X
-port: 16233
-server: 102.133.165.160
-type: ss
-
-name: "\U0001F1EA\U0001F1F8 ES 001 | \u2B07\uFE0F 13.91MB/s"
-network: ws
-port: 443
-server: 194.48.143.131
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F0\U0001F1F7 KR 001 | \u2B07\uFE0F 13.85MB/s"
-network: ws
-port: 60004
-server: 220.118.83.101
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA SE 001 | \u2B07\uFE0F 13.38MB/s"
-network: ws
-port: 443
-server: 77.110.97.237
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F8\U0001F1EC SG 003 | \u2B07\uFE0F 13.10MB/s"
-network: ws
-port: 52731
-server: 149.104.25.115
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 015 | \u2B07\uFE0F 12.90MB/s"
-network: ws
-port: 23753
-server: 38.55.122.134
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EB\U0001F1EE FI 003 | \u2B07\uFE0F 12.77MB/s"
-network: ws
-port: 443
-server: 46.243.1.9
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1E9\U0001F1EA DE 003 | \u2B07\uFE0F 12.49MB/s"
+name: 13|DE_speednode_0059
 network: ws
 password: '1234567890'
 port: 443
-server: 77.239.127.77
+server: 193.23.218.192
 skip-cert-verify: false
 sni: kfm-bn0.pages.dev
 type: trojan
@@ -2824,20 +1537,59 @@ ws-opts:
     Host: kfm-bn0.pages.dev
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 US 016 | \u2B07\uFE0F 11.90MB/s"
+name: 13|ES_speednode_0069
 network: ws
-port: 8443
-server: 154.17.12.212
-servername: sni.skylee4.cloudns.ch
+port: 443
+server: 194.124.210.128
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
-uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.skylee4.cloudns.ch
-  path: /proxyip=ProxyIP.CMLiussss.net
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1EA\U0001F1F8 ES 002 | \u2B07\uFE0F 11.72MB/s"
+name: 13|RU_speednode_0121
+network: ws
+port: 2053
+server: 176.125.240.147
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+cipher: chacha20-ietf-poly1305
+name: "\u672A\u77E5 SS-56 | free-nodes"
+password: MholStyHL7DhrewKbpQa20
+port: 24637
+server: 185.176.221.72
+type: ss
+
+name: 13|CA_speednode_0026
+network: ws
+port: 2053
+server: 23.173.104.229
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
+tls: true
+type: vless
+udp: true
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
+
+name: 13|ES_speednode_0071
 network: ws
 port: 443
 server: 194.48.143.25
@@ -2852,214 +1604,10 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 002 | \u2B07\uFE0F 11.65MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg001287h3p.cybervena.com
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 003 | \u2B07\uFE0F 11.51MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg007147vhp.cybervena.com
-type: ss
-
-name: "\U0001F1E9\U0001F1EA DE 004 | \u2B07\uFE0F 11.46MB/s"
+name: 13|LB_speednode_0110
 network: ws
 port: 443
-server: 95.85.233.224
-servername: sni.latonyamadeline.ndjp.net
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.latonyamadeline.ndjp.net
-  path: /?ed=2560
-
-name: "\U0001F1E9\U0001F1EA DE 005 | \u2B07\uFE0F 11.42MB/s"
-password: n5ix4FcMQYENMQPL+YKbvyJ8nZ84+bNTsj
-port: 10369
-server: 82.26.155.20
-skip-cert-verify: false
-sni: fra35.chasem2026sud.com
-type: trojan
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F7\U0001F1F4 RO 001 | \u2B07\uFE0F 10.91MB/s"
-password: QFWzCw2uX9B9i6qAYeFBIE
-port: 443
-server: 154.46.31.106
-type: ss
-
-name: "\U0001F1FA\U0001F1F8 US 017 | \u2B07\uFE0F 10.60MB/s"
-network: ws
-port: 443
-server: 23.144.116.106
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1E9\U0001F1EA DE 006 | \u2B07\uFE0F 10.18MB/s"
-network: ws
-port: 8443
-server: 193.124.203.152
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1E9\U0001F1EA DE 007 | \u2B07\uFE0F 9.95MB/s"
-network: ws
-port: 443
-server: 193.124.203.126
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 JP 004 | \u2B07\uFE0F 9.92MB/s"
-network: tcp
-password: 1774240c00db2b77d5a99f6540c47b69
-port: 4380
-server: 160.16.132.38
-skip-cert-verify: false
-sni: www.nintendogames.net
-type: trojan
-
-name: "\U0001F1FA\U0001F1F8 US 018 | \u2B07\uFE0F 9.79MB/s"
-network: ws
-port: 36808
-server: 38.175.192.115
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1E9\U0001F1EA DE 008 | \u2B07\uFE0F 9.76MB/s"
-network: ws
-port: 443
-server: 193.124.203.77
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 019 | \u2B07\uFE0F 9.59MB/s"
-network: ws
-port: 30048
-server: 38.175.192.3
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 027 | \u2B07\uFE0F 9.36MB/s"
-network: ws
-port: 443
-server: 185.103.255.196
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 004 | \u2B07\uFE0F 9.20MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg007134n4g.cybervena.com
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 005 | \u2B07\uFE0F 9.14MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg00129437x.cybervena.com
-type: ss
-
-name: "\U0001F1ED\U0001F1F0 HK 004 | \u2B07\uFE0F 8.28MB/s"
-network: ws
-port: 38345
-server: 38.47.107.200
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 005 | \u2B07\uFE0F 8.00MB/s"
-network: ws
-port: 443
-server: 31.128.33.253
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 028 | \u2B07\uFE0F 7.80MB/s"
-network: ws
-port: 443
-server: 93.183.68.141
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 029 | \u2B07\uFE0F 7.41MB/s"
-password: PDNcrHbGmb5u76Og8NatjZ
-port: 21836
-server: 185.117.91.27
-type: ss
-
-name: "\U0001F1EB\U0001F1EE FI 004 | \u2B07\uFE0F 7.02MB/s"
-network: ws
-port: 2053
-server: 37.143.129.102
+server: 77.110.97.237
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -3071,37 +1619,92 @@ ws-opts:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
 
-name: "\U0001F1FA\U0001F1F8 US 020 | \u2B07\uFE0F 6.99MB/s"
-network: ws
-port: 23667
-server: 38.147.175.124
-servername: sni.111000.dns.army
+client-fingerprint: chrome
+name: "\u672A\u77E5 VLESS-133 | free-nodes"
+network: tcp
+port: 443
+reality-opts:
+  public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
+  short-id: 5bfa0c
+server: fi1.cyphervpn.pro
+servername: fi1.cyphervpn.pro
+skip-cert-verify: false
+tfo: false
 tls: true
 type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+uuid: f7bae22e-20ab-11f1-835c-0242ac110002
+
+name: 13|CH_speednode_0049
+network: ws
+password: '1234567890'
+port: 443
+server: 138.124.240.36
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /
 
 cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 006 | \u2B07\uFE0F 6.86MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg001286ek2.cybervena.com
+name: "\u672A\u77E5 SS-61 | free-nodes"
+password: Xsy8Ox4yOV3xLlpxtjzs3X
+port: 16233
+server: 102.133.165.160
 type: ss
 
-alterId: 0
-cipher: auto
-name: "\U0001F1ED\U0001F1F0 HK 005 | \u2B07\uFE0F 6.78MB/s"
-port: 7754
-server: vm51544542.dns8656815.com
+name: 13|US_speednode_0152
+network: ws
+password: '1234567890'
+port: 443
+server: 144.31.98.216
 skip-cert-verify: false
-tls: false
-type: vmess
-uuid: 009e558d-3cf4-49d8-b5e4-82c9e14fe1a4
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1E9\U0001F1EA DE 009 | \u2B07\uFE0F 6.77MB/s"
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW SS-29 | free-nodes"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg007147vhp.cybervena.com
+type: ss
+
+name: 13|DE_speednode_0063
+network: ws
+password: '1234567890'
+port: 443
+server: 87.251.88.215
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
+
+name: 13|US_speednode_0139
+network: ws
+password: '1234567890'
+port: 443
+server: 64.188.70.233
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
+
+name: 13|US_speednode_0156
 network: ws
 port: 443
 server: 144.31.116.136
@@ -3116,20 +1719,52 @@ ws-opts:
     Host: sni.latonyamadeline.ndjp.net
   path: /
 
-name: "\U0001F1F0\U0001F1F7 KR 002 | \u2B07\uFE0F 6.77MB/s"
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW SS-49 | free-nodes"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg001287h3p.cybervena.com
+type: ss
+
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW SS-23 | free-nodes"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg001286ek2.cybervena.com
+type: ss
+
+name: 13|VG_speednode_0171
 network: ws
-port: 27015
-server: 220.123.86.198
-servername: sni.111000.dns.army
+port: 443
+server: 46.243.1.9
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1EC\U0001F1E7 GB 010 | \u2B07\uFE0F 6.77MB/s"
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\u672A\u77E5 VLESS-118 | free-nodes"
+network: tcp
+port: 443
+reality-opts:
+  public-key: wBrGfTI9PaFf966aN6KaCY0cL6QRLlop4nzNa6bJsiQ
+  short-id: 9f35da6c9412b832
+server: 5.180.97.139
+servername: google.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: a384c715-aeb5-45e8-859b-f687ca6c083f
+
+name: "\U0001F1EC\U0001F1E7 GB VLESS-102 | free-nodes"
 network: ws
 port: 8443
 server: 158.220.88.180
@@ -3144,59 +1779,91 @@ ws-opts:
     Host: sni.111000.indevs.in
   path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 NL 030 | \u2B07\uFE0F 6.76MB/s"
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW SS-52 | free-nodes"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg007117fb8.cybervena.com
+type: ss
+
+alterId: 0
+cipher: auto
+name: "\U0001F1E9\U0001F1EA \u5FB7\u56FD 18"
+port: 180
+server: 82.198.246.233
+skip-cert-verify: false
+tls: false
+type: vmess
+uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1E8\U0001F1F3 TW SS-26 | free-nodes"
+password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+port: 50099
+server: r3mrcg007134n4g.cybervena.com
+type: ss
+
+cipher: chacha20-ietf-poly1305
+name: "\u672A\u77E5 SS-57 | free-nodes"
+password: PDNcrHbGmb5u76Og8NatjZ
+port: 21836
+server: 185.117.91.27
+type: ss
+
+alterId: 0
+cipher: auto
+name: "\U0001F1E9\U0001F1EA \u5FB7\u56FD 14"
+port: 180
+server: 82.198.246.9
+skip-cert-verify: false
+tls: false
+type: vmess
+uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+
+client-fingerprint: chrome
+name: "\U0001F1F3\U0001F1F1 \u8377\u5170 317"
 network: ws
+port: 8443
+server: 217.194.148.124
+servername: sni.111000.dns.army
+tls: true
+type: vless
+uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+ws-opts:
+  headers:
+    Host: sni.111000.dns.army
+  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+
+name: 13|US_speednode_0140
+network: ws
+password: '1234567890'
 port: 443
-server: 212.87.223.196
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+server: 144.31.116.8
+skip-cert-verify: false
+sni: kfm-bn0.pages.dev
+type: trojan
+udp: true
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: kfm-bn0.pages.dev
+  path: /?ed=2560
 
-name: "\U0001F1F0\U0001F1F7 KR 003 | \u2B07\uFE0F 6.46MB/s"
+name: 13|CA_speednode_0010
 network: ws
-port: 10443
-server: 220.93.102.220
-servername: sni.111000.dns.army
+port: 2053
+server: 37.143.129.102
+servername: sni.111000.v6.rocks
+skip-cert-verify: false
 tls: true
 type: vless
+udp: true
 uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
 ws-opts:
   headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+    Host: sni.111000.v6.rocks
+  path: /?ed=2560
 
-name: "\U0001F1F3\U0001F1F1 NL 031 | \u2B07\uFE0F 6.42MB/s"
-network: ws
-port: 443
-server: 199.231.235.206
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F8\U0001F1EA SE 002 | \u2B07\uFE0F 6.36MB/s"
-network: ws
-port: 443
-server: 193.181.29.120
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F1\U0001F1FB LV 006 | \u2B07\uFE0F 6.31MB/s"
+name: 13|LV_speednode_0113
 network: ws
 port: 8443
 server: 213.21.222.70
@@ -3212,325 +1879,23 @@ ws-opts:
   path: /?ed=2560
 
 cipher: aes-256-gcm
-name: "\U0001F1FA\U0001F1F8 US 021 | \u2B07\uFE0F 6.10MB/s"
-password: 14CLBaFBqwqxBJy6
-port: 80
-server: 66.94.125.178
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 007 | \u2B07\uFE0F 5.96MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg007117fb8.cybervena.com
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F1\U0001F1FB LV 007 | \u2B07\uFE0F 5.94MB/s"
-password: MholStyHL7DhrewKbpQa20
-port: 24637
-server: 185.176.221.72
-type: ss
-
-name: "\U0001F1EF\U0001F1F5 JP 005 | \u2B07\uFE0F 5.90MB/s"
-network: ws
-port: 51102
-server: 38.47.108.176
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EB\U0001F1EE FI 005 | \u2B07\uFE0F 5.87MB/s"
-network: ws
-port: 443
-server: 45.144.52.100
-servername: sni.111000.v6.rocks
-skip-cert-verify: false
-tls: true
-type: vless
-udp: true
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.v6.rocks
-  path: /?ed=2560
-
-name: "\U0001F1F0\U0001F1F7 KR 004 | \u2B07\uFE0F 5.83MB/s"
-network: ws
-port: 32771
-server: 218.146.122.147
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F0\U0001F1F7 KR 005 | \u2B07\uFE0F 5.79MB/s"
-network: ws
-port: 18081
-server: 220.124.181.77
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 022 | \u2B07\uFE0F 5.65MB/s"
-network: ws
-port: 52557
-server: 193.122.195.166
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-cipher: aes-256-gcm
-name: "\U0001F1FA\U0001F1F8 US 023 | \u2B07\uFE0F 5.60MB/s"
+name: "\U0001F1FA\U0001F1F8 US SS-68 | free-nodes"
 password: ZfbPFDdeBj0B1Txs
 port: 80
 server: 154.53.60.212
 type: ss
 
-name: "\U0001F1F0\U0001F1F7 KR 006 | \u2B07\uFE0F 5.60MB/s"
-network: ws
-port: 32773
-server: 222.111.88.109
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+cipher: aes-256-gcm
+name: "\U0001F1FA\U0001F1F8 US SS-65 | free-nodes"
+password: 14CLBaFBqwqxBJy6
+port: 80
+server: 66.94.125.178
+type: ss
 
-name: "\U0001F1FA\U0001F1F8 US 024 | \u2B07\uFE0F 5.47MB/s"
-network: ws
-port: 18696
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 032 | \u2B07\uFE0F 5.47MB/s"
-network: ws
-port: 8443
-server: 217.194.148.124
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 025 | \u2B07\uFE0F 5.47MB/s"
-network: ws
-port: 20135
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 026 | \u2B07\uFE0F 5.47MB/s"
-network: ws
-port: 59148
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F3\U0001F1F1 NL 033 | \u2B07\uFE0F 5.46MB/s"
+name: 13|US_speednode_0157
 network: ws
 port: 443
-server: 193.123.59.103
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 027 | \u2B07\uFE0F 5.44MB/s"
-network: ws
-port: 20128
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 028 | \u2B07\uFE0F 5.41MB/s"
-network: ws
-port: 51528
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 029 | \u2B07\uFE0F 5.39MB/s"
-network: ws
-port: 58387
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 030 | \u2B07\uFE0F 5.38MB/s"
-network: ws
-port: 57845
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 031 | \u2B07\uFE0F 5.38MB/s"
-network: ws
-port: 16116
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 032 | \u2B07\uFE0F 5.37MB/s"
-network: ws
-port: 26308
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 033 | \u2B07\uFE0F 5.36MB/s"
-network: ws
-port: 14117
-server: 154.36.130.71
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1ED\U0001F1F0 HK 006 | \u2B07\uFE0F 5.35MB/s"
-network: ws
-port: 8443
-server: 217.60.38.249
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 034 | \u2B07\uFE0F 5.34MB/s"
-network: ws
-port: 34320
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 035 | \u2B07\uFE0F 5.33MB/s"
-network: ws
-port: 25829
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1FA\U0001F1F8 US 036 | \u2B07\uFE0F 5.32MB/s"
-network: ws
-port: 56250
-server: 154.36.130.55
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EB\U0001F1EE FI 006 | \u2B07\uFE0F 5.13MB/s"
-network: ws
-port: 443
-server: 194.48.140.149
+server: 144.31.7.95
 servername: sni.111000.v6.rocks
 skip-cert-verify: false
 tls: true
@@ -3541,43 +1906,4 @@ ws-opts:
   headers:
     Host: sni.111000.v6.rocks
   path: /?ed=2560
-
-name: "\U0001F1ED\U0001F1F0 HK 007 | \u2B07\uFE0F 5.10MB/s"
-network: ws
-port: 8443
-server: 217.60.38.182
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1F0\U0001F1F7 KR 007 | \u2B07\uFE0F 5.08MB/s"
-network: ws
-port: 12349
-server: 220.86.228.109
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-
-name: "\U0001F1EF\U0001F1F5 JP 006 | \u2B07\uFE0F 5.04MB/s"
-network: ws
-port: 10086
-server: 217.142.236.75
-servername: sni.111000.dns.army
-tls: true
-type: vless
-uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-ws-opts:
-  headers:
-    Host: sni.111000.dns.army
-  path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
 
