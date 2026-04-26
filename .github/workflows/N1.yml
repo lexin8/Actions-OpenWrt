@@ -41,8 +41,8 @@ jobs:
       - name: Compile
         run: |
           cd openwrt
-          chmod +x compile-openwrt.sh
-          bash compile-openwrt.sh -d s905d -v 5.15 -j2
+          chmod +x build.sh
+          bash build.sh -d s905d -v 5.15 -j2
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
