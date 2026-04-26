@@ -1,413 +1,53 @@
-name: FanchmWrt Multi-Branch Build
-
-on: workflow_dispatch
-
-permissions:
-  contents: read
-  actions: write
-
+name: Build N1
+on:
+  workflow_dispatch:
 jobs:
-  prepare:
+  build:
     runs-on: ubuntu-22.04
-    outputs:
-      build_time: ${{ steps.build_time.outputs.time }}
+    permissions:
+      contents: write
     steps:
-      - name: Set build time
-        id: build_time
-        run: echo "time=$(TZ=Asia/Shanghai date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-
-  build-firmware:
-    name: Build ${{ matrix.branch }}
-    runs-on: ubuntu-latest
-    needs: prepare
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - branch: fanchmwrt-24.10.4
-            short_name: 24.10
-            feeds_special: true
-            version_inject: true
-          - branch: fanchmwrt-25.12.2
-            short_name: 25.12
-            rust_fix: true
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Build
+        uses: stupidlabs/oneclick-openwrt@main
+        env:
+          REPO_URL: https://github.com/openwrt/openwrt
+          REPO_BRANCH: openwrt-23.05
+          CONFIG_FILE: .config
+          TZ: Asia/Shanghai
+          EXTRA_SH: |
+            echo "CONFIG_TARGET_armvirt=y
+            CONFIG_TARGET_armvirt_64=y
+            CONFIG_TARGET_armvirt_64_Default=y
+            CONFIG_PACKAGE_luci=y
+            CONFIG_PACKAGE_luci-base=y
+            CONFIG_PACKAGE_luci-mod-network=y
+            CONFIG_PACKAGE_luci-mod-wireless=y
+            CONFIG_PACKAGE_kmod-mt76=y
+            CONFIG_PACKAGE_hostapd=y
+            CONFIG_PACKAGE_wpad=y
+            CONFIG_PACKAGE_bridge=y" >> .config
+            sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+            sed -i 's/OpenWrt/N1-Breed-AP/g' package/base-files/files/bin/config_generate
+            uci -d batch << EOF
+            set dhcp.lan.ignore=1
+            commit dhcp
+            set wireless.radio0.country='CN'
+            set wireless.radio0.disabled='0'
+            set wireless.default_radio0.ssid='N1-Breed-AP'
+            set wireless.default_radio0.encryption='none'
+            set wireless.radio1.country='CN'
+            set wireless.radio1.disabled='0'
+            set wireless.default_radio1.ssid='N1-Breed-AP-5G'
+            set wireless.default_radio1.encryption='none'
+            commit wireless
+            EOF
+      - name: Upload
+        uses: softprops/action-gh-release@v2
+        if: ${{ !cancelled() }}
         with:
-          repository: fanchmwrt/fanchmwrt
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          ref: ${{ matrix.branch }}
-
-      # ==================== 编译缓存 ====================
-      - name: Cache ccache and dl directory
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.ccache
-            ./dl
-          key: ${{ runner.os }}-openwrt-${{ matrix.short_name }}-${{ hashFiles('feeds.conf.default') }}
-          restore-keys: |
-            ${{ runner.os }}-openwrt-${{ matrix.short_name }}-
-            ${{ runner.os }}-openwrt-
-
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential libncurses5-dev gawk git subversion \
-            libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd \
-            quilt bison flex pkgconf libelf-dev ccache
-
-      - name: Enable ccache
-        run: |
-          echo "USE_CCACHE=1" >> $GITHUB_ENV
-          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
-          ccache -M 10G
-          ccache -s
-
-      # ==================== 分支差异化处理 ====================
-      - name: Add third-party feeds (24.10)
-        if: matrix.feeds_special == true
-        run: |
-          # 对 feeds.conf.default 进行 commit 锁定处理
-          sed -i '/packages/ { s/\^[a-f0-9]\{40\}// }' feeds.conf.default
-          sed -i '/packages/!s/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
-          cat >> feeds.conf.default << 'EOF'
-          src-git openclash https://github.com/vernesong/OpenClash.git
-          EOF
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Add third-party feeds (25.12)
-        if: matrix.rust_fix == true
-        run: |
-          cat >> feeds.conf.default << EOF
-          src-git openclash https://github.com/vernesong/OpenClash.git
-          EOF
-          sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Fix rust (25.12)
-        if: matrix.rust_fix == true
-        run: |
-          sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-
-      - name: Replace
-        run: |
-          CUSTOM_REV="r$(date +'%Y-%-m-%-d')"
-          echo "Injecting custom revision: ${CUSTOM_REV}"
-
-          # 替换 %R 占位符
-          sed -i "s/%R/${CUSTOM_REV}/g" package/base-files/files/etc/openwrt_release
-
-          # 显示修改后的内容以供确认
-          echo "Modified template:"
-          cat package/base-files/files/etc/openwrt_release
-
-      # ==================== 通用配置 ====================
-      - name: Build config
-        run: |
-          cat > .config << EOF
-          CONFIG_TARGET_x86=y
-          CONFIG_TARGET_x86_64=y
-          CONFIG_TARGET_x86_64_Generic=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
-          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
-          CONFIG_TARGET_ROOTFS_EXT4FS=n
-          CONFIG_PACKAGE_omcproxy=n
-          CONFIG_PACKAGE_igmpproxy=y
-          # 基础工具
-          CONFIG_PACKAGE_cfdisk=y
-          CONFIG_PACKAGE_which=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_sudo=y
-          CONFIG_PACKAGE_wget-ssl=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_unzip=y
-          CONFIG_PACKAGE_zip=y
-          CONFIG_PACKAGE_nano=y
-          CONFIG_PACKAGE_vim-full=y
-          CONFIG_PACKAGE_net-tools=y
-          CONFIG_PACKAGE_iproute2=y
-          CONFIG_PACKAGE_traceroute=y
-          CONFIG_PACKAGE_tcpdump=y
-          CONFIG_PACKAGE_mtr=y
-          CONFIG_PACKAGE_nmap=n
-          CONFIG_PACKAGE_iperf3=y
-          CONFIG_PACKAGE_bind-dig=y
-          CONFIG_PACKAGE_ethtool=y
-          CONFIG_PACKAGE_bridge-utils=y
-          CONFIG_PACKAGE_strace=y
-          CONFIG_PACKAGE_lsof=y
-          CONFIG_PACKAGE_iftop=y
-          CONFIG_PACKAGE_arping=y
-          CONFIG_PACKAGE_psmisc=y
-          CONFIG_PACKAGE_procps-ng=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_tree=y
-          # LuCI基础
-          CONFIG_PACKAGE_uhttpd=y
-          CONFIG_PACKAGE_uhttpd-mod-ubus=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-lib-nixio=y
-          CONFIG_PACKAGE_luci-lib-jsonc=y
-          CONFIG_PACKAGE_luci-lib-ip=y
-          CONFIG_PACKAGE_rpcd=y
-          CONFIG_PACKAGE_rpcd-mod-luci=y
-          CONFIG_PACKAGE_lua=y
-          CONFIG_PACKAGE_luci-mod-admin-full=y
-          CONFIG_PACKAGE_luci-mod-network=y
-          CONFIG_PACKAGE_luci-mod-firewall=y
-          CONFIG_PACKAGE_luci-mod-system=y
-          CONFIG_PACKAGE_luci-mod-status=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_luci-theme-bootstrap=y
-          CONFIG_PACKAGE_luci-theme-argon=y
-          # Docker相关
-          CONFIG_PACKAGE_docker=y
-          CONFIG_PACKAGE_dockerd=y
-          CONFIG_PACKAGE_docker-compose=y
-          CONFIG_PACKAGE_luci-app-dockerman=y
-          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
-          CONFIG_PACKAGE_libnetwork=y
-          CONFIG_PACKAGE_kmod-nft-fib=y
-          CONFIG_PACKAGE_kmod-nf-flow=y
-          CONFIG_PACKAGE_kmod-nft-nat=y
-          CONFIG_PACKAGE_kmod-nft-offload=y
-          CONFIG_PACKAGE_kmod-ipt-nat6=y
-          CONFIG_PACKAGE_kmod-ipt-raw=y
-          CONFIG_PACKAGE_kmod-ipt-udp=y
-          CONFIG_PACKAGE_kmod-ipt-conntrack=y
-          CONFIG_PACKAGE_kmod-ipt-nat=y
-          CONFIG_PACKAGE_kmod-libcgroup=y
-          CONFIG_PACKAGE_kmod-overlay=y
-          CONFIG_PACKAGE_kmod-veth=y
-          # IPsec VPN
-          CONFIG_PACKAGE_luci-app-ipsec-vpn=y
-          CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
-          CONFIG_PACKAGE_xl2tpd=y
-          CONFIG_PACKAGE_ppp-mod-pptp=y
-          CONFIG_PACKAGE_luci-proto-ppp=y
-          CONFIG_PACKAGE_luci-proto-l2tp=y
-          CONFIG_PACKAGE_kmod-ipsec=y
-          CONFIG_PACKAGE_kmod-ipsec4=y
-          CONFIG_PACKAGE_kmod-ipsec6=y
-          CONFIG_PACKAGE_kmod-tun=y
-          CONFIG_KERNEL_CRYPTO_AES=y
-          CONFIG_KERNEL_CRYPTO_SHA1=y
-          CONFIG_KERNEL_CRYPTO_HMAC=y
-          CONFIG_KERNEL_CRYPTO_XFRM=y
-          CONFIG_KERNEL_XFRM_USER=y
-          CONFIG_KERNEL_XFRM_IPCOMP=y
-          CONFIG_KERNEL_NET_KEY=y
-          CONFIG_KERNEL_INET_AH=y
-          CONFIG_KERNEL_INET_ESP=y
-          CONFIG_KERNEL_INET_IPCOMP=y
-          CONFIG_KERNEL_INET_XFRM_MODE_TRANSPORT=y
-          CONFIG_KERNEL_INET_XFRM_MODE_TUNNEL=y
-          CONFIG_PACKAGE_iptables-mod-extra=y
-          CONFIG_PACKAGE_iptables-mod-ipopt=y
-          CONFIG_PACKAGE_ip6tables=y
-          CONFIG_PACKAGE_ipip=y
-          CONFIG_PACKAGE_vxlan=y
-          CONFIG_PACKAGE_luci-proto-ipip=y
-          CONFIG_PACKAGE_luci-proto-vxlan=y
-          CONFIG_PACKAGE_luci-proto-ipv6=y
-          # 其他基础
-          CONFIG_PACKAGE_ttyd=y
-          CONFIG_PACKAGE_ucode-mod-socket=y
-          # DDNS
-          CONFIG_PACKAGE_luci-app-ddns=y
-          CONFIG_PACKAGE_ddns-scripts=y
-          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
-          # UDPXY
-          CONFIG_PACKAGE_luci-app-udpxy=y
-          # 防火墙
-          CONFIG_PACKAGE_luci-app-firewall=y
-          CONFIG_PACKAGE_firewall=y
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_nftables=y
-          # OpenClash
-          CONFIG_PACKAGE_luci-app-openclash=y
-          CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
-          CONFIG_PACKAGE_clash-meta=y
-          CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
-          CONFIG_PACKAGE_luci-app-passwall=n
-          EOF
-          make defconfig
-          echo "✅ 配置完成 (${{ matrix.branch }})"
-
-      - name: List luci-app plugins status
-        run: |
-          echo -e "\n=================================================="
-          echo -e "📋 luci-app-* plugins (${{ matrix.branch }})"
-          echo -e "==================================================\n"
-          if [ -f .config ]; then
-            grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
-              if echo "$line" | grep -q '=y\|=m'; then
-                name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
-                echo " ✔️ $name"
-              else
-                name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
-                echo " ❌ $name"
-              fi
-            done
-          fi
-          echo -e "==================================================\n"
-
-      - name: Build OpenWrt firmware
-        id: build
-        run: |
-          set +e
-          echo "开始编译 OpenWrt 固件 (${{ matrix.branch }}) - 多线程模式..."
-          make -j$(nproc) 2>&1 | tee build.log
-          BUILD_RESULT=${PIPESTATUS[0]}
-          
-          if [ $BUILD_RESULT -ne 0 ]; then
-            echo -e "\n❌ 多线程编译失败，切换单线程+详细日志重编..."
-            make clean
-            make -j1 V=s 2>&1 | tee -a build.log
-            BUILD_RESULT=${PIPESTATUS[0]}
-          fi
-          
-          set -e
-          ccache -s
-          
-          if [ $BUILD_RESULT -eq 0 ]; then
-            echo "✅ 编译成功"
-            echo "build_status=success" >> $GITHUB_OUTPUT
-          else
-            echo "❌ 编译失败"
-            echo "build_status=failed" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-      - name: Compress squashfs firmware
-        if: steps.build.outputs.build_status == 'success'
-        run: |
-          echo "📦 压缩 squashfs 固件..."
-          for firmware_file in bin/targets/*/*/*squashfs*; do
-            if [ -f "${firmware_file}" ]; then
-              echo "✅ 压缩: ${firmware_file}"
-              gzip "${firmware_file}"
-            fi
-          done
-          ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
-
-      - name: Upload compressed firmware
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwrt-${{ matrix.short_name }}-${{ needs.prepare.outputs.build_time }}
-          path: bin/targets/*/*/*squashfs*.gz
-          retention-days: 30
-
-      - name: Upload build config
-        if: steps.build.outputs.build_status == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: config-${{ matrix.short_name }}
-          path: .config
-          retention-days: 30
-
-      - name: Upload build logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: logs-${{ matrix.short_name }}
-          path: build.log
-          retention-days: 7
-
-      - name: Show build summary on failure
-        if: failure()
-        run: |
-          echo "❌ 编译失败 (${{ matrix.branch }}) - 最后 200 行日志:"
-          tail -n 200 build.log
-
-  build-summary:
-    name: Build Summary
-    runs-on: ubuntu-latest
-    needs: [prepare, build-firmware]
-    if: always()
-    
-    steps:
-      - name: Generate dynamic summary
-        run: |
-          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          # 📦 OpenWrt x86_64 Firmware Build Summary
-
-          <table>
-          <tr>
-            <td><strong>⏱️ Overall Build Time</strong></td>
-            <td><code>${{ needs.prepare.outputs.build_time }}</code></td>
-          </tr>
-          <tr>
-            <td><strong>🔗 Workflow Run</strong></td>
-            <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>#${{ github.run_id }}</code></a></td>
-          </tr>
-          </table>
-
-          ---
-
-          ## 🧩 Build Matrix Results
-
-          | 🌿 Branch | ✅ Status | 📦 Artifacts |
-          |-----------|----------|--------------|
-          | `fanchmwrt-24.10.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
-          | `fanchmwrt-25.12.2` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
-
-          > ℹ️ *Each branch artifact is timestamped and includes full build logs.*
-
-          ---
-
-          ## 🎯 Target Configuration (All Branches)
-
-          <table>
-          <tr><td>🖥️ <strong>Platform</strong></td><td><code>x86_64 Generic</code></td></tr>
-          <tr><td>🧩 <strong>Kernel Partition</strong></td><td><code>100 MB</code></td></tr>
-          <tr><td>💾 <strong>Root Filesystem</strong></td><td><code>1024 MB (Ext4, persistent /var)</code></td></tr>
-          </table>
-
-          ---
-
-          ## 🧰 Included Core Applications
-
-          | 📱 Application | 📝 Description |
-          |----------------|----------------|
-          | `luci-app-openclash` | 🚀 OpenClash proxy client |
-          | `luci-app-dockerman` | 🐳 Docker management UI |
-          | `luci-app-ipsec-vpn` | 🔒 IPsec VPN support |
-          | `luci-app-ddns` | 🌐 Dynamic DNS client |
-          | `luci-app-udpxy` | 📺 UDP multicast proxy |
-          | `luci-app-firewall` | 🛡️ Firewall configuration |
-
-          ---
-
-          ## ⚙️ Build Features
-
-          - **📡 Feeds:** Official OpenWrt + OpenClash (vernesong)
-          - **⚡ Compiler Cache:** `ccache` (10 GB) + `dl/` directory caching
-          - **🔄 Retry Strategy:** Parallel build → fallback to single-threaded verbose build
-          - **📦 Artifacts:** Squashfs images (gzipped), config, logs
-
-          <details>
-          <summary>🔍 Click to expand build environment details</summary>
-
-          - **Runner:** Ubuntu 24.04
-          - **Ccache max size:** 10 GiB
-          - **Parallel jobs:** `$(nproc)`
-          </details>
-
-          ---
-
-          <p align="center">
-            <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
-              <img src="https://img.shields.io/badge/View%20All%20Artifacts-%F0%9F%93%A6-blue?style=for-the-badge" alt="View all artifacts">
-            </a>
-          </p>
-          EOF
+          name: N1-Firmware
+          tag: ${{ env.DATE }}
+          files: out/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
