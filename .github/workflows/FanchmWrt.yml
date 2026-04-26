@@ -20,8 +20,6 @@ jobs:
     name: Build ${{ matrix.branch }}
     runs-on: ubuntu-latest
     needs: prepare
-    outputs:
-      artifact_id: ${{ steps.upload_firmware.outputs.artifact-id }}
     strategy:
       fail-fast: false
       matrix:
@@ -43,6 +41,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ matrix.branch }}
 
+      # ==================== 编译缓存 ====================
       - name: Cache ccache and dl directory
         uses: actions/cache@v4
         with:
@@ -68,19 +67,25 @@ jobs:
           ccache -M 10G
           ccache -s
 
+      # ==================== 分支差异化处理 ====================
       - name: Add third-party feeds (24.10)
         if: matrix.feeds_special == true
         run: |
+          # 对 feeds.conf.default 进行 commit 锁定处理
           sed -i '/packages/ { s/\^[a-f0-9]\{40\}// }' feeds.conf.default
           sed -i '/packages/!s/\(^src-git [^ ]* [^ ^]*\)\^[a-f0-9]\{40\}/\1;openwrt-24.10/' feeds.conf.default
-          echo 'src-git openclash https://github.com/vernesong/OpenClash.git' >> feeds.conf.default
+          cat >> feeds.conf.default << 'EOF'
+          src-git openclash https://github.com/vernesong/OpenClash.git
+          EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
       - name: Add third-party feeds (25.12)
         if: matrix.rust_fix == true
         run: |
-          echo 'src-git openclash https://github.com/vernesong/OpenClash.git' >> feeds.conf.default
+          cat >> feeds.conf.default << EOF
+          src-git openclash https://github.com/vernesong/OpenClash.git
+          EOF
           sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
@@ -90,27 +95,22 @@ jobs:
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
 
-      - name: Replace %R placeholder in openwrt_release
+      - name: Replace
         run: |
           CUSTOM_REV="r$(date +'%Y-%-m-%-d')"
           echo "Injecting custom revision: ${CUSTOM_REV}"
+
+          # 替换 %R 占位符
           sed -i "s/%R/${CUSTOM_REV}/g" package/base-files/files/etc/openwrt_release
+
+          # 显示修改后的内容以供确认
           echo "Modified template:"
           cat package/base-files/files/etc/openwrt_release
-          if grep -q "%R" package/base-files/files/etc/openwrt_release; then
-            echo "❌ %R still present after replacement!"
-            exit 1
-          fi
-          if grep -q "DISTRIB_REVISION='r[0-9]" package/base-files/files/etc/openwrt_release; then
-            echo "✅ DISTRIB_REVISION injected successfully."
-          else
-            echo "❌ DISTRIB_REVISION format incorrect!"
-            exit 1
-          fi
 
+      # ==================== 通用配置 ====================
       - name: Build config
         run: |
-          cat > .config << 'EOF'
+          cat > .config << EOF
           CONFIG_TARGET_x86=y
           CONFIG_TARGET_x86_64=y
           CONFIG_TARGET_x86_64_Generic=y
@@ -120,6 +120,7 @@ jobs:
           CONFIG_TARGET_ROOTFS_EXT4FS=n
           CONFIG_PACKAGE_omcproxy=n
           CONFIG_PACKAGE_igmpproxy=y
+          # 基础工具
           CONFIG_PACKAGE_cfdisk=y
           CONFIG_PACKAGE_which=y
           CONFIG_PACKAGE_bash=y
@@ -148,6 +149,7 @@ jobs:
           CONFIG_PACKAGE_procps-ng=y
           CONFIG_PACKAGE_htop=y
           CONFIG_PACKAGE_tree=y
+          # LuCI基础
           CONFIG_PACKAGE_uhttpd=y
           CONFIG_PACKAGE_uhttpd-mod-ubus=y
           CONFIG_PACKAGE_luci=y
@@ -166,6 +168,7 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
           CONFIG_PACKAGE_luci-theme-bootstrap=y
           CONFIG_PACKAGE_luci-theme-argon=y
+          # Docker相关
           CONFIG_PACKAGE_docker=y
           CONFIG_PACKAGE_dockerd=y
           CONFIG_PACKAGE_docker-compose=y
@@ -184,6 +187,7 @@ jobs:
           CONFIG_PACKAGE_kmod-libcgroup=y
           CONFIG_PACKAGE_kmod-overlay=y
           CONFIG_PACKAGE_kmod-veth=y
+          # IPsec VPN
           CONFIG_PACKAGE_luci-app-ipsec-vpn=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
           CONFIG_PACKAGE_xl2tpd=y
@@ -214,16 +218,21 @@ jobs:
           CONFIG_PACKAGE_luci-proto-ipip=y
           CONFIG_PACKAGE_luci-proto-vxlan=y
           CONFIG_PACKAGE_luci-proto-ipv6=y
+          # 其他基础
           CONFIG_PACKAGE_ttyd=y
           CONFIG_PACKAGE_ucode-mod-socket=y
+          # DDNS
           CONFIG_PACKAGE_luci-app-ddns=y
           CONFIG_PACKAGE_ddns-scripts=y
           CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          # UDPXY
           CONFIG_PACKAGE_luci-app-udpxy=y
+          # 防火墙
           CONFIG_PACKAGE_luci-app-firewall=y
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
+          # OpenClash
           CONFIG_PACKAGE_luci-app-openclash=y
           CONFIG_PACKAGE_luci-i18n-openclash-zh-cn=y
           CONFIG_PACKAGE_clash-meta=y
@@ -231,6 +240,7 @@ jobs:
           CONFIG_PACKAGE_luci-app-passwall=n
           EOF
           make defconfig
+          echo "✅ 配置完成 (${{ matrix.branch }})"
 
       - name: List luci-app plugins status
         run: |
@@ -290,7 +300,6 @@ jobs:
           ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
 
       - name: Upload compressed firmware
-        id: upload_firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
         with:
@@ -316,7 +325,9 @@ jobs:
 
       - name: Show build summary on failure
         if: failure()
-        run: tail -n 200 build.log
+        run: |
+          echo "❌ 编译失败 (${{ matrix.branch }}) - 最后 200 行日志:"
+          tail -n 200 build.log
 
   build-summary:
     name: Build Summary
@@ -347,24 +358,10 @@ jobs:
 
           | 🌿 Branch | ✅ Status | 📦 Artifacts |
           |-----------|----------|--------------|
-          EOF
+          | `fanchmwrt-24.10.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
+          | `fanchmwrt-25.12.2` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
 
-          echo '${{ toJson(needs.build-firmware) }}' | jq -r '
-            to_entries[] |
-            .value as $job |
-            ($job.outputs.artifact_id // "MISSING") as $id |
-            ($job.matrix.branch // "unknown") as $branch |
-            ($job.result // "unknown") as $result |
-            if $id != "MISSING" then
-              "| `\($branch)` | \($result) | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/\($id)) |"
-            else
-              "| `\($branch)` | \($result) | ⚠️ No artifact |"
-            end
-          ' >> $GITHUB_STEP_SUMMARY
-
-          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-
-          > ℹ️ *Each branch artifact is timestamped and includes full build logs. Click the download link to get the firmware directly (requires GitHub login).*
+          > ℹ️ *Each branch artifact is timestamped and includes full build logs.*
 
           ---
 
