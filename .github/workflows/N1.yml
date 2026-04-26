@@ -1,4 +1,4 @@
-name: Build N1
+name: Build N1 OpenWrt
 on:
   workflow_dispatch:
 jobs:
@@ -8,46 +8,41 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        uses: stupidlabs/oneclick-openwrt@main
-        env:
-          REPO_URL: https://github.com/openwrt/openwrt
-          REPO_BRANCH: openwrt-23.05
-          CONFIG_FILE: .config
-          TZ: Asia/Shanghai
-          EXTRA_SH: |
-            echo "CONFIG_TARGET_armvirt=y
-            CONFIG_TARGET_armvirt_64=y
-            CONFIG_TARGET_armvirt_64_Default=y
-            CONFIG_PACKAGE_luci=y
-            CONFIG_PACKAGE_luci-base=y
-            CONFIG_PACKAGE_luci-mod-network=y
-            CONFIG_PACKAGE_luci-mod-wireless=y
-            CONFIG_PACKAGE_kmod-mt76=y
-            CONFIG_PACKAGE_hostapd=y
-            CONFIG_PACKAGE_wpad=y
-            CONFIG_PACKAGE_bridge=y" >> .config
-            sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-            sed -i 's/OpenWrt/N1-Breed-AP/g' package/base-files/files/bin/config_generate
-            uci -d batch << EOF
-            set dhcp.lan.ignore=1
-            commit dhcp
-            set wireless.radio0.country='CN'
-            set wireless.radio0.disabled='0'
-            set wireless.default_radio0.ssid='N1-Breed-AP'
-            set wireless.default_radio0.encryption='none'
-            set wireless.radio1.country='CN'
-            set wireless.radio1.disabled='0'
-            set wireless.default_radio1.ssid='N1-Breed-AP-5G'
-            set wireless.default_radio1.encryption='none'
-            commit wireless
-            EOF
-      - name: Upload
+      - name: Initialization environment
+        uses: P3TERX/gh-action-env@main
+      - name: Clone source code
+        run: |
+          git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+      - name: Configure firmware
+        run: |
+          cd openwrt
+          cat > .config << EOF
+          CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y
+          CONFIG_PACKAGE_hostapd=y
+          CONFIG_PACKAGE_kmod-mt76=y
+          EOF
+          sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+          sed -i '/dhcp.lan.ignore/d' package/base-files/files/bin/config_generate
+          sed -i '/exit 0/i uci set dhcp.lan.ignore=1\nuci commit dhcp' package/base-files/files/etc/rc.local
+          sed -i '/exit 0/i uci set wireless.radio0.disabled=0\nuci set wireless.default_radio0.ssid=N1-Breed-AP\nuci set wireless.default_radio0.encryption=none\nuci set wireless.radio1.disabled=0\nuci set wireless.default_radio1.ssid=N1-Breed-AP-5G\nuci set wireless.default_radio1.encryption=none\nuci commit wireless' package/base-files/files/etc/rc.local
+      - name: Compile firmware
+        run: |
+          cd openwrt
+          make defconfig
+          make -j$(nproc)
+      - name: Upload firmware
         uses: softprops/action-gh-release@v2
-        if: ${{ !cancelled() }}
+        if: success()
         with:
-          name: N1-Firmware
-          tag: ${{ env.DATE }}
-          files: out/*
+          name: N1-Breed-AP
+          tag: ${{ github.run_id }}
+          files: openwrt/bin/targets/armvirt/64/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
