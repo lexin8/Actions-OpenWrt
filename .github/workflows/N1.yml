@@ -44,21 +44,28 @@ jobs:
           make defconfig
           make -j$(nproc)
 
+      - name: Find rootfs firmware
+        run: |
+          ROOTFS_FILE=$(find $GITHUB_WORKSPACE/openwrt/bin/targets -name "*rootfs.tar.gz" | head -n 1)
+          mkdir -p $GITHUB_WORKSPACE/openwrt/bin/targets/armvirt/64/
+          cp -f $ROOTFS_FILE $GITHUB_WORKSPACE/openwrt/bin/targets/armvirt/64/
+          echo "Found firmware: $ROOTFS_FILE"
+
       - name: Make OpenWrt
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
-          openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
+          mode: ophub
           openwrt_board: s905d
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
           auto_kernel: true
+          openwrt_path: openwrt/bin/targets/armvirt/64/*rootfs.tar.gz
+          kernel_repo: ophub/kernel
+          kernel_usage: stable
 
       - name: Compress squashfs firmware
         run: |
-          cd $GITHUB_WORKSPACE
-          for f in out/*.img; do
-            [ -f "$f" ] && gzip "$f"
-          done
+          find $GITHUB_WORKSPACE -name "*.img" -exec gzip {} \;
 
       - name: Upload compressed firmware
         uses: actions/upload-artifact@v4
