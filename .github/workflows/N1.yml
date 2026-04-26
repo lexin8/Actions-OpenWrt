@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  ophub:
+  # 1. 编译 OpenWrt 23.05 官方版
+  openwrt_official:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -13,16 +14,15 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3
-      - name: Clone OpenWrt
+      - name: Clone OpenWrt 23.05
         run: |
           git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-      - name: Build config
+      - name: Build Config
         run: |
           cd openwrt
-          # 写入 .config
           cat > .config << EOF
           CONFIG_TARGET_armsr=y
           CONFIG_TARGET_armsr_armv8=y
@@ -34,28 +34,18 @@ jobs:
           CONFIG_ARCH_arm64=y
           CONFIG_64BIT=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_wpa-supplicant=y
-          CONFIG_PACKAGE_kmod-brcmfmac=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43430-sdio=y
-          CONFIG_PACKAGE_wireless-tools=y
+          CONFIG_PACKAGE_wpad-mini=y
           CONFIG_PACKAGE_iw=y
           CONFIG_PACKAGE_kmod-bridge=y
-          CONFIG_PACKAGE_bridge=y
-          CONFIG_PACKAGE_hostapd-common=y
           EOF
 
-          # 创建预置配置（交换机+AP，关DHCP，WiFi名N1无密码）
+          # 预置网络配置（静态IP 192.168.1.2，关闭DHCP）
           mkdir -p files/etc/config
-
-          cat > files/etc/config/network << NETEOF
+          cat > files/etc/config/network << EOF
           config interface 'loopback'
                   option device 'lo'
                   option proto 'static'
                   option ipaddr '127.0.0.1'
-                  option netmask '255.0.0.0'
-
           config interface 'lan'
                   option device 'br-lan'
                   option proto 'static'
@@ -63,112 +53,58 @@ jobs:
                   option netmask '255.255.255.0'
                   option gateway '192.168.1.1'
                   list dns '192.168.1.1'
-
-          config device 'lan_eth0_dev'
-                  option name 'eth0'
-
           config bridge 'br_lan'
                   option name 'br-lan'
                   list ports 'eth0'
-          NETEOF
+          EOF
 
-          cat > files/etc/config/wireless << WIREOF
-          config wifi-device 'radio0'
-                  option type 'mac80211'
-                  option channel 'auto'
-                  option band '2g'
-                  option htmode 'HT20'
-                  option disabled '0'
-
-          config wifi-iface 'default_radio0'
-                  option device 'radio0'
-                  option network 'lan'
-                  option mode 'ap'
-                  option ssid 'N1'
-                  option encryption 'none'
-          WIREOF
-
-          cat > files/etc/config/dhcp << DHCPEOF
+          cat > files/etc/config/dhcp << EOF
           config dnsmasq
-                  option domainneeded '1'
-                  option boguspriv '1'
-                  option filterwin2k '0'
-                  option localise_queries '1'
-                  option rebind_protection '1'
-                  option rebind_localhost '1'
-                  option local '/lan/'
-                  option domain 'lan'
-                  option expandhosts '1'
-                  option nonegcache '0'
-                  option cachesize '1000'
                   option authoritative '1'
-                  option readethers '1'
-                  option leasefile '/tmp/dhcp.leases'
-                  option resolvfile '/tmp/resolv.conf.auto'
-                  option nonwildcard '1'
                   option localservice '1'
-                  option ednspacket_max '1232'
-
           config dhcp 'lan'
-                  option interface 'lan'
                   option ignore '1'
-
-          config dhcp 'wan'
-                  option interface 'wan'
-                  option ignore '1'
-          DHCPEOF
+          EOF
 
           make defconfig
-
-      - name: Verify Config
-        run: |
-          cd openwrt
-          grep -E "CONFIG_TARGET_armsr|CONFIG_ARCH_arm64|CONFIG_PACKAGE_kmod-brcmfmac" .config
-          if grep -q "CONFIG_TARGET_armsr_armv8=y" .config && grep -q "CONFIG_PACKAGE_kmod-brcmfmac=y" .config; then
-            echo "✅ Success"
-          else
-            echo "❌ Failed"
-            exit 1
-          fi
 
       - name: Compile
         run: |
           cd openwrt
-          make -j$(nproc)
-
-      - name: Check files
-        run: |
-          ls -lh openwrt/bin/targets/armsr/armv8/
-          find openwrt/bin/targets -name "*rootfs.tar.gz"
+          make -j$(($(nproc)/2)) || make -j1 V=s
 
       - name: Copy rootfs
         run: |
           find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
 
-      - name: Make Firmware
+      # ===================== OPHUB 核心打包：自动添加WiFi+EMMC =====================
+      - name: Make N1 Firmware
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
-          openwrt_board: s905d
-          openwrt_kernel: 5.15.y
+          openwrt_board: s905d        # N1 专用
+          openwrt_kernel: 6.1.y       # 稳定内核（自带WiFi）
           openwrt_ip: 192.168.1.2
-          auto_kernel: true
+          auto_kernel: true           # 自动匹配内核
+          add_amlogic: true           # 集成EMMC脚本
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-N1
+          name: OpenWrt-23.05-N1
           path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
           retention-days: 30
 
+  # 2. 编译 LEDE (coolsnowwolf) 版
   lede:
     runs-on: ubuntu-22.04
-    permissions: write-all
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - name: Install deps
         run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
-      - name: Clone lede
+      - name: Clone LEDE
         run: git clone https://github.com/coolsnowwolf/lede
       - name: Config
         run: |
@@ -185,26 +121,17 @@ jobs:
           CONFIG_ARCH_arm64=y
           CONFIG_64BIT=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_wpa-supplicant=y
-          CONFIG_PACKAGE_kmod-brcmfmac=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43430-sdio=y
-          CONFIG_PACKAGE_wireless-tools=y
+          CONFIG_PACKAGE_wpad-mini=y
           CONFIG_PACKAGE_iw=y
           CONFIG_PACKAGE_kmod-bridge=y
-          CONFIG_PACKAGE_bridge=y
-          CONFIG_PACKAGE_hostapd-common=y
           EOF
 
           mkdir -p files/etc/config
-          cat > files/etc/config/network << NETEOF
+          cat > files/etc/config/network << EOF
           config interface 'loopback'
                   option device 'lo'
                   option proto 'static'
                   option ipaddr '127.0.0.1'
-                  option netmask '255.0.0.0'
-
           config interface 'lan'
                   option device 'br-lan'
                   option proto 'static'
@@ -212,233 +139,42 @@ jobs:
                   option netmask '255.255.255.0'
                   option gateway '192.168.1.1'
                   list dns '192.168.1.1'
-
-          config device 'lan_eth0_dev'
-                  option name 'eth0'
-
           config bridge 'br_lan'
                   option name 'br-lan'
                   list ports 'eth0'
-          NETEOF
+          EOF
 
-          cat > files/etc/config/wireless << WIREOF
-          config wifi-device 'radio0'
-                  option type 'mac80211'
-                  option channel 'auto'
-                  option band '2g'
-                  option htmode 'HT20'
-                  option disabled '0'
-
-          config wifi-iface 'default_radio0'
-                  option device 'radio0'
-                  option network 'lan'
-                  option mode 'ap'
-                  option ssid 'N1'
-                  option encryption 'none'
-          WIREOF
-
-          cat > files/etc/config/dhcp << DHCPEOF
+          cat > files/etc/config/dhcp << EOF
           config dnsmasq
-                  option domainneeded '1'
-                  option boguspriv '1'
-                  option filterwin2k '0'
-                  option localise_queries '1'
-                  option rebind_protection '1'
-                  option rebind_localhost '1'
-                  option local '/lan/'
-                  option domain 'lan'
-                  option expandhosts '1'
-                  option nonegcache '0'
-                  option cachesize '1000'
                   option authoritative '1'
-                  option readethers '1'
-                  option leasefile '/tmp/dhcp.leases'
-                  option resolvfile '/tmp/resolv.conf.auto'
-                  option nonwildcard '1'
-                  option localservice '1'
-                  option ednspacket_max '1232'
-
           config dhcp 'lan'
-                  option interface 'lan'
                   option ignore '1'
-
-          config dhcp 'wan'
-                  option interface 'wan'
-                  option ignore '1'
-          DHCPEOF
+          EOF
 
           make defconfig
-
-      - name: Verify Config
-        run: |
-          cd lede
-          grep -E "CONFIG_TARGET_armsr|CONFIG_PACKAGE_kmod-brcmfmac" .config
-          if grep -q "CONFIG_TARGET_armsr_armv8=y" .config && grep -q "CONFIG_PACKAGE_kmod-brcmfmac=y" .config; then
-            echo "✅ Success"
-          else
-            echo "❌ Failed"
-            exit 1
-          fi
 
       - name: Compile
         run: |
           cd lede
-          make -j$(nproc)
+          make -j$(($(nproc)/2)) || make -j1 V=s
 
       - name: Copy rootfs
         run: find lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
 
-      - name: Build Firmware
+      # OPHUB 打包
+      - name: Make N1 Firmware
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
           openwrt_board: s905d
-          openwrt_kernel: 5.15.y
+          openwrt_kernel: 6.1.y
           openwrt_ip: 192.168.1.2
+          auto_kernel: true
+          add_amlogic: true
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Lede-N1
+          name: LEDE-N1
           path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
-
-  official:
-    runs-on: ubuntu-22.04
-    permissions: write-all
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install deps
-        run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
-      - name: Clone official
-        run: git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
-      - name: Config
-        run: |
-          cd openwrt
-          ./scripts/feeds update -a && ./scripts/feeds install -a
-          cat > .config << EOF
-          CONFIG_TARGET_armsr=y
-          CONFIG_TARGET_armsr_armv8=y
-          CONFIG_TARGET_armsr_armv8_DEVICE_generic=y
-          CONFIG_TARGET_BOARD="armsr"
-          CONFIG_TARGET_SUBTARGET="armv8"
-          CONFIG_TARGET_PROFILE="DEVICE_generic"
-          CONFIG_TARGET_ARCH_PACKAGES="aarch64_generic"
-          CONFIG_ARCH_arm64=y
-          CONFIG_64BIT=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_wpa-supplicant=y
-          CONFIG_PACKAGE_kmod-brcmfmac=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio=y
-          CONFIG_PACKAGE_brcmfmac-firmware-43430-sdio=y
-          CONFIG_PACKAGE_wireless-tools=y
-          CONFIG_PACKAGE_iw=y
-          CONFIG_PACKAGE_kmod-bridge=y
-          CONFIG_PACKAGE_bridge=y
-          CONFIG_PACKAGE_hostapd-common=y
-          EOF
-
-          mkdir -p files/etc/config
-          cat > files/etc/config/network << NETEOF
-          config interface 'loopback'
-                  option device 'lo'
-                  option proto 'static'
-                  option ipaddr '127.0.0.1'
-                  option netmask '255.0.0.0'
-
-          config interface 'lan'
-                  option device 'br-lan'
-                  option proto 'static'
-                  option ipaddr '192.168.1.2'
-                  option netmask '255.255.255.0'
-                  option gateway '192.168.1.1'
-                  list dns '192.168.1.1'
-
-          config device 'lan_eth0_dev'
-                  option name 'eth0'
-
-          config bridge 'br_lan'
-                  option name 'br-lan'
-                  list ports 'eth0'
-          NETEOF
-
-          cat > files/etc/config/wireless << WIREOF
-          config wifi-device 'radio0'
-                  option type 'mac80211'
-                  option channel 'auto'
-                  option band '2g'
-                  option htmode 'HT20'
-                  option disabled '0'
-
-          config wifi-iface 'default_radio0'
-                  option device 'radio0'
-                  option network 'lan'
-                  option mode 'ap'
-                  option ssid 'N1'
-                  option encryption 'none'
-          WIREOF
-
-          cat > files/etc/config/dhcp << DHCPEOF
-          config dnsmasq
-                  option domainneeded '1'
-                  option boguspriv '1'
-                  option filterwin2k '0'
-                  option localise_queries '1'
-                  option rebind_protection '1'
-                  option rebind_localhost '1'
-                  option local '/lan/'
-                  option domain 'lan'
-                  option expandhosts '1'
-                  option nonegcache '0'
-                  option cachesize '1000'
-                  option authoritative '1'
-                  option readethers '1'
-                  option leasefile '/tmp/dhcp.leases'
-                  option resolvfile '/tmp/resolv.conf.auto'
-                  option nonwildcard '1'
-                  option localservice '1'
-                  option ednspacket_max '1232'
-
-          config dhcp 'lan'
-                  option interface 'lan'
-                  option ignore '1'
-
-          config dhcp 'wan'
-                  option interface 'wan'
-                  option ignore '1'
-          DHCPEOF
-
-          make defconfig
-
-      - name: Verify Config
-        run: |
-          cd openwrt
-          grep -E "CONFIG_TARGET_armsr|CONFIG_PACKAGE_kmod-brcmfmac" .config
-          if grep -q "CONFIG_TARGET_armsr_armv8=y" .config && grep -q "CONFIG_PACKAGE_kmod-brcmfmac=y" .config; then
-            echo "✅ Success"
-          else
-            echo "❌ Failed"
-            exit 1
-          fi
-
-      - name: Compile
-        run: |
-          cd openwrt
-          make -j$(nproc)
-
-      - name: Copy rootfs
-        run: find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
-
-      - name: Build Firmware
-        uses: ophub/amlogic-s9xxx-openwrt@main
-        with:
-          openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
-          openwrt_board: s905d
-          openwrt_kernel: 5.15.y
-          openwrt_ip: 192.168.1.2
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: Official-N1
-          path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
+          retention-days: 30
