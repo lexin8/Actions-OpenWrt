@@ -42,12 +42,12 @@ jobs:
         run: |
           cd openwrt
           make defconfig
-          make -j2
+          make -j$(nproc)
 
       - name: Make OpenWrt
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
-          mode: ophub
+          openwrt_path: openwrt/bin/targets/*/*/*rootfs.tar.gz
           openwrt_board: s905d
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
@@ -55,10 +55,9 @@ jobs:
 
       - name: Compress squashfs firmware
         run: |
-          for firmware_file in out/*squashfs*; do
-            if [ -f "${firmware_file}" ]; then
-              gzip "${firmware_file}"
-            fi
+          cd $GITHUB_WORKSPACE
+          for f in out/*.img; do
+            [ -f "$f" ] && gzip "$f"
           done
 
       - name: Upload compressed firmware
@@ -78,21 +77,21 @@ jobs:
       - run: |
           cd lede
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          echo "CONFIG_TARGET_armvirt=y
+          cat > .config << EOF
+          CONFIG_TARGET_armvirt=y
           CONFIG_TARGET_armvirt_64=y
           CONFIG_TARGET_armvirt_64_Default=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y" > .config
+          CONFIG_PACKAGE_wpad=y
+          EOF
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
-          make -j2
+          make -j$(nproc)
       - name: Compress squashfs firmware
         run: |
           cd lede
           for firmware_file in bin/targets/*/*/*squashfs*; do
-            if [ -f "${firmware_file}" ]; then
-              gzip "${firmware_file}"
-            fi
+            [ -f "${firmware_file}" ] && gzip "${firmware_file}"
           done
       - name: Upload compressed firmware
         uses: actions/upload-artifact@v4
@@ -111,21 +110,21 @@ jobs:
       - run: |
           cd openwrt
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          echo "CONFIG_TARGET_armvirt=y
+          cat > .config << EOF
+          CONFIG_TARGET_armvirt=y
           CONFIG_TARGET_armvirt_64=y
           CONFIG_TARGET_armvirt_64_Default=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y" > .config
+          CONFIG_PACKAGE_wpad=y
+          EOF
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
-          make -j2
+          make -j$(nproc)
       - name: Compress squashfs firmware
         run: |
           cd openwrt
           for firmware_file in bin/targets/*/*/*squashfs*; do
-            if [ -f "${firmware_file}" ]; then
-              gzip "${firmware_file}"
-            fi
+            [ -f "${firmware_file}" ] && gzip "${firmware_file}"
           done
       - name: Upload compressed firmware
         uses: actions/upload-artifact@v4
