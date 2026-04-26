@@ -41,6 +41,7 @@ jobs:
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
           EOF
+          make defconfig
       - name: Verify Config
         run: |
           cd openwrt
@@ -109,6 +110,7 @@ jobs:
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
           EOF
+          make defconfig
       - name: Verify Config
         run: |
           cd lede
@@ -170,6 +172,7 @@ jobs:
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
           EOF
+          make defconfig
       - name: Verify Config
         run: |
           cd openwrt
