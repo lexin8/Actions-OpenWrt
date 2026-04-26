@@ -44,10 +44,18 @@ jobs:
           make defconfig
           make -j$(nproc)
 
+      # 编译完成后：递归检索 openwrt/bin 目录所有文件（调试用）
+      - name: List all files in openwrt/bin
+        run: |
+          echo "=== 编译输出文件目录结构 ==="
+          ls -lhR openwrt/bin/
+          echo "=== 检索 rootfs.tar.gz ==="
+          find openwrt/bin -name "*rootfs.tar.gz"
+
+      # 自动搜索并复制rootfs到固定路径
       - name: Find & Copy rootfs
         run: |
-          # 搜索固件并复制到固定路径
-          find ${GITHUB_WORKSPACE}/openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
+          find ${GITHUB_WORKSPACE}/openwrt/bin -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
 
       - name: Make OpenWrt
         uses: ophub/amlogic-s9xxx-openwrt@main
@@ -57,8 +65,6 @@ jobs:
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
           auto_kernel: true
-          kernel_repo: ophub/kernel
-          kernel_usage: stable
 
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
@@ -90,8 +96,15 @@ jobs:
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
           make -j$(nproc)
+      
+      # 检索lede/bin目录文件
+      - name: List all files in lede/bin
+        run: |
+          ls -lhR lede/bin/
+          find lede/bin -name "*rootfs.tar.gz"
+      
       - name: Find & Copy rootfs
-        run: find ${GITHUB_WORKSPACE}/lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
+        run: find ${GITHUB_WORKSPACE}/lede/bin -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
       - name: Package N1 Firmware
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
@@ -129,8 +142,15 @@ jobs:
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
           make -j$(nproc)
+      
+      # 检索official/bin目录文件
+      - name: List all files in openwrt/bin
+        run: |
+          ls -lhR openwrt/bin/
+          find openwrt/bin -name "*rootfs.tar.gz"
+      
       - name: Find & Copy rootfs
-        run: find ${GITHUB_WORKSPACE}/openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
+        run: find ${GITHUB_WORKSPACE}/openwrt/bin -name "*rootfs.tar.gz" -exec cp {} ${GITHUB_WORKSPACE}/rootfs.tar.gz \;
       - name: Package N1 Firmware
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
