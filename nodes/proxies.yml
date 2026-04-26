@@ -1,71 +1,18 @@
 proxy-providers: {}
 proxies:
-- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 246.17MB/s"
+- name: "\U0001F1E8\U0001F1FE CY 001 | ⬇️ 163.98MB/s"
   network: ws
-  port: 2096
-  server: 104.18.32.47
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
+  port: 443
+  server: 77.75.199.43
+  servername: sni.111000.cc.cd
   tls: true
   type: vless
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.111000.indevs.in
-    path: /?ed
-- client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 240.45MB/s"
-  network: ws
-  port: 2096
-  server: 192.0.54.238
-  servername: sni.jpmj.dev
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.jpmj.dev
-    path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
-- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 231.94MB/s"
-  network: ws
-  port: 2096
-  server: 92.53.191.138
-  servername: sni.111000.indevs.in
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
+      Host: sni.111000.cc.cd
     path: /
-- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 231.90MB/s"
-  network: ws
-  port: 2096
-  server: 45.128.76.191
-  servername: sni.my111000.tech
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.my111000.tech
-    path: "Telegram\U0001F1E8\U0001F1F3@WangCai2/"
-- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 229.37MB/s"
-  network: ws
-  port: 2096
-  server: 104.18.16.56
-  servername: sni.111000.indevs.in
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /
-- name: "\U0001F3F3️ KZ 001 | ⬇️ 223.27MB/s"
+- name: "\U0001F3F3️ KZ 001 | ⬇️ 159.21MB/s"
   network: ws
   port: 2096
   server: 194.59.5.238
@@ -79,80 +26,21 @@ proxies:
     headers:
       Host: sni.jpmj.dev
     path: /?telegram%F0%9F%87%A8%F0%9F%87%B3+%40wangcai2=
-- name: "\U0001F1E8\U0001F1FE CY 001 | ⬇️ 214.42MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 148.11MB/s"
   network: ws
-  port: 443
-  server: 77.75.199.43
-  servername: sni.111000.cc.cd
+  port: 2096
+  server: 104.18.32.47
+  servername: sni.111000.indevs.in
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.111000.cc.cd
-    path: /
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 174.59MB/s"
-  port: 180
-  server: 82.198.246.37
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 157.63MB/s"
-  network: ws
-  port: 8443
-  server: 45.62.117.35
-  servername: sni.skylee4.cloudns.ch
-  tls: true
-  type: vless
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  ws-opts:
-    headers:
-      Host: sni.skylee4.cloudns.ch
-    path: /proxyip=ProxyIP.CMLiussss.net
-- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 129.80MB/s"
-  network: ws
-  port: 443
-  server: 91.193.58.247
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 117.04MB/s"
-  network: ws
-  port: 443
-  server: 91.193.58.49
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 113.72MB/s"
-  network: ws
-  port: 2053
-  server: 154.17.229.84
-  servername: sni.skylee4.cloudns.ch
-  tls: true
-  type: vless
-  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
-  ws-opts:
-    headers:
-      Host: sni.skylee4.cloudns.ch
-    path: /proxyip=ProxyIP.CMLiussss.net
-- name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 99.12MB/s"
+      Host: sni.111000.indevs.in
+    path: /?ed
+- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 147.80MB/s"
   network: ws
   port: 443
   server: 91.193.58.74
@@ -166,7 +54,59 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 98.70MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 143.84MB/s"
+  network: ws
+  port: 2096
+  server: 92.53.191.138
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /
+- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 134.47MB/s"
+  network: ws
+  port: 2096
+  server: 104.18.16.56
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /
+- name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 127.55MB/s"
+  network: ws
+  port: 443
+  server: 91.193.58.49
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 125.47MB/s"
+  network: ws
+  port: 443
+  server: 91.193.58.200
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 124.34MB/s"
   network: ws
   port: 443
   server: 91.193.58.246
@@ -181,7 +121,22 @@ proxies:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 93.90MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 123.98MB/s"
+  network: ws
+  port: 2096
+  server: 192.0.54.238
+  servername: sni.jpmj.dev
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.jpmj.dev
+    path: "/?ed=2560&telegram\U0001F1E8\U0001F1F3+@wangcai2"
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 114.28MB/s"
   network: ws
   port: 8443
   server: 167.88.160.144
@@ -195,10 +150,22 @@ proxies:
     headers:
       Host: sni.111000.indevs.in
     path: /?ed=2560
-- name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 89.65MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 104.36MB/s"
+  network: ws
+  port: 2096
+  server: 45.128.76.191
+  servername: sni.my111000.tech
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.my111000.tech
+    path: "Telegram\U0001F1E8\U0001F1F3@WangCai2/"
+- name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 88.77MB/s"
   network: ws
   port: 443
-  server: 91.193.58.200
+  server: 91.193.58.247
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -209,588 +176,7 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 69.96MB/s"
-  network: tcp
-  port: 443
-  server: s111.okgfw.top
-  servername: u711541ud03ds111.okgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 872624ac-aa40-39b1-8232-f7270812c234
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 67.89MB/s"
-  network: tcp
-  port: 23576
-  reality-opts:
-    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-    short-id: "01"
-  server: 15.204.97.195
-  servername: fuck.rkn
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 64.20MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.202
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 63.81MB/s"
-  network: ws
-  port: 2053
-  server: 44.32.224.207
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 63.69MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.222
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 63.49MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.226
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 62.79MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.224
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 62.70MB/s"
-  network: ws
-  port: 443
-  server: 44.32.224.195
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 62.59MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.236
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 62.54MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.214
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 62.50MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.231
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 62.50MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.233
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 62.30MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.207
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 015 | ⬇️ 61.79MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.213
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 016 | ⬇️ 61.75MB/s"
-  network: ws
-  port: 443
-  server: 23.173.104.194
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 017 | ⬇️ 61.44MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.215
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 018 | ⬇️ 61.33MB/s"
-  network: ws
-  port: 443
-  server: 44.32.224.207
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 019 | ⬇️ 61.26MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.201
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 020 | ⬇️ 61.21MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.217
-  servername: sni.111000.v6.rocks
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 021 | ⬇️ 61.19MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.228
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 022 | ⬇️ 61.13MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.206
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 023 | ⬇️ 61.12MB/s"
-  network: ws
-  port: 2053
-  server: 44.32.224.208
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 024 | ⬇️ 61.09MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.204
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 025 | ⬇️ 61.04MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.194
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 026 | ⬇️ 61.00MB/s"
-  network: ws
-  port: 443
-  server: 44.32.224.197
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 027 | ⬇️ 60.94MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.212
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 028 | ⬇️ 60.92MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.216
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 029 | ⬇️ 60.77MB/s"
-  network: ws
-  port: 443
-  server: 23.173.104.205
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 030 | ⬇️ 60.77MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.203
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 031 | ⬇️ 60.75MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.239
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 032 | ⬇️ 60.23MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.205
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 033 | ⬇️ 59.44MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.225
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 034 | ⬇️ 58.73MB/s"
-  network: ws
-  port: 2053
-  server: 44.32.224.198
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 035 | ⬇️ 58.46MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.234
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 036 | ⬇️ 57.04MB/s"
-  network: ws
-  port: 443
-  server: 44.32.224.196
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 47.46MB/s"
-  network: tcp
-  port: 443
-  server: s843.ccgfw.top
-  servername: u711541uc91cs843.ccgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 872624ac-aa40-39b1-8232-f7270812c234
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 41.53MB/s"
-  network: tcp
-  port: 443
-  server: s844.ccgfw.top
-  servername: u711541u55c0s844.ccgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 872624ac-aa40-39b1-8232-f7270812c234
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 37.89MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
-    short-id: ff776ff77be48b88
-  server: 152.53.80.40
-  servername: sha.helper-internet.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e6567a1e-260f-4b0e-8de3-e2e12f90e854
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 36.03MB/s"
-  network: tcp
-  port: 443
-  server: s246.ccgfw.top
-  servername: u711541u6aa4s246.ccgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 872624ac-aa40-39b1-8232-f7270812c234
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 33.03MB/s"
-  password: W74XFALLLuw6m5IA
-  port: 443
-  server: series-a1.samanehha.co
-  type: ss
-- name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 31.64MB/s"
-  password: e136d465-0558-43b9-b50c-b1f45d4cb2c2
-  port: 24534
-  server: jp2-8sb.6121999.dpdns.org
-  skip-cert-verify: false
-  sni: jp2-8sb.6121999.dpdns.org
-  tls: true
-  type: trojan
-- name: "\U0001F1EC\U0001F1E7 GB 007 | ⬇️ 30.73MB/s"
-  network: tcp
-  port: 8443
-  server: uk1.fromblancwithlove.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 30.28MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 138.124.32.121
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 29.84MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001269pz2.cybervena.com
-  type: ss
-- name: "\U0001F1E8\U0001F1E6 CA 037 | ⬇️ 29.65MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 87.33MB/s"
   network: ws
   port: 443
   server: 68.183.207.130
@@ -804,7 +190,599 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1EC\U0001F1E7 GB 008 | ⬇️ 29.63MB/s"
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 75.11MB/s"
+  port: 180
+  server: 82.198.246.9
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 73.96MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.226
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 73.78MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.225
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 73.76MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.237
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 73.64MB/s"
+  network: ws
+  port: 443
+  server: 44.32.224.197
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 73.22MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.207
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 73.11MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.205
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 72.90MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.224
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 72.82MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.233
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 72.41MB/s"
+  network: ws
+  port: 443
+  server: 44.32.224.195
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 72.09MB/s"
+  network: ws
+  port: 2053
+  server: 44.32.224.207
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 015 | ⬇️ 72.05MB/s"
+  network: ws
+  port: 443
+  server: 44.32.224.196
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 016 | ⬇️ 72.03MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.202
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 017 | ⬇️ 71.88MB/s"
+  network: ws
+  port: 2053
+  server: 44.32.224.198
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 018 | ⬇️ 70.98MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.212
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 019 | ⬇️ 70.96MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.203
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 020 | ⬇️ 70.88MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.216
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 021 | ⬇️ 70.81MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.236
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 022 | ⬇️ 70.79MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.206
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 023 | ⬇️ 70.64MB/s"
+  network: ws
+  port: 443
+  server: 44.32.224.207
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 024 | ⬇️ 70.55MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.194
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 025 | ⬇️ 70.49MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.213
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 026 | ⬇️ 70.29MB/s"
+  network: ws
+  port: 443
+  server: 23.173.104.205
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 027 | ⬇️ 69.83MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.217
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 028 | ⬇️ 69.81MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.228
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 029 | ⬇️ 69.65MB/s"
+  network: ws
+  port: 443
+  server: 23.173.104.194
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 030 | ⬇️ 69.48MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.201
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 031 | ⬇️ 69.27MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.214
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 032 | ⬇️ 69.02MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.239
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 033 | ⬇️ 68.31MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.231
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 034 | ⬇️ 68.13MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.234
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 68.10MB/s"
+  network: tcp
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: "01"
+  server: 15.204.97.195
+  servername: fuck.rkn
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- name: "\U0001F1E8\U0001F1E6 CA 035 | ⬇️ 67.66MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.204
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 036 | ⬇️ 66.44MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.222
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 037 | ⬇️ 65.49MB/s"
+  network: ws
+  port: 2053
+  server: 44.32.224.208
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 038 | ⬇️ 64.62MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.215
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 63.49MB/s"
+  network: ws
+  port: 8443
+  server: 45.62.117.35
+  servername: sni.skylee4.cloudns.ch
+  tls: true
+  type: vless
+  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
+  ws-opts:
+    headers:
+      Host: sni.skylee4.cloudns.ch
+    path: /proxyip=ProxyIP.CMLiussss.net
+- name: "\U0001F1E8\U0001F1E6 CA 039 | ⬇️ 63.15MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.229
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- client-fingerprint: random
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 57.72MB/s"
+  network: tcp
+  port: 443
+  server: s111.okgfw.top
+  servername: u711541ud03ds111.okgfw.top
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 872624ac-aa40-39b1-8232-f7270812c234
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 38.93MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
+    short-id: ff776ff77be48b88
+  server: 152.53.80.40
+  servername: sha.helper-internet.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e6567a1e-260f-4b0e-8de3-e2e12f90e854
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 35.53MB/s"
+  password: W74XFALLLuw6m5IA
+  port: 443
+  server: series-a1.samanehha.co
+  type: ss
+- name: "\U0001F1EC\U0001F1E7 GB 007 | ⬇️ 34.99MB/s"
+  network: tcp
+  port: 8443
+  server: uk1.fromblancwithlove.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- client-fingerprint: random
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 34.37MB/s"
+  network: tcp
+  port: 443
+  server: s720.okgfw.top
+  servername: u711541ue091s720.okgfw.top
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 872624ac-aa40-39b1-8232-f7270812c234
+- alpn:
+  - h2
+  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 32.95MB/s"
+  network: tcp
+  port: 8443
+  server: 195.181.173.199
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1EC\U0001F1E7 GB 008 | ⬇️ 31.91MB/s"
   network: ws
   port: 443
   server: 68.168.31.169
@@ -818,32 +796,7 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- alpn:
-  - h2
-  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 29.25MB/s"
-  network: tcp
-  port: 8443
-  server: 195.181.173.199
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 28.02MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 138.124.32.120
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 27.92MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 30.72MB/s"
   network: ws
   port: 44406
   server: 194.107.126.20
@@ -857,11 +810,25 @@ proxies:
     headers:
       Host: sni.latonyamadeline.ndjp.net
     path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 25.41MB/s"
+- name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 28.25MB/s"
+  password: e136d465-0558-43b9-b50c-b1f45d4cb2c2
+  port: 24534
+  server: jp2-8sb.6121999.dpdns.org
+  skip-cert-verify: false
+  sni: jp2-8sb.6121999.dpdns.org
+  tls: true
+  type: trojan
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 28.21MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001269pz2.cybervena.com
+  type: ss
+- name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 28.20MB/s"
   network: ws
   password: "1234567890"
-  port: 8443
-  server: 2.27.120.108
+  port: 443
+  server: 144.31.118.170
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -870,19 +837,34 @@ proxies:
     headers:
       Host: kfm-bn0.pages.dev
     path: /?ed=2560
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1F1\U0001F1F9 LT 001 | ⬇️ 25.33MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 28.15MB/s"
+  network: ws
+  password: "1234567890"
   port: 443
-  reality-opts:
-    public-key: DoZSKLwNQjogQMlE7oEEuB8TqpNa-umXzG-2Q6dTTEY
-    short-id: 4fa44664f6a566d3
-  server: lv.milas.click
-  servername: lv.milas.click
+  server: 138.124.32.121
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 27.66MB/s"
+  network: ws
+  port: 443
+  server: 144.31.7.95
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
   tls: true
   type: vless
-  uuid: 913c6074-a747-492b-a7e9-5abfcad6369d
-- name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 25.15MB/s"
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 27.52MB/s"
   network: ws
   port: 443
   server: 45.144.52.69
@@ -896,11 +878,11 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 24.10MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 27.49MB/s"
   network: ws
   password: "1234567890"
   port: 443
-  server: 138.124.28.78
+  server: 82.21.117.137
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -909,16 +891,111 @@ proxies:
     headers:
       Host: kfm-bn0.pages.dev
     path: /?ed=2560
-- client-fingerprint: chrome
+- client-fingerprint: random
   flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 23.53MB/s"
-  port: 52006
-  server: cluster-russia-1.firstvideocdn.ru
-  servername: cluster-russia-1.firstvideocdn.ru
+  name: "\U0001F1EA\U0001F1EA EE 001 | ⬇️ 27.26MB/s"
+  network: tcp
+  port: 443
+  server: s473.ccgfw.top
+  servername: u711541uefc5s473.ccgfw.top
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  uuid: 75807638-6f19-07d0-ae08-38492ee85c88
-- name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 23.48MB/s"
+  uuid: 872624ac-aa40-39b1-8232-f7270812c234
+- name: "\U0001F1EB\U0001F1EE FI 003 | ⬇️ 26.88MB/s"
+  network: ws
+  port: 443
+  server: 45.144.52.100
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 26.75MB/s"
+  network: ws
+  password: "1234567890"
+  port: 443
+  server: 194.87.77.91
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 26.65MB/s"
+  network: ws
+  password: "1234567890"
+  port: 443
+  server: 144.31.216.160
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- client-fingerprint: random
+  flow: xtls-rprx-vision
+  name: "\U0001F1F1\U0001F1F9 LT 001 | ⬇️ 26.60MB/s"
+  port: 443
+  reality-opts:
+    public-key: DoZSKLwNQjogQMlE7oEEuB8TqpNa-umXzG-2Q6dTTEY
+    short-id: 4fa44664f6a566d3
+  server: lv.milas.click
+  servername: lv.milas.click
+  tls: true
+  type: vless
+  uuid: 913c6074-a747-492b-a7e9-5abfcad6369d
+- client-fingerprint: chrome
+  name: "\U0001F1F1\U0001F1FB LV 001 | ⬇️ 26.48MB/s"
+  network: ws
+  port: 8443
+  server: 169.40.2.93
+  servername: sni.111000.v6.rocks
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 26.02MB/s"
+  network: ws
+  port: 2053
+  server: 176.125.240.147
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 26.01MB/s"
+  network: ws
+  password: "1234567890"
+  port: 8443
+  server: 138.124.87.163
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 25.84MB/s"
   network: ws
   port: 2053
   server: 176.125.240.63
@@ -932,25 +1009,11 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 23.41MB/s"
-  network: ws
-  port: 443
-  server: 212.113.119.194
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 23.08MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 25.76MB/s"
   network: ws
   password: "1234567890"
   port: 443
-  server: 148.253.215.61
+  server: 213.176.77.231
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -959,11 +1022,11 @@ proxies:
     headers:
       Host: kfm-bn0.pages.dev
     path: /?ed=2560
-- name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 22.64MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 25.67MB/s"
   network: ws
   password: "1234567890"
   port: 443
-  server: 194.87.77.91
+  server: 95.85.234.43
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -972,10 +1035,19 @@ proxies:
     headers:
       Host: kfm-bn0.pages.dev
     path: /?ed=2560
-- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 22.55MB/s"
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 25.58MB/s"
+  port: 52006
+  server: cluster-russia-1.firstvideocdn.ru
+  servername: cluster-russia-1.firstvideocdn.ru
+  tls: true
+  type: vless
+  uuid: 75807638-6f19-07d0-ae08-38492ee85c88
+- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 24.95MB/s"
   network: ws
   port: 443
-  server: 217.144.185.221
+  server: 213.165.38.161
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -986,143 +1058,7 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 22.20MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 144.31.218.10
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1E6\U0001F1F9 AT 002 | ⬇️ 22.19MB/s"
-  network: ws
-  port: 443
-  server: 85.192.27.113
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 22.13MB/s"
-  network: ws
-  port: 443
-  server: 83.147.254.14
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 009 | ⬇️ 21.94MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 93.123.84.194
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 010 | ⬇️ 21.78MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 82.21.117.137
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 011 | ⬇️ 21.76MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 138.124.28.173
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1F8\U0001F1EA SE 004 | ⬇️ 21.69MB/s"
-  network: ws
-  port: 443
-  server: 83.147.254.238
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1F1\U0001F1FB LV 001 | ⬇️ 21.63MB/s"
-  network: ws
-  port: 2053
-  server: 146.19.84.236
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 012 | ⬇️ 21.63MB/s"
-  network: ws
-  port: 443
-  server: 138.124.32.78
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /?ed=2560
-- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 21.47MB/s"
-  network: ws
-  port: 8443
-  server: 62.60.153.66
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: "\U0001F1E6\U0001F1F9 AT 003 | ⬇️ 21.30MB/s"
+- name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 24.80MB/s"
   network: ws
   port: 443
   server: 212.113.106.4
@@ -1136,7 +1072,55 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 21.26MB/s"
+- name: "\U0001F1EB\U0001F1EE FI 004 | ⬇️ 24.65MB/s"
+  network: ws
+  port: 443
+  server: 144.31.132.176
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EB\U0001F1EE FI 005 | ⬇️ 24.55MB/s"
+  password: yKVMoB3AwiTEznpnoq2FYR
+  port: 28687
+  server: 193.47.60.186
+  type: ss
+- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 24.51MB/s"
+  network: ws
+  port: 443
+  server: 217.144.185.221
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|GB_speednode_0084
+  network: ws
+  port: 443
+  server: 91.108.242.85
+  servername: sni.latonyamadeline.ndjp.net
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.latonyamadeline.ndjp.net
+    path: /?ed=2560
+- name: 13|US_speednode_0149
   network: ws
   port: 443
   server: 144.31.19.131
@@ -1150,10 +1134,150 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1F1\U0001F1FB LV 002 | ⬇️ 21.25MB/s"
+- name: 13|SG_speednode_0129
   network: ws
   port: 443
-  server: 169.40.4.32
+  server: 8.223.63.189
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|IN_speednode_0101
+  network: ws
+  port: 443
+  server: 103.71.22.186
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1F1\U0001F1FB LV 002 | ⬇️ 23.95MB/s"
+  network: ws
+  port: 2053
+  server: 146.19.84.236
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|AT_speednode_0002
+  network: ws
+  port: 443
+  server: 212.113.119.194
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|RU_speednode_0119
+  network: ws
+  port: 443
+  server: 85.192.27.113
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F3F3️ RS 001 | ⬇️ 23.37MB/s"
+  network: tcp
+  port: 8443
+  reality-opts:
+    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+  server: 2.56.172.83
+  servername: tradingview.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+- name: 13|SG_speednode_0132
+  network: ws
+  port: 443
+  server: 83.147.254.14
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|SG_speednode_0130
+  network: ws
+  port: 443
+  server: 83.147.252.92
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EB\U0001F1EE FI 006 | ⬇️ 22.41MB/s"
+  network: ws
+  port: 443
+  server: 64.188.73.248
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|SG_speednode_0133
+  network: ws
+  port: 443
+  server: 83.147.254.238
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EB\U0001F1EE FI 007 | ⬇️ 22.37MB/s"
+  network: ws
+  port: 443
+  server: 82.117.84.161
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1178,93 +1302,11 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 013 | ⬇️ 20.38MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 144.31.139.103
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1E9\U0001F1EA DE 014 | ⬇️ 20.35MB/s"
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 144.31.216.160
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: 13|LB_speednode_0109
-  network: ws
-  port: 443
-  server: 213.165.37.101
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: 13|SE_speednode_0128
-  network: ws
-  port: 2053
-  server: 46.226.164.44
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /?ed=2560
-- name: 13|SI_speednode_0134
-  network: ws
-  port: 443
-  server: 45.144.52.100
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: 13|LB_speednode_0111
-  network: ws
-  port: 443
-  server: 213.165.38.161
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: 13|DE_speednode_0058
+- name: 13|IR_speednode_0105
   network: ws
   port: 8443
-  server: 193.23.219.205
-  servername: sni.latonyamadeline.ndjp.net
+  server: 62.60.153.66
+  servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
   type: vless
@@ -1272,9 +1314,23 @@ proxies:
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.latonyamadeline.ndjp.net
+      Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: 13|SG_speednode_0131
+- name: "\U0001F1F1\U0001F1FB LV 003 | ⬇️ 21.52MB/s"
+  network: ws
+  port: 443
+  server: 169.40.4.32
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: "\U0001F1EB\U0001F1EE FI 008 | ⬇️ 21.48MB/s"
   network: ws
   port: 443
   server: 83.147.252.227
@@ -1288,10 +1344,39 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: 13|US_speednode_0148
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-118 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: wBrGfTI9PaFf966aN6KaCY0cL6QRLlop4nzNa6bJsiQ
+    short-id: 9f35da6c9412b832
+  server: 5.180.97.139
+  servername: google.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: a384c715-aeb5-45e8-859b-f687ca6c083f
+- client-fingerprint: chrome
+  name: 未知 VLESS-133 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
+    short-id: 5bfa0c
+  server: fi1.cyphervpn.pro
+  servername: fi1.cyphervpn.pro
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: f7bae22e-20ab-11f1-835c-0242ac110002
+- name: 13|DE_speednode_0061
   network: ws
   port: 443
-  server: 64.188.73.248
+  server: 193.23.200.38
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1302,10 +1387,35 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: 13|AU_speednode_0006
+- name: "\U0001F1F8\U0001F1EC 新加坡 210"
   network: ws
   port: 443
-  server: 82.117.84.161
+  server: 20.6.12.145
+  servername: sni.skylee4.cloudns.ch
+  tls: true
+  type: vless
+  uuid: 06b65903-406d-4a41-8463-6fd5c0ee7798
+  ws-opts:
+    headers:
+      Host: sni.skylee4.cloudns.ch
+    path: /proxyip=ProxyIP.CMLiussss.net
+- name: 13|DE_speednode_0064
+  network: ws
+  password: "1234567890"
+  port: 443
+  server: 185.65.202.222
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- name: 13|US_speednode_0168
+  network: ws
+  port: 443
+  server: 169.40.1.34
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1330,10 +1440,10 @@ proxies:
     headers:
       Host: sni.latonyamadeline.ndjp.net
     path: /?ed=2560
-- name: 13|SG_speednode_0130
+- name: 13|GB_speednode_0094
   network: ws
   port: 443
-  server: 83.147.252.92
+  server: 45.43.79.130
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1344,23 +1454,10 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: 13|DE_speednode_0064
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 185.65.202.222
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: 13|IN_speednode_0101
+- name: 13|LV_speednode_0114
   network: ws
   port: 443
-  server: 103.71.22.186
+  server: 46.32.186.85
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1371,26 +1468,34 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-128 | free-nodes
-  network: tcp
+- name: 13|LB_speednode_0109
+  network: ws
+  port: 443
+  server: 213.165.37.101
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|DE_speednode_0058
+  network: ws
   port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 82.117.255.37
-  servername: tradingview.com
+  server: 193.23.219.205
+  servername: sni.latonyamadeline.ndjp.net
   skip-cert-verify: false
-  tfo: false
   tls: true
   type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-53 | free-nodes
-  password: yKVMoB3AwiTEznpnoq2FYR
-  port: 28687
-  server: 193.47.60.186
-  type: ss
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.latonyamadeline.ndjp.net
+    path: /?ed=2560
 - name: 13|SC_speednode_0123
   network: ws
   password: "1234567890"
@@ -1418,57 +1523,36 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- name: 13|DE_speednode_0059
-  network: ws
-  password: "1234567890"
+- client-fingerprint: random
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US VLESS-151 | free-nodes"
+  network: tcp
   port: 443
-  server: 193.23.218.192
+  server: s844.ccgfw.top
+  servername: u711541u55c0s844.ccgfw.top
   skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 872624ac-aa40-39b1-8232-f7270812c234
+- name: 13|ES_speednode_0068
+  network: ws
+  port: 443
+  server: 194.48.143.131
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
   udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: kfm-bn0.pages.dev
+      Host: sni.111000.v6.rocks
     path: /?ed=2560
 - name: 13|ES_speednode_0069
   network: ws
   port: 443
   server: 194.124.210.128
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- name: 13|RU_speednode_0121
-  network: ws
-  port: 2053
-  server: 176.125.240.147
-  servername: sni.111000.v6.rocks
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-56 | free-nodes
-  password: MholStyHL7DhrewKbpQa20
-  port: 24637
-  server: 185.176.221.72
-  type: ss
-- name: 13|CA_speednode_0026
-  network: ws
-  port: 2053
-  server: 23.173.104.229
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1493,6 +1577,18 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-62 | free-nodes
+  password: aduB9HGxQHjA2SBMRjkHX6
+  port: 443
+  server: 102.37.156.224
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-61 | free-nodes
+  password: Xsy8Ox4yOV3xLlpxtjzs3X
+  port: 16233
+  server: 102.133.165.160
+  type: ss
 - name: 13|LB_speednode_0110
   network: ws
   port: 443
@@ -1507,25 +1603,39 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- client-fingerprint: chrome
-  name: 未知 VLESS-133 | free-nodes
-  network: tcp
+- name: 13|VG_speednode_0171
+  network: ws
   port: 443
-  reality-opts:
-    public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
-    short-id: 5bfa0c
-  server: fi1.cyphervpn.pro
-  servername: fi1.cyphervpn.pro
+  server: 46.243.1.9
+  servername: sni.111000.v6.rocks
   skip-cert-verify: false
-  tfo: false
   tls: true
   type: vless
-  uuid: f7bae22e-20ab-11f1-835c-0242ac110002
-- name: 13|CH_speednode_0049
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|IN_speednode_0100
+  network: ws
+  port: 443
+  server: 103.71.23.247
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|US_speednode_0163
   network: ws
   password: "1234567890"
   port: 443
-  server: 138.124.240.36
+  server: 144.31.188.6
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -1533,18 +1643,12 @@ proxies:
   ws-opts:
     headers:
       Host: kfm-bn0.pages.dev
-    path: /
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-61 | free-nodes
-  password: Xsy8Ox4yOV3xLlpxtjzs3X
-  port: 16233
-  server: 102.133.165.160
-  type: ss
-- name: 13|US_speednode_0152
+    path: /?ed=2560
+- name: 13|DE_speednode_0063
   network: ws
   password: "1234567890"
   port: 443
-  server: 144.31.98.216
+  server: 87.251.88.215
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -1559,32 +1663,6 @@ proxies:
   port: 50099
   server: r3mrcg007147vhp.cybervena.com
   type: ss
-- name: 13|DE_speednode_0063
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 87.251.88.215
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
-- name: 13|US_speednode_0139
-  network: ws
-  password: "1234567890"
-  port: 443
-  server: 64.188.70.233
-  skip-cert-verify: false
-  sni: kfm-bn0.pages.dev
-  type: trojan
-  udp: true
-  ws-opts:
-    headers:
-      Host: kfm-bn0.pages.dev
-    path: /?ed=2560
 - name: 13|US_speednode_0156
   network: ws
   port: 443
@@ -1600,46 +1678,39 @@ proxies:
       Host: sni.latonyamadeline.ndjp.net
     path: /
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-49 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001287h3p.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
   name: "\U0001F1E8\U0001F1F3 TW SS-23 | free-nodes"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
   server: r3mrcg001286ek2.cybervena.com
   type: ss
-- name: 13|VG_speednode_0171
-  network: ws
-  port: 443
-  server: 46.243.1.9
-  servername: sni.111000.v6.rocks
+- alterId: 0
+  cipher: auto
+  name: 日期：04-25
+  port: 180
+  server: 82.198.246.250
   skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-49 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001287h3p.cybervena.com
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 荷兰 317"
+  network: ws
+  port: 8443
+  server: 217.194.148.124
+  servername: sni.111000.dns.army
   tls: true
   type: vless
-  udp: true
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.111000.v6.rocks
-    path: /?ed=2560
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-118 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: wBrGfTI9PaFf966aN6KaCY0cL6QRLlop4nzNa6bJsiQ
-    short-id: 9f35da6c9412b832
-  server: 5.180.97.139
-  servername: google.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: a384c715-aeb5-45e8-859b-f687ca6c083f
+      Host: sni.111000.dns.army
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
 - name: "\U0001F1EC\U0001F1E7 GB VLESS-102 | free-nodes"
   network: ws
   port: 8443
@@ -1654,60 +1725,31 @@ proxies:
     headers:
       Host: sni.111000.indevs.in
     path: /?ed=2560
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-52 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg007117fb8.cybervena.com
-  type: ss
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 18"
-  port: 180
-  server: 82.198.246.233
+- name: 13|AE_speednode_0001
+  network: ws
+  port: 443
+  server: 188.64.142.13
+  servername: sni.111000.v6.rocks
   skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-26 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg007134n4g.cybervena.com
-  type: ss
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
 - cipher: chacha20-ietf-poly1305
   name: 未知 SS-57 | free-nodes
   password: PDNcrHbGmb5u76Og8NatjZ
   port: 21836
   server: 185.117.91.27
   type: ss
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 14"
-  port: 180
-  server: 82.198.246.9
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 荷兰 317"
-  network: ws
-  port: 8443
-  server: 217.194.148.124
-  servername: sni.111000.dns.army
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dns.army
-    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
-- name: 13|US_speednode_0140
+- name: 13|US_speednode_0165
   network: ws
   password: "1234567890"
   port: 443
-  server: 144.31.116.8
+  server: 104.128.139.68
   skip-cert-verify: false
   sni: kfm-bn0.pages.dev
   type: trojan
@@ -1720,6 +1762,20 @@ proxies:
   network: ws
   port: 2053
   server: 37.143.129.102
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- name: 13|GB_speednode_0095
+  network: ws
+  port: 443
+  server: 148.253.211.49
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1744,22 +1800,10 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US SS-68 | free-nodes"
-  password: ZfbPFDdeBj0B1Txs
-  port: 80
-  server: 154.53.60.212
-  type: ss
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US SS-65 | free-nodes"
-  password: 14CLBaFBqwqxBJy6
-  port: 80
-  server: 66.94.125.178
-  type: ss
-- name: 13|US_speednode_0157
+- name: 13|ES_speednode_0070
   network: ws
   port: 443
-  server: 144.31.7.95
+  server: 194.48.140.149
   servername: sni.111000.v6.rocks
   skip-cert-verify: false
   tls: true
@@ -1770,3 +1814,62 @@ proxies:
     headers:
       Host: sni.111000.v6.rocks
     path: /?ed=2560
+- name: 13|US_speednode_0158
+  network: ws
+  port: 443
+  server: 83.219.97.178
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-25 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007117fb8.cybervena.com
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-65 | free-nodes"
+  password: 14CLBaFBqwqxBJy6
+  port: 80
+  server: 66.94.125.178
+  type: ss
+- name: 13|GB_speednode_0080
+  network: ws
+  password: "1234567890"
+  port: 443
+  server: 148.253.210.141
+  skip-cert-verify: false
+  sni: kfm-bn0.pages.dev
+  type: trojan
+  udp: true
+  ws-opts:
+    headers:
+      Host: kfm-bn0.pages.dev
+    path: /?ed=2560
+- name: 13|BE_speednode_0007
+  network: ws
+  port: 443
+  server: 150.251.152.40
+  servername: sni.111000.v6.rocks
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /?ed=2560
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-68 | free-nodes"
+  password: ZfbPFDdeBj0B1Txs
+  port: 80
+  server: 154.53.60.212
+  type: ss
