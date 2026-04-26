@@ -38,10 +38,34 @@ jobs:
           sed -i '/exit 0/i uci set dhcp.lan.ignore=1 && uci commit dhcp' package/base-files/files/etc/rc.local
           sed -i '/exit 0/i uci set wireless.radio0.disabled=0 && uci set wireless.default_radio0.ssid=N1-Breed-AP && uci set wireless.default_radio0.encryption=none && uci set wireless.radio1.disabled=0 && uci set wireless.default_radio1.ssid=N1-Breed-AP-5G && uci set wireless.default_radio1.encryption=none && uci commit wireless' package/base-files/files/etc/rc.local
 
-      - name: Compile
+      - name: Generate default config
         run: |
           cd openwrt
           make defconfig
+
+      # ========== 新增：打印 luci-app 插件状态 ==========
+      - name: List luci-app plugins status
+        run: |
+          cd openwrt
+          echo -e "\n=================================================="
+          echo -e "📋 luci-app-* plugins (ophub/openwrt-23.05)"
+          echo -e "==================================================\n"
+          if [ -f .config ]; then
+            grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+              if echo "$line" | grep -q '=y\|=m'; then
+                name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+                echo " ✔️ $name"
+              else
+                name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+                echo " ❌ $name"
+              fi
+            done
+          fi
+          echo -e "==================================================\n"
+
+      - name: Compile
+        run: |
+          cd openwrt
           make -j$(nproc)
 
       - name: Find rootfs
@@ -84,6 +108,29 @@ jobs:
           EOF
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
+
+      # ========== 新增：打印 luci-app 插件状态 ==========
+      - name: List luci-app plugins status
+        run: |
+          cd lede
+          echo -e "\n=================================================="
+          echo -e "📋 luci-app-* plugins (lede)"
+          echo -e "==================================================\n"
+          if [ -f .config ]; then
+            grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+              if echo "$line" | grep -q '=y\|=m'; then
+                name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+                echo " ✔️ $name"
+              else
+                name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+                echo " ❌ $name"
+              fi
+            done
+          fi
+          echo -e "==================================================\n"
+
+      - run: |
+          cd lede
           make -j$(nproc)
       - name: Find rootfs
         run: |
@@ -122,6 +169,29 @@ jobs:
           EOF
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
+
+      # ========== 新增：打印 luci-app 插件状态 ==========
+      - name: List luci-app plugins status
+        run: |
+          cd openwrt
+          echo -e "\n=================================================="
+          echo -e "📋 luci-app-* plugins (official/openwrt-23.05)"
+          echo -e "==================================================\n"
+          if [ -f .config ]; then
+            grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+              if echo "$line" | grep -q '=y\|=m'; then
+                name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+                echo " ✔️ $name"
+              else
+                name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+                echo " ❌ $name"
+              fi
+            done
+          fi
+          echo -e "==================================================\n"
+
+      - run: |
+          cd openwrt
           make -j$(nproc)
       - name: Find rootfs
         run: |
