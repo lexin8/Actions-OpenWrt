@@ -34,6 +34,23 @@ jobs:
           EOF
           make oldconfig
 
+      - name: Verify N1 Architecture Config
+        run: |
+          cd openwrt
+          echo "====================================="
+          echo "        验证 .config 架构配置"
+          echo "====================================="
+          # 打印当前架构配置
+          grep -E "CONFIG_TARGET_armvirt|CONFIG_TARGET_" .config
+          
+          # 双条件验证 N1 专属 armvirt64 架构
+          if grep -q "CONFIG_TARGET_armvirt=y" .config && grep -q "CONFIG_TARGET_armvirt_64=y" .config; then
+            echo -e "\n✅ 验证通过：已正确选择 N1 专用架构，开始编译！"
+          else
+            echo -e "\n❌ 验证失败：未选择 N1 架构，终止编译！"
+            exit 1
+          fi
+
       - name: Compile
         run: |
           cd openwrt  # 修复路径：必须进入源码目录执行make
@@ -86,10 +103,29 @@ jobs:
           CONFIG_PACKAGE_wpad=y
           EOF
           make oldconfig
+
+      - name: Verify N1 Architecture Config
+        run: |
+          cd openwrt
+          echo "====================================="
+          echo "        验证 .config 架构配置"
+          echo "====================================="
+          # 打印当前架构配置
+          grep -E "CONFIG_TARGET_armvirt|CONFIG_TARGET_" .config
+          
+          # 双条件验证 N1 专属 armvirt64 架构
+          if grep -q "CONFIG_TARGET_armvirt=y" .config && grep -q "CONFIG_TARGET_armvirt_64=y" .config; then
+            echo -e "\n✅ 验证通过：已正确选择 N1 专用架构，开始编译！"
+          else
+            echo -e "\n❌ 验证失败：未选择 N1 架构，终止编译！"
+            exit 1
+          fi
+          
       - name: Compile
         run: |
           cd lede  # 修复路径
           make -j$(nproc)
+          
       - name: Copy rootfs
         run: find lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
       - name: Build N1
@@ -127,10 +163,29 @@ jobs:
           CONFIG_PACKAGE_wpad=y
           EOF
           make oldconfig
+
+      - name: Verify N1 Architecture Config
+        run: |
+          cd openwrt
+          echo "====================================="
+          echo "        验证 .config 架构配置"
+          echo "====================================="
+          # 打印当前架构配置
+          grep -E "CONFIG_TARGET_armvirt|CONFIG_TARGET_" .config
+          
+          # 双条件验证 N1 专属 armvirt64 架构
+          if grep -q "CONFIG_TARGET_armvirt=y" .config && grep -q "CONFIG_TARGET_armvirt_64=y" .config; then
+            echo -e "\n✅ 验证通过：已正确选择 N1 专用架构，开始编译！"
+          else
+            echo -e "\n❌ 验证失败：未选择 N1 架构，终止编译！"
+            exit 1
+          fi
+          
       - name: Compile
         run: |
           cd openwrt  # 修复路径
           make -j$(nproc)
+          
       - name: Copy rootfs
         run: find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
       - name: Build N1
