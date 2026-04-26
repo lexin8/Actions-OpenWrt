@@ -1,117 +1,54 @@
-name: Build All OpenWRT (N1/S905d)
+name: Build Ophub Amlogic OpenWRT (N1/S905d)
+
+# 手动触发编译（推荐），也可添加 push 触发（需注释掉 workflow_dispatch）
 on:
   workflow_dispatch:
+
+# 运行环境
 jobs:
-  build-ophub:
+  build:
     runs-on: ubuntu-22.04
     steps:
+      # 1. 拉取GitHub仓库（含通用配置）
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      # 2. 安装基础依赖
       - name: Install Dependencies
         run: |
           sudo apt update && sudo apt upgrade -y
-          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget curl swig libpcap-dev libelf-dev libpcre2-dev autoconf automake libtool autopoint device-tree-compiler libncursesw5-dev pkg-config patchutils kmod bc cpio liblzma-dev libz-dev lzop mkisofs squashfs-tools xsltproc zip time
+          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib \
+              gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev \
+              file wget curl swig libpcap-dev libelf-dev libpcre2-dev autoconf automake libtool \
+              autopoint device-tree-compiler libncursesw5-dev pkg-config patchutils kmod \
+              bc cpio liblzma-dev libz-dev lzop mkisofs squashfs-tools xsltproc zip time
+
+      # 3. 克隆ophub源码
       - name: Clone Ophub OpenWRT Source
         run: |
-          git clone --depth=1 https://ghproxy.com/https://github.com/ophub/amlogic-s9xxx-openwrt.git ophub-n1
+          git clone --depth=1 https://github.com/ophub/amlogic-s9xxx-openwrt.git ophub-n1
           cd ophub-n1
+          # 植入通用配置
           cp -rf ../config-files ./config-files/
+          # 配置N1编译参数（S905d + 5.15内核）
           echo "
-          TARGET_DEVICE=\"s905d s905x3\"
-          KERNEL_VERSION=\"6.1\"
+          TARGET_DEVICE=\"s905d\"
+          KERNEL_VERSION=\"5.15\"
           TARGET_PROFILE=\"armvirt-64\"
           OPENWRT_VER=\"latest\"
-          CUSTOM_FEEDS=\"luci-app-openclash luci-app-passwall luci-app-samba4\"
-          MIRROR_REPO=\"https://mirrors.tuna.tsinghua.edu.cn/\"
           " > config-files/custom.conf
-      - name: Add Custom Patch
-        run: |
-          cd ophub-n1
-          mkdir -p patch/custom
-          wget -O patch/custom/kernel.patch https://raw.githubusercontent.com/your-repo/patch/main/kernel-6.1.patch
+
+      # 4. 开始编译（调整线程为2，适配GitHub Actions 2核环境）
       - name: Compile OpenWRT
         run: |
           cd ophub-n1
           chmod +x compile-openwrt.sh
-          export CORE_COUNT=$(nproc --all)
-          bash compile-openwrt.sh -d s905d -v 6.1 -j${CORE_COUNT} --custom-patch=patch/custom
+          bash compile-openwrt.sh -d s905d -v 5.15 -j2
+
+      # 5. 上传固件到GitHub Artifacts（方便下载）
       - name: Upload Firmware
         uses: actions/upload-artifact@v4
         with:
           name: ophub-openwrt-n1-firmware
-          path: |
-            ophub-n1/output/
-            ophub-n1/config-files/
-          retention-days: 90
-  build-official:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget curl swig libpcap-dev libelf-dev libpcre2-dev autoconf automake libtool autopoint device-tree-compiler libncursesw5-dev pkg-config patchutils kmod bc cpio liblzma-dev libz-dev lzop mkisofs squashfs-tools xsltproc zip time
-      - name: Clone OpenWRT Official Source
-        run: |
-          git clone --depth=1 --branch openwrt-23.05 https://github.com/openwrt/openwrt.git openwrt-official
-          cd openwrt-official
-          sed -i 's/downloads.openwrt.org/mirrors.tuna.tsinghua.edu.cn\/openwrt/g' ./scripts/download.pl
-          echo "src-git kernel_amlogic https://github.com/ophub/kernel/tree/main/patch" >> feeds.conf.default
-          ./scripts/feeds update -a && ./scripts/feeds install -a
-      - name: Configure OpenWRT
-        run: |
-          cd openwrt-official
-          mkdir -p files/etc/config
-          cp -rf ../config-files/etc/config/* ./files/etc/config/
-          make defconfig
-      - name: Download Dependencies
-        run: |
-          cd openwrt-official
-          make -j2 download V=s
-      - name: Compile OpenWRT
-        run: |
-          cd openwrt-official
-          make -j2 V=s
-      - name: Upload Firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwrt-official-n1-firmware
-          path: openwrt-official/bin/targets/armvirt/64/
-          retention-days: 90
-  build-lede:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-      - name: Install Dependencies
-        run: |
-          sudo apt update && sudo apt upgrade -y
-          sudo apt install -y build-essential clang flex bison g++ gawk gcc-multilib g++-multilib gettext git libncurses5-dev libssl-dev python3-distutils rsync unzip zlib1g-dev file wget curl swig libpcap-dev libelf-dev libpcre2-dev autoconf automake libtool autopoint device-tree-compiler libncursesw5-dev pkg-config patchutils kmod bc cpio liblzma-dev libz-dev lzop mkisofs squashfs-tools xsltproc zip time
-      - name: Clone Lean LEDE Source
-        run: |
-          git clone --depth=1 https://github.com/coolsnowwolf/lede.git lede-n1
-          cd lede-n1
-          sed -i 's/https:\/\/github.com\/coolsnowwolf\/packages/https:\/\/mirrors.cloud.tencent.com\/openwrt\/packages/g' feeds.conf.default
-          sed -i 's/https:\/\/github.com\/coolsnowwolf\/luci/https:\/\/mirrors.cloud.tencent.com\/openwrt\/luci/g' feeds.conf.default
-          ./scripts/feeds update -a && ./scripts/feeds install -a
-      - name: Configure LEDE
-        run: |
-          cd lede-n1
-          mkdir -p files/etc/config
-          cp -rf ../config-files/etc/config/* ./files/etc/config/
-          make defconfig
-      - name: Download Dependencies
-        run: |
-          cd lede-n1
-          make -j2 download V=s
-      - name: Compile LEDE
-        run: |
-          cd lede-n1
-          make -j2 V=s
-      - name: Upload Firmware
-        uses: actions/upload-artifact@v4
-        with:
-          name: lede-n1-firmware
-          path: lede-n1/bin/targets/armvirt/64/
-          retention-days: 90
+          path: ophub-n1/output/
+          retention-days: 90  # 固件保留90天
