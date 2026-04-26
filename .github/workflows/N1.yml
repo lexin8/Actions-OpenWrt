@@ -7,19 +7,20 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt update && sudo apt install -y curl git wget
-      - run: git clone https://github.com/ophub/amlogic-s9xxx-openwrt
+      - run: sudo apt update && sudo apt install -y git wget
+      - run: git clone https://github.com/ophub/flippy-openwrt-actions
       - run: |
-          cd amlogic-s9xxx-openwrt
-          chmod +x scripts/*.sh
-          ./scripts/compile.sh -g s905d -k 6.1
+          cd flippy-openwrt-actions
+          wget -q https://github.com/ophub/amlogic-s9xxx-openwrt/releases/download/openwrt_armvirt/openwrt-armvirt-64-default.rootfs.tar.gz
+          ./make -s s905d -k 6.1 -f openwrt-armvirt-64-default.rootfs.tar.gz
       - uses: softprops/action-gh-release@v2
         with:
           name: N1-Firmware
           tag: ${{ github.run_id }}
-          files: amlogic-s9xxx-openwrt/out/*.img.gz
+          files: flippy-openwrt-actions/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   lede:
     runs-on: ubuntu-22.04
     permissions: write-all
@@ -30,9 +31,14 @@ jobs:
       - run: |
           cd lede
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          echo -e "CONFIG_TARGET_armvirt=y\nCONFIG_TARGET_armvirt_64=y\nCONFIG_TARGET_armvirt_64_Default=y\nCONFIG_PACKAGE_luci=y\nCONFIG_PACKAGE_wpad=y" > .config
+          echo "CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y" > .config
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          make defconfig && make -j$(nproc)
+          make defconfig
+          make -j$(nproc)
       - uses: softprops/action-gh-release@v2
         with:
           name: N1-Firmware
@@ -40,6 +46,7 @@ jobs:
           files: lede/bin/targets/armvirt/64/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   official:
     runs-on: ubuntu-22.04
     permissions: write-all
@@ -50,18 +57,18 @@ jobs:
       - run: |
           cd openwrt
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          echo -e "CONFIG_TARGET_armvirt=y\nCONFIG_TARGET_armvirt_64=y\nCONFIG_TARGET_armvirt_64_Default=y\nCONFIG_PACKAGE_luci=y\nCONFIG_PACKAGE_wpad=y" > .config
+          echo "CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y" > .config
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          make defconfig && make -j$(nproc)
-      - run: |
-          git clone https://github.com/ophub/amlogic-s9xxx-openwrt pack
-          cp openwrt/bin/targets/armvirt/64/*.img.gz pack/images/
-          cd pack && chmod +x scripts/*.sh
-          ./scripts/compile.sh -g s905d -k 6.1
+          make defconfig
+          make -j$(nproc)
       - uses: softprops/action-gh-release@v2
         with:
           name: N1-Firmware
           tag: ${{ github.run_id }}
-          files: pack/out/*.img.gz
+          files: openwrt/bin/targets/armvirt/64/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
