@@ -4,45 +4,61 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write
+    permissions: write-all
+    strategy:
+      matrix:
+        include:
+          - repo: https://github.com/ophub/amlogic-s9xxx-openwrt
+            name: ophub
+          - repo: https://github.com/coolsnowwolf/lede
+            name: lede
+          - repo: https://github.com/openwrt/openwrt
+            name: official
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3 python3-pip
-      - name: Clone source
-        run: |
-          git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
-          cd openwrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-      - name: Config
+      - name: Prepare
+        run: sudo apt update && sudo apt install -y build-essential libncurses-dev git wget
+      - name: Clone
+        run: git clone ${{ matrix.repo }} openwrt
+      - name: Build ophub
+        if: matrix.name == 'ophub'
         run: |
           cd openwrt
-          cat > .config << EOF
-          CONFIG_TARGET_armvirt=y
+          echo "AML_SOC=s905d" > .config
+          echo "KERNEL_VERSION=6.1" >> .config
+          ./scripts/compile.sh
+      - name: Build lede
+        if: matrix.name == 'lede'
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+          echo "CONFIG_TARGET_armvirt=y
           CONFIG_TARGET_armvirt_64=y
-          CONFIG_TARGET_armvirt_64_Default=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_hostapd=y
-          CONFIG_PACKAGE_kmod-mt76=y
-          EOF
+          CONFIG_PACKAGE_wpad=y" > .config
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          sed -i '/exit 0/i uci set dhcp.lan.ignore=1\nuci commit dhcp' package/base-files/files/etc/rc.local
-          sed -i '/exit 0/i uci set wireless.radio0.disabled=0\nuci set wireless.default_radio0.ssid=N1-Breed-AP\nuci set wireless.default_radio0.encryption=none\nuci set wireless.radio1.disabled=0\nuci set wireless.default_radio1.ssid=N1-Breed-AP-5G\nuci set wireless.default_radio1.encryption=none\nuci commit wireless' package/base-files/files/etc/rc.local
-      - name: Compile
+          make defconfig && make -j$(nproc)
+      - name: Build official
+        if: matrix.name == 'official'
         run: |
           cd openwrt
-          make defconfig
-          make -j$(nproc)
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+          echo "CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y" > .config
+          sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+          make defconfig && make -j$(nproc)
+          git clone https://github.com/ophub/amlogic-s9xxx-openwrt pack
+          cp -r bin/targets/armvirt/64 pack/images/
+          cd pack && echo "AML_SOC=s905d" > .config && ./scripts/pack.sh
       - name: Upload
         uses: softprops/action-gh-release@v2
         with:
-          name: N1-Breed-AP
+          name: N1-Firmware-All
           tag: ${{ github.run_id }}
-          files: openwrt/bin/targets/armvirt/64/*.img.gz
+          files: |
+            openwrt/bin/targets/*/*/*.img.gz
+            openwrt/pack/images/*.img.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
