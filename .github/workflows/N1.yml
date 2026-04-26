@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3 python3-pip
+          sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3
 
       - name: Clone OpenWrt
         run: |
@@ -29,25 +29,17 @@ jobs:
           CONFIG_TARGET_armvirt=y
           CONFIG_TARGET_armvirt_64=y
           CONFIG_TARGET_armvirt_64_Default=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=800
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
           CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_hostapd=y
-          CONFIG_PACKAGE_kmod-mt76=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_htop=y
           EOF
           make oldconfig
 
       - name: Compile
         run: |
+          cd openwrt  # 修复路径：必须进入源码目录执行make
           make -j$(nproc)
 
-      - name: Check bin targets
+      - name: Check firmware
         run: |
           ls -lh openwrt/bin/targets/
           find openwrt/bin/targets -name "*rootfs.tar.gz"
@@ -65,131 +57,91 @@ jobs:
           openwrt_ip: 192.168.1.2
           auto_kernel: true
 
-      - name: Upload Firmware
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: OpenWrt-N1
           path: out/*.img.gz
           retention-days: 30
 
+# ------------------- LEDE 任务 -------------------
   lede:
     runs-on: ubuntu-22.04
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install dependencies
+      - name: Install deps
         run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
-
-      - name: Clone Lede
+      - name: Clone lede
         run: git clone https://github.com/coolsnowwolf/lede
-
-      - name: Build config
+      - name: Config
         run: |
           cd lede
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-          cat > .config << EOF
-          CONFIG_TARGET_armvirt=y
-          CONFIG_TARGET_armvirt_64=y
-          CONFIG_TARGET_armvirt_64_Default=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=800
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_htop=y
-          EOF
-          make oldconfig
-
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+         cat > .config << EOF
+         CONFIG_TARGET_armvirt=y
+         CONFIG_TARGET_armvirt_64=y
+         CONFIG_TARGET_armvirt_64_Default=y
+         CONFIG_PACKAGE_luci=y
+         CONFIG_PACKAGE_wpad=y
+         EOF
+         make oldconfig
       - name: Compile
         run: |
+          cd lede  # 修复路径
           make -j$(nproc)
-
-      - name: Check bin targets
-        run: |
-          ls -lh lede/bin/targets/
-          find lede/bin/targets -name "*rootfs.tar.gz"
-
       - name: Copy rootfs
-        run: |
-          find lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
-
-      - name: Make N1 Firmware
+        run: find lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
+      - name: Build N1
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
           openwrt_board: s905d
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
-
-      - name: Upload Firmware
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Lede-N1
           path: out/*.img.gz
-          retention-days: 30
 
+# ------------------- 官方源码 任务 -------------------
   official:
     runs-on: ubuntu-22.04
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install dependencies
+      - name: Install deps
         run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
-
-      - name: Clone OpenWrt
+      - name: Clone official
         run: git clone https://github.com/openwrt/openwrt -b openwrt-23.05
-
-      - name: Build config
+      - name: Config
         run: |
           cd openwrt
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+          ./scripts/feeds update -a && ./scripts/feeds install -a
           cat > .config << EOF
           CONFIG_TARGET_armvirt=y
           CONFIG_TARGET_armvirt_64=y
           CONFIG_TARGET_armvirt_64_Default=y
-          CONFIG_TARGET_KERNEL_PARTSIZE=100
-          CONFIG_TARGET_ROOTFS_PARTSIZE=800
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-base=y
-          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
           CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_htop=y
           EOF
           make oldconfig
-
       - name: Compile
         run: |
+          cd openwrt  # 修复路径
           make -j$(nproc)
-
-      - name: Check bin targets
-        run: |
-          ls -lh openwrt/bin/targets/
-          find openwrt/bin/targets -name "*rootfs.tar.gz"
-
       - name: Copy rootfs
-        run: |
-          find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
-
-      - name: Make N1 Firmware
+        run: find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
+      - name: Build N1
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
           openwrt_board: s905d
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
-
-      - name: Upload Firmware
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: Official-N1
           path: out/*.img.gz
-          retention-days: 30
