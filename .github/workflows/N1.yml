@@ -23,20 +23,20 @@ jobs:
               autopoint device-tree-compiler libncursesw5-dev pkg-config patchutils kmod \
               bc cpio liblzma-dev libz-dev lzop mkisofs squashfs-tools xsltproc zip time
 
-      # 3. 克隆ophub源码
+      # 3. 克隆ophub源码（已修复报错）
       - name: Clone Ophub OpenWRT Source
         run: |
           git clone --depth=1 https://github.com/ophub/amlogic-s9xxx-openwrt.git ophub-n1
           cd ophub-n1
-          # 植入通用配置
-          cp -rf ../config-files ./config-files/
-          # 配置N1编译参数（S905d + 5.15内核）
-          echo "
-          TARGET_DEVICE=\"s905d\"
-          KERNEL_VERSION=\"5.15\"
-          TARGET_PROFILE=\"armvirt-64\"
-          OPENWRT_VER=\"latest\"
-          " > config-files/custom.conf
+          # 自动创建配置文件夹，解决报错
+          mkdir -p config-files
+          # 配置N1编译参数
+          cat > config-files/custom.conf << EOF
+          TARGET_DEVICE="s905d"
+          KERNEL_VERSION="5.15"
+          TARGET_PROFILE="armvirt-64"
+          OPENWRT_VER="latest"
+          EOF
 
       # 4. 开始编译（调整线程为2，适配GitHub Actions 2核环境）
       - name: Compile OpenWRT
