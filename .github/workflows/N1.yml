@@ -44,30 +44,21 @@ jobs:
           make defconfig
           make -j$(nproc)
 
-      - name: Find rootfs firmware
+      - name: Find rootfs
         run: |
           ROOTFS_FILE=$(find $GITHUB_WORKSPACE/openwrt/bin/targets -name "*rootfs.tar.gz" | head -n 1)
-          mkdir -p $GITHUB_WORKSPACE/openwrt/bin/targets/armvirt/64/
-          cp -f $ROOTFS_FILE $GITHUB_WORKSPACE/openwrt/bin/targets/armvirt/64/
-          echo "Found firmware: $ROOTFS_FILE"
+          echo "ROOTFS_PATH=$ROOTFS_FILE" >> $GITHUB_ENV
 
       - name: Make OpenWrt
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
-          mode: ophub
+          openwrt_path: ${{ env.ROOTFS_PATH }}
           openwrt_board: s905d
           openwrt_kernel: 5.15.y
           openwrt_ip: 192.168.1.2
           auto_kernel: true
-          openwrt_path: openwrt/bin/targets/armvirt/64/*rootfs.tar.gz
-          kernel_repo: ophub/kernel
-          kernel_usage: stable
 
-      - name: Compress squashfs firmware
-        run: |
-          find $GITHUB_WORKSPACE -name "*.img" -exec gzip {} \;
-
-      - name: Upload compressed firmware
+      - name: Compress & Upload
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-ophub-n1
@@ -94,17 +85,22 @@ jobs:
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
           make -j$(nproc)
-      - name: Compress squashfs firmware
+      - name: Find rootfs
         run: |
-          cd lede
-          for firmware_file in bin/targets/*/*/*squashfs*; do
-            [ -f "${firmware_file}" ] && gzip "${firmware_file}"
-          done
-      - name: Upload compressed firmware
+          ROOTFS_FILE=$(find $GITHUB_WORKSPACE/lede/bin/targets -name "*rootfs.tar.gz" | head -n 1)
+          echo "ROOTFS_PATH=$ROOTFS_FILE" >> $GITHUB_ENV
+      - name: Package N1 Firmware
+        uses: ophub/amlogic-s9xxx-openwrt@main
+        with:
+          openwrt_path: ${{ env.ROOTFS_PATH }}
+          openwrt_board: s905d
+          openwrt_kernel: 5.15.y
+          openwrt_ip: 192.168.1.2
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-lede-n1
-          path: lede/bin/targets/*/*/*squashfs*.gz
+          path: out/*.img.gz
           retention-days: 30
 
   official:
@@ -127,15 +123,20 @@ jobs:
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
           make defconfig
           make -j$(nproc)
-      - name: Compress squashfs firmware
+      - name: Find rootfs
         run: |
-          cd openwrt
-          for firmware_file in bin/targets/*/*/*squashfs*; do
-            [ -f "${firmware_file}" ] && gzip "${firmware_file}"
-          done
-      - name: Upload compressed firmware
+          ROOTFS_FILE=$(find $GITHUB_WORKSPACE/openwrt/bin/targets -name "*rootfs.tar.gz" | head -n 1)
+          echo "ROOTFS_PATH=$ROOTFS_FILE" >> $GITHUB_ENV
+      - name: Package N1 Firmware
+        uses: ophub/amlogic-s9xxx-openwrt@main
+        with:
+          openwrt_path: ${{ env.ROOTFS_PATH }}
+          openwrt_board: s905d
+          openwrt_kernel: 5.15.y
+          openwrt_ip: 192.168.1.2
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: openwrt-official-n1
-          path: openwrt/bin/targets/*/*/*squashfs*.gz
+          path: out/*.img.gz
           retention-days: 30
