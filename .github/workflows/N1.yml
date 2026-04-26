@@ -1,4 +1,4 @@
-name: Build N1 OpenWrt
+name: Build N1
 on:
   workflow_dispatch:
 jobs:
@@ -8,15 +8,17 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Initialization environment
-        uses: P3TERX/gh-action-env@main
-      - name: Clone source code
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3 python3-pip
+      - name: Clone source
         run: |
           git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
           cd openwrt
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-      - name: Configure firmware
+      - name: Config
         run: |
           cd openwrt
           cat > .config << EOF
@@ -29,17 +31,15 @@ jobs:
           CONFIG_PACKAGE_kmod-mt76=y
           EOF
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          sed -i '/dhcp.lan.ignore/d' package/base-files/files/bin/config_generate
           sed -i '/exit 0/i uci set dhcp.lan.ignore=1\nuci commit dhcp' package/base-files/files/etc/rc.local
           sed -i '/exit 0/i uci set wireless.radio0.disabled=0\nuci set wireless.default_radio0.ssid=N1-Breed-AP\nuci set wireless.default_radio0.encryption=none\nuci set wireless.radio1.disabled=0\nuci set wireless.default_radio1.ssid=N1-Breed-AP-5G\nuci set wireless.default_radio1.encryption=none\nuci commit wireless' package/base-files/files/etc/rc.local
-      - name: Compile firmware
+      - name: Compile
         run: |
           cd openwrt
           make defconfig
           make -j$(nproc)
-      - name: Upload firmware
+      - name: Upload
         uses: softprops/action-gh-release@v2
-        if: success()
         with:
           name: N1-Breed-AP
           tag: ${{ github.run_id }}
