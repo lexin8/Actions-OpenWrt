@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  ophub:
     runs-on: ubuntu-22.04
     permissions:
       contents: write
@@ -42,7 +42,7 @@ jobs:
         run: |
           cd openwrt
           make defconfig
-          make -j$(nproc)
+          make -j2
 
       - name: Make OpenWrt
         uses: ophub/amlogic-s9xxx-openwrt@main
@@ -53,11 +53,83 @@ jobs:
           openwrt_ip: 192.168.1.2
           auto_kernel: true
 
-      - name: Upload
-        uses: softprops/action-gh-release@v2
+      - name: Compress squashfs firmware
+        run: |
+          for firmware_file in out/*squashfs*; do
+            if [ -f "${firmware_file}" ]; then
+              gzip "${firmware_file}"
+            fi
+          done
+
+      - name: Upload compressed firmware
+        uses: actions/upload-artifact@v4
         with:
-          name: N1-Breed-AP
-          tag_name: ${{ github.run_id }}
-          files: out/*.img.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: openwrt-ophub-n1
+          path: out/*.img.gz
+          retention-days: 30
+
+  lede:
+    runs-on: ubuntu-22.04
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
+      - run: git clone https://github.com/coolsnowwolf/lede
+      - run: |
+          cd lede
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+          echo "CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y" > .config
+          sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+          make defconfig
+          make -j2
+      - name: Compress squashfs firmware
+        run: |
+          cd lede
+          for firmware_file in bin/targets/*/*/*squashfs*; do
+            if [ -f "${firmware_file}" ]; then
+              gzip "${firmware_file}"
+            fi
+          done
+      - name: Upload compressed firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-lede-n1
+          path: lede/bin/targets/*/*/*squashfs*.gz
+          retention-days: 30
+
+  official:
+    runs-on: ubuntu-22.04
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
+      - run: git clone https://github.com/openwrt/openwrt -b openwrt-23.05
+      - run: |
+          cd openwrt
+          ./scripts/feeds update -a && ./scripts/feeds install -a
+          echo "CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y" > .config
+          sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
+          make defconfig
+          make -j2
+      - name: Compress squashfs firmware
+        run: |
+          cd openwrt
+          for firmware_file in bin/targets/*/*/*squashfs*; do
+            if [ -f "${firmware_file}" ]; then
+              gzip "${firmware_file}"
+            fi
+          done
+      - name: Upload compressed firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-official-n1
+          path: openwrt/bin/targets/*/*/*squashfs*.gz
+          retention-days: 30
