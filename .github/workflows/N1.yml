@@ -1,180 +1,117 @@
+#============================================================================================
+# 斐讯 N1 专用 · 带WiFi + EMMC一键写入 · OpenWrt编译脚本
+# 基于 ophub/amlogic-s9xxx-openwrt 官方脚本优化
+#============================================================================================
+
 name: Build Phicomm N1
+
 on:
   workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "选择源码分支"
+        required: true
+        default: "lede_master"
+        type: choice
+        options:
+          - openwrt_main    # 官方OpenWrt
+          - lede_master     # Lean LEDE（推荐）
+          - immortalwrt_master  # 不死云
+      openwrt_kernel:
+        description: "选择内核版本"
+        required: true
+        default: "6.6.y"
+        type: choice
+        options:
+          - 6.1.y    # 稳定版
+          - 6.6.y    # 推荐（WiFi兼容性最好）
+          - 6.12.y
+      auto_kernel:
+        description: "自动使用最新内核"
+        required: false
+        default: true
+        type: boolean
+      openwrt_ip:
+        description: "固件默认IP"
+        required: false
+        default: "192.168.1.2"
+
+env:
+  TZ: Asia/Shanghai
 
 jobs:
-  # 1. 编译 OpenWrt 23.05 官方版
-  openwrt_official:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
+  build:
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: 初始化编译环境
         run: |
-          sudo apt update
-          sudo apt install -y build-essential libncurses5-dev libncursesw5-dev git wget unzip bzip2 python3
-      - name: Clone OpenWrt 23.05
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses-dev git wget curl rsync
+          sudo swapoff -a
+          sudo rm -f /swapfile
+
+      - name: 克隆源码
+        working-directory: /home/runner
         run: |
-          git clone https://github.com/openwrt/openwrt -b openwrt-23.05 openwrt
-          cd openwrt
+          if [[ "${{ inputs.source_branch }}" == "openwrt_main" ]]; then
+              git clone https://github.com/openwrt/openwrt -b main openwrt
+          elif [[ "${{ inputs.source_branch }}" == "lede_master" ]]; then
+              git clone https://github.com/coolsnowwolf/lede openwrt
+          elif [[ "${{ inputs.source_branch }}" == "immortalwrt_master" ]]; then
+              git clone https://github.com/immortalwrt/immortalwrt -b master openwrt
+          fi
+
+      - name: 更新&安装软件源
+        working-directory: /home/runner/openwrt
+        run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-      - name: Build Config
+
+      - name: 基础配置（ARM64 + 后台）
+        working-directory: /home/runner/openwrt
         run: |
-          cd openwrt
           cat > .config << EOF
           CONFIG_TARGET_armsr=y
           CONFIG_TARGET_armsr_armv8=y
           CONFIG_TARGET_armsr_armv8_DEVICE_generic=y
-          CONFIG_TARGET_BOARD="armsr"
-          CONFIG_TARGET_SUBTARGET="armv8"
-          CONFIG_TARGET_PROFILE="DEVICE_generic"
-          CONFIG_TARGET_ARCH_PACKAGES="aarch64_generic"
-          CONFIG_ARCH_arm64=y
-          CONFIG_64BIT=y
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_wpad-mini=y
           CONFIG_PACKAGE_iw=y
-          CONFIG_PACKAGE_kmod-bridge=y
           EOF
-
-          # 预置网络配置（静态IP 192.168.1.2，关闭DHCP）
-          mkdir -p files/etc/config
-          cat > files/etc/config/network << EOF
-          config interface 'loopback'
-                  option device 'lo'
-                  option proto 'static'
-                  option ipaddr '127.0.0.1'
-          config interface 'lan'
-                  option device 'br-lan'
-                  option proto 'static'
-                  option ipaddr '192.168.1.2'
-                  option netmask '255.255.255.0'
-                  option gateway '192.168.1.1'
-                  list dns '192.168.1.1'
-          config bridge 'br_lan'
-                  option name 'br-lan'
-                  list ports 'eth0'
-          EOF
-
-          cat > files/etc/config/dhcp << EOF
-          config dnsmasq
-                  option authoritative '1'
-                  option localservice '1'
-          config dhcp 'lan'
-                  option ignore '1'
-          EOF
-
           make defconfig
 
-      - name: Compile
-        run: |
-          cd openwrt
-          make -j$(($(nproc)/2)) || make -j1 V=s
+      - name: 下载依赖包
+        working-directory: /home/runner/openwrt
+        run: make download -j8
 
-      - name: Copy rootfs
-        run: |
-          find openwrt/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
+      - name: 编译OpenWrt源码
+        working-directory: /home/runner/openwrt
+        run: make -j$(nproc) || make -j1 V=s
 
-      # ===================== OPHUB 核心打包：自动添加WiFi+EMMC =====================
-      - name: Make N1 Firmware
+      - name: 提取rootfs.tar.gz
+        working-directory: /home/runner/openwrt
+        run: |
+          mkdir -p output
+          cp bin/targets/armsr/armv8/*rootfs.tar.gz output/
+
+      # ===================== 核心：ophub 打包N1固件（自动加WiFi+EMMC） =====================
+      - name: 打包N1专用固件
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
-          openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
-          openwrt_board: s905d        # N1 专用
-          openwrt_kernel: 6.1.y       # 稳定内核（自带WiFi）
-          openwrt_ip: 192.168.1.2
-          auto_kernel: true           # 自动匹配内核
-          add_amlogic: true           # 集成EMMC脚本
+          openwrt_path: /home/runner/openwrt/output/*rootfs.tar.gz
+          openwrt_board: s905d        # 锁定斐讯N1
+          openwrt_ip: ${{ inputs.openwrt_ip }}
+          openwrt_kernel: ${{ inputs.openwrt_kernel }}
+          auto_kernel: ${{ inputs.auto_kernel }}
+          add_amlogic: true           # 强制集成EMMC安装脚本
 
-      - name: Upload
+      # ===================== 上传最终固件 =====================
+      - name: 上传N1固件
         uses: actions/upload-artifact@v4
         with:
-          name: OpenWrt-23.05-N1
-          path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
-          retention-days: 30
-
-  # 2. 编译 LEDE (coolsnowwolf) 版
-  lede:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install deps
-        run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
-      - name: Clone LEDE
-        run: git clone https://github.com/coolsnowwolf/lede
-      - name: Config
-        run: |
-          cd lede
-          ./scripts/feeds update -a && ./scripts/feeds install -a
-          cat > .config << EOF
-          CONFIG_TARGET_armsr=y
-          CONFIG_TARGET_armsr_armv8=y
-          CONFIG_TARGET_armsr_armv8_DEVICE_generic=y
-          CONFIG_TARGET_BOARD="armsr"
-          CONFIG_TARGET_SUBTARGET="armv8"
-          CONFIG_TARGET_PROFILE="DEVICE_generic"
-          CONFIG_TARGET_ARCH_PACKAGES="aarch64_generic"
-          CONFIG_ARCH_arm64=y
-          CONFIG_64BIT=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad-mini=y
-          CONFIG_PACKAGE_iw=y
-          CONFIG_PACKAGE_kmod-bridge=y
-          EOF
-
-          mkdir -p files/etc/config
-          cat > files/etc/config/network << EOF
-          config interface 'loopback'
-                  option device 'lo'
-                  option proto 'static'
-                  option ipaddr '127.0.0.1'
-          config interface 'lan'
-                  option device 'br-lan'
-                  option proto 'static'
-                  option ipaddr '192.168.1.2'
-                  option netmask '255.255.255.0'
-                  option gateway '192.168.1.1'
-                  list dns '192.168.1.1'
-          config bridge 'br_lan'
-                  option name 'br-lan'
-                  list ports 'eth0'
-          EOF
-
-          cat > files/etc/config/dhcp << EOF
-          config dnsmasq
-                  option authoritative '1'
-          config dhcp 'lan'
-                  option ignore '1'
-          EOF
-
-          make defconfig
-
-      - name: Compile
-        run: |
-          cd lede
-          make -j$(($(nproc)/2)) || make -j1 V=s
-
-      - name: Copy rootfs
-        run: find lede/bin/targets -name "*rootfs.tar.gz" -exec cp {} $GITHUB_WORKSPACE/rootfs.tar.gz \;
-
-      # OPHUB 打包
-      - name: Make N1 Firmware
-        uses: ophub/amlogic-s9xxx-openwrt@main
-        with:
-          openwrt_path: ${{ github.workspace }}/rootfs.tar.gz
-          openwrt_board: s905d
-          openwrt_kernel: 6.1.y
-          openwrt_ip: 192.168.1.2
-          auto_kernel: true
-          add_amlogic: true
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: LEDE-N1
+          name: Phicomm-N1-Firmware
           path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
           retention-days: 30
