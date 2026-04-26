@@ -1,4 +1,4 @@
-name: Build N1 Firmwares
+name: Build N1
 on:
   workflow_dispatch:
 jobs:
@@ -7,14 +7,12 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git wget
+      - run: sudo apt update && sudo apt install -y curl git wget
       - run: git clone https://github.com/ophub/amlogic-s9xxx-openwrt
       - run: |
           cd amlogic-s9xxx-openwrt
-          echo "AMLOGIC_SOC=s905d" > make.conf
-          echo "KERNEL_VERSION=6.1" >> make.conf
-          echo "USE_OPENWRT_OFFICIAL=true" >> make.conf
-          make
+          chmod +x scripts/*.sh
+          ./scripts/compile.sh -g s905d -k 6.1
       - uses: softprops/action-gh-release@v2
         with:
           name: N1-Firmware
@@ -27,21 +25,13 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git wget
+      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
       - run: git clone https://github.com/coolsnowwolf/lede
       - run: |
           cd lede
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          cat > .config << EOF
-          CONFIG_TARGET_armvirt=y
-          CONFIG_TARGET_armvirt_64=y
-          CONFIG_TARGET_armvirt_64_Default=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_hostapd=y
-          EOF
+          echo -e "CONFIG_TARGET_armvirt=y\nCONFIG_TARGET_armvirt_64=y\nCONFIG_TARGET_armvirt_64_Default=y\nCONFIG_PACKAGE_luci=y\nCONFIG_PACKAGE_wpad=y" > .config
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          sed -i '/exit 0/i uci set dhcp.lan.ignore=1\nuci commit dhcp' package/base-files/files/etc/rc.local
           make defconfig && make -j$(nproc)
       - uses: softprops/action-gh-release@v2
         with:
@@ -55,26 +45,19 @@ jobs:
     permissions: write-all
     steps:
       - uses: actions/checkout@v4
-      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git wget
+      - run: sudo apt update && sudo apt install -y build-essential libncurses-dev git
       - run: git clone https://github.com/openwrt/openwrt -b openwrt-23.05
       - run: |
           cd openwrt
           ./scripts/feeds update -a && ./scripts/feeds install -a
-          cat > .config << EOF
-          CONFIG_TARGET_armvirt=y
-          CONFIG_TARGET_armvirt_64=y
-          CONFIG_TARGET_armvirt_64_Default=y
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad=y
-          CONFIG_PACKAGE_hostapd=y
-          EOF
+          echo -e "CONFIG_TARGET_armvirt=y\nCONFIG_TARGET_armvirt_64=y\nCONFIG_TARGET_armvirt_64_Default=y\nCONFIG_PACKAGE_luci=y\nCONFIG_PACKAGE_wpad=y" > .config
           sed -i 's/192.168.1.1/192.168.1.2/g' package/base-files/files/bin/config_generate
-          sed -i '/exit 0/i uci set dhcp.lan.ignore=1\nuci commit dhcp' package/base-files/files/etc/rc.local
           make defconfig && make -j$(nproc)
       - run: |
           git clone https://github.com/ophub/amlogic-s9xxx-openwrt pack
-          cp -r openwrt/bin/targets/armvirt/64 pack/images/
-          cd pack && echo "AMLOGIC_SOC=s905d" > make.conf && make
+          cp openwrt/bin/targets/armvirt/64/*.img.gz pack/images/
+          cd pack && chmod +x scripts/*.sh
+          ./scripts/compile.sh -g s905d -k 6.1
       - uses: softprops/action-gh-release@v2
         with:
           name: N1-Firmware
