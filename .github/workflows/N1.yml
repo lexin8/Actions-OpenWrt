@@ -40,7 +40,7 @@ jobs:
           CONFIG_PACKAGE_wireless-tools=y
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
-EOF
+          EOF
       - name: Verify Config
         run: |
           cd openwrt
@@ -108,7 +108,7 @@ EOF
           CONFIG_PACKAGE_wireless-tools=y
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
-EOF
+          EOF
       - name: Verify Config
         run: |
           cd lede
@@ -169,7 +169,7 @@ EOF
           CONFIG_PACKAGE_wireless-tools=y
           CONFIG_PACKAGE_wpa-supplicant=y
           CONFIG_PACKAGE_iw=y
-EOF
+          EOF
       - name: Verify Config
         run: |
           cd openwrt
