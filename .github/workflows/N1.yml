@@ -78,14 +78,14 @@ jobs:
         run: |
           cd lede
           ./scripts/feeds update -a && ./scripts/feeds install -a
-         cat > .config << EOF
-         CONFIG_TARGET_armvirt=y
-         CONFIG_TARGET_armvirt_64=y
-         CONFIG_TARGET_armvirt_64_Default=y
-         CONFIG_PACKAGE_luci=y
-         CONFIG_PACKAGE_wpad=y
-         EOF
-         make oldconfig
+          cat > .config << EOF
+          CONFIG_TARGET_armvirt=y
+          CONFIG_TARGET_armvirt_64=y
+          CONFIG_TARGET_armvirt_64_Default=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_wpad=y
+          EOF
+          make oldconfig
       - name: Compile
         run: |
           cd lede  # 修复路径
