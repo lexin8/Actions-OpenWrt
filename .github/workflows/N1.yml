@@ -98,6 +98,7 @@ jobs:
           CONFIG_TARGET_amlogic_mesongx=y
           CONFIG_TARGET_amlogic_mesongx_DEVICE_phicomm_n1=y
           CONFIG_TARGET_ROOTFS_TARGZ=y
+          # CONFIG_TARGET_ROOTFS_EXT4FS is not set
           CONFIG_DEVEL=y
           CONFIG_CCACHE=n
           CONFIG_PACKAGE_kmod-brcmfmac=y
@@ -114,6 +115,7 @@ jobs:
           CONFIG_PACKAGE_kmod-usb2=y
           CONFIG_PACKAGE_kmod-usb-hid=y
           CONFIG_PACKAGE_kmod-usb-net=y
+          CONFIG_PACKAGE_kmod-usb-storage=y
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_ip6tables=y
           CONFIG_PACKAGE_odhcp6c=y
@@ -127,6 +129,10 @@ jobs:
           CONFIG_PACKAGE_lsblk=y
           CONFIG_PACKAGE_blkid=y
           CONFIG_PACKAGE_fdisk=y
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_kmod-fs-ext4=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_dosfstools=y
           # CONFIG_PACKAGE_wol is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
           # CONFIG_PACKAGE_nlbwmon is not set
