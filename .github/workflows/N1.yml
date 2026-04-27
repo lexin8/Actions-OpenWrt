@@ -83,6 +83,13 @@ jobs:
           mv -f package-temp/luci-app-amlogic/luci-app-amlogic package/lean/
           rm -rf package-temp
 
+      - name: Add OpenClash
+        working-directory: openwrt
+        run: |
+          git clone https://github.com/vernesong/OpenClash.git package-temp/openclash
+          mv -f package-temp/openclash/luci-app-openclash package/lean/
+          rm -rf package-temp
+
       - name: Generate configuration
         working-directory: openwrt
         run: |
@@ -205,6 +212,9 @@ jobs:
           CONFIG_PACKAGE_kmod-nls-cp437=y
           CONFIG_PACKAGE_kmod-nls-iso8859-1=y
           CONFIG_PACKAGE_kmod-nls-utf8=y
+          CONFIG_PACKAGE_luci-app-openclash=y
+          CONFIG_PACKAGE_kmod-tun=y
+          CONFIG_PACKAGE_dnsmasq-full=y
           EOF
           fi
 
