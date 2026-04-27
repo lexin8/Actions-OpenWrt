@@ -192,6 +192,10 @@ jobs:
           CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
           CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_vsftpd-alt=y
+          CONFIG_VSFTPD_USE_UCI_SCRIPTS=y
+          # CONFIG_PACKAGE_vsftpd is not set
+          # CONFIG_PACKAGE_luci-app-vsftpd is not set
           CONFIG_PACKAGE_kmod-fs-btrfs=y
           CONFIG_PACKAGE_kmod-dm=y
           CONFIG_PACKAGE_kmod-crypto-crc32c=y
