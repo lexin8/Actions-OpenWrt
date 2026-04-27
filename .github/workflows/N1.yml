@@ -1,10 +1,10 @@
-name: Phicomm N1
+name: Build Phicomm N1
 
 on:
   workflow_dispatch:
     inputs:
       source_branch:
-        description: "选择源码分支"
+        description: "Select source branch"
         required: true
         default: "lede_master"
         type: choice
@@ -13,7 +13,7 @@ on:
           - lede_master
           - immortalwrt_master
       openwrt_kernel:
-        description: "选择内核版本"
+        description: "Select kernel version"
         required: true
         default: "6.6.y"
         type: choice
@@ -22,14 +22,22 @@ on:
           - 6.6.y
           - 6.12.y
       auto_kernel:
-        description: "自动使用最新内核"
+        description: "Auto use latest kernel"
         required: false
         default: true
         type: boolean
       openwrt_ip:
-        description: "固件默认IP"
+        description: "Default LAN IP"
         required: false
         default: "192.168.1.2"
+      firmware_type:
+        description: "Firmware type"
+        required: true
+        default: "minimal"
+        type: choice
+        options:
+          - minimal
+          - full
 
 env:
   TZ: Asia/Shanghai
@@ -42,14 +50,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 初始化编译环境
+      - name: Setup build environment
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses-dev git wget curl rsync
           sudo swapoff -a
           sudo rm -f /swapfile
 
-      - name: 克隆源码
+      - name: Clone source
         run: |
           if [[ "${{ inputs.source_branch }}" == "openwrt_main" ]]; then
               git clone https://github.com/openwrt/openwrt -b main openwrt
@@ -59,13 +67,23 @@ jobs:
               git clone https://github.com/immortalwrt/immortalwrt -b master openwrt
           fi
 
-      - name: 更新并安装软件源
+      - name: Update and install feeds
         working-directory: openwrt
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 生成基础配置
+      - name: Remove ksmbd
+        run: rm -rf openwrt/package/kernel/ksmbd
+
+      - name: Add luci-app-amlogic
+        working-directory: openwrt
+        run: |
+          git clone https://github.com/ophub/luci-app-amlogic.git package-temp/luci-app-amlogic
+          mv -f package-temp/luci-app-amlogic/luci-app-amlogic package/lean/
+          rm -rf package-temp
+
+      - name: Generate configuration
         working-directory: openwrt
         run: |
           cat > .config << EOF
@@ -76,7 +94,6 @@ jobs:
           CONFIG_DEVEL=y
           CONFIG_CCACHE=n
 
-          # WiFi 驱动与固件
           CONFIG_PACKAGE_kmod-brcmfmac=y
           CONFIG_BRCMFMAC_SDIO=y
           CONFIG_PACKAGE_kmod-brcmutil=y
@@ -85,48 +102,128 @@ jobs:
           CONFIG_PACKAGE_wpad-openssl=y
           CONFIG_PACKAGE_iw=y
 
-          # 基础 LuCI
-          CONFIG_PACKAGE_luci-app-amlogic=y
           CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-opentomcat=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
 
-          # USB 支持
           CONFIG_PACKAGE_kmod-usb2=y
           CONFIG_PACKAGE_kmod-usb-hid=y
           CONFIG_PACKAGE_kmod-usb-net=y
 
-          # IPv6 支持
           CONFIG_PACKAGE_ipv6helper=y
           CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_odhcp6c=y
+          CONFIG_PACKAGE_odhcpd-ipv6only=y
 
-          # 排除不需要的包
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_jq=y
+          CONFIG_PACKAGE_wireless-regdb=y
+
           # CONFIG_PACKAGE_wol is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
           # CONFIG_PACKAGE_nlbwmon is not set
           # CONFIG_PACKAGE_luci-app-nlbwmon is not set
           EOF
+
+          if [[ "${{ inputs.firmware_type }}" == "full" ]]; then
+            cat >> .config << EOF
+          CONFIG_PACKAGE_aliyundrive-webdav=y
+          CONFIG_PACKAGE_attr=y
+          CONFIG_PACKAGE_blkid=y
+          CONFIG_PACKAGE_bsdtar=y
+          CONFIG_PACKAGE_btrfs-progs=y
+          CONFIG_PACKAGE_bzip2=y
+          CONFIG_PACKAGE_cgroupfs-mount=y
+          CONFIG_PACKAGE_chattr=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_dosfstools=y
+          CONFIG_PACKAGE_f2fs-tools=y
+          CONFIG_PACKAGE_f2fsck=y
+          CONFIG_PACKAGE_fdisk=y
+          CONFIG_PACKAGE_gawk=y
+          CONFIG_PACKAGE_getopt=y
+          CONFIG_PACKAGE_libcap-bin=y
+          CONFIG_PACKAGE_libfdisk=y
+          CONFIG_PACKAGE_libltdl=y
+          CONFIG_PACKAGE_liblzo=y
+          CONFIG_PACKAGE_libparted=y
+          CONFIG_PACKAGE_libreadline=y
+          CONFIG_PACKAGE_libseccomp=y
+          CONFIG_PACKAGE_libstdcpp=y
+          CONFIG_PACKAGE_libuv=y
+          CONFIG_PACKAGE_libwebsockets-full=y
+          CONFIG_PACKAGE_losetup=y
+          CONFIG_PACKAGE_lsattr=y
+          CONFIG_PACKAGE_lsblk=y
+          CONFIG_PACKAGE_mount-utils=y
+          CONFIG_PACKAGE_parted=y
+          CONFIG_PACKAGE_perl=y
+          CONFIG_PACKAGE_perl-http-date=y
+          CONFIG_PACKAGE_perlbase-essential=y
+          CONFIG_PACKAGE_pigz=y
+          CONFIG_PACKAGE_pv=y
+          CONFIG_PACKAGE_runc=y
+          CONFIG_PACKAGE_tar=y
+          CONFIG_PACKAGE_terminfo=y
+          CONFIG_PACKAGE_tini=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_uuidgen=y
+          CONFIG_PACKAGE_wireguard-tools=y
+          CONFIG_PACKAGE_wpa-cli=y
+          CONFIG_PACKAGE_xfs-fsck=y
+          CONFIG_PACKAGE_xfs-mkfs=y
+          CONFIG_PACKAGE_xz=y
+          CONFIG_PACKAGE_xz-utils=y
+          CONFIG_PARTED_READLINE=y
+          CONFIG_PERL_NOCOMMENT=y
+          CONFIG_PERL_THREADS=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_vsftpd-alt=y
+          CONFIG_VSFTPD_USE_UCI_SCRIPTS=y
+          CONFIG_PACKAGE_kmod-fs-btrfs=y
+          CONFIG_PACKAGE_kmod-dm=y
+          CONFIG_PACKAGE_kmod-crypto-crc32c=y
+          CONFIG_PACKAGE_kmod-lib-raid6=y
+          CONFIG_PACKAGE_kmod-lib-xor=y
+          CONFIG_PACKAGE_kmod-lib-zstd=y
+          CONFIG_PACKAGE_kmod-wireguard=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-dummy=y
+          CONFIG_PACKAGE_kmod-br-netfilter=y
+          CONFIG_PACKAGE_kmod-sit=y
+          CONFIG_PACKAGE_kmod-tcp-bbr=y
+          CONFIG_PACKAGE_kmod-nf-flow=y
+          CONFIG_PACKAGE_kmod-ipt-offload=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_kmod-nls-cp437=y
+          CONFIG_PACKAGE_kmod-nls-iso8859-1=y
+          CONFIG_PACKAGE_kmod-nls-utf8=y
+          EOF
+          fi
+
           make defconfig
 
-      - name: 下载所有依赖
+      - name: Download all dependencies
         working-directory: openwrt
         run: make download -j8
 
-      - name: 编译固件
+      - name: Compile firmware
         id: compile
         working-directory: openwrt
         run: |
           echo -e "$(nproc) thread compile"
           make -j$(nproc) || make -j1 V=s
-          echo "======================="
-          echo "Space usage:"
-          echo "======================="
-          df -h
-          du -h --max-depth=1 . --exclude=build_dir --exclude=bin
-          du -h --max-depth=1 ./build_dir 2>/dev/null || true
-          du -h --max-depth=1 ./bin 2>/dev/null || true
           rm -rf ./build_dir
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: 打包N1专用固件
+      - name: Package N1 firmware
         id: package
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
@@ -136,9 +233,9 @@ jobs:
           openwrt_kernel: ${{ inputs.openwrt_kernel }}
           auto_kernel: ${{ inputs.auto_kernel }}
 
-      - name: 上传固件
+      - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: Phicomm-N1-Firmware
+          name: Phicomm-N1-${{ inputs.firmware_type }}
           path: ${{ steps.package.outputs.PACKAGED_OUTPUTPATH }}/*.img.gz
           retention-days: 30
