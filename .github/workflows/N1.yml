@@ -233,7 +233,7 @@ jobs:
           rm -rf ./build_dir
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Package N1 firmware
+      - name: Package and prepare firmware
         id: package
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
@@ -243,9 +243,15 @@ jobs:
           openwrt_kernel: ${{ inputs.openwrt_kernel }}
           auto_kernel: ${{ inputs.auto_kernel }}
 
+      - name: Copy firmware to workspace
+        run: |
+          find /home/runner/work/_actions/ophub/amlogic-s9xxx-openwrt -name "*.img.gz" -exec cp -v {} . \;
+          echo "Firmware files in workspace:"
+          ls -lh *.img.gz
+
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
           name: Phicomm-N1-${{ inputs.firmware_type }}
-          path: ${{ steps.package.outputs.PACKAGED_OUTPUTPATH }}/*.img.gz
+          path: "*.img.gz"
           retention-days: 30
