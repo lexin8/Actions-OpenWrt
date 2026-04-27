@@ -1,4 +1,4 @@
-name: Build Phicomm N1
+name: Phicomm N1
 
 on:
   workflow_dispatch:
@@ -96,6 +96,7 @@ jobs:
         run: make -j$(nproc) || make -j1 V=s
 
       - name: 打包N1专用固件
+        id: package
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: openwrt/bin/targets/amlogic/mesongx/*rootfs.tar.gz
@@ -103,11 +104,10 @@ jobs:
           openwrt_ip: ${{ inputs.openwrt_ip }}
           openwrt_kernel: ${{ inputs.openwrt_kernel }}
           auto_kernel: ${{ inputs.auto_kernel }}
-          add_amlogic: true
 
       - name: 上传最终固件
         uses: actions/upload-artifact@v4
         with:
           name: Phicomm-N1-Firmware
-          path: out/*.img.gz
+          path: ${{ steps.package.outputs.PACKAGED_OUTPUTPATH }}/*.img.gz
           retention-days: 30
