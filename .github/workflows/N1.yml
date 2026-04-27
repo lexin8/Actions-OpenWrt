@@ -3,97 +3,105 @@ name: Phicomm N1
 on:
   workflow_dispatch:
     inputs:
-      openwrt_ip:
-        description: "Router LAN IP"
-        required: false
-        default: "192.168.1.2"
+      source_branch:
+        description: "Select source branch"
+        required: true
+        default: "lede_master"
+        type: choice
+        options:
+          - openwrt_main
+          - lede_master
+          - immortalwrt_master
       openwrt_kernel:
-        description: "Kernel version"
-        required: false
+        description: "Select kernel version"
+        required: true
         default: "6.6.y"
         type: choice
         options:
-          - 5.15.y
           - 6.1.y
           - 6.6.y
           - 6.12.y
+      auto_kernel:
+        description: "Auto use latest kernel"
+        required: false
+        default: true
+        type: boolean
+      openwrt_ip:
+        description: "Default LAN IP"
+        required: false
+        default: "192.168.1.2"
+      firmware_type:
+        description: "Firmware type"
+        required: true
+        default: "minimal"
+        type: choice
+        options:
+          - minimal
+          - full
+
+env:
+  TZ: Asia/Shanghai
+  UPLOAD_FIRMWARE: true
 
 jobs:
   build:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare source and minimal config
-        id: prepare
+      - name: Setup build environment
         run: |
-          REPO_URL="https://github.com/coolsnowwolf/lede"
-          SOURCE_DIR="openwrt"
-          git clone --depth 1 "${REPO_URL}" "${SOURCE_DIR}"
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses-dev git wget curl rsync
+          sudo swapoff -a
+          sudo rm -f /swapfile
 
-          cat > "${SOURCE_DIR}"/.config << EOF
+      - name: Clone source
+        run: |
+          if [[ "${{ inputs.source_branch }}" == "openwrt_main" ]]; then
+              git clone https://github.com/openwrt/openwrt -b main openwrt
+          elif [[ "${{ inputs.source_branch }}" == "lede_master" ]]; then
+              git clone https://github.com/coolsnowwolf/lede openwrt
+          elif [[ "${{ inputs.source_branch }}" == "immortalwrt_master" ]]; then
+              git clone https://github.com/immortalwrt/immortalwrt -b master openwrt
+          fi
+
+      - name: Update and install feeds
+        working-directory: openwrt
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Remove ksmbd
+        run: rm -rf openwrt/package/kernel/ksmbd
+
+      - name: Add luci-app-amlogic
+        working-directory: openwrt
+        run: |
+          git clone https://github.com/ophub/luci-app-amlogic.git package-temp/luci-app-amlogic
+          mv -f package-temp/luci-app-amlogic/luci-app-amlogic package/lean/
+          rm -rf package-temp
+
+      - name: Add OpenClash
+        working-directory: openwrt
+        run: |
+          git clone https://github.com/vernesong/OpenClash.git package-temp/openclash
+          mv -f package-temp/openclash/luci-app-openclash package/lean/
+          rm -rf package-temp
+
+      - name: Generate configuration
+        working-directory: openwrt
+        run: |
+          cat > .config << EOF
           CONFIG_TARGET_amlogic=y
           CONFIG_TARGET_amlogic_mesongx=y
           CONFIG_TARGET_amlogic_mesongx_DEVICE_phicomm_n1=y
           CONFIG_TARGET_ROOTFS_SQUASHFS=y
+          CONFIG_TARGET_ROOTFS_TARGZ=y
+          # CONFIG_TARGET_ROOTFS_EXT4FS is not set
           CONFIG_DEVEL=y
           CONFIG_CCACHE=n
-          CONFIG_PACKAGE_TAR_GZIP=y
-
-          CONFIG_PACKAGE_firewall4=y
-          CONFIG_PACKAGE_kmod-nft-offload=y
-          CONFIG_PACKAGE_kmod-nft-fullcone=y
-
-          CONFIG_PACKAGE_bash=y
-          CONFIG_PACKAGE_curl=y
-          CONFIG_PACKAGE_htop=y
-          CONFIG_PACKAGE_jq=y
-          CONFIG_PACKAGE_ethtool=y
-
-          CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_luci-theme-argon=y
-
-          CONFIG_PACKAGE_luci-app-upnp=y
-          CONFIG_PACKAGE_luci-app-commands=y
-          CONFIG_PACKAGE_luci-app-cpufreq=y
-          CONFIG_PACKAGE_luci-app-hd-idle=y
-
-          CONFIG_PACKAGE_perl=y
-          CONFIG_PACKAGE_perlbase-essential=y
-          CONFIG_PACKAGE_perlbase-utf8=y
-          CONFIG_PACKAGE_lsblk=y
-          CONFIG_PACKAGE_blkid=y
-          CONFIG_PACKAGE_fdisk=y
-          CONFIG_PACKAGE_parted=y
-          CONFIG_PACKAGE_e2fsprogs=y
-          CONFIG_PACKAGE_block-mount=y
-          CONFIG_PACKAGE_kmod-mmc=y
-          CONFIG_PACKAGE_kmod-fs-ext4=y
-          CONFIG_PACKAGE_kmod-fs-vfat=y
-          CONFIG_PACKAGE_dosfstools=y
-          CONFIG_PACKAGE_attr=y
-          CONFIG_PACKAGE_losetup=y
-          CONFIG_PACKAGE_uuidgen=y
-          CONFIG_PACKAGE_tar=y
-          CONFIG_PACKAGE_gawk=y
-          CONFIG_PACKAGE_getopt=y
-          CONFIG_PACKAGE_pigz=y
-          CONFIG_PACKAGE_bsdtar=y
-
-          CONFIG_PACKAGE_kmod-usb2=y
-          CONFIG_PACKAGE_kmod-usb-hid=y
-          CONFIG_PACKAGE_kmod-usb-net=y
-          CONFIG_PACKAGE_kmod-usb-storage=y
-          CONFIG_PACKAGE_kmod-usb-core=y
-
-          CONFIG_PACKAGE_ipv6helper=y
-          CONFIG_PACKAGE_ip6tables=y
-          CONFIG_PACKAGE_odhcp6c=y
-          CONFIG_PACKAGE_odhcpd-ipv6only=y
-
           CONFIG_PACKAGE_kmod-brcmfmac=y
           CONFIG_BRCMFMAC_SDIO=y
           CONFIG_PACKAGE_kmod-brcmutil=y
@@ -101,50 +109,139 @@ jobs:
           CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio-phicomm-n1=y
           CONFIG_PACKAGE_wpad-openssl=y
           CONFIG_PACKAGE_iw=y
+          CONFIG_PACKAGE_luci-app-amlogic=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-theme-opentomcat=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
+          CONFIG_PACKAGE_kmod-usb2=y
+          CONFIG_PACKAGE_kmod-usb-hid=y
+          CONFIG_PACKAGE_kmod-usb-net=y
+          CONFIG_PACKAGE_kmod-usb-storage=y
+          CONFIG_PACKAGE_ipv6helper=y
+          CONFIG_PACKAGE_ip6tables=y
+          CONFIG_PACKAGE_odhcp6c=y
+          CONFIG_PACKAGE_odhcpd-ipv6only=y
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_jq=y
           CONFIG_PACKAGE_wireless-regdb=y
-
-          # CONFIG_PACKAGE_docker is not set
-          # CONFIG_PACKAGE_luci-app-dockerman is not set
-          # CONFIG_PACKAGE_luci-app-passwall is not set
-          # CONFIG_PACKAGE_luci-app-openclash is not set
-          # CONFIG_PACKAGE_luci-app-v2raya is not set
-          # CONFIG_PACKAGE_luci-app-nikki is not set
-          # CONFIG_PACKAGE_luci-app-mosdns is not set
-          # CONFIG_PACKAGE_luci-app-ddns is not set
-          # CONFIG_PACKAGE_luci-app-samba4 is not set
-          # CONFIG_PACKAGE_luci-app-vsftpd is not set
+          CONFIG_PACKAGE_perl=y
+          CONFIG_PACKAGE_perlbase-essential=y
+          CONFIG_PACKAGE_lsblk=y
+          CONFIG_PACKAGE_blkid=y
+          CONFIG_PACKAGE_fdisk=y
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_kmod-fs-ext4=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_dosfstools=y
+          CONFIG_PACKAGE_parted=y
+          CONFIG_PACKAGE_e2fsprogs=y
+          CONFIG_PACKAGE_perlbase-utf8=y
+          CONFIG_PACKAGE_kmod-mmc=y
           # CONFIG_PACKAGE_wol is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
           # CONFIG_PACKAGE_nlbwmon is not set
           # CONFIG_PACKAGE_luci-app-nlbwmon is not set
           EOF
-
-          cd "${SOURCE_DIR}"
+          if [[ "${{ inputs.firmware_type }}" == "full" ]]; then
+            cat >> .config << EOF
+          CONFIG_PACKAGE_aliyundrive-webdav=y
+          CONFIG_PACKAGE_attr=y
+          CONFIG_PACKAGE_bsdtar=y
+          CONFIG_PACKAGE_btrfs-progs=y
+          CONFIG_PACKAGE_bzip2=y
+          CONFIG_PACKAGE_cgroupfs-mount=y
+          CONFIG_PACKAGE_chattr=y
+          CONFIG_PACKAGE_containerd=y
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_dosfstools=y
+          CONFIG_PACKAGE_f2fs-tools=y
+          CONFIG_PACKAGE_f2fsck=y
+          CONFIG_PACKAGE_gawk=y
+          CONFIG_PACKAGE_getopt=y
+          CONFIG_PACKAGE_libcap-bin=y
+          CONFIG_PACKAGE_libfdisk=y
+          CONFIG_PACKAGE_libltdl=y
+          CONFIG_PACKAGE_liblzo=y
+          CONFIG_PACKAGE_libparted=y
+          CONFIG_PACKAGE_libreadline=y
+          CONFIG_PACKAGE_libseccomp=y
+          CONFIG_PACKAGE_libstdcpp=y
+          CONFIG_PACKAGE_libuv=y
+          CONFIG_PACKAGE_libwebsockets-full=y
+          CONFIG_PACKAGE_losetup=y
+          CONFIG_PACKAGE_lsattr=y
+          CONFIG_PACKAGE_mount-utils=y
+          CONFIG_PACKAGE_parted=y
+          CONFIG_PACKAGE_perl-http-date=y
+          CONFIG_PACKAGE_pigz=y
+          CONFIG_PACKAGE_pv=y
+          CONFIG_PACKAGE_runc=y
+          CONFIG_PACKAGE_tar=y
+          CONFIG_PACKAGE_terminfo=y
+          CONFIG_PACKAGE_tini=y
+          CONFIG_PACKAGE_ttyd=y
+          CONFIG_PACKAGE_uuidgen=y
+          CONFIG_PACKAGE_wireguard-tools=y
+          CONFIG_PACKAGE_wpa-cli=y
+          CONFIG_PACKAGE_xfs-fsck=y
+          CONFIG_PACKAGE_xfs-mkfs=y
+          CONFIG_PACKAGE_xz=y
+          CONFIG_PACKAGE_xz-utils=y
+          CONFIG_PARTED_READLINE=y
+          CONFIG_PERL_NOCOMMENT=y
+          CONFIG_PERL_THREADS=y
+          CONFIG_PACKAGE_luci-app-docker=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_luci-i18n-docker-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-dockerman-zh-cn=y
+          CONFIG_PACKAGE_luci-lib-docker=y
+          CONFIG_PACKAGE_vsftpd-alt=y
+          CONFIG_VSFTPD_USE_UCI_SCRIPTS=y
+          # CONFIG_PACKAGE_vsftpd is not set
+          # CONFIG_PACKAGE_luci-app-vsftpd is not set
+          CONFIG_PACKAGE_kmod-fs-btrfs=y
+          CONFIG_PACKAGE_kmod-dm=y
+          CONFIG_PACKAGE_kmod-crypto-crc32c=y
+          CONFIG_PACKAGE_kmod-lib-raid6=y
+          CONFIG_PACKAGE_kmod-lib-xor=y
+          CONFIG_PACKAGE_kmod-lib-zstd=y
+          CONFIG_PACKAGE_kmod-wireguard=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-dummy=y
+          CONFIG_PACKAGE_kmod-br-netfilter=y
+          CONFIG_PACKAGE_kmod-sit=y
+          CONFIG_PACKAGE_kmod-tcp-bbr=y
+          CONFIG_PACKAGE_kmod-nf-flow=y
+          CONFIG_PACKAGE_kmod-ipt-offload=y
+          CONFIG_PACKAGE_kmod-fs-vfat=y
+          CONFIG_PACKAGE_kmod-nls-cp437=y
+          CONFIG_PACKAGE_kmod-nls-iso8859-1=y
+          CONFIG_PACKAGE_kmod-nls-utf8=y
+          CONFIG_PACKAGE_luci-app-openclash=y
+          CONFIG_PACKAGE_kmod-tun=y
+          CONFIG_PACKAGE_dnsmasq-full=y
+          EOF
+          fi
           make defconfig
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
+
+      - name: Download all dependencies
+        working-directory: openwrt
+        run: make download -j8
+
+      - name: Compile firmware
+        id: compile
+        working-directory: openwrt
+        run: |
+          echo -e "$(nproc) thread compile"
+          make -j$(nproc) || make -j1 V=s
+          rm -rf ./build_dir
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Build firmware
-        id: build
-        run: |
-          SOURCE_DIR="openwrt"
-          cd "${SOURCE_DIR}"
-          make download -j8
-          make -j$(nproc) || make -j1 V=s
-          if [ $? -eq 0 ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-            exit 1
-          fi
-
-      - name: Upload artifacts
-        if: steps.build.outputs.status == 'success'
+      - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
-          name: N1-LEDE-Minimal-${{ github.run_id }}
-          path: |
-            openwrt/bin/targets/amlogic/mesongx/*.img.gz
-            openwrt/bin/targets/amlogic/mesongx/*.tar.gz
+          name: Phicomm-N1-${{ inputs.firmware_type }}
+          path: openwrt/bin/targets/amlogic/mesongx/*.img.gz
           retention-days: 30
