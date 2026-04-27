@@ -1,8 +1,3 @@
-#============================================================================================
-# 斐讯 N1 专用 · 带WiFi + EMMC一键写入 · OpenWrt编译脚本
-# 基于 ophub/amlogic-s9xxx-openwrt 官方脚本优化
-#============================================================================================
-
 name: Build Phicomm N1
 
 on:
@@ -14,17 +9,17 @@ on:
         default: "lede_master"
         type: choice
         options:
-          - openwrt_main    # 官方OpenWrt
-          - lede_master     # Lean LEDE（推荐）
-          - immortalwrt_master  # 不死云
+          - openwrt_main
+          - lede_master
+          - immortalwrt_master
       openwrt_kernel:
         description: "选择内核版本"
         required: true
         default: "6.6.y"
         type: choice
         options:
-          - 6.1.y    # 稳定版
-          - 6.6.y    # 推荐（WiFi兼容性最好）
+          - 6.1.y
+          - 6.6.y
           - 6.12.y
       auto_kernel:
         description: "自动使用最新内核"
@@ -44,7 +39,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: 初始化编译环境
         run: |
@@ -64,22 +59,24 @@ jobs:
               git clone https://github.com/immortalwrt/immortalwrt -b master openwrt
           fi
 
-      - name: 更新&安装软件源
+      - name: 更新并安装软件源
         working-directory: /home/runner/openwrt
         run: |
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
-      - name: 基础配置（ARM64 + 后台）
+      - name: 生成N1专用配置文件
         working-directory: /home/runner/openwrt
         run: |
           cat > .config << EOF
-          CONFIG_TARGET_armsr=y
-          CONFIG_TARGET_armsr_armv8=y
-          CONFIG_TARGET_armsr_armv8_DEVICE_generic=y
+          CONFIG_TARGET_amlogic=y
+          CONFIG_TARGET_amlogic_meson=y
+          CONFIG_TARGET_amlogic_meson_DEVICE_phicomm_n1=y
           CONFIG_PACKAGE_luci=y
-          CONFIG_PACKAGE_wpad-mini=y
+          CONFIG_PACKAGE_wpad-openssl=y
           CONFIG_PACKAGE_iw=y
+          CONFIG_PACKAGE_kmod-brcmfmac=y
+          CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio-phicomm-n1=y
           EOF
           make defconfig
 
@@ -95,23 +92,20 @@ jobs:
         working-directory: /home/runner/openwrt
         run: |
           mkdir -p output
-          cp bin/targets/armsr/armv8/*rootfs.tar.gz output/
+          cp bin/targets/amlogic/meson/*rootfs.tar.gz output/
 
-      # ===================== 核心：ophub 打包N1固件（自动加WiFi+EMMC） =====================
       - name: 打包N1专用固件
         uses: ophub/amlogic-s9xxx-openwrt@main
         with:
           openwrt_path: /home/runner/openwrt/output/*rootfs.tar.gz
-          openwrt_board: s905d        # 锁定斐讯N1
+          openwrt_board: s905d
           openwrt_ip: ${{ inputs.openwrt_ip }}
           openwrt_kernel: ${{ inputs.openwrt_kernel }}
           auto_kernel: ${{ inputs.auto_kernel }}
-          add_amlogic: true           # 强制集成EMMC安装脚本
 
-      # ===================== 上传最终固件 =====================
-      - name: 上传N1固件
+      - name: 上传最终固件
         uses: actions/upload-artifact@v4
         with:
           name: Phicomm-N1-Firmware
-          path: ${{ env.PACKAGED_OUTPUTPATH }}/*.img.gz
+          path: /home/runner/openwrt/output/*.img.gz
           retention-days: 30
