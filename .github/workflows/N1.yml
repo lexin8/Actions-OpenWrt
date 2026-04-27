@@ -108,6 +108,7 @@ jobs:
           CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio-phicomm-n1=y
           CONFIG_PACKAGE_wpad-openssl=y
           CONFIG_PACKAGE_iw=y
+          CONFIG_PACKAGE_luci-app-amlogic=y
 
           CONFIG_PACKAGE_luci=y
           CONFIG_PACKAGE_luci-theme-opentomcat=y
@@ -126,6 +127,12 @@ jobs:
           CONFIG_PACKAGE_curl=y
           CONFIG_PACKAGE_jq=y
           CONFIG_PACKAGE_wireless-regdb=y
+          CONFIG_PACKAGE_perl=y
+          CONFIG_PACKAGE_perlbase-essential=y
+          CONFIG_PACKAGE_lsblk=y
+          CONFIG_PACKAGE_blkid=y
+          CONFIG_PACKAGE_fdisk=y
+          EOF
 
           # CONFIG_PACKAGE_wol is not set
           # CONFIG_PACKAGE_luci-app-wol is not set
