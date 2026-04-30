@@ -1,370 +1,102 @@
 proxy-providers: {}
 proxies:
-- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 351.90MB/s"
-  network: ws
-  port: 2096
-  server: 185.193.31.138
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /?telegram%F0%9F%87%A8%F0%9F%87%B3+%40wangcai2=
-- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 315.65MB/s"
-  network: ws
-  port: 2096
-  server: 185.16.110.238
-  servername: sni.jpmj.dev
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.jpmj.dev
-    path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 313.95MB/s"
-  network: ws
-  port: 2096
-  server: 8.6.112.6
-  servername: sni.jpmj.dev
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.jpmj.dev
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 308.23MB/s"
-  network: ws
-  port: 443
-  server: 135.84.73.247
-  servername: sni.111000.dynv6.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 292.23MB/s"
-  network: ws
-  port: 2096
-  server: 205.233.181.138
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /?Telegram%F0%9F%87%A8%F0%9F%87%B3+%40WangCai2=
-- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 261.65MB/s"
-  network: ws
-  port: 8443
-  server: 172.64.149.54
-  servername: sni.111000.dynv6.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.dynv6.net
-    path: "/?Telegram\U0001F1E8\U0001F1F3 @WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 254.74MB/s"
-  password: RSo52SbxW40r
-  port: 8388
-  server: 108.181.57.93
-  type: ss
-- name: "\U0001F3F3️ CW 001 | ⬇️ 246.77MB/s"
-  network: ws
-  port: 443
-  server: 5.10.245.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 231.74MB/s"
-  network: ws
-  port: 2053
-  server: 199.119.137.109
-  servername: babayaga-6i7.pages.dev
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 226.58MB/s"
-  network: ws
-  port: 2053
-  server: 199.119.137.77
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: /
-- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 219.54MB/s"
-  network: ws
-  port: 443
-  server: 181.214.1.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F2\U0001F1F9 MT 001 | ⬇️ 214.34MB/s"
-  network: ws
-  port: 443
-  server: 46.202.30.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ CW 002 | ⬇️ 204.29MB/s"
-  network: ws
-  port: 443
-  server: 5.10.247.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 195.44MB/s"
-  network: ws
-  port: 443
-  server: 102.177.176.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F7 HR 001 | ⬇️ 194.21MB/s"
-  network: ws
-  port: 443
-  server: 213.182.199.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ KH 001 | ⬇️ 193.21MB/s"
-  network: ws
-  port: 443
-  server: 92.243.74.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F5\U0001F1F9 PT 001 | ⬇️ 186.94MB/s"
-  network: ws
-  port: 443
-  server: 156.243.83.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1FE CY 001 | ⬇️ 186.90MB/s"
-  network: ws
-  port: 443
-  server: 154.92.9.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 186.52MB/s"
-  network: ws
-  port: 443
-  server: 104.129.165.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 186.40MB/s"
-  network: ws
-  port: 443
-  server: 212.183.88.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 185.33MB/s"
-  network: ws
-  port: 443
-  server: 185.148.106.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 184.93MB/s"
-  network: ws
-  port: 443
-  server: 199.34.228.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ CW 003 | ⬇️ 181.52MB/s"
-  network: ws
-  port: 443
-  server: 45.81.58.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
 - client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 180.98MB/s"
-  network: ws
-  port: 2053
-  server: 1357900.xyz
-  servername: v6u.cdn-a.chinam.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: v6u.cdn-a.chinam.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 178.96MB/s"
+  name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 264.31MB/s"
   network: ws
   port: 443
-  server: 199.68.156.231
-  servername: babayaga-6i7.pages.dev
+  server: mfa.gov.ua
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 177.83MB/s"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 236.76MB/s"
   network: ws
   port: 443
-  server: 185.207.197.231
-  servername: babayaga-6i7.pages.dev
+  server: www.mc.js.cool
+  servername: 177-e06.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 176.47MB/s"
+      Host: 177-e06.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 221.73MB/s"
   network: ws
   port: 443
-  server: 45.40.148.231
-  servername: babayaga-6i7.pages.dev
+  server: store.ubi.com
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F5\U0001F1ED PH 001 | ⬇️ 172.81MB/s"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 175.88MB/s"
   network: ws
   port: 443
-  server: 154.83.2.231
-  servername: babayaga-6i7.pages.dev
+  server: sub.danfeng.eu.org
+  servername: vless.lrdxw.club
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 172.61MB/s"
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 160.24MB/s"
+  network: ws
+  port: 443
+  server: 160.153.1.198
+  servername: sni.111000.v6.navy
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: "/?Telegram\U0001F1E8\U0001F1F3+@WangCai2="
+- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 158.19MB/s"
+  network: ws
+  port: 2096
+  server: 141.101.121.169
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /?ed
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 125.69MB/s"
+  network: ws
+  port: 443
+  server: cf.877774.xyz
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 68.68MB/s"
   network: ws
   port: 443
   server: 166.62.111.231
@@ -377,331 +109,35 @@ proxies:
     headers:
       Host: babayaga-6i7.pages.dev
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 171.93MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 59.54MB/s"
   network: ws
   port: 443
-  server: 141.193.213.231
-  servername: babayaga-6i7.pages.dev
+  server: 104.168.24.34
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1EA\U0001F1EA EE 001 | ⬇️ 171.04MB/s"
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 57.87MB/s"
   network: ws
-  port: 443
-  server: 45.80.110.231
-  servername: babayaga-6i7.pages.dev
+  port: 8443
+  server: cf3.danfeng.eu.org
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 168.80MB/s"
-  network: ws
-  port: 443
-  server: 199.34.229.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E7\U0001F1EC BG 001 | ⬇️ 167.75MB/s"
-  network: ws
-  port: 443
-  server: 45.142.120.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 165.06MB/s"
-  network: ws
-  port: 443
-  server: 45.80.111.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 165.03MB/s"
-  network: ws
-  port: 443
-  server: 166.62.113.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F3F3️ IR 001 | ⬇️ 163.78MB/s"
-  network: ws
-  port: 80
-  server: 45.131.4.192
-  tls: false
-  type: vless
-  udp: true
-  uuid: 5f4845b4-11dc-41d6-9508-4ff6a02e36c1
-  ws-opts:
-    headers:
-      Host: silent-paper-fa57.fipiyag989.workers.dev
-    path: /
-- name: "\U0001F1E8\U0001F1FE CY 002 | ⬇️ 161.66MB/s"
-  network: ws
-  port: 443
-  server: 104.239.72.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1F3 CN 001 | ⬇️ 161.57MB/s"
-  network: ws
-  port: 443
-  server: 176.124.223.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 160.24MB/s"
-  network: ws
-  port: 443
-  server: 159.246.55.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 159.14MB/s"
-  network: ws
-  port: 443
-  server: 108.162.192.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1ED\U0001F1FA HU 001 | ⬇️ 158.97MB/s"
-  network: ws
-  port: 443
-  server: 141.11.202.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ CW 004 | ⬇️ 158.95MB/s"
-  network: ws
-  port: 443
-  server: 5.10.246.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 016 | ⬇️ 158.86MB/s"
-  network: ws
-  port: 443
-  server: 69.84.182.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 158.55MB/s"
-  network: ws
-  port: 443
-  server: 27.50.49.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 157.77MB/s"
-  network: ws
-  port: 443
-  server: 108.162.196.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1EE\U0001F1F3 IN 001 | ⬇️ 156.82MB/s"
-  network: ws
-  port: 443
-  server: 108.165.152.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 017 | ⬇️ 156.07MB/s"
-  network: ws
-  port: 443
-  server: 192.0.54.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 018 | ⬇️ 155.85MB/s"
-  network: ws
-  port: 443
-  server: 166.62.112.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 019 | ⬇️ 155.75MB/s"
-  network: ws
-  port: 443
-  server: 141.101.115.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 155.35MB/s"
-  network: ws
-  port: 443
-  server: 92.53.191.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E7\U0001F1EC BG 002 | ⬇️ 153.69MB/s"
-  network: ws
-  port: 443
-  server: 147.78.140.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 153.04MB/s"
-  network: ws
-  port: 443
-  server: 45.128.76.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 151.76MB/s"
-  network: ws
-  port: 443
-  server: 188.42.145.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ CW 005 | ⬇️ 150.72MB/s"
-  network: ws
-  port: 443
-  server: 5.10.244.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 020 | ⬇️ 150.01MB/s"
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 48.54MB/s"
   network: ws
   port: 443
   server: 69.164.245.25
@@ -713,832 +149,13 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: /?ed=2560&Telegram+@WangCai2
-- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 148.11MB/s"
-  network: ws
-  port: 443
-  server: 185.207.199.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
     path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 021 | ⬇️ 147.54MB/s"
-  network: ws
-  port: 443
-  server: 45.153.7.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1F3 CN 002 | ⬇️ 144.21MB/s"
-  network: ws
-  port: 443
-  server: 77.105.163.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 022 | ⬇️ 144.14MB/s"
-  network: ws
-  port: 443
-  server: 66.81.247.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ KZ 001 | ⬇️ 142.60MB/s"
-  network: ws
-  port: 443
-  server: 31.43.179.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 023 | ⬇️ 142.24MB/s"
-  network: ws
-  port: 443
-  server: 199.34.230.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 HK 002 | ⬇️ 142.17MB/s"
-  network: ws
-  port: 443
-  server: 104.129.166.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 024 | ⬇️ 142.10MB/s"
-  network: ws
-  port: 443
-  server: 192.169.222.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 025 | ⬇️ 140.51MB/s"
-  network: ws
-  port: 443
-  server: 50.62.91.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1FF CZ 001 | ⬇️ 140.34MB/s"
-  network: ws
-  port: 443
-  server: 14.102.229.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 026 | ⬇️ 139.76MB/s"
-  network: ws
-  port: 443
-  server: 66.45.118.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ AM 001 | ⬇️ 139.48MB/s"
-  network: ws
-  port: 443
-  server: 5.10.215.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 138.95MB/s"
-  network: ws
-  port: 443
-  server: 154.194.12.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 027 | ⬇️ 136.35MB/s"
-  network: ws
-  port: 443
-  server: 159.112.235.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 028 | ⬇️ 135.35MB/s"
-  network: ws
-  port: 443
-  server: 198.71.189.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 029 | ⬇️ 133.35MB/s"
-  network: ws
-  port: 443
-  server: 192.169.223.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 030 | ⬇️ 132.79MB/s"
-  network: ws
-  port: 443
-  server: 155.46.213.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 031 | ⬇️ 132.14MB/s"
-  network: ws
-  port: 443
-  server: 50.62.172.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 032 | ⬇️ 132.10MB/s"
-  network: ws
-  port: 443
-  server: 50.62.195.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ VG 001 | ⬇️ 131.89MB/s"
-  network: ws
-  port: 443
-  server: 104.234.239.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 033 | ⬇️ 131.57MB/s"
-  network: ws
-  port: 443
-  server: 155.46.167.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 130.75MB/s"
-  network: ws
-  port: 443
-  server: 185.176.24.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 130.42MB/s"
-  network: ws
-  port: 443
-  server: 5.175.141.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 126.67MB/s"
-  network: ws
-  port: 443
-  server: www.sofi.com
-  servername: v6u.cdn-a.chinam.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: v6u.cdn-a.chinam.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 126.36MB/s"
-  network: ws
-  port: 8880
-  server: africa.visa.com
-  tls: false
-  type: vless
-  udp: true
-  uuid: 5b002005-7fb1-413e-8cbd-08e50c87c2ea
-  ws-opts:
-    headers:
-      Host: wetfleagidc-8tsbi8xd-v3.wet-flea-gidc.workers.dev
-    path: "\U0001F512"
-- name: "\U0001F1F7\U0001F1FA RU 002 | ⬇️ 125.73MB/s"
-  network: ws
-  port: 443
-  server: 185.148.104.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 125.46MB/s"
-  network: ws
-  port: 443
-  server: 185.7.240.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 034 | ⬇️ 124.34MB/s"
-  network: ws
-  port: 443
-  server: 8.34.146.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 035 | ⬇️ 124.08MB/s"
-  network: ws
-  port: 443
-  server: 166.62.114.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E8\U0001F1FE CY 003 | ⬇️ 122.57MB/s"
-  network: ws
-  port: 443
-  server: 195.26.229.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 121.87MB/s"
-  network: ws
-  port: 2053
-  server: www.gco.gov.qa
-  servername: v6u.cdn-a.chinam.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: v6u.cdn-a.chinam.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 036 | ⬇️ 121.84MB/s"
-  network: ws
-  port: 443
-  server: 130.250.137.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 037 | ⬇️ 120.87MB/s"
-  network: ws
-  port: 443
-  server: 147.185.161.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 038 | ⬇️ 120.12MB/s"
-  network: ws
-  port: 443
-  server: 45.40.146.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EA\U0001F1EA EE 002 | ⬇️ 119.68MB/s"
-  network: ws
-  port: 443
-  server: 185.159.247.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 039 | ⬇️ 117.62MB/s"
-  network: ws
-  port: 443
-  server: 72.167.242.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 040 | ⬇️ 116.73MB/s"
-  network: ws
-  port: 443
-  server: 198.202.211.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 041 | ⬇️ 115.19MB/s"
-  network: ws
-  port: 443
-  server: 104.129.164.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1F3 CN 003 | ⬇️ 115.13MB/s"
-  network: ws
-  port: 443
-  server: 43.169.19.179
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 114.98MB/s"
-  network: ws
-  port: 443
-  server: 164.38.155.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 042 | ⬇️ 113.82MB/s"
-  network: ws
-  port: 443
-  server: 209.94.90.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 043 | ⬇️ 110.40MB/s"
-  network: ws
-  port: 443
-  server: 156.154.245.83
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F7\U0001F1FA RU 003 | ⬇️ 110.29MB/s"
-  network: ws
-  port: 443
-  server: 193.9.49.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 110.23MB/s"
-  network: ws
-  port: 443
-  server: www.investec.com
-  servername: v6u.cdn-a.chinam.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: v6u.cdn-a.chinam.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 106.93MB/s"
-  network: ws
-  port: 443
-  server: 185.238.228.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1E6 UA 001 | ⬇️ 104.45MB/s"
-  network: ws
-  port: 443
-  server: 89.116.180.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 044 | ⬇️ 103.18MB/s"
-  network: ws
-  port: 443
-  server: 80.93.202.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 100.70MB/s"
-  network: ws
-  port: 2083
-  server: 172.66.42.200
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 100.28MB/s"
-  network: ws
-  port: 443
-  server: 31.185.108.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 045 | ⬇️ 99.63MB/s"
-  network: ws
-  port: 443
-  server: 104.238.71.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 046 | ⬇️ 99.49MB/s"
-  network: ws
-  port: 443
-  server: 198.71.232.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 047 | ⬇️ 99.40MB/s"
-  network: ws
-  port: 443
-  server: 166.62.104.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 048 | ⬇️ 99.07MB/s"
-  network: ws
-  port: 443
-  server: 216.205.52.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 98.16MB/s"
-  network: ws
-  port: 443
-  server: 194.36.55.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F3F3️ CW 006 | ⬇️ 98.14MB/s"
-  network: ws
-  port: 443
-  server: 92.60.74.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 049 | ⬇️ 97.20MB/s"
-  network: ws
-  port: 443
-  server: 162.120.94.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 95.79MB/s"
-  network: ws
-  port: 443
-  server: 92.53.190.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 HK 003 | ⬇️ 86.39MB/s"
-  network: ws
-  port: 443
-  server: 27.50.48.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 050 | ⬇️ 86.24MB/s"
-  network: ws
-  port: 443
-  server: 184.174.80.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 81.64MB/s"
-  network: ws
-  port: 8443
-  server: 192.99.55.53
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: gprc
-  name: "\U0001F1FA\U0001F1F8 US 051 | ⬇️ 81.48MB/s"
-  network: grpc
-  port: 30086
-  server: 192.159.99.18
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
-- name: "\U0001F1FA\U0001F1F8 US 052 | ⬇️ 81.31MB/s"
-  network: ws
-  port: 443
-  server: 72.167.243.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F3F3️ NZ 001 | ⬇️ 75.88MB/s"
-  network: ws
-  port: 443
-  server: 114.129.43.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 053 | ⬇️ 74.08MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 46.78MB/s"
   network: ws
   port: 2053
   server: 199.119.137.78
   servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -1546,38 +163,27 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 73.44MB/s"
-  network: ws
-  port: 443
-  server: 185.158.133.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F3F3️ KH 002 | ⬇️ 70.71MB/s"
-  network: ws
-  port: 443
-  server: 92.243.75.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 70.54MB/s"
+    path: /?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1F2\U0001F1FD MX 001 | ⬇️ 45.37MB/s"
   network: ws
   port: 8443
-  server: 158.69.201.4
+  server: 216.238.82.140
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 40.73MB/s"
+  network: ws
+  port: 2053
+  server: 199.119.137.41
   servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -1585,8 +191,22 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 054 | ⬇️ 70.10MB/s"
+    path: /?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 39.45MB/s"
+  network: ws
+  port: 2096
+  server: cf9.danfeng.eu.org
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 36.19MB/s"
   network: ws
   port: 443
   server: 50.228.203.26
@@ -1600,425 +220,54 @@ proxies:
     headers:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
-- name: "\U0001F1ED\U0001F1F0 HK 004 | ⬇️ 69.59MB/s"
-  network: ws
-  port: 443
-  server: 104.129.167.231
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 055 | ⬇️ 68.92MB/s"
-  password: G5p6ww4o67HB
-  port: 8388
-  server: 108.181.118.10
-  type: ss
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 056 | ⬇️ 66.94MB/s"
-  network: tcp
-  port: 443
-  server: s111.okgfw.top
-  servername: u712031ud03ds111.okgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 8f8ccdc5-fe99-38d7-a8a6-422f8c88ef0a
-- client-fingerprint: random
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 057 | ⬇️ 65.90MB/s"
-  network: tcp
-  port: 443
-  server: s843.ccgfw.top
-  servername: u712031uc91cs843.ccgfw.top
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 8f8ccdc5-fe99-38d7-a8a6-422f8c88ef0a
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 35"
-  port: 180
-  server: 82.198.246.37
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB SS-20 | free-nodes"
-  password: W74XFALLLuw6m5IA
-  port: 443
-  server: series-a2.samanehha.co
-  type: ss
-- flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 54.18MB/s"
-  port: 443
-  server: ukos2.ksnodes.net
-  servername: ukos2.ksnodes.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: b6ce8a51-19b9-4979-91ba-b4298c26d5fc
-- name: "\U0001F1EC\U0001F1E7 英国 18"
-  port: 8443
-  server: 152.233.28.196
-  servername: uk1.fromblancwithlove.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1FA\U0001F1F8 美国 521"
-  network: ws
-  port: 2053
-  server: 199.119.137.41
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB VLESS-65 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: ZpkoOvcRglQoTWJ3B7hiJlmMYTtIu41hJ51FMMdSTDE
-    short-id: 41427aa565e28984
-  server: 78.141.199.54
-  servername: www.vodafone.co.uk
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1EC\U0001F1E7 GB VLESS-55 | free-nodes"
-  network: tcp
-  port: 8443
-  server: uk1.fromblancwithlove.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- flow: xtls-rprx-vision
-  name: "\U0001F1E6\U0001F1EA AE 001 | ⬇️ 46.61MB/s"
-  port: 443
-  server: nlety.ksnodes.net
-  servername: nlety.ksnodes.net
+  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 36.03MB/s"
+  network: ws
+  port: 2096
+  server: cf8.danfeng.eu.org
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: b6ce8a51-19b9-4979-91ba-b4298c26d5fc
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 46.59MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: ZpkoOvcRglQoTWJ3B7hiJlmMYTtIu41hJ51FMMdSTDE
-    short-id: 98c3d62ba1c26863
-  server: 95.179.236.230
-  servername: www.argos.co.uk
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1E8\U0001F1E6 加拿大 156"
+  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 35.92MB/s"
   network: ws
-  port: 2053
-  server: 23.173.104.209
-  servername: babayaga-6i7.pages.dev
+  port: 443
+  server: 198.13.62.34
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 45.88MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.207
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: 未知 VLESS-106 | free-nodes
-  network: tcp
-  port: 443
-  server: 172.232.208.147
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: d7f67e94-aa9e-4454-b1cf-ce522a0d2728
-- name: "\U0001F1E8\U0001F1E6 CA 015 | ⬇️ 45.51MB/s"
-  network: ws
-  port: 2053
-  server: 23.173.104.201
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 45.46MB/s"
-  network: tcp
-  port: 8443
-  server: 195.181.173.199
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 45.31MB/s"
-  password: PWpjPo3tqhPN4yRZ
-  port: 20001
-  server: 8.209.74.72
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US VLESS-118 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: W-zf_ncm9sYALF5EqvUsxqTkYGdAw-tQczT2SqwVMGE
-    short-id: ff776ff77be48b88
-  server: 152.53.80.40
-  servername: sha.helper-internet.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e6567a1e-260f-4b0e-8de3-e2e12f90e854
-- client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US VLESS-84 | free-nodes"
-  network: ws
-  port: 2053
-  server: 72.18.132.149
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /?ed=2560
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB VLESS-59 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 6tORX9bm6UlGJ4dR8L2kzOd21oSrOyzpN7gC6SqGGyc
-    short-id: d27683580fc15f1e
-  server: 178.159.10.78
-  servername: www.vodafone.co.uk
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1E9\U0001F1EA 德国 48"
-  port: 8443
-  server: 152.233.35.228
-  servername: de1.fromblancwithlove.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1E9\U0001F1EA DE VLESS-91 | free-nodes"
-  network: ws
-  port: 443
-  server: 18.245.54.3
-  servername: d23iuljn5k9z1j.cloudfront.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 97b2cd5b-b98d-494f-8f97-3a06e8c1bbd2
-  ws-opts:
-    headers:
-      Host: d23iuljn5k9z1j.cloudfront.net
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1FA RU VLESS-116 | free-nodes"
-  network: tcp
+  name: "\U0001F1EF\U0001F1F5 JP 002 | ⬇️ 35.78MB/s"
+  network: ws
   port: 443
-  reality-opts:
-    public-key: BhTJ3phnq-Z-10aFKSsj1lzhA8mULR4L6leE4-0WTAs
-  server: 138.124.186.80
-  servername: www.fh-aachen.de
-  skip-cert-verify: false
-  tfo: false
+  server: 38.47.104.110
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: e346f220-4ca4-4f69-a66b-52e992b3b625
-- name: "\U0001F1F8\U0001F1EC SG VLESS-122 | free-nodes"
-  network: ws
-  port: 80
-  server: 141.193.213.21
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: fac62eac-1eec-4260-a991-0cac2f8745a3
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: free-server.techsonic.ggff.net
-    path: /@Tech_Sonic
-- name: "\U0001F1EB\U0001F1F7 FR TROJAN-47 | free-nodes"
-  network: ws
-  password: humanity
-  port: 443
-  server: 8.6.112.0
-  skip-cert-verify: false
-  sni: www.ignitelimit.com
-  type: trojan
-  ws-opts:
-    headers:
-      Host: www.ignitelimit.com
-    path: /assignment
-- name: "\U0001F1E9\U0001F1EA DE VLESS-71 | free-nodes"
-  network: ws
-  port: 30047
-  server: 138.124.32.188
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
-  ws-opts:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
-- alpn:
-  - http%2F1.1
-  name: "\U0001F1EB\U0001F1F7 FR TROJAN-48 | free-nodes"
+- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 32.50MB/s"
   network: ws
-  password: humanity
-  port: 443
-  server: sourceforge.net
-  skip-cert-verify: false
-  sni: www.calmloud.com
-  type: trojan
-  ws-opts:
-    headers:
-      Host: www.calmloud.com
-    path: /assignment
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 009 | ⬇️ 40.31MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: Ic2uiGhkBgJUsY0CZUBqa1y22V_BO7F4S93Zgk_ir2c
-    short-id: a1b2c3d4e5f67890
-  server: 136.244.93.228
-  servername: www.booking.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-51 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
-    short-id: 9c2378562188c3cb
-  server: austria.denditop.site
-  servername: austria.denditop.site
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
-- name: "\U0001F1E9\U0001F1EA 德国 603"
-  network: ws
-  port: 443
-  server: 46.101.136.162
-  servername: sni.latonyamadeline.ndjp.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: "/?https://t.me/WangCai2\U0001F1E8\U0001F1F3="
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F5\U0001F1F1 波兰 17"
-  port: 443
-  server: pl74.mechvpn.online
-  servername: pl74.mechvpn.online
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6d916d55-fead-4ff3-a3a9-83e175ea8ad7
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-96 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: djH9iD2QV748ocK-wPH7HvDd03lu88zHhS4G-61w6Dc
-    short-id: a120
-  server: cdn.cdnjst.org
-  servername: cdn.cdnjst.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: ae852d97-85f5-45cf-82a4-254eba345480
-- name: "\U0001F1E9\U0001F1EA DE VLESS-52 | free-nodes"
-  network: ws
-  port: 443
-  server: 104.18.12.149
-  servername: fire.rezazzz.ir
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 2b8d9d73-0031-42f9-9914-c8c579e087cb
-  ws-opts:
-    headers:
-      Host: fire.rezazzz.ir
-    path: /movie
-- name: "\U0001F1E8\U0001F1E6 加拿大 383"
-  network: ws
-  port: 8443
-  server: 158.69.196.206
+  port: 2053
+  server: 199.119.137.109
   servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -2026,388 +275,66 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-90 | free-nodes
-  network: tcp
-  port: 7443
-  reality-opts:
-    public-key: 5QAO98ot2U7TcGs_f6EEaQjCzNOJLNHqPf6smYsdFVI
-    short-id: d82fb387
-  server: 152.53.1.32
-  servername: chat.deepseek.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 8f8380ae-9f5d-4cb5-8f5f-0f70fbe054a9
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB SS-27 | free-nodes"
-  password: idMvoewrSyLLvEvP03k9zR
-  port: 46576
-  server: 138.68.153.223
-  type: ss
-- name: "\U0001F1F1\U0001F1FB 拉脱维亚 614"
-  network: ws
-  port: 443
-  server: 169.40.1.34
-  servername: sni.111000.v6.rocks
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.rocks
     path: /?ed=2560
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR VLESS-61 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 3mzvB6oezGe8hhBCVkXs4HIH1nkiPc3QCMurERaB_Ro
-    short-id: b87063a35aaa942e
-  server: 51.159.99.137
-  servername: www.cdiscount.com
-  skip-cert-verify: false
-  tfo: false
+  name: "\U0001F1EF\U0001F1F5 JP 003 | ⬇️ 31.60MB/s"
+  network: ws
+  port: 30218
+  server: 38.47.111.141
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  name: "\U0001F1E9\U0001F1EA DE VLESS-88 | free-nodes"
+  name: "\U0001F1EF\U0001F1F5 JP 004 | ⬇️ 31.28MB/s"
   network: ws
-  port: 443
-  server: 8.6.112.6
-  servername: tbp.zuhn.ir
-  skip-cert-verify: false
-  tfo: false
+  port: 44463
+  server: 38.47.96.96
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: 7f6a8bf3-e8fc-473e-8acb-acee6321ec40
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: tbp.zuhn.ir
-    path: /test
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-64 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
-    short-id: 9b4fc5a116efd6c8
-  server: 77.81.98.70
-  servername: www.aliexpress.com
-  skip-cert-verify: false
-  tfo: false
+  name: "\U0001F1EF\U0001F1F5 JP 005 | ⬇️ 30.09MB/s"
+  network: ws
+  port: 44981
+  server: 38.47.96.96
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-62 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: tboI265nKvT77HoZPyA6bgZNuLap_Jy-XvAx2-4Rcwk
-    short-id: 0c1553316a645758
-  server: 64.176.166.143
-  servername: store.steampowered.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB VLESS-103 | free-nodes"
-  network: tcp
-  port: 7443
-  reality-opts:
-    public-key: 5QAO98ot2U7TcGs_f6EEaQjCzNOJLNHqPf6smYsdFVI
-    short-id: be0ce047
-  server: 45.43.75.199
-  servername: chat.deepseek.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: caa3af29-3b04-4099-9772-c64a1b7cca34
-- name: "\U0001F1E8\U0001F1E6 加拿大 448"
+  name: "\U0001F1EF\U0001F1F5 JP 006 | ⬇️ 30.08MB/s"
   network: ws
-  port: 443
-  server: 142.4.215.110
-  servername: babayaga-6i7.pages.dev
+  port: 48631
+  server: 45.129.8.233
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: TR VLESS-60 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: XkRQUOLTBAiIXB1MK9oJwlfn-9XnH53ykk5UE6rDyFc
-    short-id: d4356669ea880400
-  server: 2.56.127.207
-  servername: store.steampowered.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1E9\U0001F1EA 德国 255"
-  network: ws
-  port: 2083
-  server: 68.183.211.93
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 32"
-  port: 180
-  server: 82.198.246.9
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- name: "\U0001F1E8\U0001F1E6 加拿大 414"
-  network: ws
-  port: 8443
-  server: 51.222.30.98
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: 未知 VLESS-81 | free-nodes
-  network: ws
-  port: 2053
-  server: 188.241.241.123
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /?Telegram%F0%9F%87%A8%F0%9F%87%B3%40WangCai2=
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR VLESS-58 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: ESRdmody9xdWVTaCtyGLg_LDopyMm9bUYDWH8NVWtjE
-    short-id: c906f73d3ba8211f
-  server: 145.239.8.221
-  servername: www.leboncoin.fr
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-110 | free-nodes
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 45.12.146.179
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-11 | free-nodes
-  password: yKVMoB3AwiTEznpnoq2FYR
-  port: 28687
-  server: 193.47.60.186
-  type: ss
-- client-fingerprint: chrome
-  name: 未知 VLESS-120 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
-    short-id: 5bfa0c
-  server: fi1.cyphervpn.pro
-  servername: fi1.cyphervpn.pro
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: f7bae22e-20ab-11f1-835c-0242ac110002
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-114 | free-nodes
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 82.118.16.61
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- name: "\U0001F1E8\U0001F1E6 加拿大 409"
-  network: ws
-  port: 443
-  server: 167.114.67.25
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1EF\U0001F1F5 日本 506"
-  network: ws
-  port: 443
-  server: 140.238.51.35
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: aes-128-gcm
-  name: "\U0001F1ED\U0001F1F0 HK SS-28 | free-nodes"
-  password: 0fae0ceb-4b6d-4bab-9d3c-612c77ae9b2f
-  port: 37769
-  server: vip-pro6669cheap.fq-number-001.co
-  type: ss
-- name: 每天更新，请加电报群防止失联
-  password: e136d465-0558-43b9-b50c-b1f45d4cb2c2
-  port: 24534
-  server: jp2-8sb.6121999.dpdns.org
-  skip-cert-verify: false
-  sni: jp2-8sb.6121999.dpdns.org
-  tls: true
-  type: trojan
-  udp: true
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-08 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001269pz2.cybervena.com
-  type: ss
-- name: "\U0001F1EF\U0001F1F5 日本 216"
-  network: ws
-  port: 443
-  server: 172.233.78.172
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EF\U0001F1F5 日本 307"
-  network: ws
-  port: 443
-  server: 45.77.21.148
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: 未知 VLESS-83 | free-nodes
-  network: ws
-  port: 2053
-  server: 51.38.227.155
-  servername: sni.111000.v6.navy
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.navy
-    path: /?Telegram%F0%9F%87%A8%F0%9F%87%B3+%40WangCai2=
-- name: "\U0001F1FA\U0001F1F8 美国 588"
-  network: ws
-  port: 443
-  server: 193.32.177.152
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 30"
-  port: 180
-  server: 82.198.246.214
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-26 | free-nodes
-  password: be4a6fd2209f62a7
-  port: 11201
-  server: 185.67.125.109
-  type: ss
-- grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: gprc
-  name: "\U0001F1E9\U0001F1EA DE VLESS-72 | free-nodes"
-  network: grpc
-  port: 30086
-  server: 138.124.32.189
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - alpn:
   - http/1.1
-  name: 13|US_speednode_0038
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 28.61MB/s"
   network: ws
   port: 443
   server: 43.213.148.173
@@ -2421,438 +348,442 @@ proxies:
     headers:
       Host: snippet.gfw.qzz.io
     path: /danfeng
-- grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: gprc
-  name: 未知 VLESS-74 | free-nodes
-  network: grpc
-  port: 30086
-  server: 45.138.16.58
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 26.66MB/s"
+  network: ws
+  port: 443
+  server: 209.38.100.127
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 26.10MB/s"
+  network: ws
+  port: 443
+  server: 139.59.189.127
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 25.66MB/s"
+  network: ws
+  port: 2096
+  server: 159.65.51.105
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 25.63MB/s"
+  network: ws
+  port: 443
+  server: 46.101.82.164
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 25.52MB/s"
+  network: ws
+  port: 2083
+  server: 68.183.42.143
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 007 | ⬇️ 25.40MB/s"
+  network: ws
+  port: 443
+  server: 64.227.32.187
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 008 | ⬇️ 25.38MB/s"
+  network: ws
+  port: 443
+  server: 138.68.133.141
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 009 | ⬇️ 25.13MB/s"
+  network: ws
+  port: 443
+  server: 209.97.141.124
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 25.10MB/s"
+  network: ws
+  port: 30047
+  server: 138.124.32.188
   skip-cert-verify: false
-  tfo: false
   tls: false
   type: vless
+  udp: true
   uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-113 | free-nodes
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 82.117.255.37
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- name: "\U0001F1EF\U0001F1F5 日本 257"
-  network: ws
-  port: 26956
-  server: 147.78.247.46
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 106"
-  network: ws
-  port: 443
-  server: 96.9.228.241
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 144"
-  network: ws
-  port: 443
-  server: 157.230.254.79
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 91"
-  network: ws
-  port: 443
-  server: 219.76.13.166
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 306"
-  network: ws
-  port: 443
-  server: 164.52.2.98
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 589"
-  network: ws
-  port: 443
-  server: 143.198.213.81
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 484"
-  network: ws
-  port: 443
-  server: 68.183.227.180
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1EF\U0001F1F5 日本 103"
-  network: ws
-  port: 443
-  server: 64.176.52.230
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1EE 芬兰 6"
-  port: 8443
-  reality-opts:
-    public-key: Ubibgn_MlW_zHo9LwjNH_b6SLNWwTJFwq7wW2ggLtUs
-    short-id: 88ce6b586fcaf681
-  server: node-fi.dostup-est.info
-  servername: cdnjs.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: c931f737-cafe-4e4f-998a-a65517941256
-- client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US VLESS-107 | free-nodes"
-  network: tcp
-  port: 34045
-  reality-opts:
-    public-key: cDaDzPr3PlS3NM8lreHZbdo-Mhqz8vMBzMSkHXhGIUA
-    short-id: e8ab71d0
-  server: 64.23.143.23
-  servername: visit-this-invitation-link-to-join-tg-enkelte-notif.ekt.me
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: d8dd94fd-540e-461d-b5d4-acebef02c22a
-- name: "\U0001F1F8\U0001F1EC 新加坡 302"
-  network: ws
-  port: 443
-  server: 68.183.230.164
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-93 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: wBrGfTI9PaFf966aN6KaCY0cL6QRLlop4nzNa6bJsiQ
-    short-id: 9f35da6c9412b832
-  server: 5.180.97.139
-  servername: google.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: a384c715-aeb5-45e8-859b-f687ca6c083f
-- name: "\U0001F1F2\U0001F1FE 马来西亚 218"
-  network: ws
-  port: 2087
-  server: 47.250.81.46
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 579"
-  network: ws
-  port: 443
-  server: 68.183.227.22
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F8\U0001F1EA 瑞典 21"
-  port: 443
-  reality-opts:
-    public-key: 9WnuH4KUb9-cCqbApq4bVLDhrqhPbpnd5eTn14bGciA
-    short-id: f7
-  server: lol-swe-0001.api.neuralrelay.stream
-  servername: hls-svod.itunes.apple.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: f189684b-6213-4c0d-a2e3-cb8860f5d4c5
-- name: "\U0001F1EE\U0001F1E9 印度尼西亚 80"
-  network: ws
-  port: 443
-  server: 147.139.189.225
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 175"
+  name: "\U0001F1EC\U0001F1E7 GB 010 | ⬇️ 24.72MB/s"
   network: ws
   port: 8443
-  server: 45.38.60.52
-  servername: babayaga-6i7.pages.dev
+  server: 193.219.99.109
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 573"
-  network: ws
-  port: 443
-  server: 43.160.207.33
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 美国 554"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 011 | ⬇️ 24.64MB/s"
   network: ws
   port: 8443
-  server: 69.143.174.201
-  servername: babayaga-6i7.pages.dev
+  server: 193.219.99.158
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 308"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 24.38MB/s"
+  network: ws
+  port: 39738
+  server: 154.40.137.129
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 012 | ⬇️ 24.28MB/s"
+  network: ws
+  port: 8443
+  server: 193.219.99.36
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EF\U0001F1F5 JP 007 | ⬇️ 24.26MB/s"
   network: ws
   port: 443
-  server: 152.42.255.28
-  servername: babayaga-6i7.pages.dev
+  server: 18.180.75.128
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 240"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 23.81MB/s"
+  port: 10086
+  server: 204.216.216.23
+  tls: false
+  type: vless
+  udp: true
+  uuid: 9f0285ee-20ca-4953-bcdb-86a920652923
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 013 | ⬇️ 22.96MB/s"
   network: ws
   port: 443
-  server: 217.60.38.113
-  servername: babayaga-6i7.pages.dev
+  server: 104.248.160.103
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F0\U0001F1F7 韩国 518"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 22.62MB/s"
   network: ws
   port: 443
-  server: 193.123.233.168
-  servername: babayaga-6i7.pages.dev
+  server: 34.92.187.216
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 130"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 22.23MB/s"
   network: ws
   port: 443
-  server: 159.223.57.22
-  servername: babayaga-6i7.pages.dev
+  server: 167.71.213.95
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 128"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 002 | ⬇️ 22.00MB/s"
   network: ws
   port: 443
-  server: 165.245.181.78
-  servername: babayaga-6i7.pages.dev
+  server: 152.42.246.234
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EF\U0001F1F5 日本 187"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 003 | ⬇️ 21.82MB/s"
   network: ws
   port: 443
-  server: 158.51.110.12
-  servername: babayaga-6i7.pages.dev
+  server: 157.230.38.88
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 131"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 146"
+  network: ws
+  port: 8443
+  server: 157.230.39.201
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 133"
   network: ws
   port: 443
-  server: 152.42.207.130
-  servername: babayaga-6i7.pages.dev
+  server: 8.219.155.125
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 84"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 107"
+  network: ws
+  port: 8443
+  server: 213.35.122.203
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 162"
   network: ws
   port: 443
-  server: 194.127.192.165
-  servername: babayaga-6i7.pages.dev
+  server: 152.42.173.182
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 146"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 176"
   network: ws
   port: 443
-  server: 165.22.253.232
-  servername: babayaga-6i7.pages.dev
+  server: 152.42.229.104
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 496"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 110"
   network: ws
   port: 443
-  server: 217.60.248.59
-  servername: babayaga-6i7.pages.dev
+  server: 128.199.82.20
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F8\U0001F1EA 瑞典 410"
-  network: ws
-  port: 2053
-  server: 147.45.77.159
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 297"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1E6\U0001F1F9 奥地利 235"
   network: ws
   port: 443
-  server: 139.59.239.116
-  servername: babayaga-6i7.pages.dev
+  server: 147.45.71.152
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 荷兰 266"
+  network: ws
+  port: 443
+  server: 213.165.37.2
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 143"
+  network: ws
+  port: 443
+  server: 152.42.189.56
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 荷兰 218"
+  network: ws
+  port: 443
+  server: 176.124.199.233
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 98"
+  network: ws
+  port: 443
+  server: 114.110.181.49
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 153"
+  network: ws
+  port: 443
+  server: 172.104.191.150
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - name: 13|US_speednode_0052
   network: ws
   port: 443
@@ -2867,40 +798,95 @@ proxies:
     headers:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
-- client-fingerprint: ios
-  name: "\U0001F1ED\U0001F1F0 HK VLESS-53 | free-nodes"
-  network: ws
-  port: 443
-  server: 104.18.46.50
-  servername: sk-hk1.feimavip.sbs
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 3264ccbe-dbc5-4d14-8dbe-1c62041cc43f
-  ws-opts:
-    headers:
-      Host: sk-hk1.feimavip.sbs
-    path: /hk/1
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-112 | free-nodes
-  network: tcp
+  name: "\U0001F1EB\U0001F1F7 法国 234"
+  network: ws
   port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 45.15.171.80
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
+  server: 62.60.156.139
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- name: "\U0001F1F8\U0001F1EC 新加坡 403"
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 147"
   network: ws
   port: 443
-  server: 167.88.172.82
+  server: 116.251.217.107
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 英国 243"
+  network: ws
+  port: 8443
+  server: 57.129.137.220
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "48"
+  network: ws
+  port: 8443
+  server: 104.20.6.134
+  servername: J0in-Te1egram-eiiim.danesh-bonyan.Store
+  tls: true
+  type: vless
+  udp: true
+  uuid: c40bf260-ea57-4d7c-b56a-594c8fc01172
+  ws-opts:
+    headers:
+      Host: eiiim.danesh-bonyan.Store
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 156"
+  network: ws
+  port: 443
+  server: 139.59.113.24
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 英国 244"
+  network: ws
+  port: 8443
+  server: 57.129.137.219
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: 13|US_speednode_0051
+  network: ws
+  port: 8443
+  server: 69.143.174.201
   servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -2908,61 +894,13 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E9\U0001F1EA DE SS-17 | free-nodes"
-  password: Q7cjiVD0oKNE2o9sUnZKQg
-  port: 23243
-  server: 46.101.196.138
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-67 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
-    short-id: c906f73d3ba8211f
-  server: 91.199.50.37
-  servername: www.alibaba.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1ED\U0001F1F0 香港 158"
-  network: ws
-  port: 443
-  server: 43.161.221.27
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- client-fingerprint: chrome
-  name: 未知 VLESS-75 | free-nodes
+    path: /?ed=2560
+- name: 13|US_speednode_0049
   network: ws
   port: 2053
-  server: 141.95.127.132
-  servername: sni.111000.indevs.in
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.indevs.in
-    path: /Telegram@V2ynpv-Telegram@V2ynpv-Telegram@V2ynpv-Telegram@V2ynpv-Telegram@V2ynpv-Telegram@V2ynpv-Telegram@V2ynpv
-- name: "\U0001F1EE\U0001F1E9 印度尼西亚 278"
-  network: ws
-  port: 443
-  server: 43.165.195.160
+  server: 199.119.137.77
   servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -2970,387 +908,228 @@ proxies:
   ws-opts:
     headers:
       Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+    path: /?ed=2560
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-109 | free-nodes
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 2.56.172.83
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- name: "\U0001F1F8\U0001F1EC 新加坡 539"
+  name: "\U0001F1FA\U0001F1F8 美国 106"
   network: ws
   port: 443
-  server: 178.128.209.190
-  servername: babayaga-6i7.pages.dev
+  server: 38.207.177.100
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1E8\U0001F1E6 加拿大 115"
-  network: ws
-  port: 8443
-  server: 24.109.36.190
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F0\U0001F1F7 韩国 246"
-  network: ws
-  port: 60004
-  server: 220.118.83.101
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB VLESS-70 | free-nodes"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 0rtpNciTfV9TsoEc7Y8lS5LzBUzLppMnRY8bQC_bH3M
-    short-id: aabbccdd
-  server: 79.141.171.133
-  servername: apple.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 4c3fe585-ac09-41df-b284-888818888188
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-01 | free-nodes
-  password: 6ThD1AgwXc8Stpp7hEohLa
-  port: 16970
-  server: 139.59.87.22
-  type: ss
-- name: "\U0001F1E9\U0001F1EA 德国 168"
+  name: "\U0001F1EC\U0001F1E7 英国 241"
   network: ws
   port: 443
-  server: 94.156.114.13
-  servername: babayaga-6i7.pages.dev
+  server: 57.129.137.219
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 545"
-  network: ws
-  port: 443
-  server: 178.128.62.86
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US VLESS-102 | free-nodes"
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: FVL0r87K3-vUP2KXQX1juLMFEHJtvxwKM-nm6_PYllc
-    short-id: cafe01234567
-  server: 82.38.63.246
-  servername: www.apple.com
-  skip-cert-verify: false
-  tfo: false
+  name: "\U0001F1EC\U0001F1E7 英国 189"
+  network: ws
+  port: 443
+  server: 171.22.181.224
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: ca05976a-2dea-11f1-9ec5-baabcd4be2cd
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US VLESS-115 | free-nodes"
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 94.131.101.19
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
+  name: "\U0001F1EF\U0001F1F5 日本 159"
+  network: ws
+  port: 443
+  server: 161.33.41.206
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-108 | free-nodes
-  network: tcp
-  port: 8443
-  reality-opts:
-    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
-  server: 103.231.73.181
-  servername: tradingview.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-15 | free-nodes
-  password: PDNcrHbGmb5u76Og8NatjZ
-  port: 21836
-  server: 185.117.91.27
-  type: ss
-- name: "\U0001F1FA\U0001F1F8 美国 581"
+  name: "\U0001F1F0\U0001F1F7 韩国 213"
   network: ws
-  port: 8443
-  server: 193.46.217.233
-  servername: babayaga-6i7.pages.dev
+  port: 27016
+  server: 115.22.166.208
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-07 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: 114.25.9.81
-  type: ss
-- name: "\U0001F1F2\U0001F1FE 马来西亚 596"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 255"
   network: ws
-  port: 888
-  server: 47.250.189.179
-  servername: babayaga-6i7.pages.dev
+  port: 10002
+  server: 218.158.249.174
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-04 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0011499tl.cybervena.com
-  type: ss
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA 德国 33"
-  port: 180
-  server: 82.198.246.250
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- name: "\U0001F1F8\U0001F1EC 新加坡 68"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 232"
   network: ws
-  port: 443
-  server: 23.111.15.148
-  servername: babayaga-6i7.pages.dev
+  port: 12345
+  server: 121.147.109.75
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1ED\U0001F1F0 香港 311"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 225"
   network: ws
-  port: 443
-  server: 2.56.91.167
-  servername: babayaga-6i7.pages.dev
+  port: 18789
+  server: 112.162.177.241
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 315"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 257"
   network: ws
-  port: 443
-  server: 23.111.15.140
-  servername: babayaga-6i7.pages.dev
+  port: 30303
+  server: 59.8.153.65
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1EB\U0001F1F7 FR VLESS-49 | free-nodes"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 208"
   network: ws
-  port: 80
-  server: 213.136.69.8
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 15cbab96-197e-46a5-9042-073b3980c798
-  ws-opts:
-    headers:
-      Host: fsdns.ectunnelvpn.me
-    path: /vless
-- name: "\U0001F1F8\U0001F1EC 新加坡 63"
-  network: ws
-  port: 443
-  server: 23.111.15.146
-  servername: babayaga-6i7.pages.dev
+  port: 33890
+  server: 112.163.209.76
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 66"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 250"
   network: ws
-  port: 443
-  server: 23.111.15.133
-  servername: babayaga-6i7.pages.dev
+  port: 10000
+  server: 119.207.146.175
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1F8\U0001F1EC 新加坡 322"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 220"
   network: ws
-  port: 443
-  server: 23.111.15.138
-  servername: babayaga-6i7.pages.dev
+  port: 16923
+  server: 203.243.4.91
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW SS-02 | free-nodes"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: 61.231.19.71
-  type: ss
-- name: "\U0001F1F8\U0001F1EC 新加坡 314"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 216"
   network: ws
-  port: 443
-  server: 23.111.15.141
-  servername: babayaga-6i7.pages.dev
+  port: 36398
+  server: 14.42.199.13
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- cipher: aes-256-gcm
-  name: "\U0001F1EC\U0001F1E7 GB SS-37 | free-nodes"
-  password: YhzqOeJsfuZ9rkkc
-  port: 443
-  server: 149.102.132.186
-  type: ss
-- name: "\U0001F1ED\U0001F1F0 香港 595"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 236"
   network: ws
-  port: 443
-  server: 212.192.15.182
-  servername: babayaga-6i7.pages.dev
+  port: 33848
+  server: 121.151.210.54
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-14 | free-nodes
-  password: MholStyHL7DhrewKbpQa20
-  port: 24637
-  server: 185.176.221.72
-  type: ss
-- name: "\U0001F1ED\U0001F1F0 香港 423"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 187"
   network: ws
-  port: 11377
-  server: 38.207.164.65
-  servername: babayaga-6i7.pages.dev
+  port: 25448
+  server: 118.43.208.141
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- name: "\U0001F1F0\U0001F1F7 韩国 252"
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F0\U0001F1F7 韩国 276"
   network: ws
-  port: 30019
-  server: 210.99.119.3
-  servername: babayaga-6i7.pages.dev
+  port: 25010
+  server: 112.172.55.228
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-21 | free-nodes
-  password: WC0GbiCk67K8nHDaDHmYIX
-  port: 19582
-  server: 159.223.236.36
-  type: ss
-- name: "\U0001F1EF\U0001F1F5 日本 509"
-  network: ws
-  port: 10129
-  server: 138.2.59.96
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US SS-30 | free-nodes"
-  password: 14CLBaFBqwqxBJy6
-  port: 80
-  server: 66.94.125.178
-  type: ss
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
