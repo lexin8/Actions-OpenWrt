@@ -1,75 +1,20 @@
 proxy-providers: {}
 proxies:
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 264.31MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 289.09MB/s"
   network: ws
-  port: 443
-  server: mfa.gov.ua
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  port: 8443
+  server: 104.18.13.149
+  servername: sni.111000.dynv6.net
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 236.76MB/s"
-  network: ws
-  port: 443
-  server: www.mc.js.cool
-  servername: 177-e06.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: 177-e06.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 221.73MB/s"
-  network: ws
-  port: 443
-  server: store.ubi.com
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: firefox
-  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 175.88MB/s"
-  network: ws
-  port: 443
-  server: sub.danfeng.eu.org
-  servername: vless.lrdxw.club
-  tls: true
-  type: vless
-  udp: true
-  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
-  ws-opts:
-    headers:
-      Host: vless.lrdxw.club
-    path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 160.24MB/s"
-  network: ws
-  port: 443
-  server: 160.153.1.198
-  servername: sni.111000.v6.navy
-  tls: true
-  type: vless
-  udp: true
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.111000.v6.navy
-    path: "/?Telegram\U0001F1E8\U0001F1F3+@WangCai2="
-- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 158.19MB/s"
+      Host: sni.111000.dynv6.net
+    path: /?Telegram @v2rayngzendegimamad
+- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 274.55MB/s"
   network: ws
   port: 2096
   server: 141.101.121.169
@@ -82,75 +27,90 @@ proxies:
     headers:
       Host: sni.111000.indevs.in
     path: /?ed
-- client-fingerprint: firefox
-  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 125.69MB/s"
+- name: "\U0001F3F3️ CW 001 | ⬇️ 270.08MB/s"
   network: ws
   port: 443
-  server: cf.877774.xyz
-  servername: vless.lrdxw.club
+  server: 5.10.244.43
+  servername: sni.111000.cc.cd
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.cc.cd
+    path: /?https%3A%2F%2Ft.me%2Fwangcai2%F0%9F%87%A8%F0%9F%87%B3=
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 256.94MB/s"
+  network: ws
+  port: 443
+  server: 160.153.1.198
+  servername: sni.111000.v6.navy
   tls: true
   type: vless
   udp: true
-  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: vless.lrdxw.club
+      Host: sni.111000.v6.navy
+    path: "/?Telegram\U0001F1E8\U0001F1F3+@WangCai2="
+- name: "\U0001F1ED\U0001F1F7 HR 001 | ⬇️ 245.03MB/s"
+  network: ws
+  port: 2096
+  server: 213.182.199.138
+  servername: sni.111000.indevs.in
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: "/?Telegram\U0001F1E8\U0001F1F3@WangCai2="
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 244.35MB/s"
+  network: ws
+  port: 443
+  server: www.mc.js.cool
+  servername: 177-e06.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: 177-e06.pages.dev
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 237.93MB/s"
+  network: ws
+  port: 2053
+  server: 199.119.137.109
+  servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
     path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 68.68MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 232.14MB/s"
   network: ws
   port: 443
-  server: 166.62.111.231
-  servername: babayaga-6i7.pages.dev
+  server: 162.159.12.151
+  servername: sni.111000.indevs.in
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
-- client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 59.54MB/s"
-  network: ws
-  port: 443
-  server: 104.168.24.34
-  servername: ltaeqp.cdn-assets.fgfw.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: ltaeqp.cdn-assets.fgfw.indevs.in
-    path: /danfeng?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 57.87MB/s"
-  network: ws
-  port: 8443
-  server: cf3.danfeng.eu.org
-  servername: ltaeqp.cdn-assets.fgfw.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: ltaeqp.cdn-assets.fgfw.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 48.54MB/s"
-  network: ws
-  port: 443
-  server: 69.164.245.25
-  servername: babayaga-6i7.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
-- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 46.78MB/s"
+      Host: sni.111000.indevs.in
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 221.67MB/s"
   network: ws
   port: 2053
   server: 199.119.137.78
@@ -164,11 +124,31 @@ proxies:
     headers:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1F2\U0001F1FD MX 001 | ⬇️ 45.37MB/s"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 212.72MB/s"
+  password: RSo52SbxW40r
+  port: 8388
+  server: 108.181.57.93
+  type: ss
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 210.76MB/s"
   network: ws
-  port: 8443
-  server: 216.238.82.140
+  port: 443
+  server: mfa.gov.ua
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 205.62MB/s"
+  network: ws
+  port: 2096
+  server: cf8.danfeng.eu.org
   servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
@@ -178,7 +158,226 @@ proxies:
     headers:
       Host: ltaeqp.cdn-assets.fgfw.indevs.in
     path: /danfeng?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 40.73MB/s"
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 202.95MB/s"
+  network: ws
+  port: 443
+  server: store.ubi.com
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 198.86MB/s"
+  network: ws
+  port: 443
+  server: cf.877774.xyz
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: firefox
+  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 198.51MB/s"
+  network: ws
+  port: 443
+  server: cf.zhetengsha.eu.org
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 191.35MB/s"
+  network: ws
+  port: 2096
+  server: cf9.danfeng.eu.org
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 189.23MB/s"
+  network: ws
+  port: 443
+  server: 69.164.245.25
+  servername: babayaga-6i7.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 185.83MB/s"
+  network: ws
+  port: 443
+  server: cf.008500.xyz
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: firefox
+  name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 182.83MB/s"
+  network: ws
+  port: 443
+  server: cf.130519.xyz
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: firefox
+  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 153.73MB/s"
+  network: ws
+  port: 443
+  server: cf.090227.xyz
+  servername: vless.lrdxw.club
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
+  ws-opts:
+    headers:
+      Host: vless.lrdxw.club
+    path: /?ed=2560
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 149.41MB/s"
+  network: ws
+  port: 8443
+  server: cf3.danfeng.eu.org
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 143.73MB/s"
+  network: ws
+  port: 2053
+  server: 199.119.137.77
+  servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
+    path: /?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 132.49MB/s"
+  network: ws
+  port: 2095
+  server: www.epicgames.com
+  tls: false
+  type: vless
+  udp: true
+  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
+  ws-opts:
+    headers:
+      Host: cnmfangbinxing-nmsl.cnmfangbinxing-0.workers.dev
+    path: /
+- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 122.31MB/s"
+  network: ws
+  port: 443
+  server: 104.20.6.134
+  servername: snippet.danfeng.rr.kg
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: snippet.danfeng.rr.kg
+    path: /danfeng
+- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 103.68MB/s"
+  network: ws
+  port: 443
+  server: 166.62.111.231
+  servername: babayaga-6i7.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3+@WangCai2"
+- grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: gprc
+  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 94.47MB/s"
+  network: grpc
+  port: 30086
+  server: 192.159.99.18
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
+- name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 65.51MB/s"
+  network: ws
+  port: 443
+  server: 50.228.203.26
+  servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
+    path: /?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 55.21MB/s"
+  password: W74XFALLLuw6m5IA
+  port: 443
+  server: series-a1.samanehha.co
+  type: ss
+- name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 51.79MB/s"
+  network: tcp
+  port: 8443
+  server: uk1.fromblancwithlove.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 50.32MB/s"
   network: ws
   port: 2053
   server: 199.119.137.41
@@ -193,163 +392,42 @@ proxies:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 39.45MB/s"
-  network: ws
-  port: 2096
-  server: cf9.danfeng.eu.org
-  servername: ltaeqp.cdn-assets.fgfw.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: ltaeqp.cdn-assets.fgfw.indevs.in
-    path: /danfeng?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 36.19MB/s"
-  network: ws
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 49.24MB/s"
+  network: tcp
   port: 443
-  server: 50.228.203.26
-  servername: babayaga-6i7.pages.dev
+  reality-opts:
+    public-key: ZpkoOvcRglQoTWJ3B7hiJlmMYTtIu41hJ51FMMdSTDE
+    short-id: 98c3d62ba1c26863
+  server: 95.179.236.230
+  servername: www.argos.co.uk
   skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: /?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 36.03MB/s"
-  network: ws
-  port: 2096
-  server: cf8.danfeng.eu.org
-  servername: ltaeqp.cdn-assets.fgfw.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: ltaeqp.cdn-assets.fgfw.indevs.in
-    path: /danfeng?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 35.92MB/s"
-  network: ws
-  port: 443
-  server: 198.13.62.34
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 002 | ⬇️ 35.78MB/s"
-  network: ws
-  port: 443
-  server: 38.47.104.110
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 32.50MB/s"
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB 007 | ⬇️ 49.17MB/s"
+  password: idMvoewrSyLLvEvP03k9zR
+  port: 46576
+  server: 138.68.153.223
+  type: ss
+- name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 49.07MB/s"
   network: ws
   port: 2053
-  server: 199.119.137.109
-  servername: babayaga-6i7.pages.dev
+  server: 23.173.104.227
+  servername: sni.111000.v6.rocks
   skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: babayaga-6i7.pages.dev
-    path: /?ed=2560
+      Host: sni.111000.v6.rocks
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
 - client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 003 | ⬇️ 31.60MB/s"
-  network: ws
-  port: 30218
-  server: 38.47.111.141
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 004 | ⬇️ 31.28MB/s"
-  network: ws
-  port: 44463
-  server: 38.47.96.96
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 005 | ⬇️ 30.09MB/s"
-  network: ws
-  port: 44981
-  server: 38.47.96.96
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 006 | ⬇️ 30.08MB/s"
-  network: ws
-  port: 48631
-  server: 45.129.8.233
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- alpn:
-  - http/1.1
-  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 28.61MB/s"
-  network: ws
-  port: 443
-  server: 43.213.148.173
-  servername: snippet.gfw.qzz.io
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: snippet.gfw.qzz.io
-    path: /danfeng
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 26.66MB/s"
+  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 47.83MB/s"
   network: ws
   port: 443
   server: 209.38.100.127
@@ -363,49 +441,36 @@ proxies:
       Host: ltaeqp.cdn-assets.fgfw.indevs.in
     path: /danfeng?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 26.10MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 008 | ⬇️ 46.95MB/s"
   network: ws
+  port: 8443
+  server: 193.219.99.133
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB 009 | ⬇️ 46.76MB/s"
+  network: tcp
   port: 443
-  server: 139.59.189.127
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  reality-opts:
+    public-key: ZpkoOvcRglQoTWJ3B7hiJlmMYTtIu41hJ51FMMdSTDE
+    short-id: 41427aa565e28984
+  server: 78.141.199.54
+  servername: www.vodafone.co.uk
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 25.66MB/s"
-  network: ws
-  port: 2096
-  server: 159.65.51.105
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 25.63MB/s"
-  network: ws
-  port: 443
-  server: 46.101.82.164
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 25.52MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 010 | ⬇️ 46.67MB/s"
   network: ws
   port: 2083
   server: 68.183.42.143
@@ -419,10 +484,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 007 | ⬇️ 25.40MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 011 | ⬇️ 46.63MB/s"
   network: ws
-  port: 443
-  server: 64.227.32.187
+  port: 2096
+  server: 159.65.51.105
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -433,58 +498,7 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 008 | ⬇️ 25.38MB/s"
-  network: ws
-  port: 443
-  server: 138.68.133.141
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 009 | ⬇️ 25.13MB/s"
-  network: ws
-  port: 443
-  server: 209.97.141.124
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 25.10MB/s"
-  network: ws
-  port: 30047
-  server: 138.124.32.188
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 010 | ⬇️ 24.72MB/s"
-  network: ws
-  port: 8443
-  server: 193.219.99.109
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 011 | ⬇️ 24.64MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 012 | ⬇️ 46.62MB/s"
   network: ws
   port: 8443
   server: 193.219.99.158
@@ -498,38 +512,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 24.38MB/s"
-  network: ws
-  port: 39738
-  server: 154.40.137.129
-  servername: ltaeqp.cdn-assets.fgfw.indevs.in
-  tls: true
-  type: vless
-  udp: true
-  uuid: 26524cce-d514-4014-a426-365fb266a14d
-  ws-opts:
-    headers:
-      Host: ltaeqp.cdn-assets.fgfw.indevs.in
-    path: /danfeng?ed=2560
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 012 | ⬇️ 24.28MB/s"
-  network: ws
-  port: 8443
-  server: 193.219.99.36
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 JP 007 | ⬇️ 24.26MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 013 | ⬇️ 46.52MB/s"
   network: ws
   port: 443
-  server: 18.180.75.128
+  server: 139.59.189.127
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -539,15 +525,50 @@ proxies:
     headers:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
-- name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 23.81MB/s"
-  port: 10086
-  server: 204.216.216.23
-  tls: false
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 014 | ⬇️ 46.51MB/s"
+  network: ws
+  port: 443
+  server: 209.97.141.124
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
   type: vless
   udp: true
-  uuid: 9f0285ee-20ca-4953-bcdb-86a920652923
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 013 | ⬇️ 22.96MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 015 | ⬇️ 46.48MB/s"
+  network: ws
+  port: 443
+  server: 64.227.32.187
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 016 | ⬇️ 46.47MB/s"
+  network: ws
+  port: 443
+  server: 138.68.133.141
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 017 | ⬇️ 46.40MB/s"
   network: ws
   port: 443
   server: 104.248.160.103
@@ -561,10 +582,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 22.62MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 018 | ⬇️ 46.39MB/s"
   network: ws
   port: 443
-  server: 34.92.187.216
+  server: 46.101.82.164
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -575,52 +596,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 22.23MB/s"
-  network: ws
-  port: 443
-  server: 167.71.213.95
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC SG 002 | ⬇️ 22.00MB/s"
-  network: ws
-  port: 443
-  server: 152.42.246.234
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC SG 003 | ⬇️ 21.82MB/s"
-  network: ws
-  port: 443
-  server: 157.230.38.88
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 146"
+  name: "\U0001F1EC\U0001F1E7 GB 019 | ⬇️ 46.23MB/s"
   network: ws
   port: 8443
-  server: 157.230.39.201
+  server: 193.219.99.109
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -631,24 +610,49 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 133"
-  network: ws
-  port: 443
-  server: 8.219.155.125
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 107"
+  name: "\U0001F1EC\U0001F1E7 GB 020 | ⬇️ 45.89MB/s"
   network: ws
   port: 8443
-  server: 213.35.122.203
+  server: 193.219.99.36
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 45.76MB/s"
+  network: tcp
+  port: 443
+  server: 172.232.208.147
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: d7f67e94-aa9e-4454-b1cf-ce522a0d2728
+- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 45.34MB/s"
+  network: tcp
+  port: 8443
+  server: 195.181.173.199
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 45.29MB/s"
+  password: PWpjPo3tqhPN4yRZ
+  port: 20001
+  server: 8.209.74.72
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 021 | ⬇️ 44.06MB/s"
+  network: ws
+  port: 8443
+  server: 68.183.42.143
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -659,38 +663,107 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 162"
+  name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 42.95MB/s"
   network: ws
   port: 443
-  server: 152.42.173.182
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  server: 100.23.9.108
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
   ws-opts:
     headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 176"
+  name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 42.62MB/s"
   network: ws
   port: 443
-  server: 152.42.229.104
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  server: 104.168.24.34
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
   ws-opts:
     headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 015 | ⬇️ 41.74MB/s"
+  network: ws
+  password: humanity
+  port: 443
+  server: v1.dabache.top
+  skip-cert-verify: false
+  sni: www.multiplydose.com
+  type: trojan
+  ws-opts:
+    headers:
+      Host: www.multiplydose.com
+    path: /assignment
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 110"
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 40.94MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: -n5iY1LH6WNzxc6_sQg_phf04553mzBExCqQzRvoA3U
+    short-id: 41427aa565e28984
+  server: 95.164.85.33
+  servername: www.rakuten.co.jp
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 40.44MB/s"
+  network: ws
+  port: 30047
+  server: 138.124.32.188
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
+  ws-opts:
+    path: /
+- name: "\U0001F1E8\U0001F1E6 CA 016 | ⬇️ 39.80MB/s"
+  network: ws
+  password: humanity
+  port: 443
+  server: 172.64.152.23
+  skip-cert-verify: false
+  sni: www.multiplydose.com
+  type: trojan
+  ws-opts:
+    headers:
+      Host: www.multiplydose.com
+    path: /assignment
+- name: "\U0001F1EE\U0001F1F9 IT 002 | ⬇️ 39.32MB/s"
+  port: 10086
+  server: 204.216.216.23
+  tls: false
+  type: vless
+  udp: true
+  uuid: 9f0285ee-20ca-4953-bcdb-86a920652923
+- name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 39.25MB/s"
+  network: ws
+  password: humanity
+  port: 443
+  server: 8.6.112.0
+  skip-cert-verify: false
+  sni: www.ignitelimit.com
+  type: trojan
+  ws-opts:
+    headers:
+      Host: www.ignitelimit.com
+    path: /assignment
+- client-fingerprint: chrome
+  name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 39.20MB/s"
   network: ws
   port: 443
-  server: 128.199.82.20
+  server: 147.45.70.221
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -701,10 +774,139 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1E6\U0001F1F9 奥地利 235"
+  name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 38.54MB/s"
+  network: ws
+  port: 1006
+  server: 89.58.43.93
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- name: "\U0001F1E8\U0001F1E6 CA 017 | ⬇️ 37.68MB/s"
+  network: ws
+  password: humanity
+  port: 443
+  server: 172.67.180.92
+  skip-cert-verify: false
+  sni: www.multiplydose.com
+  type: trojan
+  ws-opts:
+    headers:
+      Host: www.multiplydose.com
+    path: /assignment
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 37.66MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: gwuAehnMX6e-n1fxIenfjx43j3qXXi7Cb4wfnW5VyBQ
+    short-id: f04729f65b9ea261
+  server: se1.samovargate.com
+  servername: www.microsoft.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 82b5b465-3307-4a25-acef-abd1649bbedf
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F3F3️ AL 001 | ⬇️ 37.46MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: djH9iD2QV748ocK-wPH7HvDd03lu88zHhS4G-61w6Dc
+    short-id: a120
+  server: cdn.cdnjst.org
+  servername: cdn.cdnjst.org
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: ae852d97-85f5-45cf-82a4-254eba345480
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 36.36MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
+    short-id: 9c2378562188c3cb
+  server: austria.denditop.site
+  servername: austria.denditop.site
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
+- name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 36.27MB/s"
+  network: ws
+  port: 80
+  server: 141.193.213.21
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: fac62eac-1eec-4260-a991-0cac2f8745a3
+  ws-opts:
+    headers:
+      Host: free-server.techsonic.ggff.net
+    path: /@Tech_Sonic
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 35.94MB/s"
+  port: 443
+  server: pl74.mechvpn.online
+  servername: pl74.mechvpn.online
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6d916d55-fead-4ff3-a3a9-83e175ea8ad7
+- name: "\U0001F1E8\U0001F1E6 CA 018 | ⬇️ 34.96MB/s"
   network: ws
   port: 443
-  server: 147.45.71.152
+  server: 104.18.12.149
+  servername: fire.rezazzz.ir
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 2b8d9d73-0031-42f9-9914-c8c579e087cb
+  ws-opts:
+    headers:
+      Host: fire.rezazzz.ir
+    path: /movie
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB 022 | ⬇️ 34.76MB/s"
+  network: tcp
+  port: 7443
+  reality-opts:
+    public-key: 5QAO98ot2U7TcGs_f6EEaQjCzNOJLNHqPf6smYsdFVI
+    short-id: be0ce047
+  server: 45.43.75.199
+  servername: chat.deepseek.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: caa3af29-3b04-4099-9772-c64a1b7cca34
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 32.58MB/s"
+  password: Q7cjiVD0oKNE2o9sUnZKQg
+  port: 23243
+  server: 46.101.196.138
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 32.14MB/s"
+  network: ws
+  port: 443
+  server: 213.108.20.161
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -715,7 +917,22 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 荷兰 266"
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 002 | ⬇️ 31.83MB/s"
+  network: tcp
+  port: 7443
+  reality-opts:
+    public-key: 5QAO98ot2U7TcGs_f6EEaQjCzNOJLNHqPf6smYsdFVI
+    short-id: d82fb387
+  server: 152.53.1.32
+  servername: chat.deepseek.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 8f8380ae-9f5d-4cb5-8f5f-0f70fbe054a9
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 31.47MB/s"
   network: ws
   port: 443
   server: 213.165.37.2
@@ -729,10 +946,25 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 143"
+  flow: xtls-rprx-vision
+  name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 31.16MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
+    short-id: 9b4fc5a116efd6c8
+  server: 77.81.98.70
+  servername: www.aliexpress.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 31.10MB/s"
   network: ws
   port: 443
-  server: 152.42.189.56
+  server: 217.144.185.221
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -743,7 +975,65 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 荷兰 218"
+  flow: xtls-rprx-vision
+  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 30.85MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: zPrJ8OiXFLDxzNEJp8YVBlc31m6Si4oWxZn3AHov1Cw
+    short-id: 3e1173f956cb8ef6
+  server: 89.167.48.18
+  servername: www.alexeygridnev.de
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e92bf482-b2b9-4904-a4a8-e3357b6eb492
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 30.56MB/s"
+  network: tcp
+  port: 8443
+  reality-opts:
+    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+  server: 45.12.146.179
+  servername: tradingview.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 30.43MB/s"
+  network: ws
+  port: 443
+  server: 62.60.244.195
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F9\U0001F1F7 TR 001 | ⬇️ 30.42MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: XkRQUOLTBAiIXB1MK9oJwlfn-9XnH53ykk5UE6rDyFc
+    short-id: d4356669ea880400
+  server: 2.56.127.207
+  servername: store.steampowered.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 30.12MB/s"
   network: ws
   port: 443
   server: 176.124.199.233
@@ -757,10 +1047,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 98"
+  name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 29.69MB/s"
   network: ws
-  port: 443
-  server: 114.110.181.49
+  port: 8443
+  server: 62.60.156.139
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -771,10 +1061,25 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 153"
+  flow: xtls-rprx-vision
+  name: "\U0001F1EE\U0001F1F1 IL 001 | ⬇️ 29.61MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: tboI265nKvT77HoZPyA6bgZNuLap_Jy-XvAx2-4Rcwk
+    short-id: 0c1553316a645758
+  server: 64.176.166.143
+  servername: store.steampowered.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- client-fingerprint: chrome
+  name: "\U0001F1E6\U0001F1F9 AT 003 | ⬇️ 29.49MB/s"
   network: ws
   port: 443
-  server: 172.104.191.150
+  server: 85.192.27.165
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -784,7 +1089,317 @@ proxies:
     headers:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
-- name: 13|US_speednode_0052
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 016 | ⬇️ 29.06MB/s"
+  network: ws
+  port: 39738
+  server: 154.40.137.129
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EE\U0001F1F9 IT 003 | ⬇️ 28.28MB/s"
+  network: tcp
+  port: 8443
+  reality-opts:
+    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+  server: 82.118.16.61
+  servername: tradingview.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EB\U0001F1F7 FR 002 | ⬇️ 27.90MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: ESRdmody9xdWVTaCtyGLg_LDopyMm9bUYDWH8NVWtjE
+    short-id: c906f73d3ba8211f
+  server: 145.239.8.221
+  servername: www.leboncoin.fr
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- cipher: aes-256-gcm
+  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 27.08MB/s"
+  password: 99394cfebe6c0906
+  port: 30312
+  server: 185.141.219.46
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EB\U0001F1EE FI 003 | ⬇️ 27.07MB/s"
+  password: yKVMoB3AwiTEznpnoq2FYR
+  port: 28687
+  server: 193.47.60.186
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F3F3️ MD 001 | ⬇️ 26.43MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: T58992iW3y2gNSo1bnEs4ZFBxljg9CFPACPwIErsu0w
+    short-id: 8ac90e6663622667
+  server: 176.123.8.17
+  servername: mold.memeplanet.net
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 2e638d5f-dfe6-4bd8-ad9a-1a638db5ed6a
+- name: "\U0001F1E8\U0001F1E6 CA 019 | ⬇️ 26.20MB/s"
+  network: ws
+  port: 8443
+  server: 104.20.6.134
+  servername: J0in-Te1egram-eiiim.danesh-bonyan.Store
+  tls: true
+  type: vless
+  udp: true
+  uuid: c40bf260-ea57-4d7c-b56a-594c8fc01172
+  ws-opts:
+    headers:
+      Host: eiiim.danesh-bonyan.Store
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E8\U0001F1FF CZ 001 | ⬇️ 25.04MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: xzCEjrybgdtiyOYNKgEAEWzHjvsE2Pkj198_Ch1gZ2U
+    short-id: 41427aa565e28984
+  server: 86.54.82.239
+  servername: store.steampowered.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EF\U0001F1F5 JP 002 | ⬇️ 24.55MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: wLkaWLYNGirBj1ggKZsnmlZiWnwZd99cIShBHVm7BQo
+    short-id: c906f73d3ba8211f
+  server: 64.176.57.250
+  servername: www.muji.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 22.93MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001269pz2.cybervena.com
+  type: ss
+- name: "\U0001F1EB\U0001F1F7 FR 003 | ⬇️ 22.27MB/s"
+  network: ws
+  port: 2053
+  server: 51.38.227.155
+  servername: sni.111000.v6.navy
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.navy
+    path: /?Telegram%F0%9F%87%A8%F0%9F%87%B3+%40WangCai2=
+- client-fingerprint: chrome
+  name: "\U0001F1EE\U0001F1EA IE 001 | ⬇️ 22.23MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: ogPhlqdcw50ySFPbrYeLT0_L2vFHDfwAuu1pIKboODY
+    short-id: "93"
+  server: 85.159.229.84
+  servername: www.google.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: ee309de6-154b-45da-aa71-0a3a1ca97c1b
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 22.20MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: fN3l3mYSDO44IWNPHWOQo2JMUw2isUGoOqrS6hCFfBQ
+    short-id: d1f93724859d75ac
+  server: pl2-gws4.onnstreaming.ru
+  servername: pl2-gws4.onnstreaming.ru
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 19ef3d02-1c55-4fec-9794-6def8cbac396
+- client-fingerprint: chrome
+  name: "\U0001F1E6\U0001F1F9 AT 004 | ⬇️ 21.31MB/s"
+  network: ws
+  port: 443
+  server: 147.45.71.152
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 023 | ⬇️ 21.19MB/s"
+  network: ws
+  port: 443
+  server: 57.129.137.219
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F7\U0001F1F4 RO 002 | ⬇️ 20.58MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
+    short-id: c906f73d3ba8211f
+  server: 91.199.50.37
+  servername: www.alibaba.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- alpn:
+  - http/1.1
+  name: "\U0001F1E8\U0001F1F3 TW 002 | ⬇️ 20.54MB/s"
+  network: ws
+  port: 443
+  server: 43.213.148.173
+  servername: snippet.gfw.qzz.io
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: snippet.gfw.qzz.io
+    path: /danfeng
+- grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: gprc
+  name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 20.23MB/s"
+  network: grpc
+  port: 30086
+  server: 138.124.32.189
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 024 | ⬇️ 20.22MB/s"
+  network: ws
+  port: 443
+  server: 57.129.137.63
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EF\U0001F1F5 JP 003 | ⬇️ 19.68MB/s"
+  network: ws
+  port: 30218
+  server: 38.47.111.141
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: gprc
+  name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 18.82MB/s"
+  network: grpc
+  port: 30086
+  server: 45.138.16.58
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 595ae3f9-5a91-4eaa-82a3-28a221cf8f7f
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 017 | ⬇️ 18.54MB/s"
+  port: 180
+  server: 82.198.246.250
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 18.53MB/s"
+  network: ws
+  port: 56047
+  server: 188.209.141.114
+  servername: snippet.gfw.qzz.io
+  tls: true
+  type: vless
+  udp: true
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
+  ws-opts:
+    headers:
+      Host: snippet.gfw.qzz.io
+    path: /danfeng
+- client-fingerprint: chrome
+  name: "\U0001F1EF\U0001F1F5 JP 004 | ⬇️ 17.84MB/s"
+  network: ws
+  port: 44981
+  server: 38.47.96.96
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 018 | ⬇️ 17.84MB/s"
   network: ws
   port: 443
   server: 193.32.177.101
@@ -799,10 +1414,201 @@ proxies:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1EB\U0001F1F7 法国 234"
+  name: "\U0001F1ED\U0001F1F0 HK 002 | ⬇️ 17.34MB/s"
+  network: ws
+  port: 443
+  server: 34.92.187.216
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 025 | ⬇️ 17.34MB/s"
   network: ws
   port: 8443
-  server: 62.60.156.139
+  server: 57.129.137.220
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E8\U0001F1FF CZ 002 | ⬇️ 17.09MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: nPcUKydxoRI66O3tT9O4QCZpLjOBvkGsiXG7pDX1BBw
+    short-id: 6ba85179e30d4fc2
+  server: 87.236.146.32
+  servername: www.vk.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: c8d1c6d3-388f-48fc-a8f0-ed90d955d096
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 16.90MB/s"
+  network: ws
+  port: 443
+  server: 152.42.229.104
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 002 | ⬇️ 16.89MB/s"
+  network: ws
+  port: 443
+  server: 157.230.38.88
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1ED\U0001F1F0 HK 003 | ⬇️ 16.56MB/s"
+  network: tcp
+  password: BxceQaOe
+  port: 4203
+  server: 18.163.116.37
+  skip-cert-verify: true
+  sni: t.me%252Fripaojiedian
+  type: trojan
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 003 | ⬇️ 16.50MB/s"
+  network: ws
+  port: 443
+  server: 8.219.155.125
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 004 | ⬇️ 16.48MB/s"
+  network: ws
+  port: 443
+  server: 128.199.82.20
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 005 | ⬇️ 16.45MB/s"
+  network: ws
+  port: 443
+  server: 152.42.246.234
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 006 | ⬇️ 16.43MB/s"
+  network: ws
+  port: 443
+  server: 152.42.189.56
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 007 | ⬇️ 16.40MB/s"
+  network: ws
+  port: 8443
+  server: 213.35.122.203
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 008 | ⬇️ 16.39MB/s"
+  network: ws
+  port: 443
+  server: 152.42.200.162
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 009 | ⬇️ 16.39MB/s"
+  network: ws
+  port: 443
+  server: 152.42.173.182
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 157"
+  network: ws
+  port: 443
+  server: 128.199.119.5
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC SG 010 | ⬇️ 16.23MB/s"
+  network: ws
+  port: 443
+  server: 157.230.44.100
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -827,37 +1633,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 英国 243"
-  network: ws
-  port: 8443
-  server: 57.129.137.220
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- name: "48"
-  network: ws
-  port: 8443
-  server: 104.20.6.134
-  servername: J0in-Te1egram-eiiim.danesh-bonyan.Store
-  tls: true
-  type: vless
-  udp: true
-  uuid: c40bf260-ea57-4d7c-b56a-594c8fc01172
-  ws-opts:
-    headers:
-      Host: eiiim.danesh-bonyan.Store
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC 新加坡 156"
+  name: "\U0001F1F8\U0001F1EC 新加坡 115"
   network: ws
   port: 443
-  server: 139.59.113.24
+  server: 167.71.219.37
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -868,10 +1647,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 英国 244"
+  name: "\U0001F1F8\U0001F1EC SG 011 | ⬇️ 16.08MB/s"
   network: ws
-  port: 8443
-  server: 57.129.137.219
+  port: 443
+  server: 167.71.213.95
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -881,39 +1660,35 @@ proxies:
     headers:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
-- name: 13|US_speednode_0051
-  network: ws
-  port: 8443
-  server: 69.143.174.201
-  servername: babayaga-6i7.pages.dev
+- client-fingerprint: chrome
+  name: "\U0001F1EB\U0001F1EE FI 004 | ⬇️ 16.02MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: z_mZq7riCGYKcTsXGCFX3KyhLL5PYgG3ydZ8_wM_ZkU
+    short-id: 5bfa0c
+  server: fi1.cyphervpn.pro
+  servername: fi1.cyphervpn.pro
   skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: /?ed=2560
-- name: 13|US_speednode_0049
-  network: ws
-  port: 2053
-  server: 199.119.137.77
-  servername: babayaga-6i7.pages.dev
+  uuid: f7bae22e-20ab-11f1-835c-0242ac110002
+- alterId: 0
+  cipher: aes-128-gcm
+  name: "\U0001F1FA\U0001F1F8 US 019 | ⬇️ 16.01MB/s"
+  port: 180
+  server: 82.198.246.37
   skip-cert-verify: false
-  tls: true
-  type: vless
+  tls: false
+  type: vmess
   udp: true
-  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
-  ws-opts:
-    headers:
-      Host: babayaga-6i7.pages.dev
-    path: /?ed=2560
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
 - client-fingerprint: chrome
-  name: "\U0001F1FA\U0001F1F8 美国 106"
+  name: "\U0001F1F8\U0001F1EC 新加坡 134"
   network: ws
   port: 443
-  server: 38.207.177.100
+  server: 165.22.59.195
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -924,9 +1699,23 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 英国 241"
+  name: "\U0001F1EB\U0001F1F7 法国 246"
   network: ws
   port: 443
+  server: 57.128.183.35
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 026 | ⬇️ 15.61MB/s"
+  network: ws
+  port: 8443
   server: 57.129.137.219
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
@@ -952,7 +1741,236 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1EF\U0001F1F5 日本 159"
+  name: "\U0001F1F8\U0001F1EC SG 012 | ⬇️ 14.57MB/s"
+  network: ws
+  port: 2053
+  server: 157.230.39.201
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 153"
+  network: ws
+  port: 443
+  server: 172.104.191.150
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 13.92MB/s"
+  password: WC0GbiCk67K8nHDaDHmYIX
+  port: 19582
+  server: 159.223.236.36
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 168"
+  network: ws
+  port: 443
+  server: 43.160.195.223
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 020 | ⬇️ 12.86MB/s"
+  network: ws
+  port: 8443
+  server: 69.143.174.201
+  servername: babayaga-6i7.pages.dev
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
+  ws-opts:
+    headers:
+      Host: babayaga-6i7.pages.dev
+    path: /?ed=2560
+- name: "\U0001F1E9\U0001F1EA 德国 459"
+  network: ws
+  port: 2053
+  server: 57.129.47.58
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /
+- name: TR TROJAN-46 | free-nodes
+  network: ws
+  password: q2jXRWncMA7pQren_VjQKhSQfoBWK_
+  port: 2083
+  server: 91.184.250.116
+  skip-cert-verify: false
+  sni: xo.e0f.cx
+  type: trojan
+  ws-opts:
+    headers:
+      Host: xo.e0f.cx
+    path: /trojan-ws
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB VLESS-74 | free-nodes"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: 0rtpNciTfV9TsoEc7Y8lS5LzBUzLppMnRY8bQC_bH3M
+    short-id: aabbccdd
+  server: 79.141.171.133
+  servername: apple.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 4c3fe585-ac09-41df-b284-888818888188
+- name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 11.81MB/s"
+  network: ws
+  port: 443
+  server: 148.253.210.141
+  servername: sni.latonyamadeline.ndjp.net
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.latonyamadeline.ndjp.net
+    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-107 | free-nodes
+  network: tcp
+  port: 8443
+  reality-opts:
+    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+  server: 103.231.73.181
+  servername: tradingview.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+- client-fingerprint: chrome
+  name: "\U0001F1F8\U0001F1EC 新加坡 146"
+  network: ws
+  port: 8443
+  server: 157.230.39.201
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: 未知 VLESS-105 | free-nodes
+  network: ws
+  port: 443
+  server: 38.180.11.15
+  servername: 3-7v4.pages.dev
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: 3-7v4.pages.dev
+    path: /proxyip=ProxyIP.DE.owg.dpdns.org
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-09 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007147vhp.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 003 | ⬇️ 11.13MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007117fb8.cybervena.com
+  type: ss
+- name: "\U0001F1EB\U0001F1F7 FR 004 | ⬇️ 10.43MB/s"
+  network: ws
+  port: 80
+  server: 213.136.69.8
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 15cbab96-197e-46a5-9042-073b3980c798
+  ws-opts:
+    headers:
+      Host: fsdns.ectunnelvpn.me
+    path: /vless
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 004 | ⬇️ 9.73MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007134n4g.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-16 | free-nodes
+  password: MholStyHL7DhrewKbpQa20
+  port: 24637
+  server: 185.176.221.72
+  type: ss
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 美国 106"
+  network: ws
+  port: 443
+  server: 38.207.177.100
+  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 7.65MB/s"
+  password: PDNcrHbGmb5u76Og8NatjZ
+  port: 21836
+  server: 185.117.91.27
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-108 | free-nodes
+  network: tcp
+  port: 8443
+  reality-opts:
+    public-key: TH8C9sgNuMRVR3o5QehXPgYw8PWjoHrH2rVQF4JWwGI
+  server: 2.56.172.83
+  servername: tradingview.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
+- client-fingerprint: chrome
+  name: "\U0001F1EF\U0001F1F5 JP 005 | ⬇️ 7.25MB/s"
   network: ws
   port: 443
   server: 161.33.41.206
@@ -966,10 +1984,10 @@ proxies:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
 - client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 213"
+  name: "\U0001F1ED\U0001F1F0 香港 177"
   network: ws
-  port: 27016
-  server: 115.22.166.208
+  port: 24425
+  server: 103.244.89.190
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -979,25 +1997,57 @@ proxies:
     headers:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1E9\U0001F1EA 德国 17"
+  port: 180
+  server: 82.198.246.214
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- alterId: 0
+  cipher: aes-128-gcm
+  name: "\U0001F1E9\U0001F1EA 德国 27"
+  port: 180
+  server: 82.198.246.9
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW SS-04 | free-nodes"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001286ek2.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-01 | free-nodes
+  password: 6ThD1AgwXc8Stpp7hEohLa
+  port: 16970
+  server: 139.59.87.22
+  type: ss
 - client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 255"
+  name: "\U0001F1FA\U0001F1F8 美国 100"
   network: ws
-  port: 10002
-  server: 218.158.249.174
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  port: 443
+  server: 103.91.219.252
+  servername: ltaeqp.cdn-assets.fgfw.indevs.in
   tls: true
   type: vless
   udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: 26524cce-d514-4014-a426-365fb266a14d
   ws-opts:
     headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
+      Host: ltaeqp.cdn-assets.fgfw.indevs.in
+    path: /danfeng?ed=2560
 - client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 232"
+  name: "\U0001F1F0\U0001F1F7 韩国 200"
   network: ws
-  port: 12345
-  server: 121.147.109.75
+  port: 26257
+  server: 169.211.176.84
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
@@ -1007,123 +2057,40 @@ proxies:
     headers:
       Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
     path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 225"
+- alpn:
+  - http/1.1
+  client-fingerprint: chrome
+  name: "\U0001F1E9\U0001F1EA DE VLESS-94 | free-nodes"
   network: ws
-  port: 18789
-  server: 112.162.177.241
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
+  port: 443
+  server: 172.64.149.54
+  servername: cf1.year26jfieqppq.cc
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: abc4acff-8344-4744-a76a-77a81da03287
   ws-opts:
     headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 257"
-  network: ws
-  port: 30303
-  server: 59.8.153.65
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 208"
-  network: ws
-  port: 33890
-  server: 112.163.209.76
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 250"
-  network: ws
-  port: 10000
-  server: 119.207.146.175
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 220"
-  network: ws
-  port: 16923
-  server: 203.243.4.91
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 216"
-  network: ws
-  port: 36398
-  server: 14.42.199.13
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
+      Host: cf1.year26jfieqppq.cc
+    path: /sgJsLdvyM8PYvlckTviAm
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-37 | free-nodes"
+  password: ZfbPFDdeBj0B1Txs
+  port: 80
+  server: 154.53.60.212
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US SS-32 | free-nodes"
+  password: 14CLBaFBqwqxBJy6
+  port: 80
+  server: 66.94.125.178
+  type: ss
 - client-fingerprint: chrome
   name: "\U0001F1F0\U0001F1F7 韩国 236"
   network: ws
   port: 33848
   server: 121.151.210.54
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 187"
-  network: ws
-  port: 25448
-  server: 118.43.208.141
-  servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1F0\U0001F1F7 韩国 276"
-  network: ws
-  port: 25010
-  server: 112.172.55.228
   servername: czvjaheuiweghruiwegfbldsafsdgaryreygnxvbhsfgretgreyhthsfgj.pages.dev
   tls: true
   type: vless
