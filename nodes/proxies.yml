@@ -1,10 +1,50 @@
 proxy-providers: {}
 proxies:
-- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 363.22MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 269.32MB/s"
+  network: ws
+  port: 443
+  server: ip.sb
+  servername: 3-7ny.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: 3-7ny.pages.dev
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 266.58MB/s"
   network: ws
   port: 2096
-  server: 27.50.48.191
-  servername: sni.my111000.tech
+  server: 104.17.25.173
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 258.22MB/s"
+  network: ws
+  port: 443
+  server: 135.84.67.38
+  servername: sni.111000.dynv6.net
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.dynv6.net
+    path: /
+- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 257.34MB/s"
+  network: ws
+  port: 2096
+  server: 188.114.99.243
+  servername: sni.111000.indevs.in
   skip-cert-verify: false
   tfo: false
   tls: true
@@ -12,209 +52,104 @@ proxies:
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.my111000.tech
-    path: Telegram%F0%9F%87%A8%F0%9F%87%B3@WangCai2/
-- name: "\U0001F1E7\U0001F1EC BG 001 | ⬇️ 349.97MB/s"
+      Host: sni.111000.indevs.in
+    path: /?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 252.98MB/s"
   network: ws
-  port: 2096
-  server: 45.142.120.191
-  servername: sni.my111000.tech
+  port: 443
+  server: 199.107.164.217
+  servername: sni.111000.dynv6.net
   tls: true
   type: vless
   udp: true
   uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: sni.my111000.tech
-    path: "Telegram\U0001F1E8\U0001F1F3@WangCai2/"
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 286.14MB/s"
+      Host: sni.111000.dynv6.net
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
+- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 234.31MB/s"
   network: ws
-  port: 443
-  server: mfa.gov.ua
-  servername: 3-7gj.pages.dev
+  port: 2096
+  server: 185.170.166.138
+  servername: sni.111000.indevs.in
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.indevs.in
+    path: /
+- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 220.17MB/s"
+  network: ws
+  port: 2096
+  server: 104.20.6.134
+  servername: sni.111000.indevs.in
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: 3-7gj.pages.dev
+      Host: sni.111000.indevs.in
     path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 275.91MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 217.36MB/s"
   network: ws
   port: 443
-  server: da.mfa.gov.ua
-  servername: 1-aym.pages.dev
+  server: 8.6.112.6
+  servername: sni.111000.v6.navy
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: 1-aym.pages.dev
+      Host: sni.111000.v6.navy
     path: /
-- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 269.23MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 213.77MB/s"
   network: ws
   port: 443
-  server: 104.17.154.35
-  servername: pagescm.freen36.cc.cd
+  server: xin.usfox.qzz.io
+  servername: pagescm.freen3.de5.net
   tls: true
   type: vless
   udp: true
   uuid: ae0dd58e-e222-40bf-84ae-365a97532737
   ws-opts:
     headers:
-      Host: pagescm.freen36.cc.cd
-    path: /static/question/readme
-- name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 266.66MB/s"
+      Host: pagescm.freen3.de5.net
+    path: /zh/player/shop
+- client-fingerprint: firefox
+  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 195.08MB/s"
   network: ws
-  port: 2087
-  server: 172.64.229.181
-  servername: pagescm.freen10.de5.net
+  port: 2096
+  server: cf9.danfeng.eu.org
+  servername: juzi8186.qea.ccwu.cc
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
+  uuid: bafacd98-136a-4530-838d-4e5c51838dac
   ws-opts:
     headers:
-      Host: pagescm.freen10.de5.net
-    path: /comic
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 265.02MB/s"
+      Host: juzi8186.qea.ccwu.cc
+    path: /lib/soft/payment/juzibaipiao?ed=2560
+- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 192.91MB/s"
   network: ws
   port: 443
-  server: openai.com
-  servername: 2-1ng.pages.dev
+  server: 8.6.112.0
+  servername: nEO1-3zC.pAGes.DeV
   tls: true
   type: vless
   udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  uuid: bd26c0c3-5eb9-425e-a4b6-2660df94e613
   ws-opts:
     headers:
-      Host: 2-1ng.pages.dev
+      Host: nEO1-3zC.pAGes.DeV
     path: /
-- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 264.99MB/s"
-  network: ws
-  port: 2096
-  server: 104.19.44.117
-  servername: pagescm.freen14.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen14.cc.cd
-    path: /vod
-- name: "\U0001F1E8\U0001F1FE CY 001 | ⬇️ 263.69MB/s"
-  network: ws
-  port: 8443
-  server: www.csgo.com
-  servername: pagescm.freen26.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen26.cc.cd
-    path: /torrent/section
-- name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 260.17MB/s"
-  network: ws
-  port: 8443
-  server: 172.64.146.185
-  servername: pagescm.freen26.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen26.cc.cd
-    path: /members/seasons
-- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 257.60MB/s"
-  network: ws
-  port: 443
-  server: cf.877774.xyz
-  servername: pagescm.freen24.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen24.cc.cd
-    path: /file/search/faq
-- name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 255.79MB/s"
-  network: ws
-  port: 2096
-  server: 104.19.62.173
-  servername: pagescm.freen13.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen13.cc.cd
-    path: /zh-tw
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 251.88MB/s"
-  network: ws
-  port: 2096
-  server: 8.35.211.138
-  servername: pagescm.freen20.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen20.cc.cd
-    path: /item
-- name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 246.57MB/s"
-  network: ws
-  port: 443
-  server: 162.159.152.120
-  servername: pagescm.freen29.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen29.cc.cd
-    path: /code/dl
-- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 246.46MB/s"
-  network: ws
-  port: 443
-  server: malaysia.com
-  servername: pagescm.freen35.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen35.cc.cd
-    path: /setting/torrent/task
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 246.20MB/s"
-  network: ws
-  port: 443
-  server: 8.39.125.254
-  servername: pagescm.freen23.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen23.cc.cd
-    path: /friend/community/apps
-- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 244.28MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 175.67MB/s"
   network: ws
   port: 443
   server: 777.ai7777777.xyz
@@ -227,334 +162,28 @@ proxies:
     headers:
       Host: pagescm.freen34.cc.cd
     path: /contact/pages
-- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 242.60MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 164.80MB/s"
   network: ws
   port: 443
-  server: 172.67.68.237
-  servername: pagescm.freen1.de5.net
+  server: ciallo-egb.pages.dev
+  servername: CiaLLO-egb.PAGeS.dEV
   tls: true
   type: vless
   udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
+  uuid: 89b3cbba-e6ac-485a-9481-976a0415eab9
   ws-opts:
-    headers:
-      Host: pagescm.freen1.de5.net
-    path: /task/movies
-- name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 241.82MB/s"
-  network: ws
-  port: 443
-  server: 172.67.71.242
-  servername: pagescm.freen30.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen30.cc.cd
-    path: /html/ads
-- name: "\U0001F1E8\U0001F1E6 CA 015 | ⬇️ 241.61MB/s"
-  network: ws
-  port: 443
-  server: 104.17.145.145
-  servername: pagescm.freen23.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen23.cc.cd
-    path: /file
-- name: "\U0001F1E8\U0001F1E6 CA 016 | ⬇️ 237.12MB/s"
-  network: ws
-  port: 443
-  server: 104.19.53.196
-  servername: pagescm.freen6.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen6.cc.cd
-    path: /lesson/tv
-- name: "\U0001F1E8\U0001F1E6 CA 017 | ⬇️ 235.63MB/s"
-  network: ws
-  port: 443
-  server: 104.19.56.154
-  servername: pagescm.freen8.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen8.cc.cd
-    path: /resource/links
-- name: "\U0001F1E8\U0001F1E6 CA 018 | ⬇️ 234.38MB/s"
-  network: ws
-  port: 443
-  server: 104.19.148.121
-  servername: pagescm.freen33.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen33.cc.cd
-    path: /dl
-- name: "\U0001F1E8\U0001F1E6 CA 019 | ⬇️ 228.93MB/s"
-  network: ws
-  port: 443
-  server: 104.17.121.71
-  servername: pagescm.freen34.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen34.cc.cd
-    path: /question/avatar/hot
-- name: "\U0001F1E8\U0001F1E6 CA 020 | ⬇️ 225.72MB/s"
-  network: ws
-  port: 443
-  server: 104.18.191.0
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: "/?https://t.me/wangcai2\U0001F1E8\U0001F1F3="
+    path: /
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 225.27MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 147.76MB/s"
   password: RSo52SbxW40r
   port: 8388
   server: 108.181.57.93
   type: ss
-- name: "\U0001F1E8\U0001F1E6 CA 021 | ⬇️ 219.93MB/s"
-  network: ws
-  port: 443
-  server: 104.19.49.198
-  servername: pagescm.freen14.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen14.cc.cd
-    path: /shop
-- name: "\U0001F1E8\U0001F1E6 CA 022 | ⬇️ 215.79MB/s"
-  network: ws
-  port: 2053
-  server: 172.64.146.178
-  servername: pagescm.freen30.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen30.cc.cd
-    path: /bt
-- name: "\U0001F1E8\U0001F1E6 CA 023 | ⬇️ 206.93MB/s"
-  network: ws
-  port: 443
-  server: 172.67.74.136
-  servername: pagescm.freen17.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen17.cc.cd
-    path: /directory
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 024 | ⬇️ 202.29MB/s"
-  network: ws
-  port: 2095
-  server: developers.cloudflare.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 025 | ⬇️ 186.79MB/s"
-  network: ws
-  port: 2095
-  server: cloudflare-dns.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 026 | ⬇️ 161.84MB/s"
-  network: ws
-  port: 2095
-  server: blog.cloudflare.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- name: "\U0001F1E8\U0001F1E6 CA 027 | ⬇️ 161.78MB/s"
-  network: ws
-  port: 2053
-  server: www.speedtest.net
-  servername: BpB.175775.xYZ
-  tls: true
-  type: vless
-  udp: true
-  uuid: 9b7cd743-bd37-484c-b9dc-d16077df82eb
-  ws-opts:
-    headers:
-      Host: Bpb.175775.xYz
-    path: /iJ0xzjzMtRa6U2xK?ed=2560
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 028 | ⬇️ 143.78MB/s"
-  network: ws
-  port: 2095
-  server: support.cloudflare.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 029 | ⬇️ 139.59MB/s"
-  network: ws
-  port: 2095
-  server: www.fbi.gov
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 030 | ⬇️ 138.56MB/s"
-  network: ws
-  port: 2095
-  server: www.whatismyip.net
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 031 | ⬇️ 137.66MB/s"
-  network: ws
-  port: 2095
-  server: www.npmjs.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 125.64MB/s"
-  network: ws
-  port: 8880
-  server: 91.206.71.50
-  tls: false
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: vms.lifetime15.workers.dev
-    path: "/?ed=2560&https://t.me/YouTube@小青科学网\U0001F1E8\U0001F1F3"
-- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 123.90MB/s"
-  network: ws
-  port: 2053
-  server: www.hivenet.com
-  servername: qyi.fqjd663.ggff.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 8c4604ef-749c-4b56-adf1-7da405002a21
-  ws-opts:
-    headers:
-      Host: qyi.fqjd663.ggff.net
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 115.07MB/s"
-  network: ws
-  port: 2095
-  server: www.wto.org
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 032 | ⬇️ 114.21MB/s"
-  network: ws
-  port: 2095
-  server: www.epicgames.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
-  type: vless
-  udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
-  ws-opts:
-    headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
-- name: "\U0001F1E8\U0001F1E6 CA 033 | ⬇️ 93.70MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 124.35MB/s"
   network: ws
   port: 80
-  server: 104.17.138.160
+  server: 172.67.155.172
   tls: false
   type: vless
   udp: true
@@ -563,39 +192,35 @@ proxies:
     headers:
       Host: vip.yaml7.ggff.net
     path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 034 | ⬇️ 92.97MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 100.78MB/s"
   network: ws
-  port: 2095
-  server: cdnjs.com
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
+  port: 443
+  server: 104.19.39.38
+  servername: sni.111000.v6.army
+  tls: true
   type: vless
   udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
   ws-opts:
     headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
+      Host: sni.111000.v6.army
     path: /
-- client-fingerprint: randomized
-  name: "\U0001F1E8\U0001F1E6 CA 035 | ⬇️ 89.13MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 90.75MB/s"
   network: ws
-  port: 2095
-  server: cf.090227.xyz
-  servername: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-  skip-cert-verify: false
-  tls: false
+  port: 443
+  server: 66.81.247.231
+  servername: babayaga-6i7.pages.dev
+  tls: true
   type: vless
   udp: true
-  uuid: 86c50e3a-5b87-49dd-bd20-03c7f2735e40
+  uuid: 981fca81-5be1-41f8-ac9b-d138e8109943
   ws-opts:
     headers:
-      Host: fuckingfangbinxing.cnmfangbinxing-n.workers.dev
-    path: /
+      Host: babayaga-6i7.pages.dev
+    path: "/?ed=2560&Telegram\U0001F1E8\U0001F1F3@WangCai2"
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 84.11MB/s"
+  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 79.97MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -609,24 +234,24 @@ proxies:
   type: vless
   uuid: e80c5348-5a5c-41f0-a78d-7a781f47afce
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 73.48MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 67.36MB/s"
   password: QTmLViU4VEmuwbOxUw4IXd
   port: 59556
   server: 107.172.250.161
   type: ss
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 56.46MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 54.84MB/s"
   password: 1kVr0KATIJI7mwOF
   port: 443
   server: admin.c1.havij.co
   type: ss
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 55.73MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 53.48MB/s"
   password: W74XFALLLuw6m5IA
   port: 443
-  server: admin.c1.webramz.co
+  server: series-a1.samanehha.co
   type: ss
-- name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 52.94MB/s"
+- name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 52.05MB/s"
   network: tcp
   port: 8443
   server: uk1.fromblancwithlove.com
@@ -635,50 +260,7 @@ proxies:
   tls: true
   type: vless
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 50.94MB/s"
-  network: ws
-  port: 9418
-  server: 23.106.154.209
-  servername: pagescm.freen9.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen9.cc.cd
-    path: /torrent/go.html/activity
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 48.18MB/s"
-  password: CJmTCCx7Ltud
-  port: 8388
-  server: 108.181.58.239
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 46.45MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
-    short-id: 9c2378562188c3cb
-  server: fr.denditop.site
-  servername: fr.denditop.site
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
-- name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 45.70MB/s"
-  network: tcp
-  port: 443
-  server: 172.232.208.147
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: d7f67e94-aa9e-4454-b1cf-ce522a0d2728
-- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 44.95MB/s"
+- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 49.98MB/s"
   network: tcp
   port: 20089
   server: 95.164.3.121
@@ -687,9 +269,43 @@ proxies:
   tls: false
   type: vless
   uuid: 4fe2b7d6-cdc0-44f3-8093-3a1fc92e8542
+- name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 48.43MB/s"
+  network: ws
+  port: 2053
+  server: 23.173.104.214
+  servername: sni.111000.v6.rocks
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 46.95MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.149
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 46.27MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.131
+  type: ss
+- name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 44.96MB/s"
+  network: tcp
+  port: 443
+  server: 172.232.208.147
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: d7f67e94-aa9e-4454-b1cf-ce522a0d2728
 - alpn:
   - h2
-  name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 44.75MB/s"
+  name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 44.19MB/s"
   network: tcp
   port: 8443
   server: 195.181.173.199
@@ -700,14 +316,14 @@ proxies:
   type: vless
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 44.34MB/s"
-  password: PWpjPo3tqhPN4yRZ
-  port: 20001
-  server: 8.209.74.72
+  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 44.11MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.134
   type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 44.16MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 43.98MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -720,34 +336,67 @@ proxies:
   tls: true
   type: vless
   uuid: 629d2ccc-3a2a-4dd3-83d2-86b25fc8783e
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 44.08MB/s"
-  password: yKVMoB3AwiTEznpnoq2FYR
-  port: 28687
-  server: 193.47.60.186
-  type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 40.43MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 43.40MB/s"
   network: tcp
-  port: 16558
+  port: 8443
   reality-opts:
-    public-key: vDKgmefC_2JaSrrvQSsb7DU3KBeKUlXG1V0vgdjv_i4
-    short-id: 0a856e071790b1
-  server: 138.124.9.190
-  servername: gpuopen.com
+    public-key: zQ3SBKNWRtAsrnU-Y2XiSEHodF_sgZ3UsKNfmIwRbjI
+    short-id: 9ff26c38f9b488
+  server: 45.86.70.95
+  servername: max.ru
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 11348c0f-b646-446a-bad7-b2b39c6de767
+  uuid: 1e45a266-9a04-47af-b703-e53a67373cc9
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 42.01MB/s"
+  port: 443
+  reality-opts:
+    public-key: X2Sb6CKcI_yEV4gu9KUAmL9mcL-xpC1Ngks06NYIaxw
+    short-id: f129f93e
+  server: fr.astrocore.cloud
+  servername: fr.astrocore.cloud
+  tls: true
+  type: vless
+  udp: true
+  uuid: ed8ba85c-fa44-4d55-8ab9-229e942db60f
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 41.38MB/s"
+  network: ws
+  port: 443
+  server: 172.64.155.209
+  servername: harmony-501.pages.dev
+  tls: true
+  type: vless
+  udp: true
+  uuid: 3c36eadb-747a-4166-8db0-23fec9883ea2
+  ws-opts:
+    headers:
+      Host: harmony-501.pages.dev
+    path: /socks5://128.140.46.169:13482
+- name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 41.20MB/s"
+  network: ws
+  password: humanity
+  port: 443
+  server: 104.18.32.47
+  skip-cert-verify: false
+  sni: www.multiplydose.com
+  type: trojan
+  ws-opts:
+    headers:
+      Host: www.multiplydose.com
+    path: /assignment
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 40.19MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 82.38.31.155
+  name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 41.17MB/s"
+  password: PWpjPo3tqhPN4yRZ
+  port: 20001
+  server: 8.209.74.72
   type: ss
-- name: "\U0001F1E8\U0001F1E6 CA 036 | ⬇️ 39.26MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 40.50MB/s"
   network: ws
   password: humanity
   port: 443
@@ -759,122 +408,7 @@ proxies:
     headers:
       Host: www.ignitelimit.com
     path: /assignment
-- name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 38.97MB/s"
-  network: ws
-  port: 443
-  server: 151.242.69.201
-  servername: sni.111000.v6.army
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- name: "\U0001F1E8\U0001F1E6 CA 037 | ⬇️ 38.97MB/s"
-  network: ws
-  port: 80
-  server: 172.64.146.43
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: 478cc26d-16b3-4fdd-be64-60d5a58c1622
-  ws-opts:
-    headers:
-      Host: tt.andishehparenting.com
-    path: /
-- flow: xtls-rprx-vision
-  name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 37.67MB/s"
-  port: 443
-  server: pl74.mechvpn.online
-  servername: pl74.mechvpn.online
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6d916d55-fead-4ff3-a3a9-83e175ea8ad7
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F3F3️ AL 001 | ⬇️ 37.30MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: djH9iD2QV748ocK-wPH7HvDd03lu88zHhS4G-61w6Dc
-    short-id: a120
-  server: 144.31.131.33
-  servername: cdn.cdnjst.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: ae852d97-85f5-45cf-82a4-254eba345480
-- flow: xtls-rprx-vision
-  name: "\U0001F3F3️ GE 001 | ⬇️ 37.08MB/s"
-  port: 22231
-  server: 72.56.62.253
-  servername: r1.mizulina.top
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: afcac633-0e1a-46c3-bef2-cc01cc0097c8
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 36.85MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
-    short-id: 9c2378562188c3cb
-  server: austria.denditop.site
-  servername: austria.denditop.site
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
-- name: "\U0001F1E6\U0001F1F9 AT 002 | ⬇️ 36.61MB/s"
-  network: ws
-  port: 443
-  server: 91.244.70.205
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: f2a806c6-f36b-4cd9-8bb6-7addb218ad2d
-  ws-opts:
-    path: /
-- name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 36.44MB/s"
-  network: ws
-  port: 8443
-  server: 151.242.69.72
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 36.41MB/s"
-  network: ws
-  port: 443
-  server: 138.124.32.78
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /fp=chrome
-- name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 33.61MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 39.97MB/s"
   network: ws
   port: 443
   server: 50.228.203.26
@@ -888,77 +422,155 @@ proxies:
     headers:
       Host: babayaga-6i7.pages.dev
     path: /?ed=2560
-- alpn:
-  - http%2F1.1
-  name: "\U0001F1E8\U0001F1E6 CA 038 | ⬇️ 33.51MB/s"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 39.83MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.155
+  type: ss
+- name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 38.59MB/s"
   network: ws
-  password: mSzFVhUczD
-  port: 443
-  server: 104.20.5.134
-  skip-cert-verify: false
-  sni: abest.api-tel.xyz
-  type: trojan
-  ws-opts:
-    headers:
-      Host: abest.api-tel.xyz
-    path: /
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F1\U0001F1F9 LT 001 | ⬇️ 32.33MB/s"
-  port: 443
-  reality-opts:
-    public-key: 3WzSgL8uXA3vE3IHrfdBpJmOO4MYrsWpczDSY_jJRjI
-    short-id: 226509f017e4c36d
-  server: vltch.mostserv.xyz
-  servername: vltch.mostserv.xyz
+  port: 2053
+  server: 193.178.172.225
+  servername: sni.111000.dns.army
   tls: true
   type: vless
   udp: true
-  uuid: 37253a6a-2a9b-42bb-992c-b5f1b1ef1791
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.dns.army
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 36.42MB/s"
+  password: yKVMoB3AwiTEznpnoq2FYR
+  port: 28687
+  server: 193.47.60.186
+  type: ss
 - client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 32.13MB/s"
+  name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 36.12MB/s"
   network: tcp
-  port: 443
+  port: 8443
   reality-opts:
-    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
-    short-id: 9b4fc5a116efd6c8
-  server: 77.81.98.70
-  servername: www.aliexpress.com
+    public-key: XEWgLksY3vnV9riMEO7AZ7HR0Ecv3HxXLFglZtcmx00
+    short-id: d5
+  server: 72.56.75.169
+  servername: nltw4.lckdwn.ru
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+  uuid: 1c61a6c0-9bc7-4cb8-9188-6d86d5989388
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F1\U0001F1F9 LT 002 | ⬇️ 31.55MB/s"
+  name: "\U0001F3F3️ AL 001 | ⬇️ 35.94MB/s"
+  network: tcp
   port: 443
   reality-opts:
-    public-key: 3WzSgL8uXA3vE3IHrfdBpJmOO4MYrsWpczDSY_jJRjI
-    short-id: 226509f017e4c36d
-  server: 84.32.209.6
-  servername: vltch.mostserv.xyz
+    public-key: djH9iD2QV748ocK-wPH7HvDd03lu88zHhS4G-61w6Dc
+    short-id: a120
+  server: 144.31.131.33
+  servername: cdn.cdnjst.org
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: ae852d97-85f5-45cf-82a4-254eba345480
+- client-fingerprint: edge
+  flow: xtls-rprx-vision
+  name: "\U0001F3F3️ GE 001 | ⬇️ 35.80MB/s"
+  port: 22231
+  server: r1.mizulina.top
+  servername: r1.mizulina.top
   tls: true
   type: vless
   udp: true
-  uuid: 37253a6a-2a9b-42bb-992c-b5f1b1ef1791
+  uuid: afcac633-0e1a-46c3-bef2-cc01cc0097c8
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 31.41MB/s"
+  name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 35.42MB/s"
   port: 443
   reality-opts:
     public-key: ZHEMPjSWslk6_qD2JNQzd5enUPz8nY9mYRRuM6NkZmU
     short-id: 0123456789abcdef
-  server: 144.31.157.163
+  server: 87.121.89.54
   servername: www.deepl.com
   tls: true
   type: vless
   udp: true
-  uuid: ae8ddd8e-00af-48e5-bd57-05074a1bbffb
+  uuid: f9d8aa07-589f-4da0-9cb0-fd8f2f0e4fa8
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1E6\U0001F1F9 AT 003 | ⬇️ 30.90MB/s"
+  name: "\U0001F1EB\U0001F1EE FI 003 | ⬇️ 34.40MB/s"
+  network: tcp
+  port: 16558
+  reality-opts:
+    public-key: vDKgmefC_2JaSrrvQSsb7DU3KBeKUlXG1V0vgdjv_i4
+    short-id: 0a856e071790b1
+  server: 138.124.9.190
+  servername: gpuopen.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 11348c0f-b646-446a-bad7-b2b39c6de767
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 34.30MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
+    short-id: 9c2378562188c3cb
+  server: 152.53.46.104
+  servername: austria.denditop.site
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F3\U0001F1F1 NL 010 | ⬇️ 33.90MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: AYQOZFxjvHN-RIzKYEibwFiFsp03cdlWGdCmyFfuNVc
+    short-id: 4fa44664f6a566d3
+  server: 5.255.110.147
+  servername: nll.scroogethebest.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: e2e1ddaa-1acf-4c4c-a211-92284f6440ed
+- flow: xtls-rprx-vision
+  name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 33.65MB/s"
+  port: 443
+  server: pl74.mechvpn.online
+  servername: pl74.mechvpn.online
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6d916d55-fead-4ff3-a3a9-83e175ea8ad7
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 002 | ⬇️ 33.63MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: wgoLhL4pRP0y6fu6He4qW_ElohCM_ANWJF3HEoUhNz4
+    short-id: 9c2378562188c3cb
+  server: austria.denditop.site
+  servername: austria.denditop.site
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 256c5f48-4908-4255-83d1-c86cb58f22b4
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 003 | ⬇️ 33.25MB/s"
   network: tcp
   port: 7443
   reality-opts:
@@ -971,49 +583,82 @@ proxies:
   tls: true
   type: vless
   uuid: 8f8380ae-9f5d-4cb5-8f5f-0f70fbe054a9
-- name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 30.13MB/s"
-  network: ws
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F1\U0001F1F9 LT 001 | ⬇️ 32.02MB/s"
   port: 443
-  server: 217.144.190.230
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
+  reality-opts:
+    public-key: 3WzSgL8uXA3vE3IHrfdBpJmOO4MYrsWpczDSY_jJRjI
+    short-id: 226509f017e4c36d
+  server: 84.32.209.6
+  servername: vltch.mostserv.xyz
   tls: true
   type: vless
   udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /?ed=2560
-- name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 29.66MB/s"
+  uuid: 37253a6a-2a9b-42bb-992c-b5f1b1ef1791
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 31.76MB/s"
+  port: 443
+  reality-opts:
+    public-key: ZHEMPjSWslk6_qD2JNQzd5enUPz8nY9mYRRuM6NkZmU
+    short-id: c4fb372c78b32874
+  server: 2.26.3.239
+  servername: www.deepl.com
+  tls: true
+  type: vless
+  udp: true
+  uuid: 2001daf3-5c56-4bef-8ea6-8dd0493c5a4c
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F1\U0001F1F9 LT 002 | ⬇️ 31.61MB/s"
+  port: 443
+  reality-opts:
+    public-key: 3WzSgL8uXA3vE3IHrfdBpJmOO4MYrsWpczDSY_jJRjI
+    short-id: 226509f017e4c36d
+  server: vltch.mostserv.xyz
+  servername: vltch.mostserv.xyz
+  tls: true
+  type: vless
+  udp: true
+  uuid: 37253a6a-2a9b-42bb-992c-b5f1b1ef1791
+- client-fingerprint: chrome
+  name: "\U0001F1EC\U0001F1E7 GB 005 | ⬇️ 30.96MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: 4e4FI0siWxFtLCRCVDQurn1wLTuvKWhRY0zj1SaUcyw
+    short-id: a13a7cc5
+  server: 51.89.229.134
+  servername: www.samsung.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 53821f3c-5b03-456a-89f3-f8379f130752
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EC\U0001F1E7 GB 006 | ⬇️ 30.57MB/s"
+  password: idMvoewrSyLLvEvP03k9zR
+  port: 46576
+  server: 138.68.153.223
+  type: ss
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 30.37MB/s"
   network: ws
   port: 2053
-  server: 46.8.229.218
-  servername: sni.111000.v6.army
+  server: usaapp1.jisuyun.top
+  servername: usaapp1.jisuyun.top
   skip-cert-verify: false
   tls: true
-  type: vless
+  type: vmess
   udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  uuid: 4b80aa86-4354-40bb-d2a3-47126cff0bea
   ws-opts:
     headers:
-      Host: sni.111000.v6.army
-    path: /
-- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 29.54MB/s"
-  network: ws
-  port: 4443
-  server: 89.169.55.120
-  servername: nn9jdg-k7yewrrk.acg.xx.kg
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 00000000-0000-4000-8000-000000000000
-  ws-opts:
-    headers:
-      Host: nn9jdg-k7yewrrk.acg.xx.kg
-    path: /@Marisa_kristi
-- name: "\U0001F1E8\U0001F1ED CH 001 | ⬇️ 29.46MB/s"
+      Host: usaapp1.jisuyun.top
+    path: /usavm
+- name: "\U0001F1E8\U0001F1ED CH 001 | ⬇️ 30.02MB/s"
   network: ws
   port: 443
   server: 84.234.16.169
@@ -1027,72 +672,9 @@ proxies:
     headers:
       Host: edt2-lgy.pages.dev
     path: /
-- cipher: aes-256-gcm
-  name: "\U0001F1F7\U0001F1FA RU 002 | ⬇️ 28.69MB/s"
-  password: 3150466568eda87b
-  port: 60129
-  server: 195.58.49.26
-  type: ss
-- name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 28.07MB/s"
-  network: ws
-  port: 443
-  server: 77.110.96.142
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /?ed=2560
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F9\U0001F1F7 TR 001 | ⬇️ 27.16MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: XkRQUOLTBAiIXB1MK9oJwlfn-9XnH53ykk5UE6rDyFc
-    short-id: d4356669ea880400
-  server: 2.56.127.207
-  servername: store.steampowered.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 27.04MB/s"
-  network: ws
-  port: 443
-  server: 31.56.7.90
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /
-- name: "\U0001F1F3\U0001F1F1 NL 010 | ⬇️ 26.87MB/s"
-  network: ws
-  port: 8443
-  server: 130.49.176.227
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EE\U0001F1F1 IL 001 | ⬇️ 25.37MB/s"
+  name: "\U0001F1EE\U0001F1F1 IL 001 | ⬇️ 29.02MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -1105,12 +687,11 @@ proxies:
   tls: true
   type: vless
   uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 25.03MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 28.42MB/s"
   network: ws
   port: 443
-  server: 109.120.157.29
+  server: 77.110.96.142
   servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
   tls: true
   type: vless
   udp: true
@@ -1118,241 +699,25 @@ proxies:
   ws-opts:
     headers:
       Host: sni.latonyamadeline.ndjp.net
-    path: /?ed=2560
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 22.21MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001269pz2.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 21.12MB/s"
-  password: Q7cjiVD0oKNE2o9sUnZKQg
-  port: 23243
-  server: 46.101.196.138
-  type: ss
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 21.06MB/s"
+  name: "\U0001F1F9\U0001F1F7 TR 001 | ⬇️ 28.18MB/s"
   network: tcp
   port: 443
   reality-opts:
-    public-key: wLkaWLYNGirBj1ggKZsnmlZiWnwZd99cIShBHVm7BQo
-    short-id: c906f73d3ba8211f
-  server: 64.176.57.250
-  servername: www.muji.com
+    public-key: XkRQUOLTBAiIXB1MK9oJwlfn-9XnH53ykk5UE6rDyFc
+    short-id: d4356669ea880400
+  server: 2.56.127.207
+  servername: store.steampowered.com
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
   uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1F3\U0001F1F1 NL 011 | ⬇️ 20.55MB/s"
-  network: ws
-  port: 2053
-  server: 144.31.237.162
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /?ed=2560
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 19.23MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: Mm-d06LgjpLq_Y0aTRuf8cbueCumBku9r4ygFUGTE2o
-    short-id: 7b7c7376cba460cf
-  server: 70.34.201.81
-  servername: www.booking.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- name: "\U0001F1ED\U0001F1F0 HK 002 | ⬇️ 19.19MB/s"
-  network: ws
-  port: 443
-  server: 43.168.16.112
-  servername: pagescm.freen26.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen26.cc.cd
-    path: /cn
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 17.69MB/s"
-  port: 180
-  server: 82.198.246.97
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 17.12MB/s"
-  port: 443
-  reality-opts:
-    public-key: sXC7sPCzHG_uYfvk3GSUdYQKfHAwirOVWMhO50Y9Pn8
-    short-id: ad8c7a6ace2f
-  server: 2.27.63.99
-  servername: download.spectrum.vu
-  tls: true
-  type: vless
-  udp: true
-  uuid: 76713d07-5a6b-49c2-abd8-bc450a2fa7fc
-- name: "\U0001F1E8\U0001F1E6 CA 039 | ⬇️ 16.82MB/s"
-  network: ws
-  port: 443
-  server: node1.jjjjjj.eu.cc
-  servername: sg1.jjjjjj.eu.cc
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: df230a7c-a9ba-4efc-8f9f-ee03bffc4303
-  ws-opts:
-    headers:
-      Host: sg1.jjjjjj.eu.cc
-    path: /jige?ed=2048fp=chrome
-- client-fingerprint: chrome
-  name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 15.26MB/s"
-  network: ws
-  port: 443
-  server: 47.84.95.77
-  servername: gogo.wknm.qzz.io
-  tls: true
-  type: vless
-  udp: true
-  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
-  ws-opts:
-    headers:
-      Host: gogo.wknm.qzz.io
-    path: /
-- name: "\U0001F1F3\U0001F1F1 NL 012 | ⬇️ 14.25MB/s"
-  network: ws
-  port: 8443
-  server: 150.251.147.97
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /?ed=2560
-- name: "\U0001F1F3\U0001F1F1 NL 013 | ⬇️ 13.59MB/s"
-  network: ws
-  port: 443
-  server: 5.129.233.22
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- name: "\U0001F1E9\U0001F1EA DE 009 | ⬇️ 13.13MB/s"
-  network: ws
-  port: 443
-  server: 194.154.30.150
-  servername: sni.latonyamadeline.ndjp.net
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.latonyamadeline.ndjp.net
-    path: /
-- name: "\U0001F1E8\U0001F1F3 TW 002 | ⬇️ 13.05MB/s"
-  network: ws
-  port: 43
-  server: 220.128.110.108
-  servername: pagescm.freen6.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen6.cc.cd
-    path: /tags/details
-- name: "\U0001F1F3\U0001F1F1 NL 014 | ⬇️ 12.71MB/s"
-  network: ws
-  port: 443
-  server: 85.92.108.39
-  servername: sni.111000.v6.army
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- name: "\U0001F1F3\U0001F1F1 NL 015 | ⬇️ 12.30MB/s"
-  network: ws
-  port: 2053
-  server: 151.242.69.214
-  servername: sni.111000.v6.army
-  skip-cert-verify: false
-  tls: true
-  type: vless
-  udp: true
-  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
-  ws-opts:
-    headers:
-      Host: sni.111000.v6.army
-    path: /
-- alterId: 2
-  cipher: auto
-  name: "\U0001F1E8\U0001F1F3 TW 003 | ⬇️ 11.96MB/s"
-  port: 30813
-  server: v13.zgtfqs.click
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  udp: true
-  uuid: cbb3f877-d1fb-344c-87a9-d153bffd5484
-- cipher: aes-256-gcm
-  name: "\U0001F1F7\U0001F1FA RU 003 | ⬇️ 11.86MB/s"
-  password: f34579d0148b2581
-  port: 50129
-  server: 185.22.154.104
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 004 | ⬇️ 10.07MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg007147vhp.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 016 | ⬇️ 8.94MB/s"
-  password: PDNcrHbGmb5u76Og8NatjZ
-  port: 21836
-  server: 185.117.91.27
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F1\U0001F1FB LV 001 | ⬇️ 8.36MB/s"
+  name: "\U0001F1F1\U0001F1FB LV 001 | ⬇️ 24.13MB/s"
   network: tcp
   port: 8443
   reality-opts:
@@ -1364,7 +729,179 @@ proxies:
   tls: true
   type: vless
   uuid: e033ef6e-ab4b-47d4-a523-ff568d2c8dbb
-- name: "\U0001F1EB\U0001F1F7 FR 002 | ⬇️ 8.07MB/s"
+- name: "\U0001F1F1\U0001F1FB LV 002 | ⬇️ 23.99MB/s"
+  network: ws
+  port: 2053
+  server: 146.19.84.236
+  servername: sni.111000.v6.rocks
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: /
+- cipher: aes-256-gcm
+  name: "\U0001F1F7\U0001F1FA RU 002 | ⬇️ 23.66MB/s"
+  password: 3150466568eda87b
+  port: 60129
+  server: 195.58.49.26
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 22.76MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001269pz2.cybervena.com
+  type: ss
+- name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 21.22MB/s"
+  network: ws
+  port: 8443
+  server: 62.60.149.222
+  servername: sni.latonyamadeline.ndjp.net
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.latonyamadeline.ndjp.net
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F3\U0001F1F1 NL 011 | ⬇️ 16.36MB/s"
+  port: 443
+  reality-opts:
+    public-key: ZHEMPjSWslk6_qD2JNQzd5enUPz8nY9mYRRuM6NkZmU
+    short-id: 0123456789abcdef
+  server: 144.31.157.163
+  servername: www.deepl.com
+  tls: true
+  type: vless
+  udp: true
+  uuid: ae8ddd8e-00af-48e5-bd57-05074a1bbffb
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EE\U0001F1F3 IN 001 | ⬇️ 15.97MB/s"
+  password: 6ThD1AgwXc8Stpp7hEohLa
+  port: 16970
+  server: 139.59.87.22
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1FF\U0001F1E6 ZA 001 | ⬇️ 15.11MB/s"
+  password: Xsy8Ox4yOV3xLlpxtjzs3X
+  port: 16233
+  server: 102.133.165.160
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1F7\U0001F1FA RU 003 | ⬇️ 14.61MB/s"
+  password: f34579d0148b2581
+  port: 50129
+  server: 185.22.154.104
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 14.48MB/s"
+  password: Q7cjiVD0oKNE2o9sUnZKQg
+  port: 23243
+  server: 46.101.196.138
+  type: ss
+- name: "\U0001F1F0\U0001F1F7 KR 001 | ⬇️ 13.15MB/s"
+  network: ws
+  port: 60004
+  server: 220.118.83.101
+  servername: sni.111000.v6.army
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.army
+    path: /?ed=2560
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 002 | ⬇️ 13.08MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007134n4g.cybervena.com
+  type: ss
+- name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 12.71MB/s"
+  network: ws
+  port: 443
+  server: 119.246.150.50
+  servername: gogo.wknm.dpdns.org
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: gogo.wknm.dpdns.org
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 003 | ⬇️ 12.26MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007147vhp.cybervena.com
+  type: ss
+- name: "\U0001F1E8\U0001F1E6 CA 013 | ⬇️ 11.88MB/s"
+  network: ws
+  port: 80
+  server: 162.159.36.5
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 478cc26d-16b3-4fdd-be64-60d5a58c1622
+  ws-opts:
+    headers:
+      Host: tt.andishehparenting.com
+    path: /
+- alpn:
+  - http%2F1.1
+  name: "\U0001F1E8\U0001F1E6 CA 014 | ⬇️ 11.62MB/s"
+  network: ws
+  password: mSzFVhUczD
+  port: 443
+  server: 104.20.5.134
+  skip-cert-verify: false
+  sni: abest.api-tel.xyz
+  type: trojan
+  ws-opts:
+    headers:
+      Host: abest.api-tel.xyz
+    path: /
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 004 | ⬇️ 9.87MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg0011499tl.cybervena.com
+  type: ss
+- name: "\U0001F1F1\U0001F1FB LV 003 | ⬇️ 9.57MB/s"
+  network: ws
+  port: 443
+  server: 192.124.209.62
+  servername: sni.111000.v6.rocks
+  tls: true
+  type: vless
+  udp: true
+  uuid: 6202b230-417c-4d8e-b624-0f71afa9c75d
+  ws-opts:
+    headers:
+      Host: sni.111000.v6.rocks
+    path: "/?ed=2560&https://t.me/WangCai2\U0001F1E8\U0001F1F3"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 005 | ⬇️ 8.75MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg007117fb8.cybervena.com
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 012 | ⬇️ 8.39MB/s"
+  password: PDNcrHbGmb5u76Og8NatjZ
+  port: 21836
+  server: 185.117.91.27
+  type: ss
+- name: "\U0001F1EB\U0001F1F7 FR 002 | ⬇️ 8.27MB/s"
   network: ws
   port: 80
   server: 213.136.69.8
@@ -1377,15 +914,9 @@ proxies:
     headers:
       Host: fsdns.ectunnelvpn.me
     path: /vless
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 005 | ⬇️ 7.63MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg0011499tl.cybervena.com
-  type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR 003 | ⬇️ 6.94MB/s"
+  name: "\U0001F1EB\U0001F1F7 FR 003 | ⬇️ 7.22MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -1398,67 +929,75 @@ proxies:
   tls: true
   type: vless
   uuid: 43488128-319e-f480-64ea-0acdc712e2a8
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 006 | ⬇️ 7.01MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001286ek2.cybervena.com
+  type: ss
+- name: "\U0001F1F8\U0001F1EC SG 001 | ⬇️ 6.71MB/s"
+  network: ws
+  port: 443
+  server: 47.84.95.77
+  servername: gogo.wknm.dpdns.org
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: ce069292-c8bf-40dd-a6b1-87818a1e64e9
+  ws-opts:
+    headers:
+      Host: gogo.wknm.dpdns.org
+    path: /
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 013 | ⬇️ 6.69MB/s"
+  port: 55269
+  reality-opts:
+    public-key: i1e3hqslC-n7XGp72HmDKU7ZuRk72pHbzujbNaYF-0s
+    short-id: 8f
+  server: 141.11.197.127
+  servername: vk.ru
+  tls: true
+  type: vless
+  udp: true
+  uuid: 231e88bb-3a39-4f26-848e-908f83070283
 - cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 5.99MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 6.23MB/s"
   password: ZfbPFDdeBj0B1Txs
   port: 80
   server: 154.53.60.212
   type: ss
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 5.84MB/s"
+  port: 180
+  server: 82.198.246.250
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  udp: true
+  uuid: d13fc2f5-3e05-4795-81eb-44143a09e552
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E8\U0001F1F3 TW 007 | ⬇️ 5.66MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg00129437x.cybervena.com
+  type: ss
 - cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 5.93MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 5.15MB/s"
+  password: SM7WYtAwvBORXKjI
+  port: 443
+  server: 154.53.63.42
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 5.13MB/s"
   password: QzM0NfuMNngbVnZK
   port: 443
   server: 144.126.145.77
   type: ss
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 006 | ⬇️ 5.75MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001286ek2.cybervena.com
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1F4 RO 002 | ⬇️ 5.54MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: kkRsTNjRh_XrrTM6eZllllldzoL5Z9IqlBkDtmYLMhw
-    short-id: c906f73d3ba8211f
-  server: 91.199.50.37
-  servername: www.alibaba.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 43488128-319e-f480-64ea-0acdc712e2a8
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 007 | ⬇️ 5.39MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg00129437x.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 008 | ⬇️ 5.34MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg007117fb8.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 009 | ⬇️ 5.12MB/s"
+  name: "\U0001F1E8\U0001F1F3 TW 008 | ⬇️ 5.10MB/s"
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
   server: nbmrcg0034686rw.cybervena.com
   type: ss
-- name: "\U0001F1F0\U0001F1F7 KR 001 | ⬇️ 5.03MB/s"
-  network: ws
-  port: 30005
-  server: 125.138.80.72
-  servername: pagescm.freen17.cc.cd
-  tls: true
-  type: vless
-  udp: true
-  uuid: ae0dd58e-e222-40bf-84ae-365a97532737
-  ws-opts:
-    headers:
-      Host: pagescm.freen17.cc.cd
-    path: /archives/v/pictures
