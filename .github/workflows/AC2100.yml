@@ -32,7 +32,8 @@ jobs:
           cat > .config << EOF
           CONFIG_TARGET_ramips=y
           CONFIG_TARGET_ramips_mt7621=y
-          # 改为红米 AC2100 设备
+          CONFIG_TARGET_IMAGES_GENDISK=y
+          CONFIG_TARGET_ROOTFS_INITRAMFS=y
           CONFIG_TARGET_ramips_mt7621_DEVICE_xiaomi_redmi-router-ac2100=y
 
           # 无线驱动适配红米 AC2100 (MT7603 2.4G + MT7615 5G)
