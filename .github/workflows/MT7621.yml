@@ -1,0 +1,202 @@
+name: MT7621 Device Build
+
+on: workflow_dispatch
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - device: redmi_ac2100
+            target: ramips/mt7621
+            device_profile: xiaomi_redmi-router-ac2100
+            wifi_2g: kmod-mt7603
+            wifi_5g: kmod-mt7615e
+            proxy_app: luci-app-openclash
+            artifact_name: RedmiAC2100-LEDE
+
+          - device: newifi_d2
+            target: ramips/mt7621
+            device_profile: d-team_newifi-d2
+            wifi_2g: kmod-mt7603
+            wifi_5g: kmod-mt76x2
+            proxy_app: luci-app-homeproxy
+            artifact_name: NewifiD2-LEDE
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup cache for ccache and downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.ccache
+            openwrt/dl
+          key: ${{ runner.os }}-${{ matrix.device }}-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.device }}-
+
+      - name: Install build dependencies
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update -y
+          sudo apt install -y --no-install-recommends \
+            build-essential ccache flex g++ gawk gcc-multilib \
+            g++-multilib gettext git libncurses5-dev libssl-dev \
+            python3 python3-distutils python3-setuptools rsync \
+            swig unzip wget zlib1g-dev file curl perl \
+            autoconf automake autopoint binutils bison libtool \
+            libelf-dev libfuse-dev liblzma-dev libpam0g-dev \
+            pkg-config upx-ucl
+
+      - name: Setup ccache
+        run: |
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+          ccache -M 10G
+          ccache -s
+
+      - name: Clone LEDE source
+        run: |
+          git clone https://github.com/coolsnowwolf/lede openwrt
+          cd openwrt
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Generate device config
+        run: |
+          cd openwrt
+          cat > .config << EOF
+          CONFIG_TARGET_ramips=y
+          CONFIG_TARGET_ramips_mt7621=y
+          CONFIG_TARGET_ramips_mt7621_DEVICE_${{ matrix.device_profile }}=y
+
+          # 无线驱动
+          CONFIG_PACKAGE_${{ matrix.wifi_2g }}=y
+          CONFIG_PACKAGE_${{ matrix.wifi_5g }}=y
+          CONFIG_PACKAGE_wpad-openssl=y
+          CONFIG_PACKAGE_hostapd-common=y
+          CONFIG_DRIVER_11AC_SUPPORT=y
+
+          # 通用应用
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_htop=y
+          CONFIG_PACKAGE_ipv6helper=y
+          CONFIG_PACKAGE_luci-app-mwan3=y
+
+          # L2TP/IPsec VPN
+          CONFIG_PACKAGE_kmod-l2tp=y
+          CONFIG_PACKAGE_kmod-pppol2tp=y
+          CONFIG_PACKAGE_kmod-ppp=y
+          CONFIG_PACKAGE_kmod-udptunnel4=y
+          CONFIG_PACKAGE_xl2tpd=y
+          CONFIG_PACKAGE_ppp=y
+          CONFIG_PACKAGE_ppp-mod-pppol2tp=y
+
+          # 代理应用（由矩阵变量指定）
+          CONFIG_PACKAGE_${{ matrix.proxy_app }}=y
+
+          # 关闭不需要的组件
+          CONFIG_PACKAGE_luci-app-accesscontrol=n
+          CONFIG_PACKAGE_luci-app-nlbwmon=n
+          CONFIG_PACKAGE_luci-app-rclone=n
+          CONFIG_PACKAGE_luci-app-upnp=n
+          CONFIG_PACKAGE_luci-app-vlmcsd=n
+          CONFIG_PACKAGE_luci-app-vsftpd=n
+          CONFIG_PACKAGE_luci-app-wol=n
+          CONFIG_PACKAGE_luci-app-autoreboot=n
+          EOF
+
+          # 如果选择了 openclash，额外添加依赖（newifi_d2 不需要）
+          if [ "${{ matrix.proxy_app }}" = "luci-app-openclash" ]; then
+            echo "CONFIG_PACKAGE_luci-app-openclash=y" >> .config
+            echo "CONFIG_PACKAGE_clash-meta=y" >> .config
+          fi
+
+          make defconfig
+
+      - name: Display luci-app plugins status
+        run: |
+          cd openwrt
+          echo -e "\n=================================================="
+          echo -e "📋 luci-app-* plugins (${{ matrix.device }})"
+          echo -e "=================================================="
+          grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+            if echo "$line" | grep -q '=y\|=m'; then
+              name=$(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')
+              echo " ✔️ $name"
+            else
+              name=$(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')
+              echo " ❌ $name"
+            fi
+          done
+          echo -e "==================================================\n"
+
+      - name: Download all dependencies
+        working-directory: openwrt
+        run: make download -j$(nproc)
+
+      - name: Build firmware
+        id: build
+        working-directory: openwrt
+        run: |
+          set +e
+          echo "🔨 Parallel build ($(nproc) jobs)..."
+          make -j$(nproc) 2>&1 | tee build.log
+          BUILD_RESULT=${PIPESTATUS[0]}
+          if [ $BUILD_RESULT -ne 0 ]; then
+            echo -e "\n❌ Parallel build failed, retrying single-threaded (V=s)..."
+            make -j1 V=s 2>&1 | tee -a build.log
+            BUILD_RESULT=${PIPESTATUS[0]}
+          fi
+          set -e
+          ccache -s
+          if [ $BUILD_RESULT -eq 0 ]; then
+            echo "✅ Build succeeded"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Build failed"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Upload firmware artifact
+        if: steps.build.outputs.status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-${{ github.run_id }}
+          path: openwrt/bin/targets/ramips/mt7621/*.bin
+          retention-days: 30
+
+      - name: Upload build config
+        if: steps.build.outputs.status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-${{ matrix.device }}-${{ github.run_id }}
+          path: openwrt/.config
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.device }}-${{ github.run_id }}
+          path: openwrt/build.log
+          retention-days: 7
+
+      - name: Show last 200 lines on failure
+        if: failure()
+        run: |
+          echo "❌ Build failed - last 200 lines of log:"
+          tail -n 200 openwrt/build.log
