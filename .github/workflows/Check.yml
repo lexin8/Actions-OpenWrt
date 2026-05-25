@@ -14,7 +14,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git grep findutils tree
 
-      # 正确分支克隆（核心修正部分）
+      # 克隆合法分支
       - name: 克隆 OpenWrt 官方 25.12
         run: git clone --depth 1 --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt-2512
       - name: 克隆 OpenWrt 官方 24.10
@@ -33,22 +33,28 @@ jobs:
             echo "检测版本：${ver_title}"
             echo "源码根目录：${src_dir}"
 
-            echo -e "\n---------- 1. 检索内核编译配置 ----------"
-            # 修复配置文件路径搜索逻辑（适配25.12目录结构）
-            find "${src_dir}/target/linux" -path "*/x86/64" -type f \( -name "defconfig" -o -name "config*" \) | while read cfg_file;do
-              echo "配置文件路径：$cfg_file"
-              grep -E "CONFIG_MACVLAN|CONFIG_IPVLAN" "$cfg_file" || echo "该文件无MACVLAN/IPVLAN配置"
-            done
+            echo -e "\n---------- 1. x86_64 内核编译开关 ----------"
+            # 精准定位 x86/64 defconfig
+            local defcfg_path="${src_dir}/target/linux/x86/64/defconfig"
+            if [ -f "${defcfg_path}" ];then
+              echo "配置文件：${defcfg_path}"
+              grep -E "^#?CONFIG_MACVLAN|^#?CONFIG_IPVLAN" "${defcfg_path}"
+            else
+              echo "未找到 x86_64 defconfig，全局检索配置"
+              find "${src_dir}/target/linux/x86" -name "defconfig" -exec grep -E "^#?CONFIG_MACVLAN|^#?CONFIG_IPVLAN" {} \;
+            fi
 
-            echo -e "\n---------- 2. 检索内核模块打包定义 ----------"
-            find "${src_dir}/package/kernel/linux/modules" -name "*.mk" | while read mk_file;do
-              echo "模块规则文件：$mk_file"
-              grep -iE "macvlan|ipvlan" "$mk_file" || echo "脚本未注册该虚拟网卡模块"
-            done
+            echo -e "\n---------- 2. 内核模块打包定义 ----------"
+            local netdev_mk="${src_dir}/package/kernel/linux/modules/netdevices.mk"
+            if [ -f "${netdev_mk}" ];then
+              echo "模块规则：${netdev_mk}"
+              grep -A5 -B2 "macvlan\|ipvlan" "${netdev_mk}"
+            else
+              echo "未找到netdevices.mk"
+            fi
             echo "========================================\n"
           }
 
-          # 目录名与克隆时保持一致（关键匹配）
           scan_module_status "./openwrt-2512" "OpenWrt 官方 25.12 x86_64"
           scan_module_status "./openwrt-2410" "OpenWrt 官方 24.10 x86_64"
           scan_module_status "./fanchm-2512" "FanchmWrt 25.12.2 x86_64"
@@ -56,13 +62,13 @@ jobs:
 
       - name: 模块状态判定标准
         run: |
-          echo "===== 模块状态判定规则 ====="
-          echo "✅ CONFIG_MACVLAN=m  → 编译为独立模块，可通过opkg安装使用"
-          echo "✅ CONFIG_MACVLAN=y  → 直接内置内核，系统默认启用"
-          echo "❌ # CONFIG_XXX is not set → 源码编译禁用，无法使用"
-          echo "❌ mk文件无模块条目 → 固件不会打包对应驱动模块"
+          echo "===== 阉割判定规则 ====="
+          echo "1. CONFIG_XXX=m  → 编译为模块，可opkg在线安装 ✅未阉割"
+          echo "2. CONFIG_XXX=y  → 内置内核，默认启用 ✅未阉割"
+          echo "3. # CONFIG_XXX is not set → 编译禁用 ❌源码阉割"
+          echo "4. mk文件无模块代码 → 彻底移除驱动 ❌阉割"
 
-      - name: 归档检测配置文件
+      - name: 归档配置文件
         uses: actions/upload-artifact@v4
         with:
           name: kernel-config-backup
