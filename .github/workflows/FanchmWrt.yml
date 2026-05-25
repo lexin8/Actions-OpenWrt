@@ -187,8 +187,12 @@ jobs:
           CONFIG_PACKAGE_kmod-libcgroup=y
           CONFIG_PACKAGE_kmod-overlay=y
           CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-bridge=y
+          CONFIG_PACKAGE_kmod-br-netfilter=y
           CONFIG_PACKAGE_kmod-ipvlan=y
           CONFIG_PACKAGE_kmod-macvlan=y
+          CONFIG_MACVLAN=m
+          CONFIG_IPVLAN=m
           # IPsec VPN
           CONFIG_PACKAGE_luci-app-ipsec-vpn=y
           CONFIG_PACKAGE_luci-i18n-ipsec-vpn-zh-cn=y
