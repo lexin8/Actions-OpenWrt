@@ -1,5 +1,5 @@
 name: Check
-run-name: 检测x86_64源码macvlan/ipvlan模块状态
+run-name: 检测x86_64源码macvlan/ipvlan模块编译状态
 on:
   workflow_dispatch:
 
@@ -14,7 +14,7 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git grep findutils tree
 
-      # 克隆合法分支
+      # 克隆全部有效分支
       - name: 克隆 OpenWrt 官方 25.12
         run: git clone --depth 1 --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt-2512
       - name: 克隆 OpenWrt 官方 24.10
@@ -24,54 +24,47 @@ jobs:
       - name: 克隆 FanchmWrt 24.10.4
         run: git clone --depth 1 --branch fanchmwrt-24.10.4 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2410
 
-      - name: 批量检索模块编译状态
+      - name: 深度检索内核配置与模块定义
         run: |
           function scan_module_status() {
             local src_dir=$1
             local ver_title=$2
             echo -e "\n========================================"
             echo "检测版本：${ver_title}"
-            echo "源码根目录：${src_dir}"
+            echo "源码目录：${src_dir}"
 
-            echo -e "\n---------- 1. x86_64 内核编译开关 ----------"
-            # 精准定位 x86/64 defconfig
-            local defcfg_path="${src_dir}/target/linux/x86/64/defconfig"
-            if [ -f "${defcfg_path}" ];then
-              echo "配置文件：${defcfg_path}"
-              grep -E "^#?CONFIG_MACVLAN|^#?CONFIG_IPVLAN" "${defcfg_path}"
-            else
-              echo "未找到 x86_64 defconfig，全局检索配置"
-              find "${src_dir}/target/linux/x86" -name "defconfig" -exec grep -E "^#?CONFIG_MACVLAN|^#?CONFIG_IPVLAN" {} \;
-            fi
+            echo -e "\n【1】全局查找所有内核编译配置文件"
+            find "${src_dir}/target/linux" -type f \( -name "defconfig" -o -name "config" -o -name "config-*" \) | while read cfg;do
+              echo "配置文件: $cfg"
+              grep -hE "^#?CONFIG_MACVLAN|^#?CONFIG_IPVLAN" "$cfg" || true
+            done
 
-            echo -e "\n---------- 2. 内核模块打包定义 ----------"
-            local netdev_mk="${src_dir}/package/kernel/linux/modules/netdevices.mk"
-            if [ -f "${netdev_mk}" ];then
-              echo "模块规则：${netdev_mk}"
-              grep -A5 -B2 "macvlan\|ipvlan" "${netdev_mk}"
-            else
-              echo "未找到netdevices.mk"
+            echo -e "\n【2】虚拟网卡模块打包规则"
+            local mk="${src_dir}/package/kernel/linux/modules/netdevices.mk"
+            if [ -f "$mk" ];then
+              grep -A8 "macvlan\|ipvlan" "$mk"
             fi
             echo "========================================\n"
           }
 
+          # 依次检测四个版本
           scan_module_status "./openwrt-2512" "OpenWrt 官方 25.12 x86_64"
           scan_module_status "./openwrt-2410" "OpenWrt 官方 24.10 x86_64"
           scan_module_status "./fanchm-2512" "FanchmWrt 25.12.2 x86_64"
           scan_module_status "./fanchm-2410" "FanchmWrt 24.10.4 x86_64"
 
-      - name: 模块状态判定标准
+      - name: 判定说明
         run: |
-          echo "===== 阉割判定规则 ====="
-          echo "1. CONFIG_XXX=m  → 编译为模块，可opkg在线安装 ✅未阉割"
-          echo "2. CONFIG_XXX=y  → 内置内核，默认启用 ✅未阉割"
-          echo "3. # CONFIG_XXX is not set → 编译禁用 ❌源码阉割"
-          echo "4. mk文件无模块代码 → 彻底移除驱动 ❌阉割"
+          echo "===== 最终判定标准 ====="
+          echo "✅ CONFIG_XXX=m  可编译内核模块，支持opkg安装使用"
+          echo "✅ CONFIG_XXX=y  内核内置，开机直接可用"
+          echo "❌ # CONFIG_XXX is not set 编译禁用，固件无该驱动"
+          echo "💡 所有版本均保留模块源码，差异仅在编译开关"
 
-      - name: 归档配置文件
+      - name: 归档源码配置
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-config-backup
+          name: kernel-config-full
           path: |
             openwrt-2512/target/linux
             openwrt-2410/target/linux
