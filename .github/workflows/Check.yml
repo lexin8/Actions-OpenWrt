@@ -28,9 +28,9 @@ jobs:
       - name: 克隆 FanchmWrt 25.12.2 定制分支
         run: |
           git clone --depth 1 --branch fanchmwrt-25.12.2 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2512
-      - name: 克隆 FanchmWrt 24.10 定制分支
+      - name: 克隆 FanchmWrt 24.10.4 定制分支
         run: |
-          git clone --depth 1 --branch fanchmwrt-24.10 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2410
+          git clone --depth 1 --branch fanchmwrt-24.10.4 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2410
 
       - name: 批量扫描内核模块配置
         run: |
