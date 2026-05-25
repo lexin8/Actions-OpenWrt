@@ -18,9 +18,9 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git grep
 
-      - name: 克隆 OpenWrt 官方 25.03 稳定分支
+      - name: 克隆 OpenWrt 官方 25.12 稳定分支
         run: |
-          git clone --depth 1 --branch openwrt-25.03 https://github.com/openwrt/openwrt.git openwrt-2503
+          git clone --depth 1 --branch openwrt-25.12 https://github.com/openwrt/openwrt.git openwrt-2503
       - name: 克隆 OpenWrt 官方 24.10 稳定分支
         run: |
           git clone --depth 1 --branch openwrt-24.10 https://github.com/openwrt/openwrt.git openwrt-2410
@@ -48,7 +48,7 @@ jobs:
             echo ""
           }
 
-          scan_config "./openwrt-2503" "OpenWrt 官方 25.03 x86_64"
+          scan_config "./openwrt-2512" "OpenWrt 官方 25.12 x86_64"
           scan_config "./openwrt-2410" "OpenWrt 官方 24.10 x86_64"
           scan_config "./fanchm-2512" "FanchmWrt 25.12.2 x86_64"
           scan_config "./fanchm-2410" "FanchmWrt 24.10 x86_64"
@@ -66,7 +66,7 @@ jobs:
         with:
           name: kernel-config-backup
           path: |
-            openwrt-2503/target/linux/x86/64/defconfig
+            openwrt-2512/target/linux/x86/64/defconfig
             openwrt-2410/target/linux/x86/64/defconfig
             fanchm-2512/target/linux/x86/64/defconfig
             fanchm-2410/target/linux/x86/64/defconfig
