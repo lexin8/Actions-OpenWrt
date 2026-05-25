@@ -1,12 +1,11 @@
 name: Check
-run-name: 检测x86_64源码是否阉割macvlan/ipvlan模块
+run-name: 检测x86_64源码是否阉割macvlan/ipvlan内核模块
 on:
   workflow_dispatch:
     inputs:
       check_desc:
-        description: 检测OpenWrt官方&FanchmWrt 25.10/24版本网络模块
+        description: 对比OpenWrt官方 & FanchmWrt 模块编译状态
         required: false
-        default: 自动判定模块阉割状态
 
 jobs:
   check-module:
@@ -19,56 +18,55 @@ jobs:
         run: |
           sudo apt update && sudo apt install -y git grep
 
-      - name: 克隆 OpenWrt 官方 25.10 分支
+      - name: 克隆 OpenWrt 官方 25.03 稳定分支
         run: |
-          git clone --depth 1 --branch openwrt-25.10 https://github.com/openwrt/openwrt.git openwrt-2510
-      - name: 克隆 OpenWrt 官方 24 分支
+          git clone --depth 1 --branch openwrt-25.03 https://github.com/openwrt/openwrt.git openwrt-2503
+      - name: 克隆 OpenWrt 官方 24.10 稳定分支
         run: |
           git clone --depth 1 --branch openwrt-24.10 https://github.com/openwrt/openwrt.git openwrt-2410
-      - name: 克隆 FanchmWrt 25.12(对标25.10)分支
+
+      - name: 克隆 FanchmWrt 25.12.2 定制分支
         run: |
-          git clone --depth 1 --branch fanchmwrt-25.12.2 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2510
-      - name: 克隆 FanchmWrt 24 历史分支
+          git clone --depth 1 --branch fanchmwrt-25.12.2 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2512
+      - name: 克隆 FanchmWrt 24.10 定制分支
         run: |
           git clone --depth 1 --branch fanchmwrt-24.10 https://github.com/fanchmwrt/fanchmwrt.git fanchm-2410
 
-      - name: 定义检测函数 & 批量检索配置
+      - name: 批量扫描内核模块配置
         run: |
           function scan_config() {
             local src_path=$1
             local ver_name=$2
             local defcfg="${src_path}/target/linux/x86/64/defconfig"
             echo "========================================"
-            echo "【版本】${ver_name}"
-            echo "配置文件路径: ${defcfg}"
-            echo "---------- MACVLAN 配置 ----------"
-            grep -E "^CONFIG_MACVLAN|# CONFIG_MACVLAN" "${defcfg}"
-            echo "---------- IPVLAN 配置 ----------"
-            grep -E "^CONFIG_IPVLAN|# CONFIG_IPVLAN" "${defcfg}"
+            echo "【检测版本】${ver_name}"
+            echo "配置文件: ${defcfg}"
+            echo "---------- MACVLAN 模块 ----------"
+            grep -E "^CONFIG_MACVLAN|# CONFIG_MACVLAN" "${defcfg}" || echo "未找到MACVLAN配置项"
+            echo "---------- IPVLAN 模块 ----------"
+            grep -E "^CONFIG_IPVLAN|# CONFIG_IPVLAN" "${defcfg}" || echo "未找到IPVLAN配置项"
             echo ""
           }
 
-          # 逐个版本扫描
-          scan_config "./openwrt-2510" "OpenWrt 官方 25.10 x86_64"
+          scan_config "./openwrt-2503" "OpenWrt 官方 25.03 x86_64"
           scan_config "./openwrt-2410" "OpenWrt 官方 24.10 x86_64"
-          scan_config "./fanchm-2510" "FanchmWrt 定制 25.10等效版 x86_64"
-          scan_config "./fanchm-2410" "FanchmWrt 定制 24.10等效版 x86_64"
+          scan_config "./fanchm-2512" "FanchmWrt 25.12.2 x86_64"
+          scan_config "./fanchm-2410" "FanchmWrt 24.10 x86_64"
 
-      - name: 汇总阉割判定结果
+      - name: 结果判定说明
         run: |
-          echo "==================== 判定规则 ===================="
-          echo "CONFIG_XXX=m   → 编译为模块，未阉割，可opkg安装"
-          echo "CONFIG_XXX=y   → 内置内核，未阉割"
-          echo "# CONFIG_XXX is not set → 源码禁用，彻底阉割"
+          echo "==================== 判定标准 ===================="
+          echo "CONFIG_XXX=m     → 编译为内核模块，未阉割，可在线安装"
+          echo "CONFIG_XXX=y     → 内置内核，默认启用"
+          echo "# CONFIG_XXX is not set → 源码禁用，彻底阉割无法加载"
           echo "=================================================="
-          echo "检测完成，上方日志可直接对比各版本模块状态"
 
-      - name: 打包源码日志留存
+      - name: 导出配置文件存档
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-config-log
+          name: kernel-config-backup
           path: |
-            openwrt-2510/target/linux/x86/64/defconfig
+            openwrt-2503/target/linux/x86/64/defconfig
             openwrt-2410/target/linux/x86/64/defconfig
-            fanchm-2510/target/linux/x86/64/defconfig
+            fanchm-2512/target/linux/x86/64/defconfig
             fanchm-2410/target/linux/x86/64/defconfig
