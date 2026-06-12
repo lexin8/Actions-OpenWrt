@@ -85,6 +85,7 @@ jobs:
         run: |
           cat >> feeds.conf.default << EOF
           src-git openclash https://github.com/vernesong/OpenClash.git
+          src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages.git
           EOF
           sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
