@@ -1,111 +1,6 @@
 proxy-providers: {}
 proxies:
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 157.66MB/s"
-  network: ws
-  port: 443
-  server: cf.877774.xyz
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 141.72MB/s"
-  network: ws
-  port: 443
-  server: cf.130519.xyz
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 141.60MB/s"
-  network: ws
-  port: 443
-  server: cloudflare-ip.mofashi.ltd
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 138.80MB/s"
-  network: ws
-  port: 443
-  server: store.ubi.com
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 118.14MB/s"
-  network: ws
-  port: 443
-  server: mfa.gov.ua
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 111.96MB/s"
-  network: ws
-  port: 443
-  server: yx.cloudflare.182682.xyz
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 106.48MB/s"
-  network: ws
-  port: 443
-  server: cf.090227.xyz
-  servername: t1s1.rittbo.kdns.fr
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: eeb6823c-b926-4ea2-866a-5542edd26e59
-  ws-opts:
-    headers:
-      Host: t1s1.rittbo.kdns.fr
-    path: /
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 88.86MB/s"
+- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 73.72MB/s"
   network: ws
   port: 443
   server: python-graysongon.wasmer.app
@@ -119,130 +14,46 @@ proxies:
     headers:
       Host: python-graysongon.wasmer.app
     path: /7bd180e8
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 82.44MB/s"
+- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 72.87MB/s"
+  network: ws
+  port: 443
+  server: 104.16.80.73
+  servername: amirsa.pages.dev
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: e1ebbd5e-ba89-4b05-8336-de7834d14164
+  ws-opts:
+    headers:
+      Host: amirsa.pages.dev
+    path: /
+- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 55.90MB/s"
   network: ws
   port: 2053
-  server: 162.159.45.175
-  servername: fu.baiproxy.us.ci
+  server: 172.64.35.7
+  servername: josni.hoyes.cloudns.ch
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
-  uuid: 55d9ec38-1b8a-454b-981a-6acfe8f56d8c
+  uuid: 83afd88f-200f-4d89-bfc7-66eff160c1d8
   ws-opts:
     headers:
-      Host: fu.baiproxy.us.ci
-    path: /?ed=2560
-- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 79.63MB/s"
-  network: ws
-  port: 9443
-  server: 77.110.127.191
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: e0de62c9-f317-4275-b7e5-8da7b7fa9bc6
-  ws-opts:
-    path: /pourya
-- alpn:
-  - h3
-  auth: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 35.10MB/s"
-  password: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  port: 443
-  server: s544.ccgfw.online
-  skip-cert-verify: false
-  sni: u729792us544.ccgfw.online
-  type: hysteria2
-- client-fingerprint: edge
-  flow: xtls-rprx-vision
-  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 32.66MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs
-    short-id: 7a3f9e2b1c8d4f6a
-  server: 31.76.91.26
-  servername: jp.s3-cloud.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: dfc0cb9d-f005-41b0-848c-7703bd39d0de
-- client-fingerprint: edge
-  flow: xtls-rprx-vision
-  name: "\U0001F1EF\U0001F1F5 JP 002 | ⬇️ 32.37MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs
-    short-id: 7a3f9e2b1c8d4f6a
-  server: 31.76.91.18
-  servername: jp.s3-cloud.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: dfc0cb9d-f005-41b0-848c-7703bd39d0de
-- client-fingerprint: edge
-  flow: xtls-rprx-vision
-  name: "\U0001F1EF\U0001F1F5 JP 003 | ⬇️ 32.17MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs
-    short-id: 7a3f9e2b1c8d4f6a
-  server: 31.76.91.24
-  servername: jp.s3-cloud.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: dfc0cb9d-f005-41b0-848c-7703bd39d0de
-- client-fingerprint: edge
-  flow: xtls-rprx-vision
-  name: "\U0001F1EF\U0001F1F5 JP 004 | ⬇️ 32.11MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: QVkd5uoSbUA7rHVLtIoJB4iRp4l0zuw0H9qzQBh3lHs
-    short-id: 7a3f9e2b1c8d4f6a
-  server: 31.76.91.28
-  servername: jp.s3-cloud.org
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: dfc0cb9d-f005-41b0-848c-7703bd39d0de
-- name: "\U0001F1EF\U0001F1F5 JP 005 | ⬇️ 31.09MB/s"
-  network: tcp
-  password: BxceQaOe
-  port: 9731
-  server: 35.77.220.48
+      Host: josni.hoyes.cloudns.ch
+    path: /
+- name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 31.74MB/s"
+  port: 8443
+  server: 152.233.28.200
+  servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
-  sni: t.me%252Fripaojiedian
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 29.84MB/s"
-  password: W74XFALLLuw6m5IA
-  port: 443
-  server: series-a1.samanehha.co
-  type: ss
-- name: "\U0001F1EF\U0001F1F5 JP 006 | ⬇️ 29.47MB/s"
-  network: ws
-  password: hV66LcSGyxUdHq2aAeqxmLfpBDQmRYxo8Wte43oZr8L379SS
-  port: 443
-  server: 43.207.87.133
-  skip-cert-verify: false
-  sni: node2.bw8848.org
-  type: trojan
-  ws-opts:
-    headers:
-      Host: node2.bw8848.org
-    path: /node2-node2-gu7bfd
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 29.30MB/s"
+  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 31.49MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -255,250 +66,17 @@ proxies:
   tls: true
   type: vless
   uuid: d205ae68-0819-473c-b425-6c5947ac2f8d
-- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 27.67MB/s"
+- name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 31.41MB/s"
   port: 8443
-  server: 185.229.191.169
+  server: 152.233.28.201
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 27.54MB/s"
-  port: 8443
-  server: 185.229.191.41
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 27.50MB/s"
-  port: 8443
-  server: 185.229.191.37
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 27.45MB/s"
-  port: 8443
-  server: 185.229.191.107
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 27.44MB/s"
-  port: 8443
-  server: 185.229.191.97
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 27.43MB/s"
-  port: 8443
-  server: 185.229.191.108
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 27.38MB/s"
-  port: 8443
-  server: 185.229.191.112
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 27.37MB/s"
-  port: 8443
-  server: 185.229.191.57
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 27.33MB/s"
-  port: 8443
-  server: 185.229.191.111
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 010 | ⬇️ 27.31MB/s"
-  port: 8443
-  server: 185.229.191.93
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 011 | ⬇️ 27.31MB/s"
-  port: 8443
-  server: 185.229.191.70
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 012 | ⬇️ 27.31MB/s"
-  port: 8443
-  server: 185.229.191.170
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 013 | ⬇️ 27.28MB/s"
-  port: 8443
-  server: 185.229.191.145
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 014 | ⬇️ 27.26MB/s"
-  port: 8443
-  server: 185.229.191.95
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 015 | ⬇️ 27.24MB/s"
-  port: 8443
-  server: 185.229.191.109
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 016 | ⬇️ 27.22MB/s"
-  port: 8443
-  server: 185.229.191.49
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 017 | ⬇️ 27.21MB/s"
-  port: 8443
-  server: 185.229.191.96
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 018 | ⬇️ 27.17MB/s"
-  port: 8443
-  server: 185.229.191.38
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 019 | ⬇️ 27.17MB/s"
-  port: 8443
-  server: 185.229.191.168
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 020 | ⬇️ 27.15MB/s"
-  port: 8443
-  server: 185.229.191.88
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 021 | ⬇️ 27.14MB/s"
-  port: 8443
-  server: 185.229.191.110
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 022 | ⬇️ 27.14MB/s"
-  port: 8443
-  server: 185.229.191.40
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 023 | ⬇️ 27.13MB/s"
-  port: 8443
-  server: 185.229.191.82
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 024 | ⬇️ 27.13MB/s"
-  port: 8443
-  server: 185.229.191.46
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 025 | ⬇️ 27.12MB/s"
-  port: 8443
-  server: 185.229.191.180
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 026 | ⬇️ 27.10MB/s"
-  port: 8443
-  server: 185.229.191.187
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 027 | ⬇️ 27.10MB/s"
-  port: 8443
-  server: 185.229.191.131
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 028 | ⬇️ 27.08MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 30.58MB/s"
   port: 8443
   server: 185.229.191.42
   servername: ams1.fromblancwithlove.com
@@ -507,16 +85,8 @@ proxies:
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 029 | ⬇️ 27.08MB/s"
-  port: 8443
-  server: 185.229.191.69
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 030 | ⬇️ 27.08MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 30.58MB/s"
   port: 8443
   server: 185.229.191.67
   servername: ams1.fromblancwithlove.com
@@ -525,25 +95,53 @@ proxies:
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 031 | ⬇️ 27.06MB/s"
+- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 30.56MB/s"
   port: 8443
-  server: 185.229.191.184
+  server: 185.229.191.145
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 032 | ⬇️ 27.05MB/s"
+- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 30.51MB/s"
   port: 8443
-  server: 185.229.191.185
+  server: 185.229.191.46
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 033 | ⬇️ 26.94MB/s"
+- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 30.45MB/s"
+  port: 8443
+  server: 185.229.191.169
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 30.44MB/s"
+  port: 8443
+  server: 185.229.191.109
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 30.43MB/s"
+  port: 8443
+  server: 185.229.191.49
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 30.36MB/s"
   port: 8443
   server: 185.229.191.157
   servername: ams1.fromblancwithlove.com
@@ -552,15 +150,125 @@ proxies:
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 30.31MB/s"
+  port: 8443
+  server: 185.229.191.185
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 010 | ⬇️ 29.79MB/s"
+  port: 8443
+  server: 185.229.191.180
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 011 | ⬇️ 29.71MB/s"
+  port: 8443
+  server: 79.127.227.57
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- client-fingerprint: chrome
+  name: "\U0001F1F3\U0001F1F1 NL 012 | ⬇️ 29.70MB/s"
+  port: 8443
+  server: 185.229.191.68
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 013 | ⬇️ 29.52MB/s"
+  port: 8443
+  server: 185.229.191.96
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 014 | ⬇️ 29.49MB/s"
+  port: 8443
+  server: 185.229.191.110
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 015 | ⬇️ 29.45MB/s"
+  port: 8443
+  server: 185.229.191.184
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 26.68MB/s"
-  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-  port: 50099
-  server: r3mrcg001269pz2.cybervena.com
+  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 29.43MB/s"
+  password: yu2XnSPWhmQjxn83iJA3DA
+  port: 3478
+  server: 207.2.120.46
   type: ss
-- client-fingerprint: firefox
+- name: "\U0001F1F3\U0001F1F1 NL 016 | ⬇️ 29.38MB/s"
+  port: 8443
+  server: 185.229.191.95
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 017 | ⬇️ 29.17MB/s"
+  port: 8443
+  server: 185.229.191.93
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 018 | ⬇️ 29.04MB/s"
+  port: 8443
+  server: 185.229.191.186
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 019 | ⬇️ 28.99MB/s"
+  port: 8443
+  server: 185.229.191.111
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F3\U0001F1F1 NL 020 | ⬇️ 28.86MB/s"
+  port: 8443
+  server: 185.229.191.82
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 26.65MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 28.73MB/s"
+  network: tcp
   port: 443
   reality-opts:
     public-key: Mg3ZxHNUFbX96q1HpS3WReeM7rnhEsXXtlEzxALeTDc
@@ -568,20 +276,12 @@ proxies:
   server: 159.195.22.155
   servername: 2.oncloudnineservicestreang.com
   skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
   uuid: 859a537b-09cf-4bce-8da4-ecbb72950e3a
-- name: "\U0001F1F3\U0001F1F1 NL 034 | ⬇️ 26.57MB/s"
-  port: 8443
-  server: 185.229.191.13
-  servername: ams1.fromblancwithlove.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1E7\U0001F1EA BE 001 | ⬇️ 26.54MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1E7\U0001F1EA BE 001 | ⬇️ 28.37MB/s"
   network: tcp
   port: 8443
   server: 207.211.214.42
@@ -591,18 +291,273 @@ proxies:
   tls: true
   type: vless
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 035 | ⬇️ 26.37MB/s"
+- name: "\U0001F1F3\U0001F1F1 NL 021 | ⬇️ 28.05MB/s"
   port: 8443
-  server: 185.229.191.22
+  server: 185.229.191.187
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 036 | ⬇️ 26.37MB/s"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 022 | ⬇️ 27.05MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.16
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 023 | ⬇️ 26.06MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 443
+  server: 82.38.31.15
+  type: ss
+- name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 25.62MB/s"
   port: 8443
-  server: 185.229.191.58
+  server: 45.159.12.2
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 25.53MB/s"
+  port: 8443
+  server: 45.159.12.118
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 004 | ⬇️ 25.53MB/s"
+  port: 8443
+  server: 45.159.12.4
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 005 | ⬇️ 25.51MB/s"
+  port: 8443
+  server: 45.159.12.119
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 006 | ⬇️ 25.48MB/s"
+  port: 8443
+  server: 45.159.12.193
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 007 | ⬇️ 25.48MB/s"
+  port: 8443
+  server: 45.159.12.3
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 008 | ⬇️ 25.47MB/s"
+  port: 8443
+  server: 45.159.12.25
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 009 | ⬇️ 25.47MB/s"
+  port: 8443
+  server: 45.159.12.121
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 010 | ⬇️ 25.46MB/s"
+  port: 8443
+  server: 45.159.12.20
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 011 | ⬇️ 25.45MB/s"
+  port: 8443
+  server: 79.127.249.221
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 012 | ⬇️ 25.45MB/s"
+  port: 8443
+  server: 45.159.12.19
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 013 | ⬇️ 25.44MB/s"
+  port: 8443
+  server: 45.159.12.18
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 014 | ⬇️ 25.42MB/s"
+  port: 8443
+  server: 45.159.12.23
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 015 | ⬇️ 25.42MB/s"
+  port: 8443
+  server: 45.159.12.24
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 016 | ⬇️ 25.37MB/s"
+  port: 8443
+  server: 45.159.12.13
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 017 | ⬇️ 25.28MB/s"
+  port: 8443
+  server: 45.159.12.10
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 018 | ⬇️ 25.25MB/s"
+  port: 8443
+  server: 45.159.12.26
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 019 | ⬇️ 25.22MB/s"
+  port: 8443
+  server: 45.159.12.190
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 020 | ⬇️ 25.21MB/s"
+  port: 8443
+  server: 45.159.12.16
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 021 | ⬇️ 25.16MB/s"
+  port: 8443
+  server: 45.159.12.21
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 022 | ⬇️ 25.12MB/s"
+  port: 8443
+  server: 45.159.12.14
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 023 | ⬇️ 25.10MB/s"
+  port: 8443
+  server: 45.159.12.161
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 024 | ⬇️ 24.98MB/s"
+  port: 8443
+  server: 45.159.12.8
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 025 | ⬇️ 24.96MB/s"
+  port: 8443
+  server: 45.159.12.196
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 026 | ⬇️ 24.85MB/s"
+  port: 8443
+  server: 79.127.249.197
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 027 | ⬇️ 24.80MB/s"
+  port: 8443
+  server: 45.159.12.162
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 028 | ⬇️ 24.78MB/s"
+  port: 8443
+  server: 45.159.12.11
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 029 | ⬇️ 24.73MB/s"
+  port: 8443
+  server: 45.159.12.164
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
@@ -610,119 +565,71 @@ proxies:
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 037 | ⬇️ 26.29MB/s"
+  name: "\U0001F1F8\U0001F1EA SE 030 | ⬇️ 24.72MB/s"
   port: 8443
-  server: 185.229.191.10
+  server: 45.159.12.191
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1F3\U0001F1F1 NL 038 | ⬇️ 26.11MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 031 | ⬇️ 24.70MB/s"
   port: 8443
-  server: 79.127.227.215
+  server: 45.159.12.34
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: false
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 039 | ⬇️ 26.04MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 82.38.31.16
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 040 | ⬇️ 25.75MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 443
-  server: 82.38.31.15
-  type: ss
-- name: "\U0001F1F3\U0001F1F1 NL 041 | ⬇️ 24.97MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 032 | ⬇️ 24.69MB/s"
   port: 8443
-  server: 185.229.191.14
+  server: 45.159.12.9
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: false
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 033 | ⬇️ 24.68MB/s"
+  port: 8443
+  server: 45.159.12.194
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 24.67MB/s"
-  port: 4443
-  server: 89.167.82.102
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 88553247-c1c8-4e80-9db6-56bff7efc33b
-- name: "\U0001F1F3\U0001F1F1 NL 042 | ⬇️ 23.93MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 034 | ⬇️ 24.68MB/s"
   port: 8443
-  server: 185.229.191.51
+  server: 45.159.12.195
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 23.78MB/s"
-  port: 33366
-  server: 65.109.221.245
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 2ee7eb26-8118-4d0a-a300-8d0edcfde6e5
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 23.38MB/s"
-  password: WSyL4XTwNsdv
-  port: 8388
-  server: 108.181.121.226
-  type: ss
-- name: "\U0001F1F3\U0001F1F1 NL 043 | ⬇️ 23.24MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 035 | ⬇️ 24.64MB/s"
   port: 8443
-  server: 185.229.191.12
+  server: 45.159.12.32
   servername: ams1.fromblancwithlove.com
   skip-cert-verify: true
   tls: true
   type: vless
   udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
-- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 23.03MB/s"
-  network: tcp
+- name: "\U0001F1F8\U0001F1EA SE 036 | ⬇️ 24.55MB/s"
   port: 8443
-  server: 77.74.123.171
-  servername: cdn7-09.vk-cdnvideo.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 931729a8-3c20-4841-89a1-f18dc9ce0a6f
-- alpn:
-  - h3
-  auth: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  name: "\U0001F1F3\U0001F1F1 NL 044 | ⬇️ 22.39MB/s"
-  password: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  port: 443
-  server: 88.151.33.158
-  skip-cert-verify: false
-  sni: u729792us504.csgfw.top
-  type: hysteria2
-- name: "\U0001F1F9\U0001F1F7 TR 001 | ⬇️ 20.84MB/s"
-  network: tcp
-  port: 8443
-  server: 87.249.139.226
+  server: 45.159.12.33
   servername: ams1.fromblancwithlove.com
-  skip-cert-verify: false
-  tfo: false
+  skip-cert-verify: true
   tls: true
   type: vless
+  udp: true
   uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - client-fingerprint: firefox
-  name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 20.26MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 24.49MB/s"
   network: tcp
   port: 443
   reality-opts:
@@ -735,230 +642,165 @@ proxies:
   tls: true
   type: vless
   uuid: 612c872d-1370-4109-8644-f0755f97e33f
+- name: "\U0001F1F8\U0001F1EA SE 037 | ⬇️ 24.41MB/s"
+  port: 8443
+  server: 45.159.12.31
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- name: "\U0001F1F8\U0001F1EA SE 038 | ⬇️ 24.38MB/s"
+  port: 8443
+  server: 45.159.12.163
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
 - cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 20.18MB/s"
-  password: yu2XnSPWhmQjxn83iJA3DA
-  port: 3478
-  server: 207.2.120.46
+  name: "\U0001F1E8\U0001F1F3 TW 001 | ⬇️ 24.26MB/s"
+  password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
+  port: 50099
+  server: r3mrcg001269pz2.cybervena.com
   type: ss
-- name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 19.65MB/s"
+- name: "\U0001F1F8\U0001F1EA SE 039 | ⬇️ 24.19MB/s"
+  port: 8443
+  server: 45.159.12.192
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 21.96MB/s"
+  password: WSyL4XTwNsdv
+  port: 8388
+  server: 108.181.121.226
+  type: ss
+- name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 20.65MB/s"
   password: fFj7MAGy1VlAWmB_gMBG_27oPYTSHvV6MX
   port: 443
   server: 185.137.157.59
   skip-cert-verify: false
   sni: www.lateralio.click
   type: trojan
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 18.45MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 7ReQIe2kMtP4rCrptgH5glkOM-JGcSAPzHNxOED-Z0s
-    short-id: 247fd6dab1a34a48
-  server: 93.114.194.131
-  servername: web.max.ru
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 146eb6cf-a99c-4022-85ca-022cf81502dc
-- name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 17.55MB/s"
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 18.59MB/s"
+  password: yu2XnSPWhmQjxn83iJA3DA
+  port: 3478
+  server: 148.253.208.76
+  type: ss
+- name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 17.60MB/s"
   port: 9002
-  server: 84.239.49.173
+  server: 84.239.49.215
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 002 | ⬇️ 17.46MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 002 | ⬇️ 17.06MB/s"
   port: 9002
-  server: 84.239.49.238
+  server: 84.239.49.39
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 003 | ⬇️ 17.09MB/s"
-  port: 9002
-  server: 84.239.49.154
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- client-fingerprint: chrome
-  name: "\U0001F1F3\U0001F1F1 NL 045 | ⬇️ 17.01MB/s"
-  network: tcp
-  port: 8443
-  server: 46.229.243.136
-  servername: cdn3-25.vk-cdnvideo.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 931729a8-3c20-4841-89a1-f18dc9ce0a6f
-- name: "\U0001F1F7\U0001F1F4 RO 004 | ⬇️ 17.01MB/s"
-  port: 9002
-  server: 84.239.49.239
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 005 | ⬇️ 16.94MB/s"
-  port: 9002
-  server: 84.239.49.253
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 006 | ⬇️ 16.91MB/s"
-  port: 9002
-  server: 84.239.49.233
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 007 | ⬇️ 16.75MB/s"
-  port: 9002
-  server: 84.239.49.57
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 008 | ⬇️ 16.74MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 003 | ⬇️ 17.03MB/s"
   port: 9002
   server: 84.239.49.211
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1EE FI 002 | ⬇️ 16.66MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 1BdgrQ_esOEya01sDCBYK4MGpJgaUhssHQG-aWJkyFQ
-  server: s2.dipvpn.ru
-  servername: dipvpn.ru
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 3559f1f7-7d70-46c9-82db-d2b46269300b
-- name: "\U0001F1F7\U0001F1F4 RO 009 | ⬇️ 16.45MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 004 | ⬇️ 16.88MB/s"
   port: 9002
-  server: 84.239.14.159
+  server: 84.239.49.212
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 010 | ⬇️ 16.41MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 005 | ⬇️ 16.88MB/s"
   port: 9002
-  server: 84.239.14.158
+  server: 84.239.49.202
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 011 | ⬇️ 16.13MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 006 | ⬇️ 16.83MB/s"
   port: 9002
-  server: 84.239.49.214
+  server: 84.239.49.201
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: 13|RO_speednode_0043
+- name: "\U0001F1F7\U0001F1F4 RO 007 | ⬇️ 16.80MB/s"
   port: 9002
-  server: 84.239.14.148
+  server: 84.239.49.199
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: "\U0001F1F7\U0001F1F4 RO 012 | ⬇️ 15.97MB/s"
+- name: "\U0001F1F7\U0001F1F4 RO 008 | ⬇️ 16.74MB/s"
+  port: 9002
+  server: 84.239.49.253
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: "\U0001F1F7\U0001F1F4 RO 009 | ⬇️ 16.73MB/s"
+  port: 9002
+  server: 84.239.49.223
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: "\U0001F1F7\U0001F1F4 RO 010 | ⬇️ 16.65MB/s"
   port: 9002
   server: 84.239.49.185
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: 美国_19
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 48697
-  server: 103.177.136.42
+- name: "\U0001F1F7\U0001F1F4 RO 011 | ⬇️ 16.62MB/s"
+  port: 9002
+  server: 84.239.14.158
   skip-cert-verify: true
-  sni: gh.01.naiun.bilibili.com
   tls: true
-  type: trojan
+  type: http
   udp: true
-- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 15.71MB/s"
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 47909
-  server: 103.177.136.42
+- name: "\U0001F1F7\U0001F1F4 RO 012 | ⬇️ 16.59MB/s"
+  port: 9002
+  server: 84.239.49.178
   skip-cert-verify: true
-  sni: is.01.naiun.bilibili.com
   tls: true
-  type: trojan
+  type: http
   udp: true
-- name: 13|RO_speednode_0050
+- name: "\U0001F1E8\U0001F1F3 TW 002 | ⬇️ 16.54MB/s"
+  password: exaxgqkKkd0TAMrCxeonWg==
+  port: 1443
+  server: twmoon1-cdn-route.couldflare-cdn.com
+  tls: true
+  type: http
+  udp: true
+  username: mrwdfNTD8M79LCukCieldrqZWqs=
+- name: "\U0001F1F7\U0001F1F4 RO 013 | ⬇️ 16.32MB/s"
   port: 9002
   server: 84.239.49.184
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: 美国_20
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 45619
-  server: 103.177.136.45
+- name: 12|RO_speednode_0029
+  port: 9002
+  server: 84.239.49.233
   skip-cert-verify: true
-  sni: fr.01.naiun.bilibili.com
   tls: true
-  type: trojan
+  type: http
   udp: true
-- name: 美国_24
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 41943
-  server: 103.177.136.45
-  skip-cert-verify: true
-  sni: az.01.naiun.bilibili.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 美国_22
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 45619
-  server: 103.177.136.42
-  skip-cert-verify: true
-  sni: fr.01.naiun.bilibili.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 美国_15
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 41943
-  server: 103.177.136.42
-  skip-cert-verify: true
-  sni: az.01.naiun.bilibili.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 美国_17
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 46424
-  server: 103.177.136.42
-  skip-cert-verify: true
-  sni: de.01.naiun.bilibili.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 美国_23
-  password: 4f4d1167-ef14-4304-9bce-0740472503ef
-  port: 46424
-  server: 103.177.136.45
-  skip-cert-verify: true
-  sni: de.01.naiun.bilibili.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 美国_14
+- name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 15.70MB/s"
   password: 4f4d1167-ef14-4304-9bce-0740472503ef
   port: 45553
   server: 103.177.136.45
@@ -967,122 +809,85 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- name: 13|RO_speednode_0026
-  port: 9002
-  server: 84.239.49.223
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 美国_16
+- name: 加拿大
   password: 4f4d1167-ef14-4304-9bce-0740472503ef
   port: 47909
-  server: 103.177.136.45
+  server: 103.177.136.42
   skip-cert-verify: true
   sni: is.01.naiun.bilibili.com
   tls: true
   type: trojan
   udp: true
-- name: 11,12|美国|@ripaojiedian
-  network: tcp
-  password: e0195c73018d597b1c2f0ea89d8676ae
-  port: 17005
-  server: 52.195.226.220
+- name: 加拿大_1
+  password: 4f4d1167-ef14-4304-9bce-0740472503ef
+  port: 48697
+  server: 103.177.136.45
   skip-cert-verify: true
-  sni: www.nintendogames.net
-  type: trojan
-- name: 13|RO_speednode_0035
-  port: 9002
-  server: 84.239.49.178
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 13|RO_speednode_0037
-  port: 9002
-  server: 84.239.49.215
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- alpn:
-  - h3
-  auth: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  name: "\U0001F1FA\U0001F1F8 US HY2-299 | free-nodes"
-  password: 28beee5e-40ab-3c36-b797-1e4ecf27d0a0
-  port: 443
-  server: 104.168.76.175
-  skip-cert-verify: false
-  sni: u729792us175.ayxj.top
-  type: hysteria2
-- name: 13|RO_speednode_0052
-  port: 9002
-  server: 84.239.49.199
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 13|RO_speednode_0038
-  port: 9002
-  server: 84.239.49.201
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 13|RO_speednode_0049
-  port: 9002
-  server: 84.239.49.202
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 13|RO_speednode_0042
-  port: 9002
-  server: 84.239.49.212
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "9|\U0001F1F3\U0001F1F1@FreakConfig"
-  obfs: salamander
-  obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
-  password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
-  port: 443
-  server: 130.49.161.70
-  skip-cert-verify: true
-  sni: hy2.aspidnet.xyz
-  tls: false
-  type: hysteria2
-- name: 美国_12
-  password: harz989mzcktd92m1vlf
-  port: 59125
-  server: 216.105.168.115
-  skip-cert-verify: true
-  sni: 216.105.168.115
+  sni: gh.01.naiun.bilibili.com
   tls: true
   type: trojan
   udp: true
+- name: 加拿大_2
+  password: 4f4d1167-ef14-4304-9bce-0740472503ef
+  port: 41943
+  server: 103.177.136.45
+  skip-cert-verify: true
+  sni: az.01.naiun.bilibili.com
+  tls: true
+  type: trojan
+  udp: true
+- client-fingerprint: chrome
+  name: 荷兰_1
+  port: 8443
+  server: 185.229.191.10
+  servername: ams1.fromblancwithlove.com
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 394f6981-a782-4779-9a85-e6cf22935d93
+- cipher: chacha20-ietf-poly1305
+  name: 未知 SS-46 | free-nodes
+  password: eDfN7SODQceIOmIAbtJJtK
+  port: 443
+  server: 198.98.53.130
+  type: ss
 - cipher: aes-128-gcm
-  name: 未知 SS-52 | free-nodes
+  name: 未知 SS-55 | free-nodes
   password: wcjMniCODfhz26P7L2BvpEDQfhogbFTl
   port: 17913
   server: 161.129.71.148
   type: ss
+- cipher: aes-256-gcm
+  name: 未知 SS-56 | free-nodes
+  password: 123
+  port: 1001
+  server: 61.171.92.202
+  type: ss
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: 未知 VLESS-248 | free-nodes
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: vTtRZ_FeFQoAigFr_pmVc_O85RaE9H8aVL0SitFYcmI
+    short-id: 53cd45d26d7b53fe
+  server: 159.195.60.65
+  servername: free1.anotherboring.top
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: c897facf-2836-4538-be6e-25386fb49284
 - cipher: chacha20-ietf-poly1305
-  name: 未知 SS-30 | free-nodes
+  name: 未知 SS-32 | free-nodes
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
-  server: r3mrcg001286ek2.cybervena.com
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 未知 SS-43 | free-nodes
-  password: eDfN7SODQceIOmIAbtJJtK
-  port: 443
-  server: 198.98.53.130
+  server: r3mrcg00129437x.cybervena.com
   type: ss
 - cipher: chacha20-ietf-poly1305
   name: 未知 SS-28 | free-nodes
   password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
   port: 50099
-  server: r3mrcg00129437x.cybervena.com
+  server: r3mrcg001286ek2.cybervena.com
   type: ss
