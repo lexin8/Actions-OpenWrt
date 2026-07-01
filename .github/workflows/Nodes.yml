@@ -111,7 +111,7 @@ jobs:
           echo "下载的源文件列表："
           ls -la sources/ || true
 
-      - name: 合并节点
+      - name: 合并所有订阅节点
         run: |
           python3 << 'EOF'
           import yaml, glob, os
@@ -131,13 +131,14 @@ jobs:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 初步TCP测速过滤失效节点
+      - name: 初步TCP连通性测速过滤失效节点
         run: |
           python3 << 'EOF'
           import yaml, asyncio, time
           TIMEOUT = 3
           TEST_TIMES = 10
           SUCCESS_THRESHOLD = 5
+          sem = asyncio.Semaphore(20)
 
           async def test_node_once(server, port):
               try:
@@ -149,16 +150,17 @@ jobs:
                   return False, None
 
           async def test_node(node):
-              server, port = node.get('server'), node.get('port')
-              if not server or not port: return node, 0, None
-              success, latencies = 0, []
-              for _ in range(TEST_TIMES):
-                  ok, lat = await test_node_once(server, port)
-                  if ok:
-                      success += 1
-                      latencies.append(lat)
-              avg_lat = sum(latencies)/len(latencies) if latencies else None
-              return node, success, avg_lat
+              async with sem:
+                  server, port = node.get('server'), node.get('port')
+                  if not server or not port: return node, 0, None
+                  success, latencies = 0, []
+                  for _ in range(TEST_TIMES):
+                      ok, lat = await test_node_once(server, port)
+                      if ok:
+                          success += 1
+                          latencies.append(lat)
+                  avg_lat = sum(latencies)/len(latencies) if latencies else None
+                  return node, success, avg_lat
 
           async def main():
               with open('merged_config.yaml') as f:
@@ -179,55 +181,39 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 过滤 servername=yahoo.com 的reality节点
+      - name: 前置批量过滤固定特征坏节点（yahoo reality、chacha20-poly1305）
         run: |
           python3 << 'EOF'
           import yaml
-
           with open('preliminary_valid.yaml', 'r', encoding='utf-8') as f:
               data = yaml.safe_load(f)
+          proxies = data.get("proxies", [])
+          origin_cnt = len(proxies)
+          clean_proxies = []
+          del_yahoo_reality = 0
+          del_bad_cipher = 0
 
-          proxies = data.get('proxies', [])
-          original_count = len(proxies)
-
-          filtered_proxies = []
-          removed = []
           for p in proxies:
+              # 规则1: reality servername=yahoo.com 批量删除
               if 'reality-opts' in p and p.get('servername') == 'yahoo.com':
-                  removed.append(p.get('name', 'unknown'))
+                  del_yahoo_reality += 1
                   continue
-              filtered_proxies.append(p)
+              # 规则2: ss chacha20-poly1305 不兼容加密
+              if p.get("type") == "ss" and p.get("cipher") == "chacha20-poly1305":
+                  del_bad_cipher += 1
+                  continue
+              clean_proxies.append(p)
 
-          print(f"原始节点数: {original_count}")
-          print(f"移除了 {len(removed)} 个 servername=yahoo.com 的节点: {removed}")
-
-          data['proxies'] = filtered_proxies
+          data['proxies'] = clean_proxies
           with open('preliminary_valid.yaml', 'w', encoding='utf-8') as f:
               yaml.dump(data, f, allow_unicode=True, sort_keys=False)
+
+          print(f"原始待测速节点总数：{origin_cnt}")
+          print(f"移除 yahoo reality 节点：{del_yahoo_reality} 个")
+          print(f"移除 chacha20-poly1305 加密节点：{del_bad_cipher} 个")
+          print(f"前置过滤后剩余节点：{len(clean_proxies)}")
           EOF
 
-      # 新增：过滤 clash-speedtest 不兼容 chacha20-poly1305 SS 节点（核心修复崩溃）
-      - name: 过滤不兼容 chacha20-poly1305 加密SS节点
-        run: |
-          python3 << 'EOF'
-          import yaml
-          with open('preliminary_valid.yaml','r',encoding='utf-8') as f:
-              data = yaml.safe_load(f)
-          proxies = data.get("proxies",[])
-          new_list = []
-          drop = 0
-          for p in proxies:
-              if p.get("type") == "ss" and p.get("cipher") == "chacha20-poly1305":
-                  drop +=1
-                  continue
-              new_list.append(p)
-          print(f"丢弃不兼容加密节点：{drop} 个")
-          data["proxies"] = new_list
-          with open("preliminary_valid.yaml","w",encoding='utf-8') as fw:
-              yaml.dump(data,fw,allow_unicode=True,sort_keys=False)
-          EOF
-
-      # 升级 Go 到 1.24，满足 clash-speedtest >=1.24 要求，避免自动下载新版本
       - name: 安装 Go 1.24
         uses: actions/setup-go@v5
         with:
@@ -236,8 +222,54 @@ jobs:
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
-      # 测速失败不终止流程 || true
-      - name: clash-speedtest 精确测速
+      - name: 第一轮测速 输出完整日志捕获加载报错
+        run: |
+          > speedtest.log
+          ~/go/bin/clash-speedtest \
+            -c preliminary_valid.yaml \
+            -output filtered.yaml \
+            -max-latency 800ms \
+            -min-download-speed 5 \
+            -concurrent 10 \
+            -timeout 5s \
+            2>&1 | tee -a speedtest.log || true
+
+      - name: 自动解析日志，批量删除所有加载失败节点
+        run: |
+          python3 << 'EOF'
+          import re, yaml
+          # 读取测速日志，忽略编码异常
+          with open("speedtest.log", "r", encoding="utf-8", errors="ignore") as f:
+              log_text = f.read()
+          # 匹配报错节点索引
+          pattern = r"load proxies failed: proxy (\d+):"
+          raw_index = re.findall(pattern, log_text)
+          # 去重、转数字、倒序排序避免索引偏移
+          fail_indexes = sorted(list(set(int(i) for i in raw_index)), reverse=True)
+
+          if not fail_indexes:
+              print("✅ 日志无加载失败节点，无需二次清理")
+          else:
+              print(f"❌ 捕获到 {len(fail_indexes)} 个加载异常节点，索引列表：{fail_indexes}")
+              # 读取待测速配置
+              with open("preliminary_valid.yaml", "r", encoding="utf-8") as f:
+                  node_data = yaml.safe_load(f)
+              proxy_list = node_data.get("proxies", [])
+              remove_names = []
+              # 批量删除所有报错节点
+              for idx in fail_indexes:
+                  if 0 <= idx < len(proxy_list):
+                      bad = proxy_list.pop(idx)
+                      remove_names.append(bad.get("name", "无名节点"))
+              # 覆盖写入清理后配置
+              node_data["proxies"] = proxy_list
+              with open("preliminary_valid.yaml", "w", encoding="utf-8") as f:
+                  yaml.dump(node_data, f, allow_unicode=True, sort_keys=False)
+              print(f"已批量移除异常节点：{remove_names}")
+              print(f"清理完成剩余待测速节点：{len(proxy_list)}")
+          EOF
+
+      - name: 第二轮干净节点完整测速生成结果
         run: |
           ~/go/bin/clash-speedtest \
             -c preliminary_valid.yaml \
@@ -246,18 +278,16 @@ jobs:
             -min-download-speed 5 \
             -concurrent 10 \
             -timeout 5s \
-            2>&1 | tee speedtest.log || true
+            2>&1 | tee -a speedtest.log
 
-      # 容错：无测速文件则生成空配置，防止cp报错
-      - name: 保存最终订阅文件
+      - name: 导出最终可用节点文件（容错空文件）
         run: |
           mkdir -p nodes
-          # 不存在则生成空节点配置
           if [ ! -f filtered.yaml ];then
             echo "proxies: []" > filtered.yaml
           fi
           cp filtered.yaml nodes/proxies.yml
-          python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
+          python3 -c "import yaml; print('最终有效测速节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
           import yaml
           with open('filtered.yaml') as f:
@@ -267,7 +297,7 @@ jobs:
                   f.write(yaml.dump(p, default_flow_style=False).strip() + '\n\n')
           EOF
           
-      - name: 提交并推送更新
+      - name: 提交并推送节点更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
