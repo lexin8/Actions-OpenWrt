@@ -25,26 +25,21 @@ jobs:
         run: |
           cd AutoMergePublicNodes
           sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt
-
       - name: 安装依赖库
         run: |
           cd AutoMergePublicNodes
           pip install -r requirements.txt
-
       - name: 运行 fetch.py 获取 AutoMergePublicNodes 节点
         run: |
           cd AutoMergePublicNodes
           python fetch.py 2>&1 | tee output.log || true
-
       - name: 复制 list.meta.yml 到 nodes 目录
         run: |
           mkdir -p nodes
           cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
-
       - name: 获取所有订阅源
         run: |
           mkdir -p sources
-
           readme1='https://github.com/free-nodes/clashfree/blob/main/README.md'
           readme2='https://github.com/free18/v2ray/blob/main/README.md'
           readme3=''
@@ -55,7 +50,6 @@ jobs:
           sub3=''
           sub4=''
           sub5=''
-
           fetch_source() {
             local input="$1"
             local prefix="$2"
@@ -98,19 +92,15 @@ jobs:
               curl -L -o "sources/${prefix}_direct_$(date +%s)_$RANDOM.yml" "$input"
             fi
           }
-
           for url in "$readme1" "$readme2" "$readme3" "$readme4" "$readme5"; do
             [ -n "$url" ] && fetch_source "$url" "readme"
           done
-
           for url in "$sub1" "$sub2" "$sub3" "$sub4" "$sub5"; do
             [ -n "$url" ] && fetch_source "$url" "sub"
           done
-
           echo "========================================"
           echo "下载的源文件列表："
           ls -la sources/ || true
-
       - name: 合并所有订阅节点
         run: |
           python3 << 'EOF'
@@ -130,7 +120,6 @@ jobs:
           with open('merged_config.yaml', 'w', encoding='utf-8') as f:
               yaml.dump({'proxies': all_proxies}, f, allow_unicode=True, sort_keys=False)
           EOF
-
       - name: 初步TCP连通性测速过滤失效节点
         run: |
           python3 << 'EOF'
@@ -139,7 +128,6 @@ jobs:
           TEST_TIMES = 10
           SUCCESS_THRESHOLD = 5
           sem = asyncio.Semaphore(20)
-
           async def test_node_once(server, port):
               try:
                   start = time.time()
@@ -148,7 +136,6 @@ jobs:
                   return True, time.time() - start
               except:
                   return False, None
-
           async def test_node(node):
               async with sem:
                   server, port = node.get('server'), node.get('port')
@@ -161,7 +148,6 @@ jobs:
                           latencies.append(lat)
                   avg_lat = sum(latencies)/len(latencies) if latencies else None
                   return node, success, avg_lat
-
           async def main():
               with open('merged_config.yaml') as f:
                   proxies = yaml.safe_load(f).get('proxies', [])
@@ -177,10 +163,8 @@ jobs:
               print(f"初步有效节点: {len(valid)} / {len(proxies)}")
               with open('preliminary_valid.yaml', 'w') as f:
                   yaml.dump({'proxies': valid}, f, allow_unicode=True, sort_keys=False)
-
           asyncio.run(main())
           EOF
-
       - name: 前置批量过滤固定特征坏节点（yahoo reality、chacha20-poly1305）
         run: |
           python3 << 'EOF'
@@ -192,7 +176,6 @@ jobs:
           clean_proxies = []
           del_yahoo_reality = 0
           del_bad_cipher = 0
-
           for p in proxies:
               # 规则1: reality servername=yahoo.com 批量删除
               if 'reality-opts' in p and p.get('servername') == 'yahoo.com':
@@ -203,17 +186,14 @@ jobs:
                   del_bad_cipher += 1
                   continue
               clean_proxies.append(p)
-
           data['proxies'] = clean_proxies
           with open('preliminary_valid.yaml', 'w', encoding='utf-8') as f:
               yaml.dump(data, f, allow_unicode=True, sort_keys=False)
-
           print(f"原始待测速节点总数：{origin_cnt}")
           print(f"移除 yahoo reality 节点：{del_yahoo_reality} 个")
           print(f"移除 chacha20-poly1305 加密节点：{del_bad_cipher} 个")
           print(f"前置过滤后剩余节点：{len(clean_proxies)}")
           EOF
-
       - name: 安装 Go 1.24
         uses: actions/setup-go@v5
         with:
@@ -233,7 +213,6 @@ jobs:
             -concurrent 10 \
             -timeout 5s \
             2>&1 | tee -a speedtest.log || true
-
       - name: 自动解析日志，批量删除所有加载失败节点
         run: |
           python3 << 'EOF'
@@ -246,7 +225,6 @@ jobs:
           raw_index = re.findall(pattern, log_text)
           # 去重、转数字、倒序排序避免索引偏移
           fail_indexes = sorted(list(set(int(i) for i in raw_index)), reverse=True)
-
           if not fail_indexes:
               print("✅ 日志无加载失败节点，无需二次清理")
           else:
@@ -268,7 +246,6 @@ jobs:
               print(f"已批量移除异常节点：{remove_names}")
               print(f"清理完成剩余待测速节点：{len(proxy_list)}")
           EOF
-
       - name: 第二轮干净节点完整测速生成结果
         run: |
           ~/go/bin/clash-speedtest \
@@ -279,7 +256,6 @@ jobs:
             -concurrent 10 \
             -timeout 5s \
             2>&1 | tee -a speedtest.log
-
       - name: 导出最终可用节点文件（容错空文件）
         run: |
           mkdir -p nodes
