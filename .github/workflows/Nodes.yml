@@ -179,7 +179,7 @@ jobs:
           asyncio.run(main())
           EOF
 
-      - name: 过滤 servername 为 yahoo.com 的节点（避免 clash-speedtest 报错）
+      - name: 过滤 servername=yahoo.com 的reality节点
         run: |
           python3 << 'EOF'
           import yaml
@@ -193,7 +193,6 @@ jobs:
           filtered_proxies = []
           removed = []
           for p in proxies:
-              # 检查是否同时满足：有 reality-opts 且 servername 为 'yahoo.com'
               if 'reality-opts' in p and p.get('servername') == 'yahoo.com':
                   removed.append(p.get('name', 'unknown'))
                   continue
@@ -207,14 +206,37 @@ jobs:
               yaml.dump(data, f, allow_unicode=True, sort_keys=False)
           EOF
 
-      - name: 安装 Go 环境
+      # 新增：过滤 clash-speedtest 不兼容 chacha20-poly1305 SS 节点（核心修复崩溃）
+      - name: 过滤不兼容 chacha20-poly1305 加密SS节点
+        run: |
+          python3 << 'EOF'
+          import yaml
+          with open('preliminary_valid.yaml','r',encoding='utf-8') as f:
+              data = yaml.safe_load(f)
+          proxies = data.get("proxies",[])
+          new_list = []
+          drop = 0
+          for p in proxies:
+              if p.get("type") == "ss" and p.get("cipher") == "chacha20-poly1305":
+                  drop +=1
+                  continue
+              new_list.append(p)
+          print(f"丢弃不兼容加密节点：{drop} 个")
+          data["proxies"] = new_list
+          with open("preliminary_valid.yaml","w",encoding='utf-8') as fw:
+              yaml.dump(data,fw,allow_unicode=True,sort_keys=False)
+          EOF
+
+      # 升级 Go 到 1.24，满足 clash-speedtest >=1.24 要求，避免自动下载新版本
+      - name: 安装 Go 1.24
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: '1.24'
 
       - name: 安装 clash-speedtest
         run: go install github.com/faceair/clash-speedtest@latest
 
+      # 测速失败不终止流程 || true
       - name: clash-speedtest 精确测速
         run: |
           ~/go/bin/clash-speedtest \
@@ -224,10 +246,16 @@ jobs:
             -min-download-speed 5 \
             -concurrent 10 \
             -timeout 5s \
-            2>&1 | tee speedtest.log
+            2>&1 | tee speedtest.log || true
 
+      # 容错：无测速文件则生成空配置，防止cp报错
       - name: 保存最终订阅文件
         run: |
+          mkdir -p nodes
+          # 不存在则生成空节点配置
+          if [ ! -f filtered.yaml ];then
+            echo "proxies: []" > filtered.yaml
+          fi
           cp filtered.yaml nodes/proxies.yml
           python3 -c "import yaml; print('最终有效节点数:', len(yaml.safe_load(open('filtered.yaml'))['proxies']))"
           python3 << 'EOF'
@@ -244,12 +272,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
     
-          # 先提交本次的所有变更（如果有）
           git add nodes/list.meta.yml nodes/proxies.yml nodes/links.txt
           git diff --cached --quiet || git commit -m "Auto update nodes [skip ci]"
     
-          # 拉取远程最新提交并变基，自动处理未暂存内容
           git pull --rebase --autostash origin master
-    
-          # 再次推送（此时本地提交已在远程提交之上）
           git push origin master
