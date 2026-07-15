@@ -1,18 +1,5 @@
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 268.69MB/s"
-network: ws
-port: 30080
-server: 143.198.235.98
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: d76c0edb-8097-4371-8d97-722723756012
-ws-opts:
-  path: /vm
-
 client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 176.02MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 174.32MB/s"
 network: ws
 port: 443
 server: 162.159.48.245
@@ -27,18 +14,8 @@ ws-opts:
     Host: t1s1.rittbo.kdns.fr
   path: /
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 002 | \u2B07\uFE0F 158.25MB/s"
-port: 443
-server: 165.140.216.142
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: b65a2d69-5634-42a2-e4be-54e8a6176900
-
 client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 152.56MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 138.07MB/s"
 network: ws
 port: 2083
 server: 108.162.196.3
@@ -54,7 +31,7 @@ ws-opts:
   path: /
 
 client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1E6 CA 003 | \u2B07\uFE0F 135.38MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 003 | \u2B07\uFE0F 123.18MB/s"
 network: ws
 port: 8443
 server: 162.159.46.24
@@ -69,7 +46,7 @@ ws-opts:
     Host: t1s1.rittbo.kdns.fr
   path: /
 
-name: "\U0001F1E8\U0001F1E6 CA 004 | \u2B07\uFE0F 131.91MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 004 | \u2B07\uFE0F 114.15MB/s"
 network: ws
 port: 443
 server: 108.162.196.3
@@ -84,38 +61,37 @@ ws-opts:
     Host: t1s1.rittbo.kdns.fr
   path: /
 
-client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 003 | \u2B07\uFE0F 131.10MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 005 | \u2B07\uFE0F 98.63MB/s"
 network: ws
-port: 2096
-server: 162.159.39.2
-servername: icy-cloud-71e3.misnaargh.workers.dev
-skip-cert-verify: false
-tfo: false
-tls: true
+port: 8880
+server: 172.67.161.104
+skip-cert-verify: true
+tls: false
 type: vless
-uuid: d6bbaa54-2fa9-46b9-8f6d-42ccdfc9122b
+udp: true
+uuid: 11046a7c-fa1b-4653-ab87-400feb465540
 ws-opts:
   headers:
-    Host: icy-cloud-71e3.misnaargh.workers.dev
+    Host: nameless-poetry-12fb.8-0a2.workers.dev
   path: /
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 004 | \u2B07\uFE0F 71.63MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 006 | \u2B07\uFE0F 95.33MB/s"
 network: ws
-port: 59912
-server: 107.161.82.89
-skip-cert-verify: false
+port: 8880
+server: www.iplocation.net
+skip-cert-verify: true
 tls: false
-type: vmess
-uuid: bda619b6-c5e7-444a-aed7-4d8716237bd7
+type: vless
+udp: true
+uuid: 05e7abc2-46e1-4a23-9cdc-173ce17eb0d4
 ws-opts:
-  path: /arki
+  headers:
+    Host: round-term-947c.41-332.workers.dev
+  path: /pyip=ProxyIP.SG.CMLiussss.net
 
 client-fingerprint: firefox
 flow: xtls-rprx-vision
-name: "\U0001F1FA\U0001F1F8 US 005 | \u2B07\uFE0F 65.91MB/s"
+name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 68.06MB/s"
 port: 443
 reality-opts:
   public-key: sviFnw0hrzXi4Df6Bs4MFFTuBmH2hwvquvFPNzhDcW8
@@ -128,417 +104,16 @@ type: vless
 udp: true
 uuid: 8f0560ec-ba22-4431-a6a7-318dc59d5233
 
-cipher: aes-256-gcm
-name: "\U0001F1E8\U0001F1E6 CA 005 | \u2B07\uFE0F 36.87MB/s"
-password: KixLvKzwjekG00rm
-port: 8080
-server: 185.196.61.82
-type: ss
-
-name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 32.50MB/s"
-password: PI36027154
-port: 443
-server: faithful-clam.rooster465.autos
-skip-cert-verify: false
-sni: faithful-clam.rooster465.autos
-type: trojan
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc
-name: "\U0001F1FA\U0001F1F8 US 006 | \u2B07\uFE0F 30.10MB/s"
-network: grpc
-port: 2083
-server: using.neobo-tooth.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 0c6b632a-cd96-4b74-9b51-151e3b5697db
-
-name: "\U0001F1EF\U0001F1F5 JP 002 | \u2B07\uFE0F 29.20MB/s"
-password: PI36027154
-port: 443
-server: stirred-buck.rooster465.autos
-skip-cert-verify: false
-sni: stirred-buck.rooster465.autos
-type: trojan
-
-name: "\U0001F1EF\U0001F1F5 JP 003 | \u2B07\uFE0F 28.86MB/s"
-password: PI36027154
-port: 443
-server: busy-lab.rooster465.autos
-skip-cert-verify: false
-sni: busy-lab.rooster465.autos
-type: trojan
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 25.44MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 443
-server: 82.38.31.57
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 002 | \u2B07\uFE0F 25.37MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 443
-server: 82.38.31.29
-type: ss
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1F3\U0001F1F1 NL 003 | \u2B07\uFE0F 25.37MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: 10rVZPoOUP1TlQviIAsQ_jAROX0fRQxH0C92nq_zGQc
-  short-id: 43dcff53849b81e6
-server: 89.105.206.151
-servername: nl.quattro-tech.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 15634a62-7add-473b-a76c-cf26d158850d
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 004 | \u2B07\uFE0F 25.34MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.191
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 005 | \u2B07\uFE0F 25.31MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 443
-server: 82.38.31.32
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 006 | \u2B07\uFE0F 25.24MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.190
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 007 | \u2B07\uFE0F 25.22MB/s"
-password: XG59623478
-port: 443
-server: renewed-chigger.rooster465.autos
-skip-cert-verify: false
-type: trojan
-
-name: "\U0001F1F3\U0001F1F1 NL 008 | \u2B07\uFE0F 25.05MB/s"
-network: tcp
-port: 2082
-server: run.gigicalla.ir
-skip-cert-verify: false
-tfo: false
+name: "\U0001F1EB\U0001F1F7 FR 001 | \u2B07\uFE0F 24.15MB/s"
+port: 2090
+server: fn.fifapes.monster
+skip-cert-verify: true
 tls: false
 type: vless
-uuid: 5da0ef6a-eb08-4a7c-a982-b68d3a04b0a8
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 009 | \u2B07\uFE0F 25.02MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.179
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 010 | \u2B07\uFE0F 24.92MB/s"
-network: ws
-port: 8090
-server: 109.107.173.97
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: ef14c532-b69a-4f46-ae29-272f2fdaf673
-ws-opts:
-  headers:
-    Host: rukr.speedload.ru
-  path: /ws
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 24.62MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: zNtSqVR2dp454rIsJL8qQ-miOuSIP33Koyqc9gUGdV8
-  short-id: 60bf01f7
-server: 20.0.105.19
-servername: www.cloudflare.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 47df3f6c-c3a0-463b-a6a0-ad4e8494c95b
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 011 | \u2B07\uFE0F 24.35MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.181
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 012 | \u2B07\uFE0F 24.22MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.212
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 013 | \u2B07\uFE0F 24.16MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.189
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 014 | \u2B07\uFE0F 24.07MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.214
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 015 | \u2B07\uFE0F 23.80MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.207
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 016 | \u2B07\uFE0F 23.69MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.208
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 017 | \u2B07\uFE0F 23.38MB/s"
-network: ws
-port: 8090
-server: 195.63.142.6
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: ef14c532-b69a-4f46-ae29-272f2fdaf673
-ws-opts:
-  headers:
-    Host: rukr.speedload.ru
-  path: /ws
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 018 | \u2B07\uFE0F 22.97MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.193
-type: ss
-
-cipher: aes-256-gcm
-name: "\U0001F1E9\U0001F1EA DE 001 | \u2B07\uFE0F 21.81MB/s"
-password: XKFKl2rULjIp74
-port: 8008
-server: 185.226.172.8
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 019 | \u2B07\uFE0F 20.98MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.47
-type: ss
-
-name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 20.91MB/s"
-network: tcp
-port: 443
-server: bot.sobhanpor.ir
-servername: bot.sobhanpor.ir
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 32297dc3-77ca-4837-afb6-9af917cb109b
-
-cipher: aes-256-gcm
-name: "\U0001F1F5\U0001F1F1 PL 001 | \u2B07\uFE0F 20.33MB/s"
-password: Y6R9pAtvxxzmGC
-port: 5600
-server: 92.118.205.211
-type: ss
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EB\U0001F1F7 FR 001 | \u2B07\uFE0F 20.08MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: Ij3Iz1jqht6zLOy9uI0iusTy4n1oIr7gpgTwRTtA8kY
-  short-id: 42b395462da31c0e
-server: 151.80.147.30
-servername: speedtest.net
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: a1750ade-801f-4e3e-a5d2-de825771205d
-
-cipher: aes-256-gcm
-name: "\U0001F1F8\U0001F1EC SG 001 | \u2B07\uFE0F 19.72MB/s"
-password: Y6R9pAtvxxzmGC
-port: 9090
-server: 103.106.229.69
-type: ss
-
-alterId: 0
-cipher: auto
-name: "\U0001F1F3\U0001F1F1 NL 020 | \u2B07\uFE0F 19.54MB/s"
-port: 80
-server: 94.103.167.116
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: d1b0c103-a7ff-4bd6-887d-a73d6ebf1f50
-
-client-fingerprint: firefox
-flow: xtls-rprx-vision
-name: "\U0001F1F7\U0001F1FA RU 001 | \u2B07\uFE0F 18.82MB/s"
-network: tcp
-port: 2087
-reality-opts:
-  public-key: J2RPvguvaBHlFDFOcZHs4sY9wSNIGNvvmDZud49A7i8
-  short-id: 9f0a1b2c
-server: msk.24pitbullstore.ru
-servername: msk.24pitbullstore.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 570779d8-b4cd-4b3c-a8bd-6127f51c4d48
-
-name: "\U0001F1F3\U0001F1F1 NL 021 | \u2B07\uFE0F 18.70MB/s"
-network: ws
-port: 8090
-server: 87.199.199.186
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: ef14c532-b69a-4f46-ae29-272f2fdaf673
-ws-opts:
-  headers:
-    Host: rukr.speedload.ru
-  path: /ws
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 022 | \u2B07\uFE0F 18.69MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.204
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 023 | \u2B07\uFE0F 18.68MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.16
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 024 | \u2B07\uFE0F 17.66MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.216
-type: ss
-
-name: "\U0001F1F7\U0001F1F4 RO 001 | \u2B07\uFE0F 17.29MB/s"
-port: 9002
-server: 193.176.84.31
-skip-cert-verify: true
-tls: true
-type: http
 udp: true
+uuid: eab915bc-d2df-73d1-47d0-6eb240497055
 
-name: "\U0001F1F7\U0001F1F4 RO 002 | \u2B07\uFE0F 17.01MB/s"
-port: 9002
-server: 84.239.49.185
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 003 | \u2B07\uFE0F 16.80MB/s"
-port: 9002
-server: 84.239.49.191
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 004 | \u2B07\uFE0F 16.59MB/s"
-port: 9002
-server: 84.239.14.159
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 005 | \u2B07\uFE0F 16.58MB/s"
-port: 9002
-server: 84.239.49.234
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 006 | \u2B07\uFE0F 16.58MB/s"
-port: 9002
-server: 84.239.49.235
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: vless
-name: "\U0001F1EC\U0001F1E7 GB 002 | \u2B07\uFE0F 16.54MB/s"
-network: grpc
-port: 2085
-server: 45.86.159.135
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: 1ea1b30b-4114-4a5c-bd3a-9637bdae1948
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: vless
-name: "\U0001F1EC\U0001F1E7 GB 003 | \u2B07\uFE0F 16.53MB/s"
-network: grpc
-port: 2085
-server: 45.86.159.142
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: 1ea1b30b-4114-4a5c-bd3a-9637bdae1948
-
-name: "\U0001F1F7\U0001F1F4 RO 007 | \u2B07\uFE0F 16.52MB/s"
-port: 9002
-server: 84.239.14.152
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 008 | \u2B07\uFE0F 16.50MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 001 | \u2B07\uFE0F 16.59MB/s"
 port: 9002
 server: 84.239.49.40
 skip-cert-verify: true
@@ -546,153 +121,7 @@ tls: true
 type: http
 udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 009 | \u2B07\uFE0F 16.41MB/s"
-port: 9002
-server: 84.239.49.154
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 010 | \u2B07\uFE0F 16.33MB/s"
-port: 9002
-server: 84.239.49.55
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 011 | \u2B07\uFE0F 16.20MB/s"
-port: 9002
-server: 84.239.49.159
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 012 | \u2B07\uFE0F 16.13MB/s"
-port: 9002
-server: 84.239.49.227
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 013 | \u2B07\uFE0F 16.12MB/s"
-port: 9002
-server: 84.239.14.149
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 014 | \u2B07\uFE0F 16.04MB/s"
-port: 9002
-server: 84.239.49.157
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 015 | \u2B07\uFE0F 16.00MB/s"
-port: 9002
-server: 84.239.49.219
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 016 | \u2B07\uFE0F 15.95MB/s"
-port: 9002
-server: 84.239.49.204
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 017 | \u2B07\uFE0F 15.93MB/s"
-port: 9002
-server: 84.239.49.225
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: vless
-name: "\U0001F1EC\U0001F1E7 GB 004 | \u2B07\uFE0F 15.88MB/s"
-network: grpc
-port: 2085
-server: 45.86.159.134
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: 1ea1b30b-4114-4a5c-bd3a-9637bdae1948
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: vless
-name: "\U0001F1EC\U0001F1E7 GB 005 | \u2B07\uFE0F 15.88MB/s"
-network: grpc
-port: 2085
-server: 45.86.159.136
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: 1ea1b30b-4114-4a5c-bd3a-9637bdae1948
-
-name: "\U0001F1F7\U0001F1F4 RO 018 | \u2B07\uFE0F 15.78MB/s"
-port: 9002
-server: 84.239.49.178
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 019 | \u2B07\uFE0F 15.75MB/s"
-port: 9002
-server: 84.239.49.175
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 020 | \u2B07\uFE0F 15.71MB/s"
-port: 9002
-server: 84.239.14.160
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 021 | \u2B07\uFE0F 15.66MB/s"
-port: 9002
-server: 84.239.49.209
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 022 | \u2B07\uFE0F 15.62MB/s"
-port: 9002
-server: 84.239.49.247
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 023 | \u2B07\uFE0F 15.59MB/s"
-port: 9002
-server: 84.239.49.42
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F7\U0001F1F4 RO 024 | \u2B07\uFE0F 15.59MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 002 | \u2B07\uFE0F 16.41MB/s"
 port: 9002
 server: 84.239.49.57
 skip-cert-verify: true
@@ -700,23 +129,39 @@ tls: true
 type: http
 udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 025 | \u2B07\uFE0F 15.57MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 003 | \u2B07\uFE0F 16.40MB/s"
 port: 9002
-server: 84.239.49.202
+server: 84.239.49.175
 skip-cert-verify: true
 tls: true
 type: http
 udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 026 | \u2B07\uFE0F 15.50MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 004 | \u2B07\uFE0F 16.33MB/s"
 port: 9002
-server: 84.239.49.160
+server: 84.239.49.204
 skip-cert-verify: true
 tls: true
 type: http
 udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 027 | \u2B07\uFE0F 15.35MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 005 | \u2B07\uFE0F 16.21MB/s"
+port: 9002
+server: 84.239.49.178
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 006 | \u2B07\uFE0F 16.11MB/s"
+port: 9002
+server: 84.239.49.235
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 007 | \u2B07\uFE0F 16.07MB/s"
 port: 9002
 server: 84.239.49.245
 skip-cert-verify: true
@@ -724,22 +169,71 @@ tls: true
 type: http
 udp: true
 
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc-api
-name: "\U0001F1EC\U0001F1E7 GB 006 | \u2B07\uFE0F 15.32MB/s"
-network: grpc
-port: 443
-server: gbos2.osvp.online
-servername: gbos2.osvp.online
-skip-cert-verify: false
-tfo: false
+name: "\U0001F1F7\U0001F1F4 RO 008 | \u2B07\uFE0F 15.99MB/s"
+port: 9002
+server: 84.239.49.157
+skip-cert-verify: true
 tls: true
-type: vless
-uuid: 367ff772-a8f4-4895-8e99-3702a868f0c6
+type: http
+udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 028 | \u2B07\uFE0F 15.07MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 009 | \u2B07\uFE0F 15.99MB/s"
+port: 9002
+server: 84.239.14.160
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 010 | \u2B07\uFE0F 15.98MB/s"
+port: 9002
+server: 84.239.49.159
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 011 | \u2B07\uFE0F 15.95MB/s"
+port: 9002
+server: 84.239.49.227
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 012 | \u2B07\uFE0F 15.92MB/s"
+port: 9002
+server: 84.239.49.160
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 013 | \u2B07\uFE0F 15.91MB/s"
+port: 9002
+server: 84.239.14.149
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 014 | \u2B07\uFE0F 15.90MB/s"
+port: 9002
+server: 84.239.49.55
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 015 | \u2B07\uFE0F 15.82MB/s"
+port: 9002
+server: 84.239.49.247
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 016 | \u2B07\uFE0F 15.77MB/s"
 port: 9002
 server: 84.239.49.211
 skip-cert-verify: true
@@ -747,7 +241,7 @@ tls: true
 type: http
 udp: true
 
-name: "\U0001F1F7\U0001F1F4 RO 029 | \u2B07\uFE0F 14.85MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 017 | \u2B07\uFE0F 15.77MB/s"
 port: 9002
 server: 84.239.49.39
 skip-cert-verify: true
@@ -755,30 +249,63 @@ tls: true
 type: http
 udp: true
 
-cipher: chacha20-ietf-poly1305
-name: "\u672A\u77E5 SS-80 | free-nodes"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.205
-type: ss
-
-name: "\u672A\u77E5 TROJAN-123 | free-nodes"
-password: PI36027154
-port: 443
-server: exciting-grizzly.rooster465.autos
-skip-cert-verify: false
-sni: exciting-grizzly.rooster465.autos
-type: trojan
-
-name: 13|RO_speednode_0028
+name: "\U0001F1F7\U0001F1F4 RO 018 | \u2B07\uFE0F 15.71MB/s"
 port: 9002
-server: 84.239.49.196
+server: 84.239.49.191
 skip-cert-verify: true
 tls: true
 type: http
 udp: true
 
-name: 13|RO_speednode_0034
+name: "\U0001F1F7\U0001F1F4 RO 019 | \u2B07\uFE0F 15.70MB/s"
+port: 9002
+server: 84.239.49.187
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 020 | \u2B07\uFE0F 15.52MB/s"
+port: 9002
+server: 84.239.49.202
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 021 | \u2B07\uFE0F 15.40MB/s"
+port: 9002
+server: 84.239.49.253
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 022 | \u2B07\uFE0F 15.39MB/s"
+port: 9002
+server: 84.239.49.219
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 023 | \u2B07\uFE0F 15.33MB/s"
+port: 9002
+server: 84.239.49.42
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 024 | \u2B07\uFE0F 15.32MB/s"
+port: 9002
+server: 84.239.49.185
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 025 | \u2B07\uFE0F 15.31MB/s"
 port: 9002
 server: 84.239.49.239
 skip-cert-verify: true
@@ -786,164 +313,115 @@ tls: true
 type: http
 udp: true
 
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc-bf898949e88a9c94
-name: "\u672A\u77E5 VLESS-569 | free-nodes"
-network: grpc
-port: 2053
-reality-opts:
-  public-key: kwKk436AjoyIrYSQzm3VoGLoFDLIIYRGLQ-RRVFUH20
-  short-id: b9b08cbb
-server: 62.60.248.105
-servername: www.amazon.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: a9a96ecb-0d66-5809-a833-7a7431c1ca60
-
-cipher: chacha20-ietf-poly1305
-name: "\u672A\u77E5 SS-85 | free-nodes"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.215
-type: ss
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\u672A\u77E5 VLESS-584 | free-nodes"
-network: tcp
-port: 55025
-reality-opts:
-  public-key: w-7OnHTgZcqOMrpIADIVnpAcbyColg9Y9w3BYpFeTg8
-  short-id: 06e557c2cc84390f
-server: 51.195.235.8
-servername: www.googletagmanager.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: be20f85a-bc04-45f8-b6cf-b8abc5f746ce
-
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: products
-name: "\u672A\u77E5 VLESS-362 | free-nodes"
-network: grpc
-port: 2089
-reality-opts:
-  public-key: vdLIQuM7v4b6PzknfK1luaQdEWoWdRVbhNFm0a7_UFA
-  short-id: 85dc255ba7bbe54e
-server: jazzghost.com
-servername: shield.nvidia.asia
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 45e6cc1d-fc2e-4c97-8633-b33caa28e130
-
-name: "\U0001F1F7\U0001F1F4 RO 030 | \u2B07\uFE0F 12.06MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 026 | \u2B07\uFE0F 15.18MB/s"
 port: 9002
-server: 193.176.84.32
+server: 84.239.49.225
 skip-cert-verify: true
 tls: true
 type: http
 udp: true
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1FA\U0001F1F8 US 007 | \u2B07\uFE0F 11.57MB/s"
+name: "\U0001F1F7\U0001F1F4 RO 027 | \u2B07\uFE0F 14.97MB/s"
+port: 9002
+server: 84.239.14.152
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 028 | \u2B07\uFE0F 14.95MB/s"
+port: 9002
+server: 84.239.14.159
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 029 | \u2B07\uFE0F 14.81MB/s"
+port: 9002
+server: 84.239.49.154
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 030 | \u2B07\uFE0F 14.03MB/s"
+port: 9002
+server: 84.239.49.207
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 031 | \u2B07\uFE0F 13.98MB/s"
+port: 9002
+server: 84.239.49.209
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 12.14MB/s"
+obfs: salamander
+obfs-password: gu74jg3ym0e21zco
+password: elknam6l7izf3z71
+port: 52000
+server: assets.gateway-stream.com
+skip-cert-verify: false
+sni: ''
+tls: false
+type: hysteria2
+
+name: "\U0001F1F7\U0001F1F4 RO 032 | \u2B07\uFE0F 11.54MB/s"
+port: 9002
+server: 84.239.49.196
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 033 | \u2B07\uFE0F 10.91MB/s"
+port: 9002
+server: 193.176.84.31
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 034 | \u2B07\uFE0F 9.73MB/s"
+port: 9002
+server: 84.239.49.234
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 9.05MB/s"
 network: tcp
-port: 443
-reality-opts:
-  public-key: v78yAb9eo19LuR0e08mB_cnAS-QLlvqRkEZoKs7q2mU
-  short-id: 30e530274c0c72cc
-server: fi.karzino-connected.com
-servername: fi.karzino-connected.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: ef3e206d-3cbc-4254-8374-df04fe35a762
+password: BxceQaOe
+port: 6769
+server: 35.78.192.10
+skip-cert-verify: true
+sni: t.me%252Fripaojiedian
+type: trojan
 
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc-ru-2053-4f7b2a
-name: "\u672A\u77E5 VLESS-568 | free-nodes"
-network: grpc
-port: 2053
-reality-opts:
-  public-key: l_C0QQhMVDqhDT3-_AS8cBoOOhKksv8ubX4cf4EVjwo
-  short-id: '17'
-server: 45.151.101.137
-servername: www.amazon.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: a9a96ecb-0d66-5809-a833-7a7431c1ca60
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 025 | \u2B07\uFE0F 10.51MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.17
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 026 | \u2B07\uFE0F 10.03MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.217
-type: ss
-
-client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1E6 CA 006 | \u2B07\uFE0F 9.68MB/s"
-network: ws
-port: 443
-server: love.ns.cloudflare.com
-servername: gioub.moonleafbox-kilo.info
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 8ad6f598-cd8d-4fca-848e-05fc9be15ff3
-ws-opts:
-  headers:
-    Host: gioub.moonleafbox-kilo.info
-  path: /sea
-
-client-fingerprint: qq
-flow: xtls-rprx-vision
-name: "\u672A\u77E5 VLESS-582 | free-nodes"
+name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 6.61MB/s"
 network: tcp
-port: 443
-reality-opts:
-  public-key: AYL1z7PNyo6LqYLeZpXa50FnK9eEu7o18KHRhOlST1w
-  short-id: bd72
-server: 216.227.169.104
-servername: deepl.com
+password: b490740312aedb5f9f6b84c7aebd08c0
+port: 40138
+server: 18.163.77.5
 skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: b8794f67-80d9-4124-8fc5-2d2ce5516573
+sni: www.nintendogames.net
+type: trojan
 
-cipher: chacha20-ietf-poly1305
-name: "\u672A\u77E5 SS-18 | free-nodes"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg00129437x.cybervena.com
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 001 | \u2B07\uFE0F 7.89MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg001286ek2.cybervena.com
-type: ss
+name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 5.02MB/s"
+obfs: salamander
+obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
+password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
+port: 443
+server: 130.49.161.70
+skip-cert-verify: false
+sni: hy2.aspidnet.xyz
+tls: false
+type: hysteria2
 
