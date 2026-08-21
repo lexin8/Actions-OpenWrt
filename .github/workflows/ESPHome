@@ -1,0 +1,44 @@
+name: ESPHome Single File Build
+on:
+  workflow_dispatch: # 支持网页手动触发编译
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 动态生成 esp01.yaml（ESP01S 1MB精简配置）
+        run: |
+          cat > esp01.yaml << 'EOF'
+esphome:
+  name: esp01s-relay
+esp8266:
+  board: esp01_1m
+logger:
+  baud_rate: 0
+api:
+  encryption:
+    key: "自定义随机密钥"
+ota:
+  password: "admin100"
+wifi:
+  ssid: "0898"
+  password: "08980898"
+switch:
+  - platform: gpio
+    pin: GPIO0
+    name: "ESP01继电器"
+EOF
+
+      - name: ESPHome 编译固件
+        id: build_step
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esp01.yaml
+          # version: "2025.10.0" # 可选固定ESPHome版本
+
+      - name: 上传编译固件制品
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp-firmware
+          path: ${{ steps.build_step.outputs.name }}/
+          retention-days: 7
