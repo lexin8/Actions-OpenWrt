@@ -244,6 +244,15 @@ jobs:
           CONFIG_PACKAGE_clash-meta=y
           CONFIG_PACKAGE_luci-app-unblockneteasemusic=y
           CONFIG_PACKAGE_luci-app-passwall=n
+          # 基础脚本 & HTTP 工具
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_uclient-fetch=y
+          CONFIG_PACKAGE_wget-ssl=y
+          # 完整网络工具（查看组播地址、路由）
+          CONFIG_PACKAGE_ip-full=y
+          # 抓包诊断核心（重点你要的）
+          CONFIG_PACKAGE_libpcap=y
+          CONFIG_PACKAGE_tcpdump-mini=y
           EOF
           make defconfig
           echo "✅ 配置完成 (${{ matrix.branch }})"
