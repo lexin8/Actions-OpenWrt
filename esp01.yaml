@@ -2,18 +2,26 @@ esphome:
   name: esp01s-relay
 esp8266:
   board: esp01_1m
+  restore_from_flash: true
 logger:
   baud_rate: 0
 api:
   encryption:
     key: "UlBY4AIkapY1Qn7Sq5rq6eqLAQMjVKNZBy8ugRpYR7o="
 ota:
-- platform: esphome
-  password: "admin00"
+  - platform: esphome
+    password: "admin100"
 wifi:
   ssid: "0898"
   password: "08980898"
-switch:
+
+output:
   - platform: gpio
     pin: GPIO0
-    name: "自动开关"
+    id: relay_output
+
+light:
+  - platform: binary
+    name: "ESP01感应灯"
+    output: relay_output
+    restore_mode: RESTORE_DEFAULT_OFF
