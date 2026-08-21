@@ -1,0 +1,18 @@
+esphome:
+  name: esp01s-relay
+esp8266:
+  board: esp01_1m
+logger:
+  baud_rate: 0
+api:
+  encryption:
+    key: "自定义随机密钥"
+ota:
+  password: "admin00"
+wifi:
+  ssid: "0898"
+  password: "08980898"
+switch:
+  - platform: gpio
+    pin: GPIO0
+    name: "自动开关"
