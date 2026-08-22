@@ -1,11 +1,8 @@
 name: FanchmWrt
-
 on: workflow_dispatch
-
 permissions:
   contents: read
   actions: write
-
 jobs:
   prepare:
     runs-on: ubuntu-22.04
@@ -15,7 +12,6 @@ jobs:
       - name: Set build time
         id: build_time
         run: echo "time=$(TZ=Asia/Shanghai date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
-
   build-firmware:
     name: Build ${{ matrix.branch }}
     runs-on: ubuntu-latest
@@ -31,7 +27,6 @@ jobs:
           - branch: fanchmwrt-25.12.4
             short_name: 25.12
             rust_fix: true
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -40,7 +35,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           ref: ${{ matrix.branch }}
-
       # ==================== 编译缓存 ====================
       - name: Cache ccache and dl directory
         uses: actions/cache@v4
@@ -52,21 +46,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-openwrt-${{ matrix.short_name }}-
             ${{ runner.os }}-openwrt-
-
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y build-essential libncurses5-dev gawk git subversion \
             libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd \
             quilt bison flex pkgconf libelf-dev ccache
-
       - name: Enable ccache
         run: |
           echo "USE_CCACHE=1" >> $GITHUB_ENV
           echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
           ccache -M 10G
           ccache -s
-
       # ==================== 分支差异化处理 ====================
       - name: Add third-party feeds (24.10)
         if: matrix.feeds_special == true
@@ -79,7 +70,6 @@ jobs:
           EOF
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
       - name: Add third-party feeds (25.12)
         if: matrix.rust_fix == true
         run: |
@@ -89,24 +79,37 @@ jobs:
           sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
-
       - name: Fix rust (25.12)
         if: matrix.rust_fix == true
         run: |
           sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/' feeds/packages/lang/rust/Makefile || true
-
+      # ==================== dockerd 编译修复 ====================
+      - name: Patch dockerd - fix nested binary copy failure
+        run: |
+          mkdir -p feeds/packages/utils/dockerd/patches
+          cat > feeds/packages/utils/dockerd/patches/999-fix-copy-binaries.patch << 'PATCHEOF'
+          --- a/hack/make/binary-daemon
+          +++ b/hack/make/binary-daemon
+          @@ -14,7 +14,8 @@ copy_binaries() {
+           	fi
+           	echo "Copying nested executables into $dir"
+           	for file in containerd containerd-shim-runc-v2 ctr runc docker-init rootlesskit dockerd-rootless.sh dockerd-rootless-setuptool.sh; do
+          -		cp -f "$(command -v "$file")" "$dir/"
+          +		command -v "$file" >/dev/null 2>&1 || continue
+          +		cp -f "$(command -v "$file")" "$dir/"
+           	done
+           }
+          PATCHEOF
+          echo "✅ dockerd patch applied"
       - name: Replace
         run: |
           CUSTOM_REV="r$(date +'%Y-%-m-%-d')"
           echo "Injecting custom revision: ${CUSTOM_REV}"
-
           # 替换 %R 占位符
           sed -i "s/%R/${CUSTOM_REV}/g" package/base-files/files/etc/openwrt_release
-
           # 显示修改后的内容以供确认
           echo "Modified template:"
           cat package/base-files/files/etc/openwrt_release
-
       # ==================== 通用配置 ====================
       - name: Build config
         run: |
@@ -256,7 +259,6 @@ jobs:
           EOF
           make defconfig
           echo "✅ 配置完成 (${{ matrix.branch }})"
-
       - name: List luci-app plugins status
         run: |
           echo -e "\n=================================================="
@@ -274,7 +276,6 @@ jobs:
             done
           fi
           echo -e "==================================================\n"
-
       - name: Build OpenWrt firmware
         id: build
         run: |
@@ -282,17 +283,25 @@ jobs:
           echo "开始编译 OpenWrt 固件 (${{ matrix.branch }}) - 多线程模式..."
           make -j$(nproc) 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
-          
+
           if [ $BUILD_RESULT -ne 0 ]; then
-            echo -e "\n❌ 多线程编译失败，切换单线程+详细日志重编..."
-            make clean
+            echo -e "\n❌ 多线程编译失败，提取失败包并切换单线程+详细日志重编..."
+            # 从日志中提取第一个失败的包，只清理该包而非全部 clean
+            FAILED_PKG=$(grep -oP 'ERROR: \K[^ ]+(?= failed to build)' build.log | head -1)
+            if [ -n "$FAILED_PKG" ]; then
+              echo "🔧 清理失败包: $FAILED_PKG"
+              make "$FAILED_PKG/clean" || true
+            else
+              echo "⚠️ 未识别到具体失败包，执行 target/linux/clean"
+              make target/linux/clean || true
+            fi
             make -j1 V=s 2>&1 | tee -a build.log
             BUILD_RESULT=${PIPESTATUS[0]}
           fi
-          
+
           set -e
           ccache -s
-          
+
           if [ $BUILD_RESULT -eq 0 ]; then
             echo "✅ 编译成功"
             echo "build_status=success" >> $GITHUB_OUTPUT
@@ -301,7 +310,6 @@ jobs:
             echo "build_status=failed" >> $GITHUB_OUTPUT
             exit 1
           fi
-
       - name: Compress squashfs firmware
         if: steps.build.outputs.build_status == 'success'
         run: |
@@ -313,7 +321,6 @@ jobs:
             fi
           done
           ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
-
       - name: Upload compressed firmware
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -321,7 +328,6 @@ jobs:
           name: openwrt-${{ matrix.short_name }}-${{ needs.prepare.outputs.build_time }}
           path: bin/targets/*/*/*squashfs*.gz
           retention-days: 30
-
       - name: Upload build config
         if: steps.build.outputs.build_status == 'success'
         uses: actions/upload-artifact@v4
@@ -329,7 +335,6 @@ jobs:
           name: config-${{ matrix.short_name }}
           path: .config
           retention-days: 30
-
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -337,25 +342,22 @@ jobs:
           name: logs-${{ matrix.short_name }}
           path: build.log
           retention-days: 7
-
       - name: Show build summary on failure
         if: failure()
         run: |
           echo "❌ 编译失败 (${{ matrix.branch }}) - 最后 200 行日志:"
           tail -n 200 build.log
-
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
     needs: [prepare, build-firmware]
     if: always()
-    
+
     steps:
       - name: Generate dynamic summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           # 📦 OpenWrt x86_64 Firmware Build Summary
-
           <table>
           <tr>
             <td><strong>⏱️ Overall Build Time</strong></td>
@@ -366,32 +368,22 @@ jobs:
             <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>#${{ github.run_id }}</code></a></td>
           </tr>
           </table>
-
           ---
-
           ## 🧩 Build Matrix Results
-
           | 🌿 Branch | ✅ Status | 📦 Artifacts |
           |-----------|----------|--------------|
           | `fanchmwrt-24.10.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
           | `fanchmwrt-25.12.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
-
           > ℹ️ *Each branch artifact is timestamped and includes full build logs.*
-
           ---
-
           ## 🎯 Target Configuration (All Branches)
-
           <table>
           <tr><td>🖥️ <strong>Platform</strong></td><td><code>x86_64 Generic</code></td></tr>
           <tr><td>🧩 <strong>Kernel Partition</strong></td><td><code>100 MB</code></td></tr>
           <tr><td>💾 <strong>Root Filesystem</strong></td><td><code>1024 MB (Ext4, persistent /var)</code></td></tr>
           </table>
-
           ---
-
           ## 🧰 Included Core Applications
-
           | 📱 Application | 📝 Description |
           |----------------|----------------|
           | `luci-app-openclash` | 🚀 OpenClash proxy client |
@@ -400,26 +392,19 @@ jobs:
           | `luci-app-ddns` | 🌐 Dynamic DNS client |
           | `luci-app-udpxy` | 📺 UDP multicast proxy |
           | `luci-app-firewall` | 🛡️ Firewall configuration |
-
           ---
-
           ## ⚙️ Build Features
-
           - **📡 Feeds:** Official OpenWrt + OpenClash (vernesong)
           - **⚡ Compiler Cache:** `ccache` (10 GB) + `dl/` directory caching
           - **🔄 Retry Strategy:** Parallel build → fallback to single-threaded verbose build
           - **📦 Artifacts:** Squashfs images (gzipped), config, logs
-
           <details>
           <summary>🔍 Click to expand build environment details</summary>
-
           - **Runner:** Ubuntu 24.04
           - **Ccache max size:** 10 GiB
           - **Parallel jobs:** `$(nproc)`
           </details>
-
           ---
-
           <p align="center">
             <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
               <img src="https://img.shields.io/badge/View%20All%20Artifacts-%F0%9F%93%A6-blue?style=for-the-badge" alt="View all artifacts">
