@@ -12,9 +12,15 @@ api:
 ota:
   - platform: esphome
     password: "admin100"
+  - platform: web_server
 wifi:
   ssid: "0898"
   password: "08980898"
+web_server:
+  port: 80
+  auth:
+    username: admin
+    password: admin100
 
 output:
   - platform: gpio
