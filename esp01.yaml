@@ -20,6 +20,7 @@ output:
   - platform: gpio
     pin: GPIO0
     id: relay_output
+    inverted: true
 
 light:
   - platform: binary
