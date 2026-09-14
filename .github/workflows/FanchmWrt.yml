@@ -79,6 +79,25 @@ jobs:
           sed -i 's/\^[a-f0-9]\{40\}//g' feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
+      - name: Pin ucode to 2026.02.27 and resolve hash (25.12)
+        if: matrix.rust_fix == true
+        run: |
+          set +e
+          sed -i 's|PKG_SOURCE_DATE:=.*|PKG_SOURCE_DATE:=2026-02-27|' package/utils/ucode/Makefile
+          sed -i 's|PKG_SOURCE_VERSION:=.*|PKG_SOURCE_VERSION:=934bb593|' package/utils/ucode/Makefile
+          sed -i 's|PKG_MIRROR_HASH:=.*|PKG_MIRROR_HASH:=|' package/utils/ucode/Makefile
+          # 触发下载，让 OpenWrt 提示正确的 MIRROR_HASH
+          make package/utils/ucode/download V=s 2>&1 | tee /tmp/ucode_dl.log
+          HASH=$(grep -oE '[0-9a-f]{64}' /tmp/ucode_dl.log | head -1)
+          if [ -n "$HASH" ]; then
+            echo "✅ Resolved MIRROR_HASH=$HASH"
+            sed -i "s|PKG_MIRROR_HASH:=.*|PKG_MIRROR_HASH:=$HASH|" package/utils/ucode/Makefile
+          else
+            echo "⚠️ 未从日志解析到 hash，编译时会再提示，请手动回填"
+          fi
+          set -e
+          grep 'PKG_\(SOURCE_DATE\|SOURCE_VERSION\|MIRROR_HASH\)' package/utils/ucode/Makefile
+
       - name: Fix rust (25.12)
         if: matrix.rust_fix == true
         run: |
