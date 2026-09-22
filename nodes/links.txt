@@ -1,13 +1,121 @@
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 125.91MB/s"
+network: tcp
+port: 53957
+reality-opts:
+  public-key: XUHlbk5VH5z4E2wxZBhlpLZ33qevyQgqU7dheRDgoGQ
+  short-id: 44e82fd7b97b14
+server: 172.235.43.210
+servername: www.nvidia.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 7ab29f89-6eef-4171-b232-fc4f580ad31b
+
+name: "\U0001F1FA\U0001F1F8 US 002 | \u2B07\uFE0F 100.43MB/s"
+port: 443
+server: voteshirleysew.club
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1FA\U0001F1F8 US 003 | \u2B07\uFE0F 92.22MB/s"
+password: 'null'
+port: 9002
+server: 138.199.35.216
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+username: 'null'
+
+name: "\U0001F1FA\U0001F1F8 US 004 | \u2B07\uFE0F 90.43MB/s"
+password: None
+port: 443
+server: purposebydesig.club
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1FA\U0001F1F8 US 005 | \u2B07\uFE0F 80.73MB/s"
+port: 9002
+server: 138.199.35.198
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1FA\U0001F1F8 US 006 | \u2B07\uFE0F 75.04MB/s"
+password: None
+port: 9002
+server: 138.199.35.206
+skip-cert-verify: true
+tls: true
+type: http
+username: null
+
+name: "\U0001F1FA\U0001F1F8 US 007 | \u2B07\uFE0F 70.68MB/s"
+password: 'null'
+port: 9002
+server: 138.199.35.210
+skip-cert-verify: true
+tls: true
+type: http
+username: 'null'
+
 cipher: aes-256-gcm
-name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 107.12MB/s"
+name: "\U0001F1E8\U0001F1E6 CA 001 | \u2B07\uFE0F 61.48MB/s"
 password: eveaaTOb8ji8yntw2Z9yWUG0d6Ir8Ld8m3ymH8THdC5egiTH1mXCiBc0Skr7FibH
 port: 9443
 server: yyz-ca-01.blncvpn4u.cc
 type: ss
 
 client-fingerprint: chrome
+name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 46.65MB/s"
+network: ws
+port: 2096
+server: 104.21.8.201
+servername: cdn-ca.skyvora.app
+tls: true
+type: vless
+udp: true
+uuid: 1d54a125-8f1e-46bb-9a23-0ecf4ac92db8
+ws-opts:
+  headers:
+    Host: cdn-ca.skyvora.app
+  path: /fqg7aacd8s
+
+alterId: 0
+cipher: auto
+name: "\U0001F1FA\U0001F1F8 US 008 | \u2B07\uFE0F 40.30MB/s"
+port: 15311
+server: 107.173.254.27
+skip-cert-verify: false
+tls: false
+type: vmess
+uuid: ad78d02b-873f-4cff-8d4a-673f53d6ce0f
+
+client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F1\U0001F1F9 LT 001 | \u2B07\uFE0F 52.28MB/s"
+name: "\U0001F1FA\U0001F1F8 US 009 | \u2B07\uFE0F 36.83MB/s"
+network: tcp
+port: 443
+reality-opts:
+  public-key: 5B83otQ5ZQwtBFhR7xzsGJRXflkFKRJpQguYbE5JWGI
+  short-id: c85d029f5e8eb393
+server: 195.123.235.177
+servername: gateway.icloud.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 729dd5f2-f5ff-4070-8c10-863eceded0b1
+
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1F1\U0001F1F9 LT 001 | \u2B07\uFE0F 34.39MB/s"
 network: tcp
 port: 443
 reality-opts:
@@ -21,32 +129,6 @@ tls: true
 type: vless
 uuid: eec2f6a7-c10f-43b0-b133-61f9bf9bbc27
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 44.07MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: PryGoq51ilG0eLUPl9i0xCvmk1xpwkyFSr_tG4GNLlU
-  short-id: 1d86d17709852910
-server: free-amsterdam-node-1.cloudwidecdn.com
-servername: www.apple.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 44ae52b9-76fc-444d-8e43-186b4384b80a
-
-alterId: 0
-cipher: auto
-name: "\U0001F1E9\U0001F1EA DE 001 | \u2B07\uFE0F 43.20MB/s"
-port: 2086
-server: 94.249.187.46
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: f6361af8-bb8f-4609-bf5d-3fc0f688f47b
-
 http-opts:
   headers:
     Host:
@@ -54,129 +136,7 @@ http-opts:
   method: GET
   path:
   - /
-name: "\U0001F1E9\U0001F1EA DE 002 | \u2B07\uFE0F 41.22MB/s"
-network: http
-port: 443
-server: 91.99.57.24
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: fd4b654f-9ae2-42c5-977b-6aa54e8e9a83
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 002 | \u2B07\uFE0F 40.69MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.2
-type: ss
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 40.66MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: qoAuuFJ0eK1lAMHIqTt6LniY6qu1GIobrGthBcRHUXM
-  short-id: 9d84de9d9f7b85e9
-server: de1.edge-9d7c.com
-servername: de1.edge-9d7c.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: ddf09ad0-02dc-485b-9048-1038de5bebf0
-
-client-fingerprint: chrome
-name: "\U0001F1F3\U0001F1F1 NL 003 | \u2B07\uFE0F 40.59MB/s"
-network: tcp
-port: 8443
-server: 31.76.76.28
-servername: neth4.lckdwn.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: de5906f3-df38-4463-aa9d-2b01320cc6ea
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 004 | \u2B07\uFE0F 40.26MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.42
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 005 | \u2B07\uFE0F 40.24MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.192
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 006 | \u2B07\uFE0F 40.23MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.3
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 007 | \u2B07\uFE0F 40.22MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.215
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 008 | \u2B07\uFE0F 40.11MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.214
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 009 | \u2B07\uFE0F 40.10MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.208
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 010 | \u2B07\uFE0F 40.07MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.212
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 011 | \u2B07\uFE0F 40.06MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.216
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 012 | \u2B07\uFE0F 40.04MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.206
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 013 | \u2B07\uFE0F 39.94MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.203
-type: ss
-
-http-opts:
-  headers:
-    Host:
-    - store.steampowered.com
-  method: GET
-  path:
-  - /
-name: "\U0001F1E9\U0001F1EA DE 003 | \u2B07\uFE0F 39.89MB/s"
+name: "\U0001F1E9\U0001F1EA DE 001 | \u2B07\uFE0F 29.50MB/s"
 network: http
 port: 443
 server: 91.99.59.248
@@ -186,75 +146,21 @@ tls: false
 type: vless
 uuid: fd4b654f-9ae2-42c5-977b-6aa54e8e9a83
 
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 014 | \u2B07\uFE0F 39.89MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.191
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 015 | \u2B07\uFE0F 39.88MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.48
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 016 | \u2B07\uFE0F 39.81MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 443
-server: 82.38.31.174
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 017 | \u2B07\uFE0F 39.79MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.181
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 018 | \u2B07\uFE0F 39.76MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.82
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 019 | \u2B07\uFE0F 39.74MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.180
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 020 | \u2B07\uFE0F 39.68MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.207
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 021 | \u2B07\uFE0F 39.67MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.193
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 022 | \u2B07\uFE0F 39.66MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.174
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 023 | \u2B07\uFE0F 39.66MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.179
-type: ss
+encryption: none
+http-opts:
+  headers:
+    Host:
+    - play-apps-features.googleusercontent.com
+  path:
+  - /@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray@Nap_v2ray---@Nap_v2ray
+name: "\U0001F1E9\U0001F1EA DE 002 | \u2B07\uFE0F 29.37MB/s"
+network: http
+port: '26437'
+server: 91.107.144.22
+type: vless
+udp: true
+uuid: 0b05ddba-6e1f-4a77-ac5a-4a9f9d08d543
+xudp: true
 
 http-opts:
   headers:
@@ -263,289 +169,144 @@ http-opts:
   method: GET
   path:
   - /
-name: "\U0001F1E9\U0001F1EA DE 004 | \u2B07\uFE0F 39.65MB/s"
+name: "\U0001F1E9\U0001F1EA DE 003 | \u2B07\uFE0F 29.20MB/s"
 network: http
 port: 443
-server: 46.224.170.213
+server: 91.99.57.24
 skip-cert-verify: false
 tfo: false
 tls: false
 type: vless
-uuid: cf990ae8-ee77-4436-aa3a-bbc2fb040c53
+uuid: fd4b654f-9ae2-42c5-977b-6aa54e8e9a83
 
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 024 | \u2B07\uFE0F 39.62MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.204
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 025 | \u2B07\uFE0F 39.32MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.217
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 026 | \u2B07\uFE0F 39.27MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.47
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 027 | \u2B07\uFE0F 39.24MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.205
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 028 | \u2B07\uFE0F 39.18MB/s"
-network: ws
-port: 8443
-server: 103.251.167.112
-servername: cdn8848.776676.xyz
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: d342d11e-d424-4583-b36e-524ab1f0afa4
-ws-opts:
-  headers:
-    Host: cdn8848.776676.xyz
-  path: /library/lang?ed=2560fp=chrome
-
-name: "\U0001F1F3\U0001F1F1 NL 029 | \u2B07\uFE0F 38.70MB/s"
-port: 9002
-server: 84.17.47.146
-skip-cert-verify: true
+name: "\U0001F1FA\U0001F1F8 US 010 | \u2B07\uFE0F 28.68MB/s"
+password: 'null'
+port: 443
+server: tzoa.fun
 tls: true
 type: http
-udp: true
-
-name: "\U0001F1F3\U0001F1F1 NL 030 | \u2B07\uFE0F 38.60MB/s"
-port: 9002
-server: 84.17.47.149
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 031 | \u2B07\uFE0F 38.55MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.189
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 032 | \u2B07\uFE0F 38.46MB/s"
-port: 9002
-server: 84.17.47.150
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1FA\U0001F1F8 US 001 | \u2B07\uFE0F 38.25MB/s"
-port: 9002
-server: 138.199.35.198
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1F3\U0001F1F1 NL 033 | \u2B07\uFE0F 38.04MB/s"
-password: None
-port: 9002
-server: 84.17.47.148
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 034 | \u2B07\uFE0F 37.79MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.16
-type: ss
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 035 | \u2B07\uFE0F 37.67MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.190
-type: ss
-
-name: "\U0001F1F3\U0001F1F1 NL 036 | \u2B07\uFE0F 37.45MB/s"
-port: 9002
-server: 84.17.47.125
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 037 | \u2B07\uFE0F 37.32MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.17
-type: ss
+username: 'null'
 
 client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F3\U0001F1F1 NL 038 | \u2B07\uFE0F 37.08MB/s"
+name: "\U0001F1E9\U0001F1EA DE 004 | \u2B07\uFE0F 28.21MB/s"
 network: tcp
 port: 443
 reality-opts:
-  public-key: F3XkvPrGmCOrJpNhpPqkVHrZ58YA0Z8VCp6y7s6We2U
-  short-id: c09a8eae8476d36c
-server: 107.189.26.239
-servername: cdn.dodostatic.net
+  public-key: z_Rn0Vvq1GB39RhN6v7DhdtD-kS0XZa_je0h-no_hWs
+  short-id: 59eee550a1014198
+server: 103.109.234.246
+servername: de10.delivery-4f1c.com
 skip-cert-verify: false
 tfo: false
 tls: true
 type: vless
-uuid: 820a850b-6e10-45e6-8142-2df17a394504
+uuid: ddf09ad0-02dc-485b-9048-1038de5bebf0
 
 cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 039 | \u2B07\uFE0F 36.99MB/s"
+name: "\U0001F1F3\U0001F1F1 NL 001 | \u2B07\uFE0F 27.76MB/s"
 password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 443
-server: 82.38.31.162
+port: 8080
+server: 82.38.31.42
 type: ss
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EC\U0001F1E7 GB 002 | \u2B07\uFE0F 36.37MB/s"
-network: tcp
-port: 421
-reality-opts:
-  public-key: zUdAvpr07q1Yd0Om-jc4-Vu4Un5tVird8FGoN-7W9Tg
-  short-id: a1facbc8575701ae
-server: 78.129.208.44
-servername: chistomat.dry.care
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: a3c861cb-e1e7-4ad6-8be2-7c2314ec6f18
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1F3\U0001F1F1 NL 002 | \u2B07\uFE0F 27.49MB/s"
+password: oZIoA69Q8yhcQV8ka3Pa3A
+port: 8080
+server: 82.38.31.82
+type: ss
 
-client-fingerprint: chrome
-name: "\U0001F1E7\U0001F1EA BE 001 | \u2B07\uFE0F 35.93MB/s"
-network: ws
-port: 2053
-server: 141.227.137.177
-servername: shuma.ccwu.cc
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-name: "\U0001F1FA\U0001F1F8 US 002 | \u2B07\uFE0F 35.88MB/s"
-password: None
-port: 443
-server: purposebydesig.club
-tls: true
-type: http
-udp: true
-
-client-fingerprint: chrome
-name: "\U0001F1EC\U0001F1E7 GB 003 | \u2B07\uFE0F 35.46MB/s"
+name: "\U0001F1F3\U0001F1F1 NL 003 | \u2B07\uFE0F 27.42MB/s"
 network: ws
 port: 443
-server: 104.128.190.209
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
+server: 31.76.76.28
+skip-cert-verify: false
+tfo: false
+tls: false
 type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+uuid: de5906f3-df38-4463-aa9d-2b01320cc6ea
 ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
   path: /
 
 client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F5\U0001F1F1 PL 001 | \u2B07\uFE0F 35.26MB/s"
+name: "\U0001F1E9\U0001F1EA DE 005 | \u2B07\uFE0F 26.49MB/s"
 network: tcp
-port: 2443
+port: 8765
 reality-opts:
-  public-key: NRMcsDMeaI-ox1k7hHh0YrdKOSRHpIX3m2NkuwTq62Q
-  short-id: a4
-server: 45.137.43.88
-servername: www.cloudflare.com
+  public-key: M08l5tDmJUYELykZCNYQyFgtR9Zc-A4ZGlUSLcUeS2c
+  short-id: 1bcc9177f3124b25
+server: 31.56.189.27
+servername: srv-21bac9.vless.monster
 skip-cert-verify: false
 tfo: false
 tls: true
 type: vless
-uuid: 7cbc0c1f-9aa1-4a4c-a052-45ccc855df10
+uuid: df9f5aca-eda0-428f-a752-e53866153d12
+
+cipher: aes-256-cfb
+name: "\U0001F1F8\U0001F1EA SE 001 | \u2B07\uFE0F 26.42MB/s"
+password: amazonskr05
+port: 443
+server: 16.170.163.124
+type: ss
+udp: true
 
 cipher: aes-256-gcm
-name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 32.77MB/s"
+name: "\U0001F1EB\U0001F1EE FI 001 | \u2B07\uFE0F 26.36MB/s"
 password: rg0g3xp9rk9nk9o0
 port: 443
 server: 87.58.148.70
 type: ss
 
-name: "\U0001F1FA\U0001F1F8 US 003 | \u2B07\uFE0F 30.86MB/s"
-port: 443
-server: voteshirleysew.club
-tls: true
-type: http
-udp: true
-
-client-fingerprint: firefox
-name: "\U0001F1E6\U0001F1FA AU 001 | \u2B07\uFE0F 30.64MB/s"
-network: ws
-port: 443
-server: 202.166.187.132
-servername: f.yoptybla.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 8be20011-59b1-4118-91ed-83e8e6b662cd
-ws-opts:
-  headers:
-    Host: f.yoptybla.ru
-  path: /
-
-name: "\U0001F1F3\U0001F1F1 NL 040 | \u2B07\uFE0F 30.15MB/s"
-password: None
-port: 443
-server: 5.255.118.82
-skip-cert-verify: true
-tls: true
-type: http
-username: null
-
 client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 004 | \u2B07\uFE0F 28.85MB/s"
-network: ws
-port: 443
-server: 104.194.140.26
-servername: shuma.ccwu.cc
-skip-cert-verify: true
+encryption: none
+flow: xtls-rprx-vision
+name: "\U0001F1E9\U0001F1EA DE 006 | \u2B07\uFE0F 24.40MB/s"
+network: tcp
+port: '443'
+reality-opts:
+  public-key: rCkSHJ7goy7ZvSlau4LfXF-QLloOJMNeMxpeeQtwtVs
+  short-id: 4fa44664f6a566d3
+server: 45.95.96.236
+servername: gesmankos.sadiepinki.com
 tls: true
 type: vless
 udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
+uuid: c5694dc5-39fd-4a92-8430-3837baa522a3
+xudp: true
+
+name: "\U0001F1EC\U0001F1E7 GB 001 | \u2B07\uFE0F 23.12MB/s"
+password: de629d50-1711-11ed-bd7c-f23c913c8d2b
+port: 443
+server: efe1539c-t9zts0-tlpfci-1jdha.uk.oshuawei.com
+sni: efe1539c-t9zts0-tlpfci-1jdha.uk.oshuawei.com
+tls: true
+type: http
+username: de629d50-1711-11ed-bd7c-f23c913c8d2b
+
+name: "\U0001F1EA\U0001F1EA EE 001 | \u2B07\uFE0F 22.45MB/s"
+password: sOiWCQ2AdIV0OWNuqQVyWp4JZnRxdyLROSjX
+port: 443
+server: 217.60.182.79
+skip-cert-verify: true
+sni: cabinet.wwwinternetvideo.click
+tls: false
+type: hysteria2
+
+name: "\U0001F1FA\U0001F1F8 US 011 | \u2B07\uFE0F 21.80MB/s"
+password: github.com/Alvin9999-newpac/fanqiang
+port: 19000
+server: anytls2.864106.xyz
+skip-cert-verify: true
+sni: anytls2.864106.xyz
+type: anytls
+udp: true
 
 client-fingerprint: firefox
 flow: xtls-rprx-vision
-name: "\U0001F1F1\U0001F1F9 LT 002 | \u2B07\uFE0F 28.76MB/s"
+name: "\U0001F1F1\U0001F1F9 LT 002 | \u2B07\uFE0F 21.53MB/s"
 network: tcp
 port: 443
 reality-opts:
@@ -560,349 +321,88 @@ type: vless
 uuid: c5694dc5-39fd-4a92-8430-3837baa522a3
 
 client-fingerprint: chrome
-name: "\U0001F1F1\U0001F1FA LU 001 | \u2B07\uFE0F 28.53MB/s"
+encryption: none
+name: "\U0001F1E8\U0001F1E6 CA 003 | \u2B07\uFE0F 21.49MB/s"
 network: ws
-port: 8443
-server: 107.189.2.206
-servername: shuma.ccwu.cc
-skip-cert-verify: true
+port: '2096'
+server: 172.67.130.159
+servername: cdn-de.skyvora.app
 tls: true
 type: vless
 udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+uuid: 735b8344-0b95-464c-b687-1c5616138908
 ws-opts:
   headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1E6\U0001F1F9 AT 001 | \u2B07\uFE0F 27.97MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: 10rVZPoOUP1TlQviIAsQ_jAROX0fRQxH0C92nq_zGQc
-  short-id: 43dcff53849b81e6
-server: 152.53.1.40
-servername: at.quattro-tech.ru
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: edde565e-41f5-400e-84ea-7b87a3e84488
-
-client-fingerprint: chrome
-name: "\U0001F1F3\U0001F1F4 NO 001 | \u2B07\uFE0F 27.51MB/s"
-network: ws
-port: 443
-server: 194.32.107.150
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 041 | \u2B07\uFE0F 26.61MB/s"
-password: oZIoA69Q8yhcQV8ka3Pa3A
-port: 8080
-server: 82.38.31.46
-type: ss
-
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc-tunnel
-name: "\U0001F1F3\U0001F1F1 NL 042 | \u2B07\uFE0F 26.55MB/s"
-network: grpc
-port: 2054
-reality-opts:
-  public-key: uSv_IgtbnbUd7_FcH--Zl0O57Nb_ddsSGAZQJlqpU0U
-server: 89.208.104.118
-servername: www.ibm.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 75079a7f-75b5-418b-8a65-f7b2f438cd4a
+    Host: cdn-de.skyvora.app
+    User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+      like Gecko) Chrome/60.0.3112.113 Safari/537.36
+  path: /3cagtz3
+xudp: true
 
 cipher: aes-256-gcm
-name: "\U0001F1EE\U0001F1F9 IT 001 | \u2B07\uFE0F 26.53MB/s"
+name: "\U0001F1EE\U0001F1F9 IT 001 | \u2B07\uFE0F 21.48MB/s"
 password: itzvpn@321
 port: 8388
 server: 57.131.48.45
 type: ss
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EB\U0001F1EE FI 002 | \u2B07\uFE0F 25.82MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: jDoORbrtDrvAlFSo19CJbc99C4ev8SAo1MwczSUt9no
-  short-id: 90ec9bba2019
-server: 65.108.3.59
-servername: web.eitaa.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 8df2e661-6f46-471b-9133-7fc13a0daa35
-
-client-fingerprint: chrome
-name: "\U0001F1EA\U0001F1F8 ES 001 | \u2B07\uFE0F 25.66MB/s"
-network: ws
-port: 443
-server: 141.227.188.153
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-name: "\U0001F1FA\U0001F1F8 US 005 | \u2B07\uFE0F 25.48MB/s"
-password: github.com/Alvin9999-newpac/fanqiang
-port: 19000
-server: anytls2.864106.xyz
-skip-cert-verify: true
-sni: anytls2.864106.xyz
-type: anytls
-udp: true
-
-client-fingerprint: chrome
-name: "\U0001F1F8\U0001F1F0 SK 001 | \u2B07\uFE0F 25.34MB/s"
-network: ws
-port: 2053
-server: 89.46.42.92
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1EA IE 001 | \u2B07\uFE0F 25.01MB/s"
-network: ws
-port: 2096
-server: 167.160.177.68
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-name: "\U0001F1F8\U0001F1F0 SK 002 | \u2B07\uFE0F 24.55MB/s"
-network: ws
-port: 2053
-server: 89.46.42.141
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: de05-grpc-8e47a
-name: "\U0001F1E9\U0001F1EA DE 005 | \u2B07\uFE0F 24.52MB/s"
-network: grpc
-port: 9443
-server: 185.255.179.11
-servername: hub-de-05.hanvpn.cc
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: d9d0f208-d582-41d5-bb7b-742671402810
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1F3\U0001F1F1 NL 043 | \u2B07\uFE0F 24.08MB/s"
-password: k1dBOmOB4oqi7Ump37a1bQ
-port: 8080
-server: 82.38.31.176
-type: ss
-
-client-fingerprint: firefox
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: shiforgrpc
-name: "\U0001F1F3\U0001F1F1 NL 044 | \u2B07\uFE0F 23.84MB/s"
-network: grpc
-port: 8443
-reality-opts:
-  public-key: bzbe7QdD633ew_Er1_YWEhuCEHWurmDpxpz3fRzXr0A
-  short-id: b4e3b0b55b8dc75b
-server: 31.56.184.132
-servername: cloudflare.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 11f21602-47aa-42e2-9149-69120f2e6df6
-
-client-fingerprint: chrome
-name: "\U0001F1F3\U0001F1F4 NO 002 | \u2B07\uFE0F 23.80MB/s"
-network: ws
-port: 8443
-server: 185.125.171.128
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1F9 IT 002 | \u2B07\uFE0F 22.54MB/s"
-network: tcp
-port: 2053
-reality-opts:
-  public-key: Ej2H5ucT7qKegYcT8wODdlxa-cLHr7F4hDVUHzAhcnc
-  short-id: 5b8a942318178e7b
-server: 57.131.38.163
-servername: www.apple.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: d4b08cd6-0903-411a-9dac-45dbdf5c9712
-
-client-fingerprint: chrome
-name: "\U0001F1F5\U0001F1F1 PL 002 | \u2B07\uFE0F 22.49MB/s"
-network: ws
-port: 443
-server: 103.167.234.26
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-alterId: 0
-cipher: auto
-name: "\U0001F1EF\U0001F1F5 JP 001 | \u2B07\uFE0F 22.45MB/s"
-port: 4433
-server: 45.32.57.118
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: 35b89832-0a7c-48dd-8d1c-a2891b522195
-
-client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: TunService
-name: "\U0001F1F5\U0001F1F1 PL 003 | \u2B07\uFE0F 22.39MB/s"
-network: grpc
-port: 33743
-reality-opts:
-  public-key: wGMBs7bvzyzA0-OUiwSkOOTDEMdxEOsSdRzxiP8GGQY
-server: 185.223.57.10
-servername: www.google.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: b3a11068-1a7e-4643-85de-7c82cce46943
-
-client-fingerprint: chrome
-name: "\U0001F1F5\U0001F1F1 PL 004 | \u2B07\uFE0F 21.57MB/s"
-network: tcp
-port: 2053
-reality-opts:
-  public-key: Vemd9Jjk5xKO8qSC3g8VVagwcb4J1BcTvp86CswQC0A
-  short-id: 50ba05992b05c1c3
-server: 54.37.136.194
-servername: www.cloudflare.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: e8a432c8-5d84-49a5-b822-67ed761a58f9
-
-cipher: aes-256-gcm
-name: "\U0001F1F8\U0001F1EA SE 001 | \u2B07\uFE0F 21.44MB/s"
-password: AxIYWtskJWIIaefW
-port: 8388
-server: 70.34.212.124
-type: ss
-
-name: "\U0001F1FA\U0001F1F8 US 006 | \u2B07\uFE0F 21.24MB/s"
-password: 'null'
-port: 9002
-server: 138.199.35.216
-skip-cert-verify: true
-tls: true
+name: "\U0001F1E9\U0001F1EA DE 007 | \u2B07\uFE0F 20.76MB/s"
+password: udp-relay=true
+port: 11111
+server: 103.237.102.191
 type: http
-udp: true
-username: 'null'
-
-name: "\U0001F1F3\U0001F1F1 NL 045 | \u2B07\uFE0F 20.40MB/s"
-obfs: salamander
-obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
-password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
-port: 443
-server: 130.49.161.70
-skip-cert-verify: false
-sni: hy2.aspidnet.xyz
-tls: false
-type: hysteria2
+username: None
 
 client-fingerprint: chrome
-grpc-opts:
-  grpc-mode: gun
-  grpc-service-name: grpc
-name: "\U0001F1EB\U0001F1EE FI 003 | \u2B07\uFE0F 19.56MB/s"
-network: grpc
+name: "\U0001F1E7\U0001F1F7 BR 001 | \u2B07\uFE0F 19.85MB/s"
+network: ws
 port: 443
-reality-opts:
-  public-key: V4SeM4OMxXoSKBmmyC5C0kZEhgL33a5vVZBe7ysJ42U
-  short-id: 0a30e2aee95a7571
-server: 152.233.54.104
-servername: fi1.cache-4d8a.com
-skip-cert-verify: false
-tfo: false
+server: 157.151.4.93
+servername: shuma.ccwu.cc
+skip-cert-verify: true
 tls: true
 type: vless
-uuid: ddf09ad0-02dc-485b-9048-1038de5bebf0
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
+
+alpn:
+- h2
+client-fingerprint: firefox
+encryption: none
+flow: xtls-rprx-vision
+name: "\U0001F1E6\U0001F1F9 AT 001 | \u2B07\uFE0F 19.67MB/s"
+network: tcp
+port: '443'
+server: austria-dedic1.failspace.top
+servername: austria-dedic1.failspace.top
+tls: true
+type: vless
+udp: true
+uuid: cd3bb7d9-7df3-4644-ac05-c260990ac277
+xudp: true
 
 client-fingerprint: chrome
-name: "\U0001F1FA\U0001F1F8 US 007 | \u2B07\uFE0F 19.33MB/s"
+name: "\U0001F1E9\U0001F1EA DE 008 | \u2B07\uFE0F 18.89MB/s"
+network: ws
+port: 8443
+server: 103.126.50.196
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
+
+client-fingerprint: chrome
+name: "\U0001F1FA\U0001F1F8 US 012 | \u2B07\uFE0F 18.82MB/s"
 network: ws
 port: 8443
 server: 104.194.84.188
@@ -917,57 +417,9 @@ ws-opts:
     Host: shuma.ccwu.cc
   path: /
 
-alterId: 0
-cipher: auto
-name: "\U0001F1FA\U0001F1F8 US 008 | \u2B07\uFE0F 18.71MB/s"
-port: 15311
-server: 107.173.254.27
-skip-cert-verify: false
-tls: false
-type: vmess
-uuid: ad78d02b-873f-4cff-8d4a-673f53d6ce0f
-
-name: "\U0001F1F7\U0001F1F4 RO 001 | \u2B07\uFE0F 18.11MB/s"
-port: 9002
-server: 193.176.84.27
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
-
-name: "\U0001F1E8\U0001F1E6 CA 002 | \u2B07\uFE0F 18.08MB/s"
-network: ws
-port: 80
-server: cdn.snobvpn.online
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: cabd9303-ae32-4d25-86b9-26b312d0f044
-ws-opts:
-  headers:
-    Host: cdn.snobvpn.online
-  path: /snob-ws
-
-client-fingerprint: chrome
-name: "\U0001F1ED\U0001F1FA HU 001 | \u2B07\uFE0F 17.55MB/s"
-network: ws
-port: 443
-server: 38.180.109.174
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
 client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F8\U0001F1EC SG 001 | \u2B07\uFE0F 15.17MB/s"
+name: "\U0001F1F8\U0001F1EC SG 001 | \u2B07\uFE0F 18.82MB/s"
 network: tcp
 port: 19825
 reality-opts:
@@ -981,11 +433,126 @@ tls: true
 type: vless
 uuid: 2d1ad594-80a4-4bfb-87a6-038e39701f51
 
+name: "\U0001F1F3\U0001F1F1 NL 004 | \u2B07\uFE0F 17.91MB/s"
+obfs: salamander
+obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
+password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
+port: 443
+server: 130.49.161.70
+skip-cert-verify: false
+sni: hy2.aspidnet.xyz
+tls: false
+type: hysteria2
+
+name: "\U0001F1F7\U0001F1F4 RO 001 | \u2B07\uFE0F 17.76MB/s"
+password: None
+port: 9002
+server: 193.176.84.23
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+client-fingerprint: firefox
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: shiforgrpc
+name: "\U0001F1F3\U0001F1F1 NL 005 | \u2B07\uFE0F 17.31MB/s"
+network: grpc
+port: 8443
+reality-opts:
+  public-key: bzbe7QdD633ew_Er1_YWEhuCEHWurmDpxpz3fRzXr0A
+  short-id: b4e3b0b55b8dc75b
+server: 31.56.184.132
+servername: cloudflare.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 11f21602-47aa-42e2-9149-69120f2e6df6
+
+name: "\U0001F1E8\U0001F1E6 CA 004 | \u2B07\uFE0F 17.11MB/s"
+network: ws
+port: 80
+server: cdn.snobvpn.online
+servername: cdn.snobvpn.online
+skip-cert-verify: false
+tfo: false
+tls: false
+type: vless
+uuid: 246b101b-4e4a-451f-8e9c-5e8d3b64b4ef
+ws-opts:
+  headers:
+    Host: cdn.snobvpn.online
+  path: /snob-ws
+
 client-fingerprint: chrome
-name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 15.16MB/s"
+name: "\U0001F1EE\U0001F1EA IE 001 | \u2B07\uFE0F 17.04MB/s"
+network: ws
+port: 2096
+server: 167.160.177.68
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
+
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: de05-grpc-8e47a
+name: "\U0001F1E9\U0001F1EA DE 009 | \u2B07\uFE0F 16.83MB/s"
+network: grpc
+port: 9443
+server: 185.255.179.11
+servername: hub-de-05.hanvpn.cc
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: d9d0f208-d582-41d5-bb7b-742671402810
+
+client-fingerprint: chrome
+name: "\U0001F1FA\U0001F1E6 UA 001 | \u2B07\uFE0F 16.52MB/s"
 network: ws
 port: 443
-server: 103.101.0.73
+server: 213.111.148.137
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
+
+alterId: 0
+cipher: auto
+name: "\U0001F1E8\U0001F1F3 TW 001 | \u2B07\uFE0F 15.91MB/s"
+network: ws
+port: 443
+server: dee2309db4se3grs6e8hg4w61sd53g1.oylfmxz.cn
+servername: dee2309db4se3grs6e8hg4w61sd53g1.oylfmxz.cn
+skip-cert-verify: false
+tls: true
+type: vmess
+uuid: d90e4077-bc7e-414d-a650-70bf1baae4d6
+ws-opts:
+  headers:
+    Host: dee2309db4se3grs6e8hg4w61sd53g1.oylfmxz.cn
+  path: /
+
+client-fingerprint: chrome
+name: "\U0001F3F3\uFE0F MD 001 | \u2B07\uFE0F 15.87MB/s"
+network: ws
+port: 443
+server: 185.153.198.86
 servername: shuma.ccwu.cc
 skip-cert-verify: true
 tls: true
@@ -998,23 +565,116 @@ ws-opts:
   path: /
 
 client-fingerprint: chrome
-name: "\U0001F1E8\U0001F1FE CY 001 | \u2B07\uFE0F 14.45MB/s"
-network: ws
-port: 443
-server: 213.111.177.107
-servername: shuma.ccwu.cc
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: TunService
+name: "\U0001F1F5\U0001F1F1 PL 001 | \u2B07\uFE0F 15.03MB/s"
+network: grpc
+port: 33743
+reality-opts:
+  public-key: wGMBs7bvzyzA0-OUiwSkOOTDEMdxEOsSdRzxiP8GGQY
+server: 185.223.57.10
+servername: www.google.com
 skip-cert-verify: false
 tfo: false
 tls: true
 type: vless
+uuid: b3a11068-1a7e-4643-85de-7c82cce46943
+
+client-fingerprint: chrome
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: grpc-common3
+name: "\U0001F1EB\U0001F1F7 FR 001 | \u2B07\uFE0F 14.69MB/s"
+network: grpc
+port: 35108
+reality-opts:
+  public-key: X_lOw5Zz4SJBa1cRHV4dAq5msYE-ClY5-WNcBmBWRxg
+  short-id: 52add08b86a5ccea
+server: 152.228.139.33
+servername: www.nvidia.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 81dc0b61-f9fe-4ad6-8b4e-b8c067b73712
+
+client-fingerprint: chrome
+name: "\U0001F1F9\U0001F1F7 TR 001 | \u2B07\uFE0F 14.39MB/s"
+network: tcp
+port: 2053
+reality-opts:
+  public-key: bYW_MmB_CUHrsyoCAUKviI2LZdHf63yY2yOPXbih104
+  short-id: 9e419c0759b54d6f
+server: 151.241.226.201
+servername: www.apple.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 0eed6293-8cf1-4e77-ac10-9c3d50d0b2f8
+
+client-fingerprint: chrome
+name: "\U0001F1F9\U0001F1ED TH 001 | \u2B07\uFE0F 14.18MB/s"
+network: ws
+port: 443
+server: 43.133.110.81
+servername: faxf32gkfzoxqv.fx6hsv0.ccwu.cc
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 77777777-8a3e-6666-b6d1-a9c5f0e8b3a2
+ws-opts:
+  headers:
+    Host: faxf32gkfzoxqv.fx6hsv0.ccwu.cc
+  path: /?TELEGRAM-MARAMBASHI_MARAMBASHI?ed=512
+
+client-fingerprint: chrome
+name: "\U0001F1EE\U0001F1F3 IN 001 | \u2B07\uFE0F 13.81MB/s"
+network: ws
+port: 443
+server: 13.200.106.232
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
 uuid: c18b978e-1c4e-415c-8bea-07942b563a64
 ws-opts:
   headers:
     Host: shuma.ccwu.cc
   path: /
 
+name: "\U0001F1F7\U0001F1FA RU 001 | \u2B07\uFE0F 13.60MB/s"
+password: YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc
+port: 443
+server: go.wwwinternetvideo.click
+skip-cert-verify: true
+sni: admin.wwwinternetvideo.click
+tls: false
+type: hysteria2
+
 client-fingerprint: chrome
-name: "\U0001F1F2\U0001F1FE MY 001 | \u2B07\uFE0F 14.07MB/s"
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: grpc
+name: "\U0001F1EB\U0001F1EE FI 002 | \u2B07\uFE0F 13.56MB/s"
+network: grpc
+port: 443
+reality-opts:
+  public-key: V4SeM4OMxXoSKBmmyC5C0kZEhgL33a5vVZBe7ysJ42U
+  short-id: 0a30e2aee95a7571
+server: 152.233.54.104
+servername: fi1.cache-4d8a.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: ddf09ad0-02dc-485b-9048-1038de5bebf0
+
+client-fingerprint: chrome
+name: "\U0001F1F2\U0001F1FE MY 001 | \u2B07\uFE0F 13.53MB/s"
 network: ws
 port: 443
 server: 216.173.67.144
@@ -1029,114 +689,142 @@ ws-opts:
     Host: shuma.ccwu.cc
   path: /
 
-client-fingerprint: chrome
-name: "\U0001F1E7\U0001F1EA BE 002 | \u2B07\uFE0F 13.38MB/s"
-network: ws
+name: "\U0001F1ED\U0001F1F0HK_1|1000KB/s"
+password: 9sK2mP8xQ7vL3nZ6
 port: 443
-server: 194.71.227.213
-servername: shuma.ccwu.cc
+server: ac7548f3ebe045b39a90288ff1e97528.pnuqcnp.cn
 skip-cert-verify: true
-tls: true
-type: vless
+sni: ac7548f3ebe045b39a90288ff1e97528.lwdnxf.cn
+type: anytls
 udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-name: "\U0001F1F7\U0001F1FA RU 001 | \u2B07\uFE0F 11.43MB/s"
-password: YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc
-port: 443
-server: go.wwwinternetvideo.click
-skip-cert-verify: true
-sni: admin.wwwinternetvideo.click
-tls: false
-type: hysteria2
-
-name: "\U0001F1E9\U0001F1EA DE 006 | \u2B07\uFE0F 10.82MB/s"
-network: ws
-port: 2087
-server: 163.8.195.241
-skip-cert-verify: false
-tfo: false
-tls: false
-type: vless
-uuid: 56ba5d34-ef22-4ba6-8090-4188b807df54
-ws-opts:
-  headers:
-    Host: "/?\u2013v2rayNplus\u2013v2rayNplus\u2013v2rayNplus\u2013"
-  path: /29c8fed7ca22
-
-client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1F3 IN 001 | \u2B07\uFE0F 10.52MB/s"
-network: ws
-port: 443
-server: 139.84.135.130
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1F8 IS 001 | \u2B07\uFE0F 9.54MB/s"
-network: ws
-port: 443
-server: 195.246.230.125
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
-
-client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1EA IE 002 | \u2B07\uFE0F 9.21MB/s"
-network: ws
-port: 8443
-server: 107.150.20.112
-servername: shuma.ccwu.cc
-skip-cert-verify: true
-tls: true
-type: vless
-udp: true
-uuid: c18b978e-1c4e-415c-8bea-07942b563a64
-ws-opts:
-  headers:
-    Host: shuma.ccwu.cc
-  path: /
 
 client-fingerprint: chrome
 flow: xtls-rprx-vision
-name: "\U0001F1F5\U0001F1F1 PL 005 | \u2B07\uFE0F 8.08MB/s"
+name: "\U0001F1E9\U0001F1EA DE 010 | \u2B07\uFE0F 13.26MB/s"
 network: tcp
 port: 443
 reality-opts:
-  public-key: xY1KpNxaIGmi6jfeudYQ_aaLGQqWK_uHStnwUFd2_2E
-  short-id: fa3ea655619a3e78
-server: 82.118.22.161
+  public-key: xcTXD3of3Yt5hHdIwYGZ1LjMBgiL6sqj5J33J4U4ozM
+  short-id: a7c31f92
+server: 93.123.101.215
+servername: emil.atlasparser.site
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: dcf8e133-09a2-4884-abf9-80356bb334ac
+
+name: "\U0001F1F7\U0001F1F4 RO 002 | \u2B07\uFE0F 13.05MB/s"
+port: 9002
+server: 193.176.84.20
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+client-fingerprint: chrome
+name: "\U0001F1ED\U0001F1FA HU 001 | \u2B07\uFE0F 12.89MB/s"
+network: ws
+port: 8443
+server: 180.149.37.38
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
+
+name: "\U0001F1F7\U0001F1F4 RO 003 | \u2B07\uFE0F 12.69MB/s"
+password: None
+port: 9002
+server: 193.176.84.31
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 004 | \u2B07\uFE0F 12.04MB/s"
+port: 9002
+server: 193.176.84.35
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+client-fingerprint: chrome
+grpc-opts:
+  grpc-mode: gun
+  grpc-service-name: grpc-tunnel
+name: "\U0001F1F7\U0001F1FA RU 002 | \u2B07\uFE0F 11.79MB/s"
+network: grpc
+port: 9830
+reality-opts:
+  public-key: bnRIb3Er1i-K6NGGByCO9UbGfOvu43ZoiK7ulPd1SzU
+  short-id: aabb
+server: 213.171.25.178
+servername: dl.google.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 5d16ac22-6eea-426f-b778-6f4c2961faef
+
+client-fingerprint: firefox
+name: "\U0001F1F8\U0001F1EC SG 002 | \u2B07\uFE0F 11.54MB/s"
+network: tcp
+port: 2053
+reality-opts:
+  public-key: VzRjuHwcY-nLqkEIJS4S1CpButKc90Bh0gDbphyZ0Tw
+  short-id: 87829de0e2bb82cb
+server: 217.217.254.126
 servername: www.cloudflare.com
 skip-cert-verify: false
 tfo: false
 tls: true
 type: vless
-uuid: 05488656-d4bf-4634-8b2e-e4ff5a56c7e2
+uuid: cb15cce9-73ed-4928-b38c-462f0732cbe9
 
 client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1F8 IS 002 | \u2B07\uFE0F 7.92MB/s"
+flow: xtls-rprx-vision
+name: "\U0001F1E9\U0001F1EA DE 011 | \u2B07\uFE0F 10.83MB/s"
+network: tcp
+port: 8443
+reality-opts:
+  public-key: SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc
+  short-id: 6ba85179e30d4fc2
+server: 150.241.101.80
+servername: yandex.net
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 47d9b534-8a0a-4bd2-90f1-1d6ade14427e
+
+client-fingerprint: chrome
+flow: xtls-rprx-vision
+name: "\U0001F1ED\U0001F1F0 HK 001 | \u2B07\uFE0F 10.81MB/s"
+network: tcp
+port: 13779
+reality-opts:
+  public-key: llTyp52oRXnJmQ3I9UUrmlwbMA79B-wLCRHCu-8dLGg
+  short-id: af1bdd293097b664
+server: 47.239.6.251
+servername: tesla.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 928e6cce-8ced-4243-9a48-a6642edd09b0
+
+client-fingerprint: chrome
+name: "\U0001F1F9\U0001F1F7 TR 002 | \u2B07\uFE0F 10.39MB/s"
 network: ws
-port: 443
-server: 151.243.181.99
+port: 8443
+server: 104.143.204.23
 servername: shuma.ccwu.cc
 skip-cert-verify: true
 tls: true
@@ -1148,26 +836,33 @@ ws-opts:
     Host: shuma.ccwu.cc
   path: /
 
-client-fingerprint: chrome
-flow: xtls-rprx-vision
-name: "\U0001F1EC\U0001F1F9 GT 001 | \u2B07\uFE0F 7.76MB/s"
-network: tcp
-port: 443
-reality-opts:
-  public-key: 6-_ZidygR8PRt4gtHlGCAW-PPmjEIm7Wn7MZqJU1z1Q
-  short-id: 6c059ecfddf9b179
-server: 185.47.254.251
-servername: gateway.icloud.com
-skip-cert-verify: false
-tfo: false
+name: "\U0001F1F7\U0001F1F4 RO 005 | \u2B07\uFE0F 9.87MB/s"
+port: 9002
+server: 193.176.84.32
+skip-cert-verify: true
 tls: true
-type: vless
-uuid: 878fb7f7-fc65-465e-a352-17c7216c6f3d
+type: http
+udp: true
+
+name: "\U0001F1F7\U0001F1F4 RO 006 | \u2B07\uFE0F 9.45MB/s"
+port: 9002
+server: 193.176.84.33
+skip-cert-verify: true
+tls: true
+type: http
+udp: true
+
+name: "\U0001F1EB\U0001F1F7 FR 002 | \u2B07\uFE0F 8.87MB/s"
+port: 443
+server: 141.94.16.4
+skip-cert-verify: true
+tls: true
+type: http
 
 client-fingerprint: chrome
-name: "\U0001F3F3\uFE0F UZ 001 | \u2B07\uFE0F 7.67MB/s"
+name: "\U0001F3F3\uFE0F UZ 001 | \u2B07\uFE0F 8.70MB/s"
 network: ws
-port: 8443
+port: 2053
 server: 46.8.194.76
 servername: shuma.ccwu.cc
 skip-cert-verify: true
@@ -1181,33 +876,10 @@ ws-opts:
   path: /
 
 client-fingerprint: chrome
-name: "\U0001F1EE\U0001F1F9 IT 003 | \u2B07\uFE0F 6.97MB/s"
+name: "\U0001F1EC\U0001F1F7 GR 001 | \u2B07\uFE0F 8.18MB/s"
 network: ws
-port: 8443
-server: milan.adaspoloandco.com
-servername: milan.adaspoloandco.com
-skip-cert-verify: false
-tfo: false
-tls: true
-type: vless
-uuid: 69ac162b-1643-4acb-9f49-09d8b0fad609
-ws-opts:
-  headers:
-    Host: milan.adaspoloandco.com
-  path: /RoBeRt
-
-cipher: chacha20-ietf-poly1305
-name: "\U0001F1E8\U0001F1F3 TW 001 | \u2B07\uFE0F 6.67MB/s"
-password: 7e731ec3-f8e1-43f6-92cf-3978d14705c4
-port: 50099
-server: r3mrcg001286ek2.cybervena.com
-type: ss
-
-client-fingerprint: chrome
-name: "\U0001F3F3\uFE0F AM 001 | \u2B07\uFE0F 6.62MB/s"
-network: ws
-port: 443
-server: 2.56.204.183
+port: 2053
+server: 38.54.29.210
 servername: shuma.ccwu.cc
 skip-cert-verify: true
 tls: true
@@ -1219,19 +891,111 @@ ws-opts:
     Host: shuma.ccwu.cc
   path: /
 
-name: "\U0001F1F7\U0001F1F4 RO 002 | \u2B07\uFE0F 6.49MB/s"
-port: 9002
-server: 193.176.84.32
-skip-cert-verify: true
-tls: true
-type: http
-udp: true
+name: "\U0001F1F8\U0001F1EA SE 002 | \u2B07\uFE0F 8.10MB/s"
+network: ws
+port: 8081
+server: 143.246.194.60
+skip-cert-verify: false
+tfo: false
+tls: false
+type: vless
+uuid: 54ee5e59-55a3-4599-83ff-0c67b3f411b2
+ws-opts:
+  path: /vless-test
 
 client-fingerprint: chrome
-name: "\U0001F1E9\U0001F1EA DE 007 | \u2B07\uFE0F 6.22MB/s"
+flow: xtls-rprx-vision
+name: "\U0001F1EC\U0001F1F9 GT 001 | \u2B07\uFE0F 8.02MB/s"
+network: tcp
+port: 443
+reality-opts:
+  public-key: 6-_ZidygR8PRt4gtHlGCAW-PPmjEIm7Wn7MZqJU1z1Q
+  short-id: 6c059ecfddf9b179
+server: 185.47.254.251
+servername: gateway.icloud.com
+skip-cert-verify: false
+tfo: false
+tls: true
+type: vless
+uuid: 878fb7f7-fc65-465e-a352-17c7216c6f3d
+
+name: "\U0001F1E8\U0001F1F1 CL 001 | \u2B07\uFE0F 7.50MB/s"
+network: ws
+port: 80
+server: platform117.golnamakcert.top
+skip-cert-verify: false
+tfo: false
+tls: false
+type: vless
+uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
+ws-opts:
+  headers:
+    Host: platform117.halalkhor.info
+  path: /platform117
+
+cipher: aes-256-gcm
+name: "\U0001F1E8\U0001F1E6 CA 005 | \u2B07\uFE0F 7.00MB/s"
+password: kDWvXYZoTBcGkC4
+port: 8882
+server: 51.222.136.236
+type: ss
+
+cipher: aes-256-gcm
+name: "\U0001F1FA\U0001F1F8 US 013 | \u2B07\uFE0F 6.85MB/s"
+password: pKEW8JPByTVTLtM
+port: 4444
+server: 15.204.247.206
+type: ss
+
+cipher: chacha20-ietf-poly1305
+name: "\U0001F1ED\U0001F1F0 HK 002 | \u2B07\uFE0F 6.26MB/s"
+password: wwj19enpp68px8t7
+port: 1081
+server: sth.free-outline.giize.com
+type: ss
+
+cipher: aes-256-gcm
+name: "\U0001F1FA\U0001F1F8 US 014 | \u2B07\uFE0F 6.21MB/s"
+password: FoOiGlkAA9yPEGP
+port: 7307
+server: 15.204.246.132
+type: ss
+
+cipher: aes-256-gcm
+name: "\U0001F1E8\U0001F1E6 CA 006 | \u2B07\uFE0F 5.81MB/s"
+password: zDNVedRFPQexG9v
+port: 445
+server: 51.222.141.125
+type: ss
+
+cipher: aes-256-gcm
+name: "\U0001F1E8\U0001F1E6 CA 007 | \u2B07\uFE0F 5.77MB/s"
+password: Y6R9pAtvxxzmGC
+port: 5601
+server: 51.222.155.113
+type: ss
+
+client-fingerprint: chrome
+name: "\U0001F1E8\U0001F1E6 CA 008 | \u2B07\uFE0F 5.54MB/s"
+network: ws
+password: humanity
+port: '443'
+server: 104.17.147.22
+skip-cert-verify: false
+sni: www.ignitelimit.com
+type: trojan
+udp: true
+ws-opts:
+  headers:
+    User-Agent: Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML,
+      like Gecko) Chrome/60.0.3112.90 Safari/537.36
+  path: /assignment
+
+client-fingerprint: chrome
+name: "\U0001F1F8\U0001F1EC SG 003 | \u2B07\uFE0F 5.19MB/s"
 network: ws
 port: 443
-server: 109.176.202.20
+server: 103.195.188.192
 servername: shuma.ccwu.cc
 skip-cert-verify: true
 tls: true
@@ -1244,9 +1008,25 @@ ws-opts:
   path: /
 
 cipher: aes-256-gcm
-name: "\U0001F1FA\U0001F1F8 US 009 | \u2B07\uFE0F 5.90MB/s"
-password: pKEW8JPByTVTLtM
-port: 4444
-server: 15.204.247.206
+name: "\U0001F1F8\U0001F1EA SE 003 | \u2B07\uFE0F 5.10MB/s"
+password: AxIYWtskJWIIaefW
+port: 8388
+server: 70.34.212.124
 type: ss
+
+client-fingerprint: chrome
+name: "\U0001F1F2\U0001F1FD MX 001 | \u2B07\uFE0F 5.06MB/s"
+network: ws
+port: 443
+server: 216.238.79.164
+servername: shuma.ccwu.cc
+skip-cert-verify: true
+tls: true
+type: vless
+udp: true
+uuid: c18b978e-1c4e-415c-8bea-07942b563a64
+ws-opts:
+  headers:
+    Host: shuma.ccwu.cc
+  path: /
 
