@@ -1,66 +1,213 @@
 proxy-providers: {}
 proxies:
-- name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 213.62MB/s"
+- client-fingerprint: chrome
+  encryption: none
+  name: "\U0001F1E8\U0001F1E6 CA 001 | ⬇️ 144.59MB/s"
   network: ws
-  port: 80
-  server: 104.18.46.46
-  servername: 8nj2r.2k8t.f88.hh.vavava.kdns.fr
-  skip-cert-verify: true
-  tls: false
+  port: "443"
+  server: 104.21.69.30
+  servername: 05agj.gkef.zhs.hh.vavava.kdns.fr
+  tls: true
   type: vless
   udp: true
   uuid: 47fcef29-ab4e-4aa6-932b-d95a18f28a4e
   ws-opts:
     headers:
-      Host: 8nj2r.2k8t.f88.hh.vavava.kdns.fr
-    path: /?ed=2560security=tls
-- name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 210.85MB/s"
+      Host: 05agj.gkef.zhs.hh.vavava.kdns.fr
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/53.0.2785.143 Safari/537.36
+    path: /?ed=2560
+  xudp: true
+- client-fingerprint: chrome
+  encryption: none
+  name: "\U0001F1E8\U0001F1E6 CA 002 | ⬇️ 102.16MB/s"
+  network: ws
+  port: "443"
+  server: 104.18.10.110
+  servername: 05agj.gkef.zhs.hh.vavava.kdns.fr
+  tls: true
+  type: vless
+  udp: true
+  uuid: 47fcef29-ab4e-4aa6-932b-d95a18f28a4e
+  ws-opts:
+    headers:
+      Host: 05agj.gkef.zhs.hh.vavava.kdns.fr
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/54.0.2840.99 Safari/537.36
+    path: /?ed=2560
+  xudp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 96.75MB/s"
+  network: tcp
   port: 443
-  server: 172.64.68.89
-  skip-cert-verify: true
+  reality-opts:
+    public-key: r4Dp3mztZaizbDk28rEOkLikk7erR9dzzc-Jrsgraho
+    short-id: a1b2c3d4
+  server: 185.95.231.233
+  servername: store.steampowered.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 1ffa8e68-3378-4cf4-b8f6-44bf3d46d106
+- client-fingerprint: chrome
+  name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 94.57MB/s"
+  network: tcp
+  port: 2053
+  reality-opts:
+    public-key: Uk5b-Wh_uxeCc7R8NS9iWE40xc0h9wWC04rSB9yhgAw
+    short-id: b5d625695ec82c7e
+  server: 198.251.78.29
+  servername: www.cloudflare.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: c423cc1b-f88e-421c-9a16-c480d84da20f
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 67.45MB/s"
+  network: ws
+  port: 443
+  server: 66.163.115.23
+  servername: aidrivercat.org
+  skip-cert-verify: false
+  tls: true
+  type: vmess
+  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
+  ws-opts:
+    headers:
+      Host: aidrivercat.org
+    path: /linkvws
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 61.03MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: pX9uknHGLC9I26TT5kq4bIAljtX2AGWLK23EMgn6xFo
+    short-id: 84be686ea1d16478
+  server: 162.35.104.143
+  servername: sheetpeek.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 54ee5e59-55a3-4599-83ff-0c67b3f411b2
+- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 59.80MB/s"
+  network: ws
+  port: 8081
+  server: 162.35.104.144
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 54ee5e59-55a3-4599-83ff-0c67b3f411b2
+  ws-opts:
+    path: /vless-test
+- name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 56.20MB/s"
+  password: None
+  port: 443
+  server: purposebydesig.club
   tls: true
   type: http
-- name: "\U0001F1FA\U0001F1F8 US 001 | ⬇️ 200.19MB/s"
-  network: ws
-  port: 8880
-  server: 108.162.198.178
-  skip-cert-verify: true
-  tls: false
-  type: vless
   udp: true
-  uuid: 47fcef29-ab4e-4aa6-932b-d95a18f28a4e
-  ws-opts:
-    headers:
-      Host: 8nj2r.2k8t.f88.hh.vavava.kdns.fr
-    path: /
 - client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 169.28MB/s"
-  network: ws
-  port: 2083
-  server: 104.18.1.1
-  servername: calm-smoke-1a21.alvlirm6262.workers.dev
-  skip-cert-verify: true
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 56.10MB/s"
+  network: tcp
+  port: 42942
+  reality-opts:
+    public-key: JmkfJoDWpAqt6gj4cbc4_cwItsdryMlV7joAGfNTKQU
+    short-id: a56d7d8da977f860
+  server: 172.235.38.85
+  servername: www.tesla.com
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
+  uuid: bca46025-bf43-40c0-895b-054a6fbcfd32
+- name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 55.45MB/s"
+  port: 443
+  server: voteshirleysew.club
+  tls: true
+  type: http
   udp: true
-  uuid: 8525fe74-67e6-4a55-8a26-95f227bd1384
-  ws-opts:
-    headers:
-      Host: calm-smoke-1a21.alvlirm6262.workers.dev
-    path: /
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 51.12MB/s"
+  network: tcp
+  port: 53957
+  reality-opts:
+    public-key: XUHlbk5VH5z4E2wxZBhlpLZ33qevyQgqU7dheRDgoGQ
+    short-id: 44e82fd7b97b14
+  server: 172.235.43.210
+  servername: www.nvidia.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 7ab29f89-6eef-4171-b232-fc4f580ad31b
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 49.95MB/s"
+  port: 12004
+  server: 47.85.188.30
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 8b5552bd-4cc7-4cac-af08-81c21686fd4f
 - cipher: aes-256-gcm
-  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 113.68MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 43.49MB/s"
+  password: 8c009bb6-08b3-4526-a86b-5af7ddfc567a-4c757b72-6eec-4faf-8c2e-09fd1c7fa936
+  port: 43579
+  server: 192.3.247.109
+  type: ss
+- cipher: aes-256-gcm
+  name: "\U0001F1E8\U0001F1E6 CA 003 | ⬇️ 42.86MB/s"
   password: eveaaTOb8ji8yntw2Z9yWUG0d6Ir8Ld8m3ymH8THdC5egiTH1mXCiBc0Skr7FibH
   port: 9443
   server: yyz-ca-01.blncvpn4u.cc
   type: ss
-- cipher: aes-256-gcm
-  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 105.42MB/s"
-  password: eveaaTOb8ji8yntw2Z9yWUG0d6Ir8Ld8m3ymH8THdC5egiTH1mXCiBc0Skr7FibH
-  port: 9443
-  server: 185.156.47.97
-  type: ss
-- name: "\U0001F1FA\U0001F1F8 US 002 | ⬇️ 77.66MB/s"
+- client-fingerprint: chrome
+  name: "\U0001F1E8\U0001F1E6 CA 004 | ⬇️ 39.85MB/s"
+  network: ws
+  port: 443
+  server: 104.26.0.138
+  servername: spjd.cbc.qzz.io
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 37665857-8b6e-4daa-8231-3e2927221558
+  ws-opts:
+    headers:
+      Host: spjd.cbc.qzz.io
+    path: /proxyip=ProxyIP.US.CMLiussss.net
+- name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 39.71MB/s"
+  port: 9002
+  server: 138.199.35.198
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 36.20MB/s"
+  network: tcp
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: "01"
+  server: 15.204.97.209
+  servername: fuck.rkn
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 36.12MB/s"
   password: "null"
   port: 9002
   server: 138.199.35.216
@@ -69,59 +216,140 @@ proxies:
   type: http
   udp: true
   username: "null"
-- name: "\U0001F1FA\U0001F1F8 US 003 | ⬇️ 77.32MB/s"
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 36.10MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: s0ypPx0AL3k2KOk74tbm-aE-i7eIR_MYVzfLHZeLaUk
+    short-id: 2e124af254a65e7c
+  server: tomaz1337shellbuy.vvzzkontaktezzvv.garden
+  servername: tomaz1337shellbuy.vvzzkontaktezzvv.garden
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1E8\U0001F1E6 CA 005 | ⬇️ 35.78MB/s"
+  port: 22324
+  server: 198.57.27.190
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 35.61MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: J_p_dxR8dIKaezk1_Ins5MZ7e4dqgrr2n9690vVuQ2s
+    short-id: b19b017d6f453873
+  server: 23.81.34.204
+  servername: speed.cloudflare.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 99955907-9070-46f0-a200-9c7a0b9d74fe
+- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 34.96MB/s"
+  password: None
   port: 9002
-  server: 138.199.35.198
+  server: 84.17.47.148
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- encryption: none
-  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 74.08MB/s"
+- name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 34.96MB/s"
   network: ws
-  port: "8080"
-  server: 188.114.97.6
+  port: 80
+  server: 199.247.23.162
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: 306dcb21-d02d-49dd-8ec7-0005b972b47a
+  ws-opts:
+    path: /
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 34.68MB/s"
+  port: 22324
+  server: 167.88.62.124
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 34.62MB/s"
+  port: 9002
+  server: 84.17.47.150
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 34.53MB/s"
+  port: 9002
+  server: 84.17.47.149
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 33.99MB/s"
+  password: None
+  port: 9002
+  server: 84.17.47.125
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 33.50MB/s"
+  port: 9002
+  server: 84.17.47.146
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 33.01MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: kGdP0X0DwcMbXovNjpQ3o7ubghwu1dedhcoFtLFOnBk
+    short-id: 1fc709
+  server: agroup.de1.ilovegairport.com
+  servername: eu-central-1.console.aws.amazon.com
+  tls: true
   type: vless
   udp: true
-  uuid: 36d9003c-7240-40bc-af62-07c39f7a0b94
-  ws-opts:
-    headers:
-      Host: server20.peekconfig5.workers.dev
-      User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like
-        Gecko) Chrome/44.0.2403.157 Safari/537.36
-    path: /eyJqdW5rIjoiYmNCdUhCVkFEIiwicHJvdG9jb2wiOiJ2bCIsIm1vZGUiOiJwcmVmaXgiLCJwYW5lbElQcyI6WyJbMmEwMjo4OTg6MTQ2OjY0OjpdIiwiWzI2MDI6ZmM1OTpiMDo2NDo6XSIsIlsyNjAyOmZjNTk6MTE6NjQ6Ol0iXX0=
-  xudp: true
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 67.41MB/s"
-  network: ws
+  uuid: 129e26fe-cee2-4786-9261-b29668337829
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 31.35MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.42
+  type: ss
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 30.34MB/s"
+  network: tcp
   port: 443
-  server: mygptagent.org
-  servername: mygptagent.org
+  reality-opts:
+    public-key: EYfpgja4VjpLUnWHtDJQ1XZk6xL5j4rXwf80Sw6keV0
+    short-id: 0c13e8822e7f58aa
+  server: 87.120.216.144
+  servername: gerwai1488.vvzzkontaktezzvv.garden
   skip-cert-verify: false
+  tfo: false
   tls: true
-  type: vmess
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  ws-opts:
-    headers:
-      Host: mygptagent.org
-    path: /linkvws
-- name: "\U0001F1FA\U0001F1F8 US 004 | ⬇️ 66.62MB/s"
-  port: 443
-  server: voteshirleysew.club
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1FA\U0001F1F8 US 005 | ⬇️ 65.43MB/s"
-  password: None
-  port: 443
-  server: purposebydesig.club
-  tls: true
-  type: http
-  udp: true
+  type: vless
+  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
 - alterId: 0
   cipher: auto
-  name: "\U0001F1E9\U0001F1EA DE 001 | ⬇️ 59.69MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 28.38MB/s"
   network: ws
   port: 443
   server: aidrivercat.org
@@ -134,9 +362,106 @@ proxies:
     headers:
       Host: aidrivercat.org
     path: /linkvws
+- cipher: aes-256-gcm
+  name: "\U0001F1E8\U0001F1E6 CA 006 | ⬇️ 28.32MB/s"
+  password: eveaaTOb8ji8yntw2Z9yWUG0d6Ir8Ld8m3ymH8THdC5egiTH1mXCiBc0Skr7FibH
+  port: 9443
+  server: 185.156.47.97
+  type: ss
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1FA\U0001F1E6 UA 001 | ⬇️ 27.62MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: SB1uC0OEveYjSiS_Nuw9Ld-uVVXWqi794OGnldthY3I
+  server: cosw.ggisopi.su
+  servername: cosw.ggisopi.su
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: d0f0a880-0df1-0005-bdf1-5669fb9483ce
 - alterId: 0
   cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 006 | ⬇️ 54.68MB/s"
+  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 26.24MB/s"
+  port: 22324
+  server: 158.51.123.42
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- client-fingerprint: chrome
+  name: "\U0001F1EA\U0001F1F8 ES 001 | ⬇️ 26.09MB/s"
+  network: tcp
+  port: 2053
+  reality-opts:
+    public-key: 7Y6Xb5Ql_03K25x8yKUSOKI2JTOMyv2nyCcFza90uxk
+    short-id: 29e8dcd2b37aaa7f
+  server: 212.227.235.66
+  servername: www.apple.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: ead0dd61-d398-40ad-80d6-a0e1e516d7d3
+- client-fingerprint: safari
+  flow: xtls-rprx-vision
+  name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 24.73MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: s0lbZ5BO3ctZjE8DzsXkNL0NvLl6FgLG6532NQzXigo
+    short-id: c56d4f1c
+  server: 83.168.107.220
+  servername: google.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: b1813cbd-831f-4cb3-baf8-5bc0cc8298bc
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 016 | ⬇️ 24.17MB/s"
+  port: 22324
+  server: 169.197.143.116
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 23.53MB/s"
+  network: ws
+  port: 443
+  server: mygptagent.org
+  servername: mygptagent.org
+  skip-cert-verify: false
+  tls: true
+  type: vmess
+  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
+  ws-opts:
+    headers:
+      Host: mygptagent.org
+    path: /linkvws
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 23.43MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: 10rVZPoOUP1TlQviIAsQ_jAROX0fRQxH0C92nq_zGQc
+    short-id: 43dcff53849b81e6
+  server: 152.53.1.40
+  servername: at.quattro-tech.ru
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: edde565e-41f5-400e-84ea-7b87a3e84488
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 017 | ⬇️ 23.01MB/s"
   network: ws
   port: 443
   server: vspeedfast.org
@@ -151,524 +476,61 @@ proxies:
     path: /linkvws
 - alterId: 0
   cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 007 | ⬇️ 51.31MB/s"
-  port: 12004
-  server: 47.85.188.30
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 8b5552bd-4cc7-4cac-af08-81c21686fd4f
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 008 | ⬇️ 50.09MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 5B83otQ5ZQwtBFhR7xzsGJRXflkFKRJpQguYbE5JWGI
-    short-id: c85d029f5e8eb393
-  server: 195.123.235.177
-  servername: gateway.icloud.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 729dd5f2-f5ff-4070-8c10-863eceded0b1
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1F8 US 009 | ⬇️ 49.31MB/s"
-  port: 443
-  reality-opts:
-    public-key: nqwCf6oW49tEtmQ0EzxigZ0uu1pg0E30CS54G40Iti0
-    short-id: 4477382ff6d3d41c
-  server: 51.81.203.63
-  servername: www.icloud.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: cb2dbb6a-a1ea-4023-9ace-6466cee57241
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 007 | ⬇️ 46.48MB/s"
-  port: 443
-  reality-opts:
-    public-key: l4tGdE5Zn8ABfBQns3pRBcxy6CckHTLSIsw5JaBumTk
-    short-id: c9d4bf8d94ec8dab
-  server: 34.95.28.161
-  servername: www.cloudflare.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 448b76ac-c636-4303-bec1-0b2c22afee0c
-- cipher: aes-256-gcm
-  name: "\U0001F1FA\U0001F1F8 US 010 | ⬇️ 45.73MB/s"
-  password: 8c009bb6-08b3-4526-a86b-5af7ddfc567a-4c757b72-6eec-4faf-8c2e-09fd1c7fa936
-  port: 43579
-  server: 192.3.247.109
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 011 | ⬇️ 44.64MB/s"
-  password: t0srmdxrm3xyjnvqz9ewlxb2myq7rjuv
-  plugin: obfs
-  plugin-opts:
-    host: "(Telegram\U0001F1E8\U0001F1F3 @VPNine1)fa03bb5:137563"
-    mode: tls
-  port: "2377"
-  server: 134.195.101.117
-  type: ss
-  udp: true
-- name: "\U0001F1E8\U0001F1E6 CA 008 | ⬇️ 39.06MB/s"
-  network: ws
-  port: "8880"
-  server: 188.114.97.6
-  type: vless
-  udp: true
-  uuid: f09f4baa-7688-4514-8062-c3ea8e319624
-  ws-opts:
-    headers:
-      Host: dark-leaf-93a1.440-02e.workers.dev
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML,
-        like Gecko) Chrome/57.0.2987.133 Safari/537.36
-    path: /pyip=ProxyIP.US.CMLiussss.net
-  xudp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 001 | ⬇️ 35.80MB/s"
-  network: tcp
-  port: 51847
-  reality-opts:
-    public-key: S6noV0L8eNASnTe1gXLutLZNdfENsvKMsOJiGQYi6nc
-    short-id: 0eec442e7b34d2f2
-  server: 3.9.135.156
-  servername: www.tesla.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 391a01e9-b664-407b-9158-610fab3f5920
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 002 | ⬇️ 34.10MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: J_p_dxR8dIKaezk1_Ins5MZ7e4dqgrr2n9690vVuQ2s
-    short-id: b19b017d6f453873
-  server: 23.81.34.204
-  servername: speed.cloudflare.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 99955907-9070-46f0-a200-9c7a0b9d74fe
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 33.70MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: s0ypPx0AL3k2KOk74tbm-aE-i7eIR_MYVzfLHZeLaUk
-    short-id: 2e124af254a65e7c
-  server: tomaz1337shellbuy.vvzzkontaktezzvv.garden
-  servername: tomaz1337shellbuy.vvzzkontaktezzvv.garden
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1FA\U0001F1F8 US 012 | ⬇️ 32.49MB/s"
-  password: t0srmdxrm3xyjnvqz9ewlxb2myq7rjuv
-  plugin: obfs
-  plugin-opts:
-    host: "(Telegram\U0001F1E8\U0001F1F3 @VPNine1)9f6b1e7:141612"
-    mode: tls
-  port: "2377"
-  server: 134.195.101.118
-  type: ss
-  udp: true
-- client-fingerprint: chrome
-  name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 32.07MB/s"
-  network: ws
-  port: 443
-  server: ccs2g.pai50288.uk
-  servername: ccs2g.pai50288.uk
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 8be461cb-a0df-47cf-bc0d-4d9e6a22fa74
-  ws-opts:
-    path: /pai50288
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E9\U0001F1EA DE 002 | ⬇️ 31.86MB/s"
-  port: 23226
-  server: 31.76.11.83
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 3dff544a-379e-41f9-95d9-4b95a8e4026e
-- name: "\U0001F1F3\U0001F1F1 NL 001 | ⬇️ 31.82MB/s"
-  port: 9002
-  server: 84.17.47.146
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F3\U0001F1F1 NL 002 | ⬇️ 31.69MB/s"
-  port: 9002
-  server: 84.17.47.149
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F3\U0001F1F1 NL 003 | ⬇️ 31.52MB/s"
-  port: 9002
-  server: 84.17.47.148
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: "\U0001F1F3\U0001F1F1 NL 004 | ⬇️ 31.44MB/s"
-  password: "null"
-  port: 9002
-  server: 84.17.47.147
-  skip-cert-verify: true
-  sni: 84.17.47.147
-  tls: true
-  type: http
-  username: "null"
-- name: "\U0001F1F3\U0001F1F1 NL 005 | ⬇️ 31.41MB/s"
-  password: None
-  port: 9002
-  server: 84.17.47.125
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 006 | ⬇️ 31.40MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 82.38.31.42
-  type: ss
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 013 | ⬇️ 31.37MB/s"
-  network: ws
-  port: 443
-  server: aksai.org
-  servername: aksai.org
-  skip-cert-verify: false
-  tls: true
-  type: vmess
-  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
-  ws-opts:
-    headers:
-      Host: aksai.org
-    path: /linkvws
-- name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 31.37MB/s"
-  port: 9002
-  server: 84.17.47.150
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- client-fingerprint: random
-  name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 31.26MB/s"
-  port: 2053
-  reality-opts:
-    public-key: Zotx4F9CI6_q9yeKCKIHDjwzCv_Aq7WSo7N0Zc1A6Sc
-    short-id: 3c99c85cbb6b3b44
-  server: 51.15.16.68
-  servername: www.apple.com
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 7d0fd363-16d2-43ce-9d6d-ed2c15d2cb7c
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 003 | ⬇️ 30.85MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: fNfokzklCF4l_c8k8PciOCjm5ecNoF_sNLjEtaO-xzI
-    short-id: db04ce8bdb8900f1
-  server: 31.77.161.15
-  servername: nvidia.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: adc11f30-e4cb-4985-bf5e-f9ded69c019f
-- client-fingerprint: firefox
-  flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 004 | ⬇️ 30.74MB/s"
-  port: 443
-  reality-opts:
-    public-key: 9XSdNkmBhBszLYoODqMrm7r_JRur2PRbzF9T1Uf2AV0
-    short-id: f1004027e382c2fa
-  server: 91.132.160.209
-  servername: dlcdn.apache.org
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: 2412bd96-925b-43f2-81d1-0ed4f0793699
-- cipher: chacha20-ietf-poly1305
-  name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 30.52MB/s"
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 8080
-  server: 82.38.31.46
-  type: ss
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1EA\U0001F1F8 ES 002 | ⬇️ 30.38MB/s"
-  port: 22324
-  server: 66.163.118.73
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- client-fingerprint: chrome
-  encryption: none
-  flow: xtls-rprx-vision
-  name: "\U0001F1EE\U0001F1F3 IN 001 | ⬇️ 29.08MB/s"
-  network: tcp
-  port: "443"
-  reality-opts:
-    public-key: SoMfQzFhE5QfKWMZA7ZNkYP63P5hiyWEbE9fsPIP4Go
-    short-id: ""
-  server: 151.241.166.181
-  servername: pl.gazladder.work
-  tls: true
-  type: vless
-  udp: true
-  uuid: e9844617-e393-4876-afa7-11859695f4ee
-  xudp: true
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 014 | ⬇️ 28.87MB/s"
-  port: 22324
-  server: 172.111.38.100
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F3\U0001F1F4 NO 001 | ⬇️ 28.65MB/s"
-  network: tcp
-  port: 8765
-  reality-opts:
-    public-key: Da_s-Cgqm5kqaIbCgXVJdrq_KF7fCQveRByRhKUzonc
-    short-id: 7bf47eabf939728b
-  server: 89.185.81.95
-  servername: r-b8a34c.vless.monster
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: df9f5aca-eda0-428f-a752-e53866153d12
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1FA\U0001F1E6 UA 001 | ⬇️ 28.25MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: SB1uC0OEveYjSiS_Nuw9Ld-uVVXWqi794OGnldthY3I
-  server: cosw.ggisopi.su
-  servername: cosw.ggisopi.su
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: d0f0a880-0df1-0005-bdf1-5669fb9483ce
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 27.21MB/s"
-  port: 4433
-  server: 45.32.57.118
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 35b89832-0a7c-48dd-8d1c-a2891b522195
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E8\U0001F1E6 CA 010 | ⬇️ 26.94MB/s"
-  port: 22324
-  server: 198.57.27.190
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- name: "\U0001F1EA\U0001F1F8 ES 003 | ⬇️ 26.65MB/s"
-  port: 8443
-  server: 45.147.251.19
-  skip-cert-verify: true
-  tls: true
-  type: http
-- name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 26.60MB/s"
-  password: github.com/Alvin9999-newpac/fanqiang
-  port: 30099
-  server: ip5.934618.xyz
-  sni: ip5.934618.xyz
-  type: anytls
-  udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR 002 | ⬇️ 26.53MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 7LSzvilTVKGMtBDuKGeMrLtlhY7tQf5YcG566dEgO0I
-    short-id: b390e0a721d242b0
-  server: 137.74.16.237
-  servername: www.icloud.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: aaec4e42-a095-44b6-a239-f16d234a0798
-- client-fingerprint: chrome
-  name: "\U0001F1EA\U0001F1F8 ES 004 | ⬇️ 26.27MB/s"
-  network: tcp
-  port: 2053
-  reality-opts:
-    public-key: 7Y6Xb5Ql_03K25x8yKUSOKI2JTOMyv2nyCcFza90uxk
-    short-id: 29e8dcd2b37aaa7f
-  server: 212.227.235.66
-  servername: www.apple.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: ead0dd61-d398-40ad-80d6-a0e1e516d7d3
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F5\U0001F1F1 PL 001 | ⬇️ 25.76MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: SibLV5WBGdljTiUCmKx77KhHQfErCwjDMD_ZLoha3js
-    short-id: a1b2c3d4e5f67890
-  server: 179.198.49.43
-  servername: dzen.ru
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: d72f05b0-b182-4783-a6f2-21cecc7d841a
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 015 | ⬇️ 25.35MB/s"
+  name: "\U0001F1FA\U0001F1F8 US 018 | ⬇️ 22.43MB/s"
   port: 22324
   server: 167.17.68.89
   skip-cert-verify: false
   tls: false
   type: vmess
   uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- name: "\U0001F1F3\U0001F1F1 NL 007 | ⬇️ 22.41MB/s"
+  obfs: salamander
+  obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
+  password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
+  port: 443
+  server: 130.49.161.70
+  skip-cert-verify: false
+  sni: hy2.aspidnet.xyz
+  tls: false
+  type: hysteria2
 - alterId: 0
   cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 016 | ⬇️ 24.97MB/s"
+  name: "\U0001F1EA\U0001F1F8 ES 002 | ⬇️ 21.84MB/s"
   port: 22324
-  server: 169.197.143.116
+  server: 66.163.118.73
   skip-cert-verify: false
   tls: false
   type: vmess
   uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 24.32MB/s"
-  network: tcp
+- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 21.63MB/s"
+  obfs: salamander
+  obfs-password: c1b4086fea89914496c7e10967a419216566
+  password: QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s
   port: 443
-  reality-opts:
-    public-key: x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA
-    short-id: fb442438e2223836
-  server: surstreming.vvzzkontaktezzvv.garden
-  servername: surstreming.vvzzkontaktezzvv.garden
+  server: 162.249.125.133
   skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
-- down: ""
-  fingerprint: ""
-  name: "\U0001F1F5\U0001F1F1 PL 002 | ⬇️ 24.14MB/s"
-  obfs: ""
-  obfs-password: ""
-  password: YutbgyXL1mGaSlBXDoEucWvYbrDCINgUcQ6R6_At5Pjr2xCc
-  port: "443"
-  server: admin.wwwinternetvideo.click
-  skip-cert-verify: false
-  sni: admin.wwwinternetvideo.click
+  sni: hy2-new.aspidnet.xyz
+  tls: false
   type: hysteria2
-  up: ""
-- client-fingerprint: qq
-  flow: xtls-rprx-vision
-  name: "\U0001F1E6\U0001F1F9 AT 001 | ⬇️ 23.75MB/s"
-  port: 443
+- client-fingerprint: chrome
+  name: "\U0001F1EE\U0001F1F9 IT 001 | ⬇️ 21.53MB/s"
+  network: tcp
+  port: 2053
   reality-opts:
-    public-key: 10rVZPoOUP1TlQviIAsQ_jAROX0fRQxH0C92nq_zGQc
-    short-id: 43dcff53849b81e6
-  server: 152.53.1.40
-  servername: at.quattro-tech.ru
-  skip-cert-verify: true
-  tls: true
-  type: vless
-  udp: true
-  uuid: edde565e-41f5-400e-84ea-7b87a3e84488
-- name: "\U0001F1E9\U0001F1EA DE 005 | ⬇️ 22.32MB/s"
-  port: 443
-  server: 193.233.75.115
-  skip-cert-verify: true
-  tls: true
-  type: http
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 21.94MB/s"
-  port: 16116
-  server: zfd-hkv2.kunlun01dns.com
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 0802ac03-7973-39ef-a019-ba02de6c01e1
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1ED\U0001F1F0 HK 002 | ⬇️ 21.86MB/s"
-  port: 16113
-  server: zfd-hkv2.kunlun01dns.com
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 0802ac03-7973-39ef-a019-ba02de6c01e1
-- client-fingerprint: qq
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: cdn.v1.AssetService
-  name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 21.80MB/s"
-  network: grpc
-  port: 443
-  server: assets-de2.pleiades.codes
-  servername: assets-de2.pleiades.codes
+    public-key: Ej2H5ucT7qKegYcT8wODdlxa-cLHr7F4hDVUHzAhcnc
+    short-id: 5b8a942318178e7b
+  server: 57.131.38.163
+  servername: www.apple.com
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 0dca2cfe-98eb-4f9d-9a47-cf87510c558b
-- cipher: aes-256-gcm
-  name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 20.86MB/s"
-  password: AxIYWtskJWIIaefW
-  port: 8388
-  server: 70.34.212.124
-  type: ss
+  uuid: d4b08cd6-0903-411a-9dac-45dbdf5c9712
 - client-fingerprint: firefox
   grpc-opts:
     grpc-mode: gun
     grpc-service-name: shiforgrpc
-  name: "\U0001F1F3\U0001F1F1 NL 010 | ⬇️ 20.09MB/s"
+  name: "\U0001F1F3\U0001F1F1 NL 008 | ⬇️ 21.28MB/s"
   network: grpc
   port: 8443
   reality-opts:
@@ -681,197 +543,9 @@ proxies:
   tls: true
   type: vless
   uuid: 11f21602-47aa-42e2-9149-69120f2e6df6
-- name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 19.83MB/s"
-  obfs: salamander
-  obfs-password: c1b4086fea89914496c7e10967a419216566
-  password: QCgqi_I4EkV8UR-OgQ_tG4EnVTEVvIyR2GgRBzrIn2s
-  port: 443
-  server: 162.249.125.133
-  skip-cert-verify: false
-  sni: hy2-new.aspidnet.xyz
-  tls: false
-  type: hysteria2
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1E8\U0001F1E6 CA 011 | ⬇️ 19.28MB/s"
-  port: 22324
-  server: 66.163.113.176
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- name: "\U0001F1F3\U0001F1F1 NL 011 | ⬇️ 19.19MB/s"
-  obfs: salamander
-  obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
-  password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
-  port: 443
-  server: 130.49.161.70
-  skip-cert-verify: false
-  sni: hy2.aspidnet.xyz
-  tls: false
-  type: hysteria2
-- alpn:
-  - h2
-  - http/1.1
-  client-fingerprint: chrome
-  encryption: mlkem768x25519plus.native.0rtt.klOfBitZVEZOXJHrM7Q0-NkDdCvwY5S5-tbxLtOlmxs
-  name: "\U0001F1E9\U0001F1EA DE 008 | ⬇️ 18.63MB/s"
-  network: ws
-  port: "8085"
-  server: sub.begoovip.ir
-  servername: sub.begoovp.ir
-  tls: true
-  type: vless
-  udp: true
-  uuid: a25d0eb0-5b56-455d-a224-048044a36b70
-  ws-opts:
-    headers:
-      Host: sub.begoovp.ir
-      User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like
-        Gecko) Chrome/48.0.2564.109 Safari/537.36
-    path: /
-  xudp: true
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 18.16MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
-    short-id: bbe46bd8f6b96839
-  server: prep.wwwinternetvideo.click
-  servername: yandex.ru
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
-- grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: vless
-  name: 未知 VLESS-145 | free-nodes
-  network: grpc
-  port: 2083
-  server: 66.90.105.211
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: cd3bb7d9-7df3-4644-ac05-c260990ac277
-- client-fingerprint: chrome
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: cdn.v1.AssetService
-  name: 未知 VLESS-89 | free-nodes
-  network: grpc
-  port: 443
-  server: 72.4.65.116
-  servername: assets-de2.pleiades.codes
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 0dca2cfe-98eb-4f9d-9a47-cf87510c558b
-- client-fingerprint: chrome
-  name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 16.07MB/s"
-  network: ws
-  port: 2096
-  server: 91.193.58.108
-  servername: free-server.techsonic.dev
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: 6e59d5c5-7aa3-4c36-a4c4-e3b899525ed2
-  ws-opts:
-    headers:
-      Host: free-server.techsonic.dev
-    path: /free-server.techsonic.dev
-- client-fingerprint: chrome
-  encryption: none
-  flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1FA RU 002 | ⬇️ 15.39MB/s"
-  network: tcp
-  port: "443"
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  server: 193.163.203.253
-  servername: yandex.ru
-  tls: true
-  type: vless
-  udp: true
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  xudp: true
-- alterId: 0
-  cipher: auto
-  name: 未知 VMESS-192 | free-nodes
-  port: 22324
-  server: 158.51.123.42
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- name: 未知 VLESS-174 | free-nodes
-  network: ws
-  port: 80
-  server: platform113.golnamakcert.top
-  servername: platform113.halalkhor.info
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
-  ws-opts:
-    headers:
-      Host: platform113.halalkhor.info
-    path: /platform113
-- alterId: 0
-  cipher: auto
-  name: "\U0001F1FA\U0001F1F8 US 017 | ⬇️ 15.11MB/s"
-  port: 22324
-  server: 216.152.152.187
-  skip-cert-verify: false
-  tls: false
-  type: vmess
-  uuid: 04621bae-ab36-11ec-b909-0242ac120002
-- name: 未知 VLESS-181 | free-nodes
-  network: ws
-  port: 80
-  server: platform118.golnamakcert.top
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
-  ws-opts:
-    headers:
-      Host: platform118.halalkhor.info
-    path: /platform118
-- name: "\U0001F1F2\U0001F1FE MY 001 | ⬇️ 14.71MB/s"
-  network: ws
-  port: 80
-  server: platform117.golnamakcert.top
-  skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
-  ws-opts:
-    headers:
-      Host: platform117.halalkhor.info
-    path: /platform117
-- name: "\U0001F1EE\U0001F1F3IN_1|1.0MB/s"
-  password: ""
-  port: "443"
-  server: 35.197.129.84
-  skip-cert-verify: true
-  tls: true
-  type: http
-  username: ""
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 13.37MB/s"
+  name: "\U0001F1EB\U0001F1EE FI 001 | ⬇️ 19.72MB/s"
   network: tcp
   port: 43000
   reality-opts:
@@ -884,69 +558,72 @@ proxies:
   tls: true
   type: vless
   uuid: 47f79fc1-0646-40e8-8a58-73e85d183d5a
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1EF\U0001F1F5 JP 001 | ⬇️ 18.30MB/s"
+  port: 4433
+  server: 45.32.57.118
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 35b89832-0a7c-48dd-8d1c-a2891b522195
 - client-fingerprint: chrome
   grpc-opts:
     grpc-mode: gun
-    grpc-service-name: grpc-common3
-  name: "\U0001F1EB\U0001F1F7 FR 003 | ⬇️ 12.92MB/s"
+    grpc-service-name: grpc
+  name: "\U0001F1E9\U0001F1EA DE 006 | ⬇️ 17.83MB/s"
   network: grpc
-  port: 35108
+  port: 443
   reality-opts:
-    public-key: X_lOw5Zz4SJBa1cRHV4dAq5msYE-ClY5-WNcBmBWRxg
-    short-id: 52add08b86a5ccea
-  server: 152.228.139.33
-  servername: www.nvidia.com
+    public-key: I88bya0Wf4iHIQb19bHZII3UlJ-oWBRbcnzvF0WFKyg
+    short-id: bf6f
+  server: 64.188.98.179
+  servername: support-shield.nvidia.no
   skip-cert-verify: false
   tfo: false
   tls: true
   type: vless
-  uuid: 81dc0b61-f9fe-4ad6-8b4e-b8c067b73712
-- name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 12.53MB/s"
-  port: 9002
-  server: 193.176.84.24
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 未知 VLESS-94 | free-nodes
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: 36sTeaLdaAjQQxxzh492XihoPi2YxmttQyncmLuxYHE
-    short-id: 169fc2df88419465
-  server: 45.91.138.179
-  servername: us05.shifor01.life
+  uuid: 3ada8d7b-806e-47e0-9cac-aa35061104ce
+- grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: vless
+  name: "\U0001F1EC\U0001F1E7 GB 003 | ⬇️ 17.71MB/s"
+  network: grpc
+  port: 2083
+  server: 66.90.105.211
   skip-cert-verify: false
   tfo: false
-  tls: true
-  type: vless
-  uuid: 11f21602-47aa-42e2-9149-69120f2e6df6
-- name: "\U0001F1FA\U0001F1F8184357 | ⚡️Telegram = t.me/S..."
-  password: RN_3f80eeb4bbd0f13f
-  port: 443
-  server: 192.255.128.123
-  skip-cert-verify: true
-  sni: www.bing.com
   tls: false
-  type: hysteria2
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1F7 FR 004 | ⬇️ 11.11MB/s"
-  network: tcp
-  port: 443
-  reality-opts:
-    public-key: bZpzmeWiEJyJQy0W2hHc34Nr6BuFXj1UDd80Cbwh1Fk
-    short-id: ff776ff77be48b88
-  server: 185.171.202.105
-  servername: fra.loozerp.wiki
+  type: vless
+  uuid: cd3bb7d9-7df3-4644-ac05-c260990ac277
+- name: "\U0001F1F2\U0001F1FE MY 001 | ⬇️ 15.69MB/s"
+  network: ws
+  port: 80
+  server: platform109.golnamakcert.top
+  servername: platform109.halalkhor.info
   skip-cert-verify: false
   tfo: false
-  tls: true
+  tls: false
   type: vless
-  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
-- name: 未知 VLESS-177 | free-nodes
+  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
+  ws-opts:
+    headers:
+      Host: platform109.halalkhor.info
+    path: /platform109
+- name: "\U0001F1F2\U0001F1FE MY 002 | ⬇️ 15.28MB/s"
+  network: ws
+  port: 80
+  server: platform102.golnamakcert.top
+  skip-cert-verify: false
+  tfo: false
+  tls: false
+  type: vless
+  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
+  ws-opts:
+    headers:
+      Host: platform102.halalkhor.info
+    path: /platform102
+- name: "\U0001F1F2\U0001F1FE MY 003 | ⬇️ 14.78MB/s"
   network: ws
   port: 80
   server: platform115.golnamakcert.top
@@ -960,32 +637,46 @@ proxies:
     headers:
       Host: platform115.halalkhor.info
     path: /platform115
-- name: 未知 VLESS-116 | free-nodes
-  network: ws
-  port: 2087
-  server: 163.8.195.241
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1FA\U0001F1F8 US 019 | ⬇️ 14.46MB/s"
+  port: 22324
+  server: 172.111.38.100
   skip-cert-verify: false
-  tfo: false
   tls: false
-  type: vless
-  uuid: 56ba5d34-ef22-4ba6-8090-4188b807df54
-  ws-opts:
-    path: /29c8fed7ca22
-- name: "\U0001F1F2\U0001F1FE MY 002 | ⬇️ 10.50MB/s"
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1EC\U0001F1E7 GB 004 | ⬇️ 14.39MB/s"
   network: ws
-  port: 80
-  server: platform107.golnamakcert.top
-  servername: platform107.halalkhor.info
+  port: 443
+  server: aksai.org
+  servername: aksai.org
   skip-cert-verify: false
-  tfo: false
-  tls: false
-  type: vless
-  uuid: e13cf851-b4fd-413b-8d49-146e6eb8e5d4
+  tls: true
+  type: vmess
+  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
   ws-opts:
     headers:
-      Host: platform107.halalkhor.info
-    path: /platform107
-- name: RO_speednode_0094
+      Host: aksai.org
+    path: /linkvws
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1ED\U0001F1F0 HK 001 | ⬇️ 14.15MB/s"
+  network: ws
+  port: 443
+  server: 194.99.79.26
+  servername: aksai.org
+  skip-cert-verify: false
+  tls: true
+  type: vmess
+  uuid: 03fcc618-b93d-6796-6aed-8a38c975d581
+  ws-opts:
+    headers:
+      Host: aksai.org
+    path: /linkvws
+- name: "\U0001F1F7\U0001F1F4 RO 001 | ⬇️ 10.95MB/s"
   password: None
   port: 9002
   server: 193.176.84.31
@@ -993,11 +684,116 @@ proxies:
   tls: true
   type: http
   udp: true
-- client-fingerprint: safari
+- alterId: 0
+  cipher: auto
+  name: "\U0001F1E8\U0001F1E6 CA 009 | ⬇️ 9.07MB/s"
+  port: 22324
+  server: 66.163.113.176
+  skip-cert-verify: false
+  tls: false
+  type: vmess
+  uuid: 04621bae-ab36-11ec-b909-0242ac120002
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1EC\U0001F1F9 GT 001 | ⬇️ 8.00MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: 6-_ZidygR8PRt4gtHlGCAW-PPmjEIm7Wn7MZqJU1z1Q
+    short-id: 6c059ecfddf9b179
+  server: 185.47.254.251
+  servername: gateway.icloud.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 878fb7f7-fc65-465e-a352-17c7216c6f3d
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F7\U0001F1FA RU 001 | ⬇️ 7.92MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: uitO4Z8t9TplwwYaqwLqh5rfxDh_X8bOBiNuPbzvaEM
+    short-id: bbe46bd8f6b96839
+  server: prep.wwwinternetvideo.click
+  servername: yandex.ru
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 1c332eae-7e02-4acd-996d-4eb3e652401c
+- cipher: chacha20-ietf-poly1305
+  name: "\U0001F1F3\U0001F1F1 NL 009 | ⬇️ 7.83MB/s"
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.46
+  type: ss
+- name: "\U0001F1F7\U0001F1F4 RO 002 | ⬇️ 7.27MB/s"
+  port: 9002
+  server: 193.176.84.25
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: TunService
+  name: "\U0001F1F8\U0001F1EA SE 001 | ⬇️ 6.65MB/s"
+  network: grpc
+  port: 33743
+  reality-opts:
+    public-key: wGMBs7bvzyzA0-OUiwSkOOTDEMdxEOsSdRzxiP8GGQY
+  server: 79.141.174.147
+  servername: www.google.com
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: b3a11068-1a7e-4643-85de-7c82cce46943
+- name: "\U0001F1F7\U0001F1F4 RO 003 | ⬇️ 6.46MB/s"
+  password: None
+  port: 9002
+  server: 193.176.84.23
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: "\U0001F1F7\U0001F1FA RU 002 | ⬇️ 6.42MB/s"
+  port: 443
+  reality-opts:
+    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
+    short-id: 5ee019e02e6ed99a
+  server: 193.163.203.253
+  servername: yandex.ru
+  skip-cert-verify: true
+  tls: true
+  type: vless
+  udp: true
+  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: "\U0001F1EB\U0001F1F7 FR 001 | ⬇️ 6.42MB/s"
+  network: tcp
+  port: 443
+  reality-opts:
+    public-key: bZpzmeWiEJyJQy0W2hHc34Nr6BuFXj1UDd80Cbwh1Fk
+    short-id: ff776ff77be48b88
+  server: 185.171.202.105
+  servername: fra.loozerp.wiki
+  skip-cert-verify: false
+  tfo: false
+  tls: true
+  type: vless
+  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
+- client-fingerprint: chrome
   grpc-opts:
     grpc-mode: gun
     grpc-service-name: grpce5bb9e71
-  name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 9.32MB/s"
+  name: "\U0001F1F8\U0001F1EA SE 002 | ⬇️ 6.23MB/s"
   network: grpc
   port: 2053
   reality-opts:
@@ -1010,52 +806,26 @@ proxies:
   tls: true
   type: vless
   uuid: fc00adfb-232a-46ce-8b93-0c70e516aa8a
-- name: "\U0001F1EB\U0001F1F7FR_23|2.0MB/s"
-  port: 443
-  server: 103.82.101.44
-  skip-cert-verify: true
-  sni: f3a61d8406d537345747f99f8a281007-3f754ed5da1bba09.apache-iv.com
-  tls: true
-  type: http
-- cipher: aes-256-gcm
-  name: 未知 SS-71 | free-nodes
-  password: pKEW8JPByTVTLtM
-  port: 4444
-  server: 15.204.247.206
-  type: ss
-- name: "\U0001F1F3\U0001F1F1 NL 012 | ⬇️ 8.34MB/s"
-  port: 443
-  server: 185.238.170.10
-  skip-cert-verify: true
-  tls: true
-  type: http
-- name: "\U0001F1FA\U0001F1F8US_3|3.2MB/s"
-  password: ""
-  port: "8443"
-  server: 154.81.36.92
-  skip-cert-verify: true
-  tls: true
-  type: http
-  username: ""
-- client-fingerprint: firefox
-  encryption: none
+- alpn:
+  - v2rayNplus--v2rayNplus--v2rayNplus--v2rayNplus--v2rayNplus--v2rayNplus--v2rayNplus--v2rayNplus
+  client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1EB\U0001F1EEFI_1|2.8MB/s"
+  name: "\U0001F1F8\U0001F1EA SE 003 | ⬇️ 5.56MB/s"
   network: tcp
-  port: "443"
+  port: 443
   reality-opts:
-    public-key: KEoz-uTjqCGwtNakCD-XewbDk_8Vwm_nFv0zg3c2Syg
-    short-id: 67a4fe46bbf783cc
-  server: 89.125.114.9
-  servername: ozone.nl
+    public-key: x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA
+    short-id: fb442438e2223836
+  server: surstreming.vvzzkontaktezzvv.garden
+  servername: surstreming.vvzzkontaktezzvv.garden
+  skip-cert-verify: false
+  tfo: false
   tls: true
   type: vless
-  udp: true
-  uuid: 6db7ea14-ed33-4591-a9b1-f1e91b1c0ff5
-  xudp: true
-- client-fingerprint: qq
+  uuid: 4bdeee92-97e8-414d-bef6-ec1d5e2ab73b
+- client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: "\U0001F1E9\U0001F1EA DE 009 | ⬇️ 7.78MB/s"
+  name: "\U0001F1E9\U0001F1EA DE 007 | ⬇️ 5.47MB/s"
   network: tcp
   port: 40443
   reality-opts:
@@ -1068,71 +838,3 @@ proxies:
   tls: true
   type: vless
   uuid: bb0f1ed0-0298-40a1-adb1-1f5d6ab33d54
-- client-fingerprint: chrome
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: TunService
-  name: 未知 VLESS-139 | free-nodes
-  network: grpc
-  port: 33743
-  reality-opts:
-    public-key: wGMBs7bvzyzA0-OUiwSkOOTDEMdxEOsSdRzxiP8GGQY
-  server: 79.141.174.147
-  servername: www.google.com
-  skip-cert-verify: false
-  tfo: false
-  tls: true
-  type: vless
-  uuid: b3a11068-1a7e-4643-85de-7c82cce46943
-- client-fingerprint: chrome
-  encryption: none
-  flow: xtls-rprx-vision
-  name: "\U0001F1F7\U0001F1F4RO_11|2.0MB/s"
-  network: "tcp#3\U0001F525@oneclickvpnkeysvless://607801ac-dbdd-4938-a167-129015d9978e@91.192.81.214:443?encryption=none"
-  port: "443"
-  reality-opts:
-    public-key: gE8LUmGFXik94SoDXNiAG5KprGyhjoRwDuhGebgAVWk
-    short-id: 5ee019e02e6ed99a
-  server: bl3fk52.sysopnova.art
-  servername: yandex.ru
-  tls: true
-  type: vless
-  udp: true
-  uuid: 441afe11-a180-4516-bb80-80a8a6b38705
-  xudp: true
-- name: "\U0001F1E8\U0001F1E6 CA 012 | ⬇️ 6.22MB/s"
-  network: ws
-  port: "8880"
-  server: 172.67.179.98
-  type: vless
-  udp: true
-  uuid: 56c673ba-865a-48ec-8dc0-fd7133a7ecfd
-  ws-opts:
-    headers:
-      Host: curly-surf-4401.75-08c.workers.dev
-      User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like
-        Gecko) Chrome/26.0.1410.64 Safari/537.31
-    path: /
-  xudp: true
-- client-fingerprint: firefox
-  name: "\U0001F1F3\U0001F1F1 NL 013 | ⬇️ 6.01MB/s"
-  network: ws
-  port: "443"
-  server: 177.3.208.65
-  servername: tgmansion.site
-  tls: true
-  type: vless
-  udp: true
-  uuid: 4f34bc04-479c-49ba-91a8-6bb9ed15031c
-  ws-opts:
-    headers:
-      Host: tgmansion.site
-      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
-        like Gecko) Chrome/70.0.3538.67 Safari/537.36
-    path: /vless-il
-- cipher: aes-256-gcm
-  name: 未知 SS-63 | free-nodes
-  password: Y6R9pAtvxxzmGC
-  port: 5000
-  server: 51.222.200.165
-  type: ss
