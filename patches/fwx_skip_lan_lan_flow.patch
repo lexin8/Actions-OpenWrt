@@ -19,7 +19,7 @@ diff --git a/package/fcm/fwx/src/fwx_client.c b/package/fcm/fwx/src/fwx_client.c
 +
  	if (PKT_DIR_UP != pkt_dir)
  		return NF_ACCEPT;
-@@ -742,6 +751,12 @@
+@@ -741,6 +750,12 @@
  	if (!skb->dev)
  	{
  		return NF_ACCEPT;
@@ -31,6 +31,5 @@ diff --git a/package/fcm/fwx/src/fwx_client.c b/package/fcm/fwx/src/fwx_client.c
 +		return NF_ACCEPT;
 +#endif
 +
- 
  	if (PKT_DIR_DOWN != pkt_dir)
  		return NF_ACCEPT;
