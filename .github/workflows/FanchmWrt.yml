@@ -97,7 +97,6 @@ jobs:
           fi
           set -e
           grep 'PKG_\(SOURCE_DATE\|SOURCE_VERSION\|MIRROR_HASH\)' package/utils/ucode/Makefile
-
       - name: Fix rust (25.12)
         if: matrix.rust_fix == true
         run: |
@@ -129,6 +128,16 @@ jobs:
           # 显示修改后的内容以供确认
           echo "Modified template:"
           cat package/base-files/files/etc/openwrt_release
+      # ==================== 应用 fwx 局域网流量补丁 ====================
+      - name: Apply fwx LAN-LAN traffic skip patch
+        run: |
+          # 拉取你仓库里的补丁（请先覆盖上传为修正版：匹配 24.10.4/25.12.4 分支）
+          curl -fsSL https://raw.githubusercontent.com/lexin8/Actions-OpenWrt/master/patches/fwx_skip_lan_lan_flow.patch -o /tmp/fwx.patch
+          # 先 dry-run，确认补丁能应用（失败立刻报错，避免编译到一半才发现）
+          patch -p1 --dry-run -F 2 < /tmp/fwx.patch && echo "✓ patch dry-run OK" || { echo "✗ patch dry-run FAILED"; exit 1; }
+          patch -p1 -F 2 < /tmp/fwx.patch
+          # 确认已打进源码
+          grep -n "Skip LAN-internal" package/fcm/fwx/src/fwx_client.c && echo "✓ patch applied"
       # ==================== 通用配置 ====================
       - name: Build config
         run: |
@@ -303,7 +312,6 @@ jobs:
           echo "开始编译 OpenWrt 固件 (${{ matrix.branch }}) - 多线程模式..."
           make -j$(nproc) 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
-
           if [ $BUILD_RESULT -ne 0 ]; then
             echo -e "\n❌ 多线程编译失败，提取失败包并切换单线程+详细日志重编..."
             # 从日志中提取第一个失败的包，只清理该包而非全部 clean
@@ -318,10 +326,8 @@ jobs:
             make -j1 V=s 2>&1 | tee -a build.log
             BUILD_RESULT=${PIPESTATUS[0]}
           fi
-
           set -e
           ccache -s
-
           if [ $BUILD_RESULT -eq 0 ]; then
             echo "✅ 编译成功"
             echo "build_status=success" >> $GITHUB_OUTPUT
@@ -372,13 +378,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [prepare, build-firmware]
     if: always()
-
     steps:
       - name: Generate dynamic summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           # 📦 OpenWrt x86_64 Firmware Build Summary
-
           <table>
           <tr>
             <td><strong>⏱️ Overall Build Time</strong></td>
@@ -389,32 +393,22 @@ jobs:
             <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>#${{ github.run_id }}</code></a></td>
           </tr>
           </table>
-
           ---
-
           ## 🧩 Build Matrix Results
-
           | 🌿 Branch | ✅ Status | 📦 Artifacts |
           |-----------|----------|--------------|
           | `fanchmwrt-24.10.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
           | `fanchmwrt-25.12.4` | ${{ needs.build-firmware.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
-
           > ℹ️ *Each branch artifact is timestamped and includes full build logs.*
-
           ---
-
           ## 🎯 Target Configuration (All Branches)
-
           <table>
           <tr><td>🖥️ <strong>Platform</strong></td><td><code>x86_64 Generic</code></td></tr>
           <tr><td>🧩 <strong>Kernel Partition</strong></td><td><code>100 MB</code></td></tr>
           <tr><td>💾 <strong>Root Filesystem</strong></td><td><code>1024 MB (Ext4, persistent /var)</code></td></tr>
           </table>
-
           ---
-
           ## 🧰 Included Core Applications
-
           | 📱 Application | 📝 Description |
           |----------------|----------------|
           | `luci-app-openclash` | 🚀 OpenClash proxy client |
@@ -423,30 +417,22 @@ jobs:
           | `luci-app-ddns` | 🌐 Dynamic DNS client |
           | `luci-app-udpxy` | 📺 UDP multicast proxy |
           | `luci-app-firewall` | 🛡️ Firewall configuration |
-
           ---
-
           ## ⚙️ Build Features
-
           - **📡 Feeds:** Official OpenWrt + OpenClash (vernesong)
           - **⚡ Compiler Cache:** `ccache` (10 GB) + `dl/` directory caching
           - **🔄 Retry Strategy:** Parallel build → fallback to single-threaded verbose build
           - **📦 Artifacts:** Squashfs images (gzipped), config, logs
-
           <details>
           <summary>🔍 Click to expand build environment details</summary>
-
           - **Runner:** Ubuntu 24.04
           - **Ccache max size:** 10 GiB
           - **Parallel jobs:** `$(nproc)`
-
           </details>
-
           ---
-
           <p align="center">
             <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">
-              <img src="https://img.shields.io/badge/View%20All%20Artifacts-%F0%9F%93%A6-blue?style=for-the-badge" alt="View all artifacts">
+              <img src="https://img.shields.io/badge/View%20All%20Artifacts-%F0%9F%8E%89-blue?style=for-the-badge" alt="View all artifacts">
             </a>
           </p>
           EOF
