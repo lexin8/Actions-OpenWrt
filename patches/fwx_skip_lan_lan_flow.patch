@@ -1,0 +1,36 @@
+diff --git a/package/fcm/fwx/src/fwx_client.c b/package/fcm/fwx/src/fwx_client.c
+--- a/package/fcm/fwx/src/fwx_client.c
++++ b/package/fcm/fwx/src/fwx_client.c
+@@ -649,6 +649,15 @@
+ 	pkt_dir = get_packet_dir(in);
+ #endif
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
++	/*
++	 * Skip LAN-internal forwarding (in == out, same bridge device),
++	 * e.g. NAS <-> ONVIF camera in the same subnet.
++	 * Such frames reach the IP FORWARD chain only because bridge-nf is
++	 * enabled (e.g. for docker); they are NOT external traffic and should
++	 * not be counted into the per-client up/down flow statistics.
++	 */
++	if (state && state->in && state->out && state->in == state->out)
++		return NF_ACCEPT;
++#endif
++
+ 	if (PKT_DIR_UP != pkt_dir)
+ 		return NF_ACCEPT;
+@@ -742,6 +751,12 @@
+ 	if (!skb->dev)
+ 	{
+ 		return NF_ACCEPT;
+ 	}
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
++	/* Same rule for the downstream path: skip LAN-internal traffic. */
++	if (state && state->in && state->out && state->in == state->out)
++		return NF_ACCEPT;
++#endif
++
+ 
+ 	if (PKT_DIR_DOWN != pkt_dir)
+ 		return NF_ACCEPT;
