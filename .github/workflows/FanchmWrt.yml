@@ -128,14 +128,36 @@ jobs:
           # 显示修改后的内容以供确认
           echo "Modified template:"
           cat package/base-files/files/etc/openwrt_release
-      # ==================== 应用 fwx 局域网流量补丁 ====================
+      # ==================== 应用 fwx 局域网流量补丁（锚点插入，不依赖 patch 文件） ====================
       - name: Apply fwx LAN-LAN traffic skip patch
         run: |
-          # 拉取你仓库里的补丁（请先覆盖上传为修正版：匹配 24.10.4/25.12.4 分支）
-          curl -fsSL https://raw.githubusercontent.com/lexin8/Actions-OpenWrt/master/patches/fwx_skip_lan_lan_flow.patch -o /tmp/fwx.patch
-          # 先 dry-run，确认补丁能应用（失败立刻报错，避免编译到一半才发现）
-          patch -p1 --dry-run -F 2 < /tmp/fwx.patch && echo "✓ patch dry-run OK" || { echo "✗ patch dry-run FAILED"; exit 1; }
-          patch -p1 -F 2 < /tmp/fwx.patch
+          python3 - << 'PYEOF'
+          import re
+          p = 'package/fcm/fwx/src/fwx_client.c'
+          s = open(p, encoding='utf-8').read()
+          # 上行钩子：在 if (PKT_DIR_UP != pkt_dir) 前插入跳过逻辑
+          up = r'\n\tif \(PKT_DIR_UP != pkt_dir\)'
+          urep = ('\n#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)\n'
+                  '\t/* Skip LAN-internal forwarding (in == out, same bridge): NAS<->camera etc. */\n'
+                  '\tif (state && state->in && state->out && state->in == state->out)\n'
+                  '\t\treturn NF_ACCEPT;\n'
+                  '#endif\n\n'
+                  '\tif (PKT_DIR_UP != pkt_dir)')
+          assert s.count(up) == 1, 'UP anchor not unique'
+          s = re.sub(up, urep, s, count=1)
+          # 下行钩子：在 if (PKT_DIR_DOWN != pkt_dir) 前插入跳过逻辑
+          down = r'\n\tif \(PKT_DIR_DOWN != pkt_dir\)'
+          drep = ('\n#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)\n'
+                  '\t/* Skip LAN-internal traffic (downstream path) */\n'
+                  '\tif (state && state->in && state->out && state->in == state->out)\n'
+                  '\t\treturn NF_ACCEPT;\n'
+                  '#endif\n\n'
+                  '\tif (PKT_DIR_DOWN != pkt_dir)')
+          assert s.count(down) == 1, 'DOWN anchor not unique'
+          s = re.sub(down, drep, s, count=1)
+          open(p, 'w', encoding='utf-8').write(s)
+          print('✓ fwx_client.c patched (both hooks)')
+          PYEOF
           # 确认已打进源码
           grep -n "Skip LAN-internal" package/fcm/fwx/src/fwx_client.c && echo "✓ patch applied"
       # ==================== 通用配置 ====================
