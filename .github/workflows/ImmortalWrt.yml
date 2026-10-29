@@ -1,10 +1,7 @@
 name: ImmortalWrt 极速二阶段编译
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 20 * * 6'
-
+  workflow_dispatch
 env:
   TZ: Asia/Shanghai
   REPO_URL: https://github.com/immortalwrt/immortalwrt
