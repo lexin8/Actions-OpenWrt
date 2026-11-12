@@ -10,13 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'OpenWrt 版本'
+        description: 'OpenWrt 源码分支'
         required: true
-        default: '25.12.6'
+        default: 'openwrt-25.12'
         type: choice
         options:
-          - '25.12.6'
-          - '24.10.4'
+          - 'openwrt-25.12'
+          - 'openwrt-24.10'
 
 permissions:
   contents: read
@@ -35,12 +35,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
-          ref: v${{ inputs.version }}
+          ref: ${{ inputs.version }}
           fetch-depth: 0
 
       - name: Show source version
         run: |
-          echo "=== 编译目标版本: v${{ inputs.version }} ==="
+          echo "=== 编译目标版本: ${{ inputs.version }} ==="
           git log --oneline -1
           echo "--- include/version.mk ---"
           cat include/version.mk 2>/dev/null | head -12 || true
@@ -66,9 +66,9 @@ jobs:
           path: |
             ~/.ccache
             ./dl
-          key: ${{ runner.os }}-newifi-d2-v${{ inputs.version }}-${{ hashFiles('feeds.conf.default') }}
+          key: ${{ runner.os }}-newifi-d2-${{ inputs.version }}-${{ hashFiles('feeds.conf.default') }}
           restore-keys: |
-            ${{ runner.os }}-newifi-d2-v${{ inputs.version }}-
+            ${{ runner.os }}-newifi-d2-${{ inputs.version }}-
             ${{ runner.os }}-newifi-d2-
 
       - name: Update official feeds only
@@ -152,7 +152,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: newifi-d2-v${{ inputs.version }}-${{ github.run_number }}
+          name: newifi-d2-${{ inputs.version }}-${{ github.run_number }}
           path: |
             bin/targets/ramips/mt7621/*.bin
             bin/targets/ramips/mt7621/*.manifest
@@ -164,7 +164,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: newifi-d2-config-v${{ inputs.version }}-${{ github.run_number }}
+          name: newifi-d2-config-${{ inputs.version }}-${{ github.run_number }}
           path: .config
           if-no-files-found: warn
           retention-days: 7
