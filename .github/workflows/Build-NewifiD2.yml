@@ -1,0 +1,177 @@
+name: Build-NewifiD2
+
+# newifi d2 (MT7621) 纯净固件编译
+# - 可选 OpenWrt 24.10.4 / 25.12.6 两个版本
+# - 只用官方 feeds，不引入 openclash / passwall 等第三方组件
+# - 不编 docker / dockerd（MT7621 架构本身也跑不了）
+# - 不注入任何路由配置，纯官方默认 + 基础上网所需
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'OpenWrt 版本'
+        required: true
+        default: '25.12.6'
+        type: choice
+        options:
+          - '25.12.6'
+          - '24.10.4'
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: Build newifi-d2 ${{ inputs.version }}
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: openwrt/openwrt
+          ref: v${{ inputs.version }}
+          fetch-depth: 0
+
+      - name: Show source version
+        run: |
+          echo "=== 编译目标版本: v${{ inputs.version }} ==="
+          git log --oneline -1
+          echo "--- include/version.mk ---"
+          cat include/version.mk 2>/dev/null | head -12 || true
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential libncurses5-dev libncurses-dev gawk \
+            git subversion libssl-dev gettext zlib1g-dev swig unzip rsync python3 \
+            wget file jq xxd quilt bison flex pkgconf libelf-dev ccache coreutils \
+            libsnmp-dev time || true
+
+      - name: Enable ccache
+        run: |
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+          ccache -M 5G
+          ccache -s || true
+
+      - name: Cache ccache and dl
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.ccache
+            ./dl
+          key: ${{ runner.os }}-newifi-d2-v${{ inputs.version }}-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-newifi-d2-v${{ inputs.version }}-
+            ${{ runner.os }}-newifi-d2-
+
+      - name: Update official feeds only
+        run: |
+          # 显式使用官方 feeds.conf.default，不追加任何第三方 feed
+          git checkout -- feeds.conf.default
+          cat feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Write minimal .config for d-team_newifi-d2
+        run: |
+          cat > .config << 'EOF'
+          CONFIG_TARGET_ramips=y
+          CONFIG_TARGET_ramips_mt7621=y
+          CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y
+
+          # 基础系统
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_openssh-sftp-server=y
+
+          # 中文界面
+          CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
+          CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
+
+          # 明确排除：openclash / docker
+          # CONFIG_PACKAGE_luci-app-openclash is not set
+          # CONFIG_PACKAGE_docker is not set
+          # CONFIG_PACKAGE_dockerd is not set
+          EOF
+          echo "--- 写入的 .config ---"
+          cat .config
+
+      - name: Expand config and verify
+        run: |
+          set -e
+          make defconfig
+          echo "=== 关键选项校验 ==="
+          grep -q 'CONFIG_TARGET_ramips_mt7621_DEVICE_d-team_newifi-d2=y' .config \
+            && echo "OK: newifi d2 已选中" \
+            || { echo "FAIL: 未选中 newifi d2"; exit 1; }
+
+          if grep -q 'CONFIG_PACKAGE_luci-app-openclash=y' .config; then
+            echo "FAIL: openclash 被意外启用"; exit 1
+          else
+            echo "OK: openclash 未启用"
+          fi
+
+          if grep -q 'CONFIG_PACKAGE_dockerd=y' .config; then
+            echo "FAIL: dockerd 被意外启用"; exit 1
+          else
+            echo "OK: dockerd 未启用"
+          fi
+
+          echo "=== 目标与设备信息 ==="
+          grep -E 'CONFIG_TARGET_(ramips|ramips_mt7621)(=|_DEVICE)' .config | head -10
+          echo "=== 中文化包 ==="
+          grep -E 'zh-cn=y' .config | head -10
+
+      - name: Download source packages
+        run: make download -j8 || make download -j1 V=s
+
+      - name: Build firmware
+        run: |
+          echo "开始编译 $(date '+%H:%M:%S')"
+          make -j$(nproc) 2>&1 | tee build.log | tail -n 40
+          echo "编译结束 $(date '+%H:%M:%S')"
+
+      - name: List build output
+        if: always()
+        run: |
+          echo "=== bin/targets/ramips/mt7621 ==="
+          ls -lh bin/targets/ramips/mt7621/ 2>/dev/null || echo "(目录不存在)"
+          echo "=== 全部 bin ==="
+          du -sh bin 2>/dev/null || true
+
+      - name: Upload firmware
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newifi-d2-v${{ inputs.version }}-${{ github.run_number }}
+          path: |
+            bin/targets/ramips/mt7621/*.bin
+            bin/targets/ramips/mt7621/*.manifest
+            bin/targets/ramips/mt7621/*.tar.gz
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build config
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newifi-d2-config-v${{ inputs.version }}-${{ github.run_number }}
+          path: .config
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Show failure log
+        if: failure()
+        run: |
+          echo "=== 编译失败，输出关键报错 ==="
+          grep -iE 'error|failed|cannot' build.log 2>/dev/null | tail -40 || echo "(无 build.log)"
+          ls -la bin/targets/ramips/mt7621/ 2>/dev/null || true

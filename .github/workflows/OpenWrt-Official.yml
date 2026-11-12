@@ -1,0 +1,869 @@
+name: OpenWrt-Official
+
+# 纯官方 OpenWrt 源码编译 x86_64 固件，一次同时产出 25.12.6 与 24.10.4 两个版本
+# 不含 fanchmwrt 的 fcm/fwx 组件；行为管理用同源上游 OAF（含 LAN↔LAN 流量跳过补丁）
+# IKE 守护进程不在固件内，L2TP/IPsec-PSK 与 IKEv2 全部由 docker 里的 Libreswan 4.15(DH2) 承担
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    name: Build openwrt-official-${{ matrix.version }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '25.12.6'
+          - '24.10.4'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          repository: openwrt/openwrt
+          ref: v${{ matrix.version }}
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          set -e
+          # GitHub runner 的 azure 镜像源常年 DNS 解析失败（Temporary failure resolving
+          # 'azure.archive.ubuntu.com'），apt update 空转。#21 实测 5 轮重试全挂，
+          # 白白烧掉 53 分钟且从未进入编译。这里先探测连通性，不通就切官方主源，
+          # 同时收紧轮次与超时，让失败快速暴露而不是拖满整步。
+          echo "=== apt 源连通性检查 ==="
+          if timeout 15 bash -c 'exec 3<>/dev/tcp/azure.archive.ubuntu.com/80' 2>/dev/null; then
+            echo "✅ azure 源可达，保持默认"
+          else
+            echo "⚠️ azure 源不可达，切换到 archive.ubuntu.com"
+            for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.sources \
+                     /etc/apt/sources.list.d/*.list /etc/apt/apt-mirrors.txt; do
+              if [ -f "$f" ]; then
+                sudo sed -i 's|azure.archive.ubuntu.com|archive.ubuntu.com|g' "$f"
+              fi
+            done
+            echo "--- 换源后生效的条目 ---"
+            grep -rhe "^deb " /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null | head -6 || true
+            grep -rh "URIs:" /etc/apt/sources.list.d/ 2>/dev/null | head -6 || true
+          fi
+
+          ok=0
+          for i in 1 2 3; do
+            if sudo apt-get update -o Acquire::Retries=3 \
+                 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15; then
+              echo "✅ apt update 第 $i 次成功"; ok=1; break
+            fi
+            echo "⚠️ apt update 第 $i 次失败，15 秒后重试"
+            sleep 15
+          done
+          if [ "$ok" != "1" ]; then
+            echo "❌ apt update 连续 3 次失败，退出"; exit 1
+          fi
+
+          ok=0
+          for i in 1 2 3; do
+            if sudo apt-get install -y -o Acquire::Retries=3 --fix-missing \
+              build-essential libncurses5-dev gawk git subversion \
+              libssl-dev gettext zlib1g-dev swig unzip rsync python3 wget file jq xxd \
+              quilt bison flex pkgconf libelf-dev ccache coreutils; then
+              echo "✅ 依赖安装第 $i 次成功"; ok=1; break
+            fi
+            echo "⚠️ 依赖安装第 $i 次失败，15 秒后重试"
+            sleep 15
+          done
+          if [ "$ok" != "1" ]; then
+            echo "❌ 依赖安装连续 3 次失败，退出"; exit 1
+          fi
+
+      - name: Enable ccache
+        run: |
+          echo "USE_CCACHE=1" >> $GITHUB_ENV
+          echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
+          ccache -M 10G
+          ccache -s
+
+      - name: Cache ccache and dl directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.ccache
+            ./dl
+          key: ${{ runner.os }}-openwrt-official-${{ matrix.version }}-${{ hashFiles('feeds.conf.default') }}
+          restore-keys: |
+            ${{ runner.os }}-openwrt-official-${{ matrix.version }}-
+            ${{ runner.os }}-openwrt-official-
+
+      - name: Resolve build time
+        id: bt
+        run: |
+          echo "stamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+          echo "编译环境时间: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+
+      - name: Add third-party feeds
+        run: |
+          cat >> feeds.conf.default << 'EOF'
+          src-git openclash https://github.com/vernesong/OpenClash.git
+          src-git passwall2 https://github.com/Openwrt-Passwall/openwrt-passwall2.git;main
+          src-git passwallpkgs https://github.com/xiaorouji/openwrt-passwall-packages.git;main
+          EOF
+          cat feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Add Argon theme
+        run: |
+          # jerrykuku 仓库根目录本身就是一个包，不能当 feed 用，直接放进 package/
+          rm -rf package/luci-theme-argon
+          git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/luci-theme-argon
+          rm -rf package/luci-theme-argon/.git
+          grep -E "PKG_VERSION|LUCI_DEPENDS" package/luci-theme-argon/Makefile | head -3
+
+      - name: Add OAF (OpenAppFilter)
+        run: |
+          # 行为管理 / 应用过滤：luci-app-oaf + open-app-filter(守护进程) + oaf(内核模块)
+          rm -rf package/OpenAppFilter
+          git clone --depth 1 https://github.com/destan19/OpenAppFilter.git package/OpenAppFilter
+          rm -rf package/OpenAppFilter/.git
+          ls package/OpenAppFilter
+          grep -E "PKG_VERSION|PKG_RELEASE" package/OpenAppFilter/luci-app-oaf/Makefile | head -4
+          grep -E "PKG_VERSION" package/OpenAppFilter/open-app-filter/Makefile | head -2
+
+      # ==================== OAF 局域网流量补丁（锚点插入，不依赖 patch 文件） ====================
+      # OAF 的 oaf/src/fwx_client.c 与 fanchmwrt 的 fwx 同源：
+      #   af_client_hook  (NF_INET_FORWARD, PRI_FIRST+1) 统计"上行"，按源 MAC 累加 up_bytes
+      #   af_client_hook2 (NF_INET_FORWARD, PRI_LAST-1)  统计"下行"，按目的 IP 累加 down_bytes
+      # 两者都用 get_packet_dir() 看设备名里有没有 g_lan_ifname(br-lan)：
+      #   LAN 内部互访（群晖 NAS <-> 摄像头、Wi-Fi <-> 有线）在 br_netfilter 下也走 FORWARD，
+      #   于是几十 GB 的内网备份/回放流量被当成某个客户端的上行/下行累计，就是"流量统计异常"。
+      # 修法：两端都是私网地址时直接 NF_ACCEPT，不记账。锚点用 assert 校验唯一性，改不到就构建失败。
+      - name: Apply OAF LAN-LAN traffic skip patch
+        run: |
+          set -e
+          F=package/OpenAppFilter/oaf/src/fwx_client.c
+          test -f "$F"
+          python3 - << 'PYEOF'
+          import re
+          p = 'package/OpenAppFilter/oaf/src/fwx_client.c'
+          s = open(p, encoding='utf-8').read()
+
+          anchor = 'static inline int get_packet_dir(struct net_device *in)'
+          assert s.count(anchor) == 1, 'helper anchor count = %d' % s.count(anchor)
+
+          helper = '''static inline int fwx_addr_is_lan(u32 a)
+          {
+              u32 h = ntohl(a);
+
+              return ((h & 0xff000000) == 0x0a000000) ||   /* 10.0.0.0/8    */
+                     ((h & 0xfff00000) == 0xac100000) ||   /* 172.16.0.0/12 */
+                     ((h & 0xffff0000) == 0xc0a80000) ||   /* 192.168.0.0/16 */
+                     ((h & 0xffc00000) == 0x64400000);     /* 100.64.0.0/10 */
+          }
+
+          /* LAN-internal check: both ends are private LAN addresses */
+          static inline int fwx_pkt_is_lan2lan(const struct sk_buff *skb)
+          {
+              const struct iphdr *iph = ip_hdr(skb);
+
+              if (!iph)
+                  return 0;
+
+              return fwx_addr_is_lan(iph->saddr) && fwx_addr_is_lan(iph->daddr);
+          }
+
+          '''
+          s = s.replace(anchor, helper + anchor, 1)
+
+          skip = ('\t/* Skip LAN-internal forwarding (NAS<->camera etc.) */\n'
+                  '\tif (skb->protocol == htons(ETH_P_IP) && fwx_pkt_is_lan2lan(skb))\n'
+                  '\t\treturn NF_ACCEPT;\n')
+
+          for d in ('UP', 'DOWN'):
+              pat = r'\n[ \t]*if \(PKT_DIR_%s != pkt_dir\)' % d
+              n = len(re.findall(pat, s))
+              assert n == 1, '%s anchor count = %d' % (d, n)
+              s = re.sub(pat, lambda m: '\n' + skip + m.group(0)[1:], s, count=1)
+
+          open(p, 'w', encoding='utf-8').write(s)
+          print('OK: helper + both hooks patched')
+          PYEOF
+          echo "--- 补丁校验 ---"
+          test "$(grep -c 'fwx_pkt_is_lan2lan(skb)' "$F")" -eq 2
+          test "$(grep -c 'fwx_addr_is_lan' "$F")" -eq 2
+          grep -n "Skip LAN-internal forwarding" "$F"
+          echo "✅ OAF LAN-LAN patch applied"
+
+      - name: Customize model and build date
+        run: |
+          BUILD_DATE="$(date +'%Y-%m-%d')"
+          BUILD_STAMP="$(date +'%Y%m%d')"
+          CUSTOM_REV="r${BUILD_STAMP}"
+          # 想让 LuCI「型号」显示成什么，就改下面这一行
+          MODEL_NAME="OpenWrt x86/64"
+          echo "编译日期: ${BUILD_DATE} / 型号: ${MODEL_NAME}"
+
+          # 1) 固件版本尾部追加编译日期：%D %V %C / Build YYYY-MM-DD
+          sed -i "s|DISTRIB_DESCRIPTION='%D %V %C'|DISTRIB_DESCRIPTION='%D %V %C / Build ${BUILD_DATE}'|" \
+            package/base-files/files/etc/openwrt_release
+          sed -i "s/%R/${CUSTOM_REV}/g" package/base-files/files/etc/openwrt_release
+
+          # 2) 同步 os-release 中的版本串
+          sed -i "s|^OPENWRT_RELEASE=\"%D %V %C\"|OPENWRT_RELEASE=\"%D %V %C / Build ${BUILD_DATE}\"|" \
+            package/base-files/files/usr/lib/os-release
+          sed -i "s|^PRETTY_NAME=\"%D %V\"|PRETTY_NAME=\"%D %V %C / Build ${BUILD_DATE}\"|" \
+            package/base-files/files/usr/lib/os-release
+
+          # 3) x86 型号兜底：DMI 拿不到有效厂商/型号时，用 CPU 型号回填
+          mkdir -p target/linux/x86/base-files/lib/preinit
+          cat > target/linux/x86/base-files/lib/preinit/05_sysinfo_fallback << 'EOF'
+          # 补丁：DMI 无法提供有效厂商/型号时，用 CPU 型号回填，保证「型号」始终有值
+          do_sysinfo_fallback() {
+              [ -s /tmp/sysinfo/model ] && return 0
+              mkdir -p /tmp/sysinfo
+              local cpu
+              cpu="$(sed -n 's/^model name[[:space:]]*:[[:space:]]*//p' /proc/cpuinfo | head -n 1)"
+              cpu="$(printf '%s' "$cpu" | sed -e 's/(R)//g' -e 's/(TM)//g' -e 's/(tm)//g' -e 's/[[:space:]]*@.*$//' -e 's/[[:space:]]\{1,\}/ /g' -e 's/^ //' -e 's/ $//')"
+              if [ -n "$cpu" ]; then
+                  echo "__MODEL_NAME__ ($cpu)" > /tmp/sysinfo/model
+              else
+                  echo "__MODEL_NAME__" > /tmp/sysinfo/model
+              fi
+          }
+          boot_hook_add preinit_main do_sysinfo_fallback
+          EOF
+          sed -i "s|__MODEL_NAME__|${MODEL_NAME}|" target/linux/x86/base-files/lib/preinit/05_sysinfo_fallback
+          chmod 755 target/linux/x86/base-files/lib/preinit/05_sysinfo_fallback
+          sh -n target/linux/x86/base-files/lib/preinit/05_sysinfo_fallback && echo "✓ preinit 语法检查通过"
+
+          echo "===== etc/openwrt_release ====="
+          cat package/base-files/files/etc/openwrt_release
+          echo "===== usr/lib/os-release (head) ====="
+          head -6 package/base-files/files/usr/lib/os-release
+
+      - name: Unify size units to decimal (MB/GB)
+        run: |
+          # LuCI 的尺寸格式化在 cbi.js 的 String.format 里：
+          #   %1024.2mB -> 按 1024 进制换算，单位末尾补 i，显示 "MiB/GiB"
+          #   %1000.2mB -> 按 1000 进制换算，显示 "MB/GB"
+          # 所以把源码里所有 %1024 换成 %1000，数值和单位同时变十进制。
+          # 覆盖范围：feeds（含 luci-base 模板 .ut、i18n 目录 .po、插件 .js/.lua/.uc）与本地 package。
+          set -e
+
+          CNT=0
+          while IFS= read -r -d '' f; do
+            sed -i 's/%1024/%1000/g' "$f"
+            CNT=$((CNT+1))
+          done < <(grep -rlZ '%1024' feeds package 2>/dev/null || true)
+          echo "✓ %1024 -> %1000：${CNT} 个文件"
+
+          CNT2=0
+          while IFS= read -r -d '' f; do
+            sed -i 's/KiB/KB/g; s/MiB/MB/g; s/GiB/GB/g' "$f"
+            CNT2=$((CNT2+1))
+          done < <(grep -rlZ 'KiB\|MiB\|GiB' feeds package 2>/dev/null || true)
+          echo "✓ KiB/MiB/GiB -> KB/MB/GB：${CNT2} 个文件"
+
+          REMAIN=$(grep -r '%1024' feeds package 2>/dev/null | wc -l || true)
+          echo "剩余 %1024 出现次数: ${REMAIN}"
+          grep -rn 'MiB\|GiB' feeds/luci 2>/dev/null | head -5 || true
+
+      - name: Set default timezone and trim timezone list
+        run: |
+          # 1) 固件默认时区：Asia/Shanghai (CST-8)
+          SYSCFG=package/base-files/files/etc/config/system
+          if [ -f "$SYSCFG" ]; then
+            sed -i "s|option zonename '.*'|option zonename 'Asia/Shanghai'|; \
+                    s|option timezone '.*'|option timezone 'CST-8'|" "$SYSCFG"
+            echo "=== 默认时区 ==="
+            grep -E "zonename|timezone" "$SYSCFG"
+          else
+            echo "WARN: $SYSCFG 不存在，跳过默认时区"
+          fi
+
+          # 2) 精简时区下拉：只保留 Asia/Shanghai + UTC
+          #    LuCI(JS/ucode) 的下拉数据来自 /usr/share/ucode/luci/zoneinfo.uc
+          #    老 Lua 界面来自 /usr/lib/lua/luci/sys/zoneinfo/tzdata.lua
+          mkdir -p files/usr/share/ucode/luci files/usr/lib/lua/luci/sys/zoneinfo
+          cat > files/usr/share/ucode/luci/zoneinfo.uc <<'EOF'
+          // trimmed at build time: only Asia/Shanghai and UTC
+
+          export default {
+          	'Asia/Shanghai': 'CST-8',
+          	'UTC': 'UTC0'
+          };
+          EOF
+
+          cat > files/usr/lib/lua/luci/sys/zoneinfo/tzdata.lua <<'EOF'
+          -- Licensed to the public under the Apache License 2.0.
+
+          module "luci.sys.zoneinfo.tzdata"
+
+          TZ = {
+          	{ 'Asia/Shanghai', 'CST-8' },
+          	{ 'UTC', 'UTC0' },
+          }
+          EOF
+
+          # 3) 同步覆盖 feeds 源文件，避免被 luci-base 自带的完整列表覆盖
+          while IFS= read -r f; do
+            case "$f" in
+              *zoneinfo.uc) cp files/usr/share/ucode/luci/zoneinfo.uc "$f" ;;
+              *tzdata.lua)  cp files/usr/lib/lua/luci/sys/zoneinfo/tzdata.lua "$f" ;;
+            esac
+            echo "✓ trimmed: $f"
+          done < <(find feeds/luci -name 'zoneinfo.uc' -o -name 'tzdata.lua' 2>/dev/null || true)
+
+          echo "=== 精简后的时区条目数 ==="
+          grep -c "Asia/Shanghai" files/usr/share/ucode/luci/zoneinfo.uc files/usr/lib/lua/luci/sys/zoneinfo/tzdata.lua
+
+      # ==================== OUI 厂商名 → 设备名（编译期内置） ====================
+      # 现状：OAF 的 oaf_user.lua 用 get_hostname_by_mac() 读 /tmp/dhcp.leases 取设备名，
+      #       不发 hostname 的设备只能显示 MAC；且 /tmp 重启即空，名称撑不到下次续租。
+      # 做法：1) oui_lookup 用 nmap 自带的 /usr/share/nmap/nmap-mac-prefixes（4.6 万条 OUI）查厂商
+      #       2) oui_lease_names 把租约里第 4 列为 * 的设备补成 厂商-后6位（Hikvision-b0f39a / Random-b4bdf1）
+      #       3) hotplug + cron 兜底，dnsmasq 重写租约后自动补回
+      # 这样 OAF、LuCI 客户端列表、任何读租约的组件都能直接拿到厂商品名。
+      - name: Add OUI vendor package (MAC 厂商名 -> 设备名)
+        run: |
+          set -e
+          rm -rf package/oui-vendor
+          mkdir -p package/oui-vendor/files
+
+          cat > package/oui-vendor/Makefile << 'MKEOF'
+          include $(TOPDIR)/rules.mk
+
+          PKG_NAME:=oui-vendor
+          PKG_VERSION:=1.0
+          PKG_RELEASE:=1
+
+          include $(INCLUDE_DIR)/package.mk
+
+          define Package/oui-vendor
+            SECTION:=utils
+            CATEGORY:=Utilities
+            TITLE:=MAC OUI vendor lookup and DHCP lease auto-naming
+            DEPENDS:=+nmap
+          endef
+
+          define Package/oui-vendor/description
+            Provides /usr/bin/oui_lookup (MAC -> vendor) and /usr/bin/oui_lease_names,
+            which fills vendor short names into the dnsmasq lease database so LuCI/OAF
+            show Hikvision-b0f39a instead of a bare MAC.
+          endef
+
+          define Build/Prepare
+          	mkdir -p $(PKG_BUILD_DIR)
+          	$(CP) ./files/* $(PKG_BUILD_DIR)/
+          endef
+
+          define Build/Compile
+          endef
+
+          define Package/oui-vendor/install
+          	$(INSTALL_DIR) $(1)/usr/bin
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_lookup $(1)/usr/bin/oui_lookup
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_lease_names $(1)/usr/bin/oui_lease_names
+          	$(INSTALL_DIR) $(1)/etc/hotplug.d/dhcp
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hotplug-10-oui-names $(1)/etc/hotplug.d/dhcp/10-oui-names
+          	$(INSTALL_DIR) $(1)/etc/uci-defaults
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uci-defaults-oui-names $(1)/etc/uci-defaults/99-oui-names
+          endef
+
+          $(eval $(call BuildPackage,oui-vendor))
+          MKEOF
+
+          cat > package/oui-vendor/files/oui_lookup << 'SHEOF'
+          #!/bin/sh
+          # oui_lookup -- MAC 厂商查询，数据源 /usr/share/nmap/nmap-mac-prefixes（随 nmap 包提供）
+          #   oui_lookup <MAC>       完整厂商名
+          #   oui_lookup -s <MAC>    短名（无空格，可直接做设备名）
+          DB=${OUI_DB:-/usr/share/nmap/nmap-mac-prefixes}
+          SHORT=0
+          if [ "$1" = "-s" ]; then SHORT=1; shift; fi
+          MAC=$(echo "$1" | sed 's/[^0-9A-Fa-f]//g' | tr 'a-f' 'A-F' | cut -c1-6)
+          if [ ${#MAC} -ne 6 ]; then exit 1; fi
+          if [ ! -r "$DB" ]; then exit 1; fi
+
+          V=$(grep -m1 "^$MAC " "$DB" 2>/dev/null | cut -d' ' -f2-)
+          if [ -z "$V" ]; then exit 1; fi
+
+          if [ "$SHORT" = "0" ]; then echo "$V"; exit 0; fi
+
+          # 去掉法人后缀与公司层级词，再跳过地名开头，取第一个词做短名
+          S=$(echo "$V" | sed -e 's/,.*//' \
+              -e 's/ Co\..*//' -e 's/ Co .*//' -e 's/ Corporation.*//' -e 's/ Corp\..*//' \
+              -e 's/ Inc\..*//' -e 's/ Ltd.*//' -e 's/ GmbH.*//' \
+              -e 's/ Technolog[a-z]*.*//' -e 's/ Limited.*//' -e 's/ LLC.*//' -e 's/ Company.*//')
+          set -- $S
+          while [ -n "$1" ]; do
+              case "$1" in
+                  Shenzhen|Beijing|Hangzhou|Shanghai|Guangzhou|Suzhou|Dongguan|Wuhan|Chengdu|Xian|Nanjing|Zhuhai|Fuzhou|Xiamen|Wuxi|Qingdao|Hefei|Changsha|Tianjin|Chongqing|Ningbo|Jinan|Zhengzhou|Shantou|Zhongshan|Huizhou|Foshan|Quanzhou|Wenzhou|Jiangsu|Guangdong|Zhejiang)
+                      shift ;;
+                  *) break ;;
+              esac
+          done
+          if [ -z "$1" ]; then echo Unknown; else echo "$1" | cut -c1-14; fi
+          SHEOF
+
+          cat > package/oui-vendor/files/oui_lease_names << 'SHEOF'
+          #!/bin/sh
+          # oui_lease_names -- 给 dnsmasq 租约库里没有主机名的设备补厂商短名
+          #   Xiaomi-19f0 / Hikvision-b0f39a / Tuya-c0a610 / Random-b4bdf1
+          # 只改第 4 列为 *（或空）的行，真实主机名一律不动；内容没变就不写盘。
+          LE=${LE_OVERRIDE:-/etc/dhcp.leases}
+          if [ ! -f "$LE" ]; then exit 0; fi
+
+          TMP="$LE.tmp"
+          : > "$TMP"
+          while IFS=' ' read -r ts mac ip name rest; do
+              [ -z "$ts" ] && continue
+              if [ "$name" = "*" ] || [ -z "$name" ]; then
+                  v=$(oui_lookup -s "$mac" 2>/dev/null)
+                  if [ -z "$v" ]; then
+                      first=$(echo "$mac" | cut -d: -f1)
+                      if [ $(( 0x$first & 0x02 )) -ne 0 ]; then
+                          v=Random
+                      else
+                          v=Unknown
+                      fi
+                  fi
+                  t=$(echo "$mac" | sed 's/[^0-9a-fA-F]//g' | tr 'A-F' 'a-f' | cut -c7-12)
+                  name="$v-$t"
+              fi
+              if [ -n "$rest" ]; then
+                  printf '%s %s %s %s %s\n' "$ts" "$mac" "$ip" "$name" "$rest"
+              else
+                  printf '%s %s %s %s\n' "$ts" "$mac" "$ip" "$name"
+              fi
+          done < "$LE" > "$TMP"
+
+          if cmp -s "$LE" "$TMP" 2>/dev/null; then
+              rm -f "$TMP"
+          else
+              cat "$TMP" > "$LE"
+              rm -f "$TMP"
+          fi
+          SHEOF
+
+          cat > package/oui-vendor/files/hotplug-10-oui-names << 'SHEOF'
+          #!/bin/sh
+          # 新租约一出现就补厂商名
+          case "$ACTION" in
+              add|update) /usr/bin/oui_lease_names ;;
+          esac
+          SHEOF
+
+          cat > package/oui-vendor/files/uci-defaults-oui-names << 'SHEOF'
+          #!/bin/sh
+          # 首次启动：加一条 cron 兜底（dnsmasq 重写租约后 5 分钟内补回）+ 立刻跑一次
+          grep -q oui_lease_names /etc/crontabs/root 2>/dev/null || \
+              echo '*/5 * * * * /usr/bin/oui_lease_names' >> /etc/crontabs/root
+          [ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names
+          /etc/init.d/cron reload >/dev/null 2>&1 || /etc/init.d/cron restart >/dev/null 2>&1
+          exit 0
+          SHEOF
+
+          chmod +x package/oui-vendor/files/oui_lookup \
+                   package/oui-vendor/files/oui_lease_names \
+                   package/oui-vendor/files/hotplug-10-oui-names \
+                   package/oui-vendor/files/uci-defaults-oui-names
+
+          echo "--- 语法自检 ---"
+          for f in package/oui-vendor/files/oui_lookup package/oui-vendor/files/oui_lease_names \
+                   package/oui-vendor/files/hotplug-10-oui-names package/oui-vendor/files/uci-defaults-oui-names; do
+            sh -n "$f"
+            echo "OK $f"
+          done
+
+          echo "--- 功能自检（用假 OUI 库，不依赖 nmap 已安装） ---"
+          printf 'B4BDF1 Xiaomi Communications Co Ltd\n8C22D2 Hangzhou Hikvision Digital Technology Co., Ltd.\n000000 XEROX CORPORATION\n' > /tmp/oui-test.db
+          test "$(OUI_DB=/tmp/oui-test.db sh package/oui-vendor/files/oui_lookup -s b4:bd:f1)" = "Xiaomi"
+          test "$(OUI_DB=/tmp/oui-test.db sh package/oui-vendor/files/oui_lookup -s 8C:22:D2:a3:fc:2c)" = "Hikvision"
+          test "$(OUI_DB=/tmp/oui-test.db sh package/oui-vendor/files/oui_lookup 00-00-00)" = "XEROX CORPORATION"
+          echo "oui_lookup OK"
+
+          printf '1794000000 52:fa:b3:b4:bd:f1 192.168.1.10 * 01:52:fa:b3:b4:bd:f1\n1794000001 8c:22:d2:a3:fc:2c 192.168.1.11 * 01:8c:22:d2:a3:fc:2c\n1794000002 00:e0:24:00:00:01 192.168.1.12 realhost 01:00:e0:24:00:00:01\n' > /tmp/leases.test
+          PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_OVERRIDE=/tmp/leases.test sh package/oui-vendor/files/oui_lease_names
+          grep -q 'Random-b4bdf1' /tmp/leases.test
+          grep -q 'Hikvision-a3fc2c' /tmp/leases.test
+          grep -q 'realhost' /tmp/leases.test
+          test "$(awk '$4=="*"' /tmp/leases.test | wc -l)" -eq 0
+          echo "oui_lease_names OK"
+          echo "✅ OUI vendor package ready"
+
+      - name: Build config
+        run: |
+          cat > .config << 'EOF'
+          CONFIG_TARGET_x86=y
+          CONFIG_TARGET_x86_64=y
+          CONFIG_TARGET_x86_64_Generic=y
+          CONFIG_TARGET_KERNEL_PARTSIZE=100
+          CONFIG_TARGET_ROOTFS_PARTSIZE=1024
+          CONFIG_TARGET_ROOTFS_PERSIST_VAR=y
+          CONFIG_TARGET_ROOTFS_EXT4FS=n
+          CONFIG_PACKAGE_igmpproxy=y
+          # 基础工具
+          CONFIG_PACKAGE_which=y
+          CONFIG_PACKAGE_bash=y
+          CONFIG_PACKAGE_sudo=y
+          CONFIG_PACKAGE_wget-ssl=y
+          CONFIG_PACKAGE_curl=y
+          CONFIG_PACKAGE_unzip=y
+          CONFIG_PACKAGE_vim=y
+          CONFIG_PACKAGE_tcpdump=y
+          CONFIG_PACKAGE_bind-dig=y
+          CONFIG_PACKAGE_ethtool=y
+          CONFIG_PACKAGE_procps-ng=y
+          # 磁盘 / 分区 / 文件系统（刷机后补回数据分区、挂载 /opt/docker 用）
+          CONFIG_PACKAGE_kmod-fs-ext4=y
+          # 抓包 / 网络诊断 / 排障
+          CONFIG_PACKAGE_nmap=y
+          CONFIG_PACKAGE_jq=y
+          CONFIG_PACKAGE_openssl-util=y
+          CONFIG_PACKAGE_etherwake=y
+          CONFIG_PACKAGE_luci-app-ttyd=y
+          CONFIG_PACKAGE_luci-app-wol=y
+          # IPSec 内核模块（docker 里 hwdsl2/ipsec-vpn-server 强依赖 xfrm/esp/af_key）
+          # kmod-ipsec  = af_key + xfrm_algo + xfrm_ipcomp + xfrm_user
+          # kmod-ipsec4 = ah4 + esp4 + ipcomp4 + xfrm4_tunnel（IPv4 数据面，缺了容器能起但隧道不通）
+          CONFIG_PACKAGE_kmod-ipsec=y
+          CONFIG_PACKAGE_kmod-ipsec4=y
+          CONFIG_PACKAGE_kmod-nft-xfrm=y
+          # 宿主机不再编 IKE 守护进程：IKEv1(L2TP/IPsec-PSK) 与 IKEv2 全部由 docker 里
+          # Libreswan 4.15 + USE_DH2(modp1024) 承担，固件只保留 XFRM 接口支持（容器 xauth 模式用 ipsec-interface）。
+          CONFIG_PACKAGE_kmod-xfrm-interface=y
+          # L2TP/IPsec 模式（容器里 xl2tpd + pppd 走 l2tp_ppp，老固件同样装了这两个）
+          CONFIG_PACKAGE_kmod-l2tp=y
+          CONFIG_PACKAGE_kmod-pppol2tp=y
+          # 内核 CryptoAPI 算法（ESP 用 AES-CBC-SHA256 / AES-GCM 必需）
+          # 上一版固件实测：/proc/crypto 里只有 sha1、sha512，没有 sha256 与 hmac(sha256)，
+          # 导致 ESP 只能退到 AES-CBC-SHA1（strongSwan 侧报 netlink ENOSYS）。
+          CONFIG_PACKAGE_kmod-crypto-hash=y
+          CONFIG_PACKAGE_kmod-crypto-hmac=y
+          CONFIG_PACKAGE_kmod-crypto-cbc=y
+          CONFIG_PACKAGE_kmod-crypto-sha1=y
+          CONFIG_PACKAGE_kmod-crypto-sha256=y
+          CONFIG_PACKAGE_kmod-crypto-sha512=y
+          CONFIG_PACKAGE_kmod-crypto-ctr=y
+          CONFIG_PACKAGE_kmod-crypto-gcm=y
+          CONFIG_PACKAGE_kmod-crypto-ghash=y
+          CONFIG_PACKAGE_kmod-crypto-authenc=y
+          CONFIG_PACKAGE_kmod-crypto-des=y
+          CONFIG_PACKAGE_kmod-crypto-aead=y
+          CONFIG_PACKAGE_kmod-crypto-ecb=y
+          CONFIG_PACKAGE_kmod-crypto-md5=y
+          CONFIG_PACKAGE_kmod-crypto-seqiv=y
+          CONFIG_PACKAGE_kmod-crypto-geniv=y
+          CONFIG_PACKAGE_kmod-crypto-null=y
+          CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=y
+          # 宿主机 xl2tpd（与老固件一致；老机装了但没启用，容器内自带一份在跑）
+          CONFIG_PACKAGE_xl2tpd=y
+          # 真正需要的基础设施（挂载 / HTTPS 证书）
+          CONFIG_PACKAGE_block-mount=y
+          CONFIG_PACKAGE_px5g-standalone=y
+          # LuCI 基础
+          CONFIG_PACKAGE_uhttpd=y
+          CONFIG_PACKAGE_uhttpd-mod-ubus=y
+          CONFIG_PACKAGE_luci=y
+          CONFIG_PACKAGE_luci-base=y
+          CONFIG_PACKAGE_luci-lib-nixio=y
+          CONFIG_PACKAGE_luci-lib-jsonc=y
+          CONFIG_PACKAGE_luci-lib-ip=y
+          CONFIG_PACKAGE_rpcd=y
+          CONFIG_PACKAGE_rpcd-mod-luci=y
+          CONFIG_PACKAGE_lua=y
+          CONFIG_PACKAGE_luci-mod-admin-full=y
+          CONFIG_PACKAGE_luci-mod-network=y
+          CONFIG_PACKAGE_luci-mod-firewall=y
+          CONFIG_PACKAGE_luci-mod-system=y
+          CONFIG_PACKAGE_luci-mod-status=y
+          # LuCI 语言：luci-i18n-* 包是 HIDDEN（没有 prompt），直接写 CONFIG_PACKAGE_luci-i18n-xxx=y
+          # 会被 make defconfig（conf --defconfig）丢弃。唯一起作用的开关是 LUCI_LANG_zh_Hans，
+          # 它是所有 luci-i18n-*-zh-cn 包的 DEFAULT 来源。
+          CONFIG_LUCI_LANG_zh_Hans=y
+          CONFIG_PACKAGE_luci-theme-bootstrap=y
+          CONFIG_PACKAGE_luci-theme-argon=y
+          # Docker 相关
+          CONFIG_PACKAGE_docker=y
+          CONFIG_PACKAGE_dockerd=y
+          CONFIG_PACKAGE_docker-compose=y
+          CONFIG_PACKAGE_luci-app-dockerman=y
+          CONFIG_PACKAGE_libnetwork=y
+          CONFIG_PACKAGE_kmod-nft-fib=y
+          CONFIG_PACKAGE_kmod-nf-flow=y
+          CONFIG_PACKAGE_kmod-nft-nat=y
+          CONFIG_PACKAGE_kmod-nft-offload=y
+          CONFIG_PACKAGE_kmod-ipt-raw=y
+          CONFIG_PACKAGE_kmod-ipt-conntrack=y
+          CONFIG_PACKAGE_kmod-ipt-nat=y
+          CONFIG_PACKAGE_kmod-libcgroup=y
+          CONFIG_PACKAGE_kmod-overlay=y
+          CONFIG_PACKAGE_kmod-veth=y
+          CONFIG_PACKAGE_kmod-bridge=y
+          CONFIG_PACKAGE_kmod-br-netfilter=y
+          # 隧道 / 网络协议（本机 network 里只有 pppoe/static/dhcp，不需要 ipip/vxlan/l2tp）
+          CONFIG_PACKAGE_kmod-tun=y
+          CONFIG_PACKAGE_luci-proto-ipv6=y
+          CONFIG_PACKAGE_luci-proto-ppp=y
+          # DDNS
+          CONFIG_PACKAGE_luci-app-ddns=y
+          CONFIG_PACKAGE_ddns-scripts=y
+          CONFIG_PACKAGE_ddns-scripts-cloudflare=y
+          # UDPXY
+          CONFIG_PACKAGE_luci-app-udpxy=y
+          # 防火墙
+          CONFIG_PACKAGE_luci-app-firewall=y
+          CONFIG_PACKAGE_firewall=y
+          CONFIG_PACKAGE_firewall4=y
+          CONFIG_PACKAGE_nftables=y
+          CONFIG_PACKAGE_dnsmasq-full=y
+          # OpenClash
+          CONFIG_PACKAGE_luci-app-openclash=y
+          # PassWall2：不编（本机只用 OpenClash，省掉 xray-core / chinadns-ng / tproxy 这一串依赖）
+          # 行为管理 / 应用过滤 (OAF)
+          CONFIG_PACKAGE_luci-app-oaf=y
+          CONFIG_PACKAGE_appfilter=y
+          CONFIG_PACKAGE_kmod-oaf=y
+          # MAC 厂商名查询 / 租约自动命名（数据来自 nmap 的 nmap-mac-prefixes）
+          CONFIG_PACKAGE_oui-vendor=y
+          # 其它
+          CONFIG_PACKAGE_ucode-mod-socket=y
+          CONFIG_PACKAGE_ucode-mod-math=y
+          CONFIG_PACKAGE_uclient-fetch=y
+          CONFIG_PACKAGE_ip-full=y
+          CONFIG_PACKAGE_libpcap=y
+          CONFIG_PACKAGE_coreutils-timeout=y
+          EOF
+          make defconfig
+          echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
+
+      - name: Verify Chinese language packages
+        run: |
+          # 语言开关若没生效，编译 4 小时后才会发现界面还是英文，所以这里提前 10 分钟失败
+          MISSING=0
+          grep -q '^CONFIG_LUCI_LANG_zh_Hans=y' .config || { echo "❌ CONFIG_LUCI_LANG_zh_Hans 未生效"; MISSING=1; }
+          for pkg in luci-i18n-base-zh-cn luci-i18n-firewall-zh-cn luci-i18n-dockerman-zh-cn \
+                     luci-i18n-ddns-zh-cn luci-i18n-udpxy-zh-cn \
+                     luci-i18n-package-manager-zh-cn luci-i18n-argon-config-zh-cn luci-i18n-oaf-zh-cn; do
+            if grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
+              echo "✅ ${pkg}"
+            else
+              echo "❌ ${pkg} 未进入固件"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -ne 0 ]; then
+            echo "===== 相关符号最终状态（排查用） ====="
+            grep -E '^CONFIG_LUCI_LANG_zh|^CONFIG_PACKAGE_luci-i18n-(base|firewall|dockerman|ddns|udpxy|package-manager|argon-config|oaf)-zh' .config || true
+            exit 1
+          fi
+          echo "✅ 中文语言包全部就绪，开始编译"
+
+      - name: Verify tool packages
+        run: |
+          # .config 里写错的包名会被 defconfig 静默丢弃，编 4 小时才发现白跑，所以先卡这里
+          MISSING=0
+          # 只校验日常运行与排障真正要用的；纯测试类（iperf3/iftop/strace/lsof/htop/mtr/rsync/
+          # pciutils/usbutils/lm-sensors/socat/conntrack）与分区类（parted/cfdisk/e2fsprogs）已移除
+          for pkg in tcpdump nmap jq etherwake ethtool vim bash \
+                     block-mount px5g-standalone openssl-util xl2tpd oui-vendor; do
+            if grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
+              echo "✅ ${pkg}"
+            else
+              echo "❌ ${pkg} 未进入固件（包名可能写错了）"
+              MISSING=1
+            fi
+          done
+          for pkg in kmod-ipsec kmod-ipsec4 kmod-nft-xfrm kmod-l2tp kmod-pppol2tp; do
+            if grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
+              echo "✅ ${pkg}"
+            else
+              echo "❌ ${pkg} 未进入固件（IPSec 容器将无法建立隧道）"
+              MISSING=1
+            fi
+          done
+          for pkg in kmod-crypto-hash kmod-crypto-hmac kmod-crypto-cbc kmod-crypto-sha1 \
+                     kmod-crypto-sha256 kmod-crypto-sha512 kmod-crypto-ctr kmod-crypto-gcm \
+                     kmod-crypto-ghash kmod-crypto-authenc kmod-crypto-des kmod-crypto-aead \
+                     kmod-crypto-ecb kmod-crypto-md5 kmod-crypto-seqiv kmod-crypto-geniv \
+                     kmod-crypto-null kmod-crypto-chacha20poly1305; do
+            if grep -q "^CONFIG_PACKAGE_${pkg}=y" .config; then
+              echo "✅ ${pkg}"
+            else
+              echo "❌ ${pkg} 未进入固件（ESP 只能退到 AES-CBC-SHA1）"
+              MISSING=1
+            fi
+          done
+          if [ $MISSING -ne 0 ]; then
+            echo "===== 排查用：这些包在 .config 里的最终状态 ====="
+            grep -E '^# CONFIG_PACKAGE_(parted|e2fsprogs|cfdisk|tcpdump|socat|mtr|jq|rsync|pciutils|usbutils|lm-sensors|etherwake|conntrack|iftop|strace|ethtool|iperf3|lsof|htop|vim|bash) ' .config || true
+            exit 1
+          fi
+          echo "✅ 工具包全部就绪"
+
+      - name: List luci-app plugins status
+        run: |
+          echo "=================================================="
+          echo "📋 luci-app-* plugins (openwrt v${{ matrix.version }})"
+          echo "=================================================="
+          grep -E '^(CONFIG_PACKAGE_luci-app-.*=|# CONFIG_PACKAGE_luci-app-.* is not set)' .config | sort | while read -r line; do
+            if echo "$line" | grep -q '=y\|=m'; then
+              echo " ✔️ $(echo "$line" | sed -e 's/^CONFIG_PACKAGE_//' -e 's/=[ym]$//')"
+            else
+              echo " ❌ $(echo "$line" | sed -e 's/^# CONFIG_PACKAGE_//' -e 's/ is not set$//')"
+            fi
+          done
+          echo "=================================================="
+
+      - name: Build OpenWrt firmware
+        id: build
+        run: |
+          set +e
+          echo "开始编译 OpenWrt 固件 (openwrt v${{ matrix.version }}) - 多线程模式..."
+          make -j$(nproc) 2>&1 | tee build.log
+          BUILD_RESULT=${PIPESTATUS[0]}
+          if [ $BUILD_RESULT -ne 0 ]; then
+            echo "❌ 多线程编译失败，提取失败包并切换单线程+详细日志重编..."
+            FAILED_PKG=$(grep -oP 'ERROR: \K[^ ]+(?= failed to build)' build.log | head -1)
+            if [ -n "$FAILED_PKG" ]; then
+              echo "🔧 清理失败包: $FAILED_PKG"
+              make "$FAILED_PKG/clean" || true
+            else
+              echo "⚠️ 未识别到具体失败包，执行 target/linux/clean"
+              make target/linux/clean || true
+            fi
+            make -j1 V=s 2>&1 | tee -a build.log
+            BUILD_RESULT=${PIPESTATUS[0]}
+          fi
+          set -e
+          ccache -s
+          if [ $BUILD_RESULT -eq 0 ]; then
+            echo "✅ 编译成功"
+            echo "build_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ 编译失败"
+            echo "build_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Compress squashfs firmware
+        if: steps.build.outputs.build_status == 'success'
+        run: |
+          echo "📦 压缩 squashfs 固件..."
+          for firmware_file in bin/targets/*/*/*squashfs*; do
+            if [ -f "${firmware_file}" ]; then
+              echo "✅ 压缩: ${firmware_file}"
+              gzip "${firmware_file}"
+            fi
+          done
+          ls -lh bin/targets/*/*/*squashfs*.gz 2>/dev/null || true
+
+      - name: Upload compressed firmware
+        if: steps.build.outputs.build_status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-official-${{ matrix.version }}-${{ steps.bt.outputs.stamp }}
+          path: bin/targets/*/*/*squashfs*.gz
+          retention-days: 30
+
+      - name: Upload build config
+        if: steps.build.outputs.build_status == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: config-official-${{ matrix.version }}
+          path: .config
+          include-hidden-files: true
+          retention-days: 30
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-official-${{ matrix.version }}
+          path: build.log
+          retention-days: 7
+
+      - name: Show build summary on failure
+        if: failure()
+        run: |
+          echo "❌ 编译失败 (openwrt v${{ matrix.version }}) - 最后 200 行日志:"
+          tail -n 200 build.log
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-22.04
+    needs: [build]
+    if: always()
+    steps:
+      - name: Generate dynamic summary
+        run: |
+          NPROC="$(nproc)"
+          cat >> "$GITHUB_STEP_SUMMARY" << 'EOF'
+          # 📦 OpenWrt Official (24.10.4 / 25.12.6) Build Summary
+
+          <table>
+          <tr>
+            <td><strong>📡 Source</strong></td>
+            <td><a href="https://github.com/openwrt/openwrt/tree/v25.12.6"><code>v25.12.6</code></a> / <a href="https://github.com/openwrt/openwrt/tree/v24.10.4"><code>v24.10.4</code></a></td>
+          </tr>
+          <tr>
+            <td><strong>🔗 Workflow Run</strong></td>
+            <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"><code>#${{ github.run_id }}</code></a></td>
+          </tr>
+          </table>
+
+          ---
+
+          ## 🧩 Build Result
+
+          | 🎯 Target | ✅ Status | 📦 Artifacts |
+          | --- | --- | --- |
+          | `x86_64 Generic` | ${{ needs.build.result }} | [⬇️ Download](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts) |
+
+          ---
+
+          ## 🎯 Target Configuration
+
+          <table>
+          <tr><td>🖥️ <strong>Platform</strong></td><td><code>x86_64 Generic</code></td></tr>
+          <tr><td>🧩 <strong>Kernel Partition</strong></td><td><code>100 MB</code></td></tr>
+          <tr><td>💾 <strong>Root Filesystem</strong></td><td><code>1024 MB (squashfs, persistent /var)</code></td></tr>
+          </table>
+
+          ---
+
+          ## 🧰 Included Applications
+
+          | 📱 Application | 📝 Source |
+          | --- | --- |
+          | `luci-app-openclash` | vernesong/OpenClash |
+          | `luci-app-dockerman` | official feeds |
+          | `luci-app-ddns` | official feeds |
+          | `luci-app-udpxy` | official feeds |
+          | `luci-app-firewall` | official feeds |
+          | `luci-app-oaf` | destan19/OpenAppFilter |
+          | `luci-theme-argon` | jerrykuku/luci-theme-argon |
+
+          > ℹ️ *fcm/fwx 组件不在官方源码树内；其同源上游 OAF(OpenAppFilter) 已在本固件内，
+          > 并在编译期打入 LAN↔LAN 跳过补丁（群晖↔摄像头等内网互传不计入客户端上下行流量）。*
+
+          ---
+
+          <details>
+          <summary>🔍 Build environment details</summary>
+
+          - **Runner:** Ubuntu 22.04
+          - **Ccache max size:** 10 GiB
+          - **Parallel jobs:** __NPROC__
+
+          </details>
+          EOF
+          sed -i "s|__NPROC__|${NPROC}|g" "$GITHUB_STEP_SUMMARY"
