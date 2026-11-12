@@ -93,6 +93,9 @@ jobs:
           CONFIG_PACKAGE_openssh-sftp-server=y
 
           # 中文界面
+          # luci-i18n-* 是 HIDDEN 包，直接写 CONFIG_PACKAGE_ 会被 make defconfig 丢弃。
+          # 唯一起作用的开关是 LUCI_LANG_zh_Hans，它决定所有 luci-i18n-*-zh-cn 的 DEFAULT。
+          CONFIG_LUCI_LANG_zh_Hans=y
           CONFIG_PACKAGE_luci-i18n-base-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-firewall-zh-cn=y
           CONFIG_PACKAGE_luci-i18n-ddns-zh-cn=y
@@ -129,7 +132,36 @@ jobs:
           echo "=== 目标与设备信息 ==="
           grep -E 'CONFIG_TARGET_(ramips|ramips_mt7621)(=|_DEVICE)' .config | head -10
           echo "=== 中文化包 ==="
-          grep -E 'zh-cn=y' .config | head -10
+          grep -q 'CONFIG_LUCI_LANG_zh_Hans=y' .config \
+            && echo "OK: 中文语言开关已启用" \
+            || { echo "FAIL: CONFIG_LUCI_LANG_zh_Hans 未生效"; exit 1; }
+          grep -E 'zh-cn=y|LUCI_LANG' .config | head -10
+
+      - name: Unify size units to decimal (MB/GB)
+        run: |
+          # LuCI 的尺寸格式化在 cbi.js 的 String.format 里：
+          #   %1024.2mB -> 按 1024 进制换算，单位末尾补 i，显示 "MiB/GiB"
+          #   %1000.2mB -> 按 1000 进制换算，显示 "MB/GB"
+          # 所以把源码里所有 %1024 换成 %1000，数值和单位同时变十进制。
+          # 覆盖范围：feeds（含 luci-base 模板 .ut、i18n 目录 .po、插件 .js/.lua/.uc）与本地 package。
+          set -e
+
+          CNT=0
+          while IFS= read -r -d '' f; do
+            sed -i 's/%1024/%1000/g' "$f"
+            CNT=$((CNT+1))
+          done < <(grep -rlZ '%1024' feeds package 2>/dev/null || true)
+          echo "✓ %1024 -> %1000：${CNT} 个文件"
+
+          CNT2=0
+          while IFS= read -r -d '' f; do
+            sed -i 's/KiB/KB/g; s/MiB/MB/g; s/GiB/GB/g' "$f"
+            CNT2=$((CNT2+1))
+          done < <(grep -rlZ 'KiB\|MiB\|GiB' feeds package 2>/dev/null || true)
+          echo "✓ KiB/MiB/GiB -> KB/MB/GB：${CNT2} 个文件"
+
+          REMAIN=$(grep -r '%1024' feeds package 2>/dev/null | wc -l || true)
+          echo "剩余 %1024 出现次数: ${REMAIN}"
 
       - name: Download source packages
         run: make download -j8 || make download -j1 V=s
