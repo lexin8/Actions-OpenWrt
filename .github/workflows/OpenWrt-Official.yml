@@ -102,9 +102,9 @@ jobs:
           path: |
             ~/.ccache
             ./dl
-          key: ${{ runner.os }}-openwrt-official-${{ matrix.version }}-${{ hashFiles('feeds.conf.default') }}
+          key: ${{ runner.os }}-openwrt-official-${{ matrix.ref }}-${{ hashFiles('feeds.conf.default') }}
           restore-keys: |
-            ${{ runner.os }}-openwrt-official-${{ matrix.version }}-
+            ${{ runner.os }}-openwrt-official-${{ matrix.ref }}-
             ${{ runner.os }}-openwrt-official-
 
       - name: Resolve build time
