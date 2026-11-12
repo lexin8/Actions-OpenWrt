@@ -1,0 +1,366 @@
+name: Update Nodes
+
+# 公共节点聚合 → 快筛 → 实测 → 输出 OpenClash 可直接订阅的文件
+# 改动要点：去重改名（避免 clash-speedtest 因重名加载失败）、TCP 快筛改全并发、
+# 测速失败节点循环清理、输出完整订阅（含 proxy-groups）、缓存 Go 二进制、加 concurrency 与超时。
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_nodes:
+        description: "最终保留节点数（默认 200）"
+        required: false
+        default: "200"
+  schedule:
+    - cron: '0 */12 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-nodes
+  cancel-in-progress: false
+
+env:
+  MAX_NODES: ${{ github.event.inputs.max_nodes || '200' }}
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  update:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+
+    steps:
+      - name: 克隆当前仓库
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 缓存 Go 编译产物
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/bin
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-clash-speedtest-v1
+
+      - name: 克隆 AutoMergePublicNodes
+        continue-on-error: true
+        run: git clone --depth=1 https://github.com/chengaopan/AutoMergePublicNodes.git || echo "⚠️ 主源克隆失败，继续用其余源"
+
+      - name: 安装 AutoMergePublicNodes 依赖
+        continue-on-error: true
+        run: |
+          if [ -d AutoMergePublicNodes ]; then
+            cd AutoMergePublicNodes
+            sed -i 's|requests-file @ git+https://github.com/peasoft/requests-file.git@.*|requests-file==1.5.1|' requirements.txt 2>/dev/null || true
+            pip install -q -r requirements.txt || pip install -q pyyaml requests requests-file==1.5.1
+          else
+            pip install -q pyyaml requests
+          fi
+
+      - name: 运行 fetch.py 抓取主源
+        continue-on-error: true
+        run: |
+          if [ -d AutoMergePublicNodes ]; then
+            cd AutoMergePublicNodes
+            python fetch.py 2>&1 | tail -40
+            cd ..
+          fi
+          mkdir -p nodes sources
+          if [ -f AutoMergePublicNodes/list.meta.yml ]; then
+            cp AutoMergePublicNodes/list.meta.yml nodes/list.meta.yml
+            echo "✅ 主源节点文件已就位"
+          else
+            echo "proxies: []" > nodes/list.meta.yml
+            echo "⚠️ 主源无输出，写空占位"
+          fi
+
+      - name: 抓取额外订阅源
+        run: |
+          mkdir -p sources
+          fetch_one() {
+            local input="$1" prefix="$2"
+            [ -z "$input" ] && return 0
+            echo "---- 处理 $input"
+            if echo "$input" | grep -qE 'README\.md'; then
+              local u="$input"
+              echo "$u" | grep -q 'github.com' && u=$(echo "$u" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
+              curl -fsSL --retry 2 -m 60 "$u" -o readme.tmp || { echo "  下载失败"; return 0; }
+              grep -Eo 'https?://[^[:space:]]+' readme.tmp | sed "s/[)\"'>,]\+$//" > all_urls.txt || true
+              grep -E '\.ya?ml$' all_urls.txt > sub_urls.txt || true
+              if [ -s sub_urls.txt ]; then
+                local i=0
+                while read -r url; do
+                  [ -z "$url" ] && continue
+                  i=$((i+1))
+                  echo "$url" | grep -q 'github.com' && url=$(echo "$url" | sed 's|github.com|raw.githubusercontent.com|; s|/blob/|/|')
+                  curl -fsSL --retry 1 -m 30 "$url" -o "sources/${prefix}_${i}.yml" || true
+                done < sub_urls.txt
+              elif grep -q '^proxies:' readme.tmp; then
+                cp readme.tmp "sources/${prefix}_inline.yml"
+              fi
+            else
+              curl -fsSL --retry 2 -m 60 "$input" -o "sources/${prefix}_direct.yml" || true
+            fi
+          }
+          fetch_one "https://github.com/free-nodes/clashfree/blob/main/README.md" "cf"
+          fetch_one "https://github.com/free18/v2ray/blob/main/README.md" "f18"
+          echo "---- 已下载源文件"
+          ls -la sources/ || true
+
+      - name: 合并 / 规范化 / 去重
+        run: |
+          python3 - << 'PY'
+          import glob, ipaddress, os, re, sys, yaml
+
+          def load(f):
+              try:
+                  d = yaml.safe_load(open(f, encoding='utf-8'))
+                  return (d or {}).get('proxies') or []
+              except Exception as e:
+                  print(f"  跳过 {f}: {e}")
+                  return []
+
+          files = ['nodes/list.meta.yml'] + sorted(glob.glob('sources/*.yml'))
+          raw = []
+          for f in files:
+              if os.path.exists(f):
+                  n = load(f)
+                  print(f"  {f}: {len(n)}")
+                  raw.extend(n)
+          print(f"合并原始节点: {len(raw)}")
+
+          BAD_NAME = re.compile(r'(http|t\.me|t\.me|订阅|引流|加群|QQ群|广告)', re.I)
+
+          def bad_server(s):
+              s = str(s or '').strip()
+              if not s or s in ('0.0.0.0', '127.0.0.1', 'localhost'):
+                  return True
+              try:
+                  ip = ipaddress.ip_address(s)
+                  return ip.is_private or ip.is_loopback or ip.is_multicast or ip.is_reserved
+              except ValueError:
+                  return False
+
+          seen, out, drop = set(), [], {'字段缺失': 0, '内网地址': 0, '端口非法': 0,
+                                       '广告名': 0, 'yahoo reality': 0, 'chacha20': 0, '重复': 0}
+          for p in raw:
+              if not isinstance(p, dict):
+                  drop['字段缺失'] += 1; continue
+              t, srv, port = p.get('type'), p.get('server'), p.get('port')
+              if not t or not srv or not port:
+                  drop['字段缺失'] += 1; continue
+              try:
+                  port = int(port)
+                  if port < 1 or port > 65535: raise ValueError
+              except Exception:
+                  drop['端口非法'] += 1; continue
+              if bad_server(srv):
+                  drop['内网地址'] += 1; continue
+              name = str(p.get('name', ''))
+              if BAD_NAME.search(name):
+                  drop['广告名'] += 1; continue
+              if t == 'vless' and p.get('servername') == 'yahoo.com':
+                  drop['yahoo reality'] += 1; continue
+              if t == 'ss' and p.get('cipher') == 'chacha20-poly1305':
+                  drop['chacha20'] += 1; continue
+
+              fp = (t, str(srv).lower(), port,
+                    p.get('uuid') or p.get('password') or p.get('cipher') or
+                    p.get('auth') or p.get('psk') or '')
+              if fp in seen:
+                  drop['重复'] += 1; continue
+              seen.add(fp)
+
+              clean = re.sub(r'[\x00-\x1f|]+', ' ', name).strip() or 'node'
+              clean = re.sub(r'\s{2,}', ' ', clean)[:28]
+              p['name'] = clean
+              p['port'] = port
+              out.append(p)
+
+          # 重名加序号，避免 clash 加载失败
+          used, final = {}, []
+          for p in out:
+              n = p['name']
+              if n in used:
+                  used[n] += 1
+                  p['name'] = f"{n}#{used[n]}"
+              else:
+                  used[n] = 1
+              final.append(p)
+
+          yaml.safe_dump({'proxies': final}, open('merged.yaml', 'w', encoding='utf-8'),
+                         allow_unicode=True, sort_keys=False, default_flow_style=False)
+          print("丢弃统计:", drop)
+          print(f"规范化后唯一节点: {len(final)}")
+          PY
+
+      - name: TCP 快筛（全并发，宽松保留）
+        run: |
+          python3 - << 'PY'
+          import asyncio, yaml
+
+          CONC, TRIES, TMO = 300, 2, 2.0
+
+          async def probe(server, port):
+              try:
+                  r, w = await asyncio.wait_for(asyncio.open_connection(server, port), timeout=TMO)
+                  w.close()
+                  try: await w.wait_closed()
+                  except Exception: pass
+                  return True
+              except Exception:
+                  return False
+
+          async def check(p, sem):
+              async with sem:
+                  s, port = str(p.get('server')), int(p.get('port'))
+                  for _ in range(TRIES):
+                      if await probe(s, port):
+                          return p, True
+                  return p, False
+
+          async def main():
+              data = yaml.safe_load(open('merged.yaml', encoding='utf-8')) or {}
+              proxies = data.get('proxies') or []
+              print(f"待快筛: {len(proxies)}")
+              if not proxies:
+                  yaml.safe_dump({'proxies': []}, open('prefiltered.yaml', 'w', encoding='utf-8'), allow_unicode=True)
+                  return
+              sem = asyncio.Semaphore(CONC)
+              results = await asyncio.gather(*[check(p, sem) for p in proxies])
+              alive = [p for p, ok in results if ok]
+              print(f"TCP 可达: {len(alive)} / {len(proxies)}")
+              yaml.safe_dump({'proxies': alive}, open('prefiltered.yaml', 'w', encoding='utf-8'),
+                             allow_unicode=True, sort_keys=False)
+
+          asyncio.run(main())
+          PY
+          if [ ! -s prefiltered.yaml ]; then echo "proxies: []" > prefiltered.yaml; fi
+
+      - name: 安装 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: true
+
+      - name: 安装 clash-speedtest
+        run: |
+          if [ ! -x "$HOME/go/bin/clash-speedtest" ]; then
+            go install github.com/faceair/clash-speedtest@latest
+          else
+            echo "命中缓存，跳过编译"
+          fi
+          ls -l "$HOME/go/bin/clash-speedtest"
+
+      - name: 循环测速并清理加载失败节点
+        run: |
+          set +e
+          : > speedtest.log
+          if [ ! -s filtered.yaml ]; then echo "proxies: []" > filtered.yaml; fi
+          for R in 1 2 3; do
+            echo "========== 第 $R 轮测速 =========="
+            "$HOME/go/bin/clash-speedtest" -c prefiltered.yaml -output filtered.yaml \
+              -max-latency 800ms -min-download-speed 3 -concurrent 50 -timeout 8s > round_$R.log 2>&1
+            echo "测速退出码: $?"
+            cat round_$R.log >> speedtest.log
+            python3 - "round_$R.log" << 'PY'
+          import re, sys, yaml
+          log = sys.argv[1]
+          text = open(log, encoding='utf-8', errors='ignore').read()
+          idx = sorted({int(i) for i in re.findall(r'load proxies failed: proxy (\d+):', text)}, reverse=True)
+          if not idx:
+              print("本轮无加载失败节点")
+              sys.exit(0)
+          data = yaml.safe_load(open('prefiltered.yaml', encoding='utf-8')) or {}
+          pl = data.get('proxies') or []
+          for i in idx:
+              if 0 <= i < len(pl):
+                  bad = pl.pop(i)
+                  print(f"  移除加载失败: {bad.get('name')}")
+          data['proxies'] = pl
+          yaml.safe_dump(data, open('prefiltered.yaml', 'w', encoding='utf-8'), allow_unicode=True, sort_keys=False)
+          print(f"剩余待测: {len(pl)}")
+          sys.exit(1)
+          PY
+            if [ $? -eq 0 ]; then break; fi
+          done
+
+      - name: 生成订阅文件
+        run: |
+          python3 - << 'PY'
+          import json, os, yaml
+
+          LIMIT = int(os.environ.get('MAX_NODES', '200') or 200)
+          try:
+              data = yaml.safe_load(open('filtered.yaml', encoding='utf-8')) or {}
+          except Exception:
+              data = {}
+          proxies = data.get('proxies') or []
+
+          # 去掉 clash-speedtest 可能残留的测试字段
+          for p in proxies:
+              for k in ('latency', 'test-time', 'download-speed', 'download_size'):
+                  p.pop(k, None)
+
+          proxies = proxies[:LIMIT]
+          os.makedirs('nodes', exist_ok=True)
+          names = [p['name'] for p in proxies]
+
+          yaml.safe_dump({'proxies': proxies}, open('nodes/proxies.yml', 'w', encoding='utf-8'),
+                         allow_unicode=True, sort_keys=False)
+
+          sub = {
+              'mixed-port': 7890,
+              'allow-lan': True,
+              'mode': 'rule',
+              'log-level': 'info',
+              'proxies': proxies,
+              'proxy-groups': [{
+                  'name': '公共节点',
+                  'type': 'select',
+                  'proxies': names if names else ['DIRECT'],
+              }],
+              'rules': ['MATCH,公共节点'],
+          }
+          yaml.safe_dump(sub, open('nodes/openclash-sub.yaml', 'w', encoding='utf-8'),
+                         allow_unicode=True, sort_keys=False)
+
+          with open('nodes/nodes.txt', 'w', encoding='utf-8') as f:
+              f.write(f"# 更新于 {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M UTC')}\n")
+              f.write("# 名称 | 类型 | 服务器:端口\n")
+              for p in proxies:
+                  f.write(f"{p['name']} | {p.get('type')} | {p.get('server')}:{p.get('port')}\n")
+
+          json.dump({'count': len(proxies), 'names_sample': names[:10]},
+                    open('nodes/stats.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+
+          print(f"最终节点数: {len(proxies)}")
+          if proxies:
+              print("前 5 个:", names[:5])
+          PY
+
+      - name: 保存运行日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodes-run-log
+          path: |
+            speedtest.log
+            round_*.log
+            nodes/stats.json
+          retention-days: 7
+
+      - name: 提交并推送
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nodes/proxies.yml nodes/openclash-sub.yaml nodes/nodes.txt nodes/stats.json
+          if git diff --cached --quiet; then
+            echo "节点无变化，跳过提交"
+            exit 0
+          fi
+          git commit -m "Auto update nodes [skip ci]"
+          git pull --rebase --autostash origin master || true
+          git push origin master
