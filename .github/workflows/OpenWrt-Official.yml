@@ -22,9 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # 25.12.6：固定 release tag
+          # 25.12.6：改用 openwrt-25.12 维护分支，跟随该系列最新提交
           - version: '25.12.6'
-            ref: v25.12.6
+            ref: openwrt-25.12
           # 24.10.4：改用 openwrt-24.10 维护分支，跟随该系列最新提交。
           # 注意产物实际版本号可能高于 24.10.4，以源码 include/version.mk 为准。
           - version: '24.10.4'
