@@ -21,16 +21,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - '25.12.6'
-          - '24.10.4'
+        include:
+          # 25.12.6：固定 release tag
+          - version: '25.12.6'
+            ref: v25.12.6
+          # 24.10.4：改用 openwrt-24.10 维护分支，跟随该系列最新提交。
+          # 注意产物实际版本号可能高于 24.10.4，以源码 include/version.mk 为准。
+          - version: '24.10.4'
+            ref: openwrt-24.10
 
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
-          ref: v${{ matrix.version }}
+          ref: ${{ matrix.ref }}
           fetch-depth: 0
 
       - name: Install dependencies
