@@ -727,6 +727,11 @@ jobs:
         id: build
         run: |
           set +e
+          # rustc 1.89 的 bootstrap 在检测到 CI 环境时会拒绝 llvm.download-ci-llvm=true
+          # （报 "cannot be set to true on CI. Use if-unchanged instead."），
+          # 24.10.4 的 feeds/packages/lang/rust 正是因此 host 编译失败。
+          # 清掉 CI 变量让它正常下载官方预编译 LLVM，避免本地从头编 LLVM。
+          unset CI
           echo "开始编译 OpenWrt 固件 (openwrt v${{ matrix.version }}) - 多线程模式..."
           make -j$(nproc) 2>&1 | tee build.log
           BUILD_RESULT=${PIPESTATUS[0]}
