@@ -629,6 +629,10 @@ jobs:
           CONFIG_PACKAGE_firewall=y
           CONFIG_PACKAGE_firewall4=y
           CONFIG_PACKAGE_nftables=y
+          # dnsmasq-full 与 dnsmasq 提供同一批文件（/usr/sbin/dnsmasq、/etc/uci-defaults/…），
+          # 两者同时进 rootfs 会让 opkg 报 check_data_file_clashes 并中止 package/install。
+          # 必须显式关闭默认开启的 dnsmasq。
+          # CONFIG_PACKAGE_dnsmasq is not set
           CONFIG_PACKAGE_dnsmasq-full=y
           # OpenClash
           CONFIG_PACKAGE_luci-app-openclash=y
@@ -676,6 +680,13 @@ jobs:
         run: |
           # .config 里写错的包名会被 defconfig 静默丢弃，编 4 小时才发现白跑，所以先卡这里
           MISSING=0
+          # dnsmasq 与 dnsmasq-full 互斥：同装会在 package/install 阶段报 check_data_file_clashes
+          if grep -q '^CONFIG_PACKAGE_dnsmasq=y' .config; then
+            echo "❌ dnsmasq 仍为 y，会与 dnsmasq-full 冲突"
+            MISSING=1
+          else
+            echo "✅ dnsmasq 已关闭，仅保留 dnsmasq-full"
+          fi
           # 只校验日常运行与排障真正要用的；纯测试类（iperf3/iftop/strace/lsof/htop/mtr/rsync/
           # pciutils/usbutils/lm-sensors/socat/conntrack）与分区类（parted/cfdisk/e2fsprogs）已移除
           for pkg in tcpdump nmap jq etherwake ethtool vim bash \
