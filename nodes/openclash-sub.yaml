@@ -3,22 +3,7 @@ allow-lan: true
 mode: rule
 log-level: info
 proxies:
-- name: 🇨🇦 CA 001 | ⬇️ 526.25MB/s
-  port: 443
-  server: 172.64.68.89
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: 🇨🇦 CA 002 | ⬇️ 488.63MB/s
-  port: 443
-  server: 172.64.69.89
-  skip-cert-verify: true
-  tls: true
-  type: http
-- name: 🇺🇸 US 001 | ⬇️ 321.00MB/s
+- name: 🇺🇸 US 001 | ⬇️ 139.56MB/s
   password: nwilryafgkyvuxauc8pz
   port: 50875
   server: 69.164.240.85
@@ -26,311 +11,15 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- encryption: none
-  name: 🇨🇦 CA 003 | ⬇️ 259.68MB/s
-  network: ws
-  port: 8443
-  server: cf.090227.xyz
-  servername: liusuyan.cc.cd
-  tls: true
-  type: vless
-  uuid: 889fa37f-6bce-4674-8a49-1cc435e11de7
-  ws-opts:
-    headers:
-      Host: liusuyan.cc.cd
-    path: /proxyip=ProxyIP.SG.CMLiussss.Net
-- name: 🇨🇦 CA 004 | ⬇️ 257.49MB/s
-  network: ws
-  port: 8080
-  server: 104.19.173.68
-  tls: false
-  type: vless
-  udp: true
-  uuid: 2500e602-671c-4654-a602-c518b7282167
-  ws-opts:
-    headers:
-      Host: 2639w-throbbing-band-3840.xphnn6jp.workers.dev
-    path: /
-- encryption: none
-  name: 🇨🇦 CA 005 | ⬇️ 257.33MB/s
-  network: ws
-  port: 2052
-  server: 104.18.109.147
-  tls: false
-  type: vless
-  uuid: c29d39bd-92a4-45db-bb61-56013998617c
-  ws-opts:
-    headers:
-      Host: www.speedtest.net.www.1google.com.bing.com.visa.com.tls.xv98.ip-ddns.com
-    path: /Telegram-XV2ry2?ed=2048
-- client-fingerprint: chrome
-  encryption: none
-  name: 🇨🇦 CA 006 | ⬇️ 247.59MB/s
-  network: ws
+- name: 🇨🇦 CA 001 | ⬇️ 127.37MB/s
+  password: 'null'
   port: 443
-  server: cf.008500.xyz
-  servername: powered-by-surena.configfarsi695fd01a94fe7.workers.dev
-  tls: true
-  type: vless
-  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
-  ws-opts:
-    headers:
-      Host: powered-by-surena.configfarsi695fd01a94fe7.workers.dev
-    path: /?ed=2560
-- alpn:
-  - http/1.1
-  client-fingerprint: unsafe
-  encryption: none
-  name: 🇨🇦 CA 007 | ⬇️ 221.15MB/s
-  network: ws
-  port: 443
-  server: 172.67.141.182
-  servername: 6qwoom7kdrcoan3ui4ra5dy.pages.dev
-  tls: true
-  type: vless
-  uuid: ce440dcf-e570-4a50-af37-bf588ee8a988
-  ws-opts:
-    headers:
-      Host: 6qwoom7kdrcoan3ui4ra5dy.pages.dev
-    path: /vl/KSPdmco70dfoXFS292o2Nv6yPt?ed=2560#Telegram---PLANB_NET---PLANB_NET---PLANB_NET---PLANB_NET
-- client-fingerprint: chrome
-  name: 🇨🇦 CA 008 | ⬇️ 179.79MB/s
-  network: ws
-  port: 2096
-  server: 104.18.45.236
-  servername: mohammadhoseini4532.pages.dev
-  tls: true
-  type: vless
-  uuid: 51a0af77-a60c-4d9b-81a4-f50e1b38d90b
-  ws-opts:
-    headers:
-      Host: mohammadhoseini4532.pages.dev
-    path: /
-- name: 🇺🇸 US 002 | ⬇️ 125.23MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.155.131
-  servername: www.nextjobopportunityandclaimyouridealrole.com
+  server: 172.64.68.89
   skip-cert-verify: true
-  sni: www.nextjobopportunityandclaimyouridealrole.com
   tls: true
-  type: trojan
-  udp: true
-- client-fingerprint: chrome
-  encryption: none
-  name: 🇨🇦 CA 009 | ⬇️ 116.17MB/s
-  network: ws
-  port: 2083
-  server: 172.67.131.125
-  servername: smart-edge-424.arti98399-1905.workers.dev
-  tls: true
-  type: vless
-  uuid: f418674e-f518-4318-8ff9-e10000000046
-  ws-opts:
-    headers:
-      Host: smart-edge-424.arti98399-1905.workers.dev
-    path: /sync
-- name: 🇺🇸 US 003 | ⬇️ 114.91MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 169.197.140.171
-  servername: cdn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: true
-  sni: cdn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 004 | ⬇️ 114.86MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 169.197.140.218
-  servername: learn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: true
-  sni: learn.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 005 | ⬇️ 114.34MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.122.25
-  servername: cdn.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
-  sni: cdn.searchnationwidecareerchangehelperandguidancetoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 006 | ⬇️ 112.17MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 169.197.140.169
-  servername: api.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: true
-  sni: api.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 007 | ⬇️ 109.70MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.155.59
-  servername: api.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: true
-  sni: api.nextjobopportunityandclaimyouridealrole.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 008 | ⬇️ 109.09MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.122.7
-  servername: www.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
-  sni: www.searchnationwidecareerchangehelperandguidancetoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 009 | ⬇️ 107.29MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 169.197.140.245
-  servername: www.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: true
-  sni: www.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 010 | ⬇️ 105.13MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 169.197.140.208
-  servername: blog.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  skip-cert-verify: true
-  sni: blog.discoverfreshgraduatejobsstartyourprofessionaljourney.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 011 | ⬇️ 102.99MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.122.113
-  servername: api.searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
-  sni: api.searchnationwidecareerchangehelperandguidancetoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 012 | ⬇️ 100.22MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.19
-  servername: learn.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: learn.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 013 | ⬇️ 99.87MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.131
-  servername: blog.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: blog.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 014 | ⬇️ 97.30MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.112
-  servername: resources.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: resources.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 015 | ⬇️ 96.08MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.155.54
-  servername: learn.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: true
-  sni: learn.nextjobopportunityandclaimyouridealrole.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 016 | ⬇️ 95.58MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.155.158
-  servername: resources.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: true
-  sni: resources.nextjobopportunityandclaimyouridealrole.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 017 | ⬇️ 93.34MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.45
-  servername: cdn.findconnectwithemployersandbuildprofessionalnetwork.com
-  skip-cert-verify: true
-  sni: cdn.findconnectwithemployersandbuildprofessionalnetwork.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 018 | ⬇️ 92.75MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.122.46
-  servername: searchnationwidecareerchangehelperandguidancetoday.com
-  skip-cert-verify: true
-  sni: searchnationwidecareerchangehelperandguidancetoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 019 | ⬇️ 92.60MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.126
-  servername: resources.findconnectwithemployersandbuildprofessionalnetwork.com
-  skip-cert-verify: true
-  sni: resources.findconnectwithemployersandbuildprofessionalnetwork.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 020 | ⬇️ 90.46MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.156.49
-  servername: cdn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: true
-  sni: cdn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 021 | ⬇️ 87.20MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.166
-  servername: blog.findconnectwithemployersandbuildprofessionalnetwork.com
-  skip-cert-verify: true
-  sni: blog.findconnectwithemployersandbuildprofessionalnetwork.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 022 | ⬇️ 86.92MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.156.65
-  servername: learn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: true
-  sni: learn.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 023 | ⬇️ 85.99MB/s
+  type: http
+  username: 'null'
+- name: 🇺🇸 US 002 | ⬇️ 85.63MB/s
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
   server: 216.152.156.81
@@ -340,248 +29,7 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- name: 🇺🇸 US 024 | ⬇️ 85.11MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.156.159
-  servername: resources.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  skip-cert-verify: true
-  sni: resources.healthcarejobshubenhancemedicalprofessionalskillstoday.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 025 | ⬇️ 83.29MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.155.23
-  servername: courses.nextjobopportunityandclaimyouridealrole.com
-  skip-cert-verify: true
-  sni: courses.nextjobopportunityandclaimyouridealrole.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 026 | ⬇️ 78.34MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.211
-  servername: api.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: api.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US 027 | ⬇️ 77.98MB/s
-  port: 18000
-  server: 84.17.41.2
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- name: 🇺🇸 US 028 | ⬇️ 77.91MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.106
-  servername: www.findconnectwithemployersandbuildprofessionalnetwork.com
-  skip-cert-verify: true
-  sni: www.findconnectwithemployersandbuildprofessionalnetwork.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 029 | ⬇️ 75.50MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.171
-  servername: learn.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: learn.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 030 | ⬇️ 75.48MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.242
-  servername: resources.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: resources.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 031 | ⬇️ 74.33MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.147
-  servername: courses.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: courses.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇨🇦 CA 010 | ⬇️ 73.14MB/s
-  port: 443
-  server: 206.223.183.16
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US 032 | ⬇️ 73.10MB/s
-  port: 18000
-  server: 67.220.85.46
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- name: 🇺🇸 US 033 | ⬇️ 72.51MB/s
-  password: f0eb8c92ce8946aaba856569cff1a16b
-  port: 443
-  server: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 034 | ⬇️ 72.11MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.132
-  servername: courses.findconnectwithemployersandbuildprofessionalnetwork.com
-  skip-cert-verify: true
-  sni: courses.findconnectwithemployersandbuildprofessionalnetwork.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 035 | ⬇️ 71.96MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.67
-  servername: courses.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: courses.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 036 | ⬇️ 71.77MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.13
-  skip-cert-verify: true
-  tls: true
-  type: trojan
-  udp: true
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US 037 | ⬇️ 70.74MB/s
-  port: 18000
-  server: 38.110.1.246
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- name: 🇺🇸 US 038 | ⬇️ 70.55MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.106.186.66
-  servername: www.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: www.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 039 | ⬇️ 70.00MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.121
-  servername: www.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: www.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 040 | ⬇️ 69.62MB/s
-  password: f0eb8c92ce8946aaba856569cff1a16b
-  port: 443
-  server: 216.106.186.33
-  servername: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 041 | ⬇️ 68.95MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.106.186.155
-  servername: api.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: api.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 042 | ⬇️ 68.84MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.106.186.82
-  servername: courses.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: courses.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 043 | ⬇️ 68.55MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.142
-  servername: cdn.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: cdn.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 044 | ⬇️ 68.08MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.106.186.46
-  servername: cdn.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: cdn.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US 045 | ⬇️ 67.95MB/s
-  port: 18000
-  server: 67.220.95.3
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 001 | ⬇️ 67.94MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 185.176.206.9
-  type: ss
-- name: 🇺🇸 US 046 | ⬇️ 64.53MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.237
-  servername: cdn.explorecreativejobsandenhanceyourcareerportfolio.com
-  skip-cert-verify: true
-  sni: cdn.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 047 | ⬇️ 64.35MB/s
+- name: 🇺🇸 US 003 | ⬇️ 85.50MB/s
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
   server: 66.163.112.31
@@ -591,204 +39,175 @@ proxies:
   tls: true
   type: trojan
   udp: true
+- name: 🇺🇸 US 004 | ⬇️ 84.46MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 170.101.101.19
+  servername: learn.explorecreativejobsandenhanceyourcareerportfolio.com
+  skip-cert-verify: true
+  sni: learn.explorecreativejobsandenhanceyourcareerportfolio.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 005 | ⬇️ 78.74MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 216.106.186.155
+  servername: api.findlocaljobnetworkandbuildcommunityconnections.com
+  skip-cert-verify: true
+  sni: api.findlocaljobnetworkandbuildcommunityconnections.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 006 | ⬇️ 76.62MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 66.163.114.126
+  servername: resources.findconnectwithemployersandbuildprofessionalnetwork.com
+  skip-cert-verify: true
+  sni: resources.findconnectwithemployersandbuildprofessionalnetwork.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 007 | ⬇️ 76.48MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 66.163.112.121
+  servername: www.unlockyourfuturefindyourperfectcareer.com
+  skip-cert-verify: true
+  sni: www.unlockyourfuturefindyourperfectcareer.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 008 | ⬇️ 72.91MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 66.163.112.242
+  servername: resources.unlockyourfuturefindyourperfectcareer.com
+  skip-cert-verify: true
+  sni: resources.unlockyourfuturefindyourperfectcareer.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 009 | ⬇️ 64.39MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 66.163.122.7
+  servername: www.searchnationwidecareerchangehelperandguidancetoday.com
+  skip-cert-verify: true
+  sni: www.searchnationwidecareerchangehelperandguidancetoday.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 010 | ⬇️ 55.72MB/s
+  password: f0eb8c92ce8946aaba856569cff1a16b
+  port: 443
+  server: 216.106.186.33
+  servername: resources.findlocaljobnetworkandbuildcommunityconnections.com
+  skip-cert-verify: true
+  sni: resources.findlocaljobnetworkandbuildcommunityconnections.com
+  tls: true
+  type: trojan
+  udp: true
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US 011 | ⬇️ 52.22MB/s
+  port: 18000
+  server: 38.110.1.246
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
 - cipher: aes-256-gcm
-  name: 🇳🇱 NL 001 | ⬇️ 58.96MB/s
+  name: 🇬🇧 GB 001 | ⬇️ 47.54MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 185.176.206.9
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇳🇱 NL 001 | ⬇️ 43.71MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 151.241.19.36
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇳🇱 NL 002 | ⬇️ 43.42MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 151.241.19.29
   type: ss
-- name: 🇮🇪 IE 001 | ⬇️ 58.86MB/s
-  port: 443
-  server: 34.249.214.108
+- cipher: aes-256-gcm
+  name: 🇩🇪 DE 001 | ⬇️ 40.76MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 23.157.88.43
+  type: ss
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US 012 | ⬇️ 40.56MB/s
+  port: 18000
+  server: 169.197.142.22
   skip-cert-verify: true
-  tls: true
-  type: http
+  tls: false
+  type: vmess
   udp: true
-- client-fingerprint: firefox
-  flow: xtls-rprx-vision
-  name: 🇳🇱 NL 002 | ⬇️ 57.75MB/s
-  port: 443
-  reality-opts:
-    public-key: OH9jKzqAqEg98VDxmxReqrC_jbJWNwr-ipj2cNRgazc
-    short-id: 2237b916
-  server: 81.171.14.72
-  servername: zovira.me
+  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
+- cipher: aes-256-gcm
+  name: 🇩🇪 DE 002 | ⬇️ 39.96MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 193.108.119.2
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇩🇪 DE 003 | ⬇️ 39.85MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 57.129.83.85
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇩🇪 DE 004 | ⬇️ 39.83MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 193.108.119.3
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇬🇧 GB 002 | ⬇️ 39.82MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 82.110.60.9
+  type: ss
+- flow: xtls-rprx-vision
+  name: 🇳🇱 NL 003 | ⬇️ 39.79MB/s
+  port: 444
+  server: 177.177.215.45
+  servername: ams2.shtil.io
   skip-cert-verify: true
-  sni: zovira.me
+  sni: ams2.shtil.io
   tls: true
   type: vless
   udp: true
-  uuid: 8197b9b9-8945-460f-99c9-325ef8a8a7c3
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 002 | ⬇️ 57.00MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 198.244.202.215
-  type: ss
-- name: 🇺🇸 US 048 | ⬇️ 56.70MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 170.101.101.53
-  servername: www.explorecreativejobsandenhanceyourcareerportfolio.com
+  uuid: 254f28cb-d0c1-41e9-a06b-f2155213ff04
+- name: 🇳🇱 NL 004 | ⬇️ 38.52MB/s
+  port: 9002
+  server: 84.17.47.125
   skip-cert-verify: true
-  sni: www.explorecreativejobsandenhanceyourcareerportfolio.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇬🇧 GB 003 | ⬇️ 54.31MB/s
-  port: 443
-  server: 212.102.63.31
-  skip-cert-verify: true
-  sub_tag: R002-260618
   tls: true
   type: http
   udp: true
-  x-toolall-mihomo: true
-- name: 🇺🇸 US 049 | ⬇️ 54.13MB/s
-  password: dba20dcb635e430fa4d3bfc303a149d2
-  port: 443
-  server: blog.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  tls: true
-  type: trojan
-  udp: true
 - cipher: aes-256-gcm
-  name: 🇬🇧 GB 004 | ⬇️ 54.11MB/s
+  name: 🇬🇧 GB 003 | ⬇️ 38.04MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 198.244.201.129
   type: ss
 - cipher: aes-256-gcm
-  name: 🇩🇪 DE 001 | ⬇️ 53.16MB/s
+  name: 🇪🇸 ES 001 | ⬇️ 37.61MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 57.129.83.85
+  server: 66.163.118.103
   type: ss
-- flow: xtls-rprx-vision
-  name: 🇩🇪 DE 002 | ⬇️ 52.38MB/s
-  port: 443
-  server: app.streamru4.net
-  servername: app.streamru4.net
-  skip-cert-verify: true
-  sni: app.streamru4.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
-- flow: xtls-rprx-vision
-  name: 🇩🇪 DE 003 | ⬇️ 52.28MB/s
-  port: 443
-  server: 84.32.98.212
-  servername: app.streamru4.net
-  skip-cert-verify: true
-  sni: app.streamru4.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
-- name: 🇩🇪 DE 004 | ⬇️ 51.05MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.134
-  servername: api.iloverussia2026.com
-  skip-cert-verify: true
-  sni: api.iloverussia2026.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇳🇱 NL 003 | ⬇️ 50.71MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.127.154
-  servername: www.indyourperfectremotetechjobfromthecomfortofhome.com
-  skip-cert-verify: true
-  sni: www.indyourperfectremotetechjobfromthecomfortofhome.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇳🇱 NL 004 | ⬇️ 50.50MB/s
-  port: 443
-  server: 149.36.51.129
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: 🇳🇱 NL 005 | ⬇️ 50.37MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.127.155
-  servername: indyourperfectremotetechjobfromthecomfortofhome.com
-  skip-cert-verify: true
-  sni: indyourperfectremotetechjobfromthecomfortofhome.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇩🇪 DE 005 | ⬇️ 49.81MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 193.108.119.2
-  type: ss
-- name: 🇺🇸 US 050 | ⬇️ 49.78MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 167.88.61.52
-  servername: courses.browseseniorrolesandenhanceyourcareertoday.com
-  skip-cert-verify: true
-  sni: courses.browseseniorrolesandenhanceyourcareertoday.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 005 | ⬇️ 49.48MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 82.110.60.9
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇩🇪 DE 006 | ⬇️ 49.36MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 23.157.88.43
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇩🇪 DE 007 | ⬇️ 49.13MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 193.108.119.3
-  type: ss
-- name: 🇳🇱 NL 006 | ⬇️ 49.08MB/s
-  password: None
-  port: 9002
-  server: 84.17.47.123
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇳🇱 NL 007 | ⬇️ 49.05MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.127.9
-  servername: resources.indyourperfectremotetechjobfromthecomfortofhome.com
-  skip-cert-verify: true
-  sni: resources.indyourperfectremotetechjobfromthecomfortofhome.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 001 | ⬇️ 48.99MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 185.164.175.81
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 002 | ⬇️ 48.90MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.45
-  type: ss
-- name: 🇳🇱 NL 008 | ⬇️ 48.88MB/s
+- name: 🇳🇱 NL 005 | ⬇️ 37.40MB/s
   password: None
   port: 9002
   server: 84.17.47.149
@@ -796,166 +215,7 @@ proxies:
   tls: true
   type: http
   udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 003 | ⬇️ 48.79MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.90
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 004 | ⬇️ 48.76MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.27
-  type: ss
-  udp: true
-- name: 🇳🇱 NL 009 | ⬇️ 48.72MB/s
-  port: 9002
-  server: 84.17.47.124
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 005 | ⬇️ 48.68MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.36
-  type: ss
-  udp: true
-- name: 🇩🇪 DE 008 | ⬇️ 48.66MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.96
-  skip-cert-verify: true
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇳🇱 NL 010 | ⬇️ 48.62MB/s
-  password: None
-  port: 9002
-  server: 84.17.47.148
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: chacha20-ietf-poly1305
-  name: 🇨🇦 CA 011 | ⬇️ 48.58MB/s
-  password: 575hiopq2h28yao6
-  port: 8080
-  server: 15.235.121.109
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 006 | ⬇️ 48.43MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.81
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 001 | ⬇️ 48.39MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 172.99.189.142
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 007 | ⬇️ 48.23MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.99
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 008 | ⬇️ 48.10MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.63
-  type: ss
-  udp: true
-- name: 🇩🇪 DE 009 | ⬇️ 47.87MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.34
-  servername: cdn.iloverussia2026.com
-  skip-cert-verify: true
-  sni: cdn.iloverussia2026.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇪🇸 ES 001 | ⬇️ 47.85MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.118.251
-  servername: resources.discovergreatjobsandadvanceyourcareer.com
-  skip-cert-verify: true
-  sni: resources.discovergreatjobsandadvanceyourcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇳🇱 NL 011 | ⬇️ 47.71MB/s
-  port: 9002
-  server: 84.17.47.125
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇩🇪 DE 010 | ⬇️ 47.52MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.29
-  servername: blog.iloverussia2026.com
-  skip-cert-verify: true
-  sni: blog.iloverussia2026.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 009 | ⬇️ 47.49MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.72
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 002 | ⬇️ 47.45MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 167.17.64.175
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 010 | ⬇️ 47.35MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.54
-  type: ss
-  udp: true
-- name: 🇧🇪 BE 001 | ⬇️ 47.25MB/s
-  port: 443
-  server: 146.70.176.242
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: 🇳🇱 NL 012 | ⬇️ 46.98MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.127.225
-  sni: cdn.indyourperfectremotetechjobfromthecomfortofhome.com
-  type: trojan
-- flow: xtls-rprx-vision
-  name: 🇳🇱 NL 013 | ⬇️ 46.89MB/s
-  port: 443
-  server: 72.56.19.142
-  servername: app.streamru5.net
-  skip-cert-verify: true
-  sni: app.streamru5.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 2232d904-8e6a-4202-8240-6efd8aec02e9
-- name: 🇩🇪 DE 011 | ⬇️ 46.81MB/s
+- name: 🇩🇪 DE 005 | ⬇️ 37.39MB/s
   network: ws
   port: 443
   server: 88.216.70.125
@@ -968,96 +228,54 @@ proxies:
   uuid: 88e79aa6-f431-4453-8dcc-652a0c747198
   ws-opts:
     path: /api/se1k2rfxlsuer3ry4u6e84kl8rqp721p
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 006 | ⬇️ 46.77MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 38.114.120.221
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇪🇸 ES 002 | ⬇️ 46.74MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 66.163.118.103
-  type: ss
-- name: 🇩🇪 DE 012 | ⬇️ 46.61MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.193
-  servername: resources.iloverussia2026.com
+- name: 🇳🇱 NL 006 | ⬇️ 37.31MB/s
+  password: None
+  port: 9002
+  server: 84.17.47.123
   skip-cert-verify: true
-  sni: resources.iloverussia2026.com
   tls: true
-  type: trojan
+  type: http
   udp: true
+- cipher: aes-256-gcm
+  name: 🇫🇷 FR 001 | ⬇️ 37.26MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.64.27
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇫🇷 FR 002 | ⬇️ 37.19MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 172.99.189.142
+  type: ss
+- name: 🇳🇱 NL 007 | ⬇️ 37.18MB/s
+  password: None
+  port: 9002
+  server: 84.17.47.148
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇪🇸 ES 002 | ⬇️ 37.12MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.71.167
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 001 | ⬇️ 36.93MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 185.164.175.81
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇸🇪 SE 001 | ⬇️ 36.91MB/s
+  password: 2e555e46dbc421452416834962fd014f
+  port: 8388
+  server: 62.182.193.228
+  type: ss
 - client-fingerprint: firefox
-  flow: xtls-rprx-vision
-  name: 🇸🇪 SE 001 | ⬇️ 46.22MB/s
-  port: 443
-  reality-opts:
-    public-key: GQC47B2ZbBygpgJap7Em9lZmCZZkzlckiadXWXlVxGU
-    short-id: 2a67748b0d641e16
-  server: 195.72.62.7
-  servername: fexzoo.net
-  skip-cert-verify: true
-  sni: fexzoo.net
-  tls: true
-  type: vless
-  udp: true
-  uuid: 8197b9b9-8945-460f-99c9-325ef8a8a7c3
-- name: 🇪🇸 ES 003 | ⬇️ 46.13MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.118.62
-  servername: courses.discovergreatjobsandadvanceyourcareer.com
-  skip-cert-verify: true
-  sni: courses.discovergreatjobsandadvanceyourcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 003 | ⬇️ 46.05MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 23.162.152.22
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 007 | ⬇️ 45.92MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 142.202.51.22
-  type: ss
-- alpn:
-  - h3
-  - h2
-  - http/1.1
-  client-fingerprint: ios
-  name: 🇸🇪 SE 002 | ⬇️ 45.61MB/s
-  network: ws
-  port: 8443
-  server: 5.157.30.28
-  servername: 1.proxy2.us.ci.
-  tls: true
-  type: vless
-  udp: true
-  uuid: 4859c235-2530-4062-9a0b-ea859cbbf861
-  ws-opts:
-    headers:
-      Host: 1.proxy2.us.ci.
-    path: /?ed=2560
-- flow: xtls-rprx-vision
-  name: 🇳🇱 NL 014 | ⬇️ 45.57MB/s
-  port: 444
-  server: 177.177.215.45
-  servername: ams2.shtil.io
-  skip-cert-verify: true
-  sni: ams2.shtil.io
-  tls: true
-  type: vless
-  udp: true
-  uuid: 254f28cb-d0c1-41e9-a06b-f2155213ff04
-- client-fingerprint: firefox
-  name: 🇵🇱 PL 001 | ⬇️ 45.33MB/s
+  name: 🇵🇱 PL 001 | ⬇️ 36.76MB/s
   port: 443
   reality-opts:
     public-key: drl7nndYdfzZY1aQ0eUAWmNV0nsHig2uDnu9siy9biQ
@@ -1070,26 +288,59 @@ proxies:
   type: vless
   udp: true
   uuid: a30903dc-1bf0-4be5-8b1b-603a3a56211c
-- name: 🇩🇪 DE 013 | ⬇️ 45.00MB/s
+- name: 🇩🇪 DE 006 | ⬇️ 35.99MB/s
   port: 9002
-  server: 158.173.154.4
+  server: 158.173.154.1
   skip-cert-verify: true
-  sub_tag: R002-260618
   tls: true
   type: http
   udp: true
-  x-toolall-mihomo: true
-- name: 🇪🇸 ES 004 | ⬇️ 44.81MB/s
+- name: 🇩🇪 DE 007 | ⬇️ 35.89MB/s
+  port: 9002
+  server: 158.173.154.5
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇪🇸 ES 003 | ⬇️ 35.87MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 79.127.139.242
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇫🇷 FR 003 | ⬇️ 35.25MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.64.175
+  type: ss
+- name: 🇺🇸 US 013 | ⬇️ 35.14MB/s
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
-  server: 66.163.118.115
-  servername: discovergreatjobsandadvanceyourcareer.com
+  server: 66.163.112.147
+  servername: courses.unlockyourfuturefindyourperfectcareer.com
   skip-cert-verify: true
-  sni: discovergreatjobsandadvanceyourcareer.com
+  sni: courses.unlockyourfuturefindyourperfectcareer.com
   tls: true
   type: trojan
   udp: true
-- name: 🇩🇪 DE 014 | ⬇️ 44.78MB/s
+- alterId: 0
+  cipher: auto
+  name: 🇨🇦 CA 002 | ⬇️ 34.73MB/s
+  port: 18000
+  server: 134.195.196.211
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
+- cipher: aes-256-gcm
+  name: 🇨🇭 CH 001 | ⬇️ 34.53MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 23.166.88.127
+  type: ss
+- name: 🇩🇪 DE 008 | ⬇️ 34.17MB/s
   network: ws
   port: 2083
   server: sino.bestsellers1.site
@@ -1102,117 +353,22 @@ proxies:
   uuid: 0386df1b-7abd-4676-f3c6-d65d691023b9
   ws-opts:
     path: /
-- name: 🇮🇪 IE 002 | ⬇️ 44.77MB/s
-  password: None
+- cipher: aes-256-gcm
+  name: 🇫🇷 FR 004 | ⬇️ 33.99MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 23.162.152.22
+  type: ss
+- name: 🇦🇹 AT 001 | ⬇️ 33.81MB/s
   port: 443
-  server: 149.88.96.1
+  server: 146.70.244.2
   skip-cert-verify: true
-  sub_tag: P002-260618
+  sub_tag: R002-260618
   tls: true
   type: http
   udp: true
   x-toolall-mihomo: true
-- cipher: aes-256-gcm
-  name: 🇪🇸 ES 005 | ⬇️ 44.72MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 167.17.71.167
-  type: ss
-- name: 🇩🇪 DE 015 | ⬇️ 44.65MB/s
-  port: 9002
-  server: 158.173.154.1
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- alterId: 0
-  cipher: auto
-  name: 🇨🇦 CA 012 | ⬇️ 44.63MB/s
-  port: 18000
-  server: 134.195.196.211
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 004 | ⬇️ 44.52MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 167.17.64.27
-  type: ss
-- client-fingerprint: chrome
-  encryption: none
-  name: 🇬🇧[www.v2nodes.com] vless-GB#3
-  network: ws
-  port: 50818
-  server: 34.39.80.57
-  servername: yingguo.rymaker.cn
-  tls: true
-  type: vless
-  uuid: 408c814e-f70a-4d16-b3b3-8182bb70211d
-  ws-opts:
-    path: /GunService
-- name: 🇩🇪_德国 (4)
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.15
-  servername: courses.iloverussia2026.com
-  skip-cert-verify: true
-  sni: courses.iloverussia2026.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇩🇪 DE 016 | ⬇️ 43.36MB/s
-  port: 9002
-  server: 158.173.154.5
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- alterId: 0
-  cipher: auto
-  name: 🇺🇸 US 051 | ⬇️ 42.72MB/s
-  port: 18000
-  server: 169.197.142.22
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- name: 🇨🇿CZ_2 2.0MB/s
-  port: 443
-  server: 185.216.35.66
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: DE_speednode_0004
-  port: 443
-  server: 213.109.163.119
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇨🇿 CZ 001 | ⬇️ 42.49MB/s
-  port: 443
-  server: 185.216.35.130
-  skip-cert-verify: true
-  tls: true
-  type: http
-- flow: xtls-rprx-vision
-  name: 🇩🇪_德国 (18)
-  port: 443
-  server: 187.7.206.179
-  servername: 1fw71df.virtual-network.lol
-  skip-cert-verify: true
-  sni: 1fw71df.virtual-network.lol
-  tls: true
-  type: vless
-  udp: true
-  uuid: 352a250d-080b-47b5-b7db-f9f8fa31c551
-- name: 🇨🇱_智利
+- name: 🇨🇱 CL 001 | ⬇️ 33.79MB/s
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
   server: 64.176.7.205
@@ -1222,120 +378,21 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- alpn:
-  - h2
-  - http/1.1
-  client-fingerprint: chrome
-  name: 🇩🇪 DE 017 | ⬇️ 41.49MB/s
-  port: 39653
-  server: online.shop.ir.eeso.cc
-  servername: online.shop.ir.eeso.cc
-  tls: true
-  type: vless
-  uuid: baded307-189c-4ffc-a271-9acdab51a324
-- name: 🇸🇪 SE 003 | ⬇️ 40.74MB/s
-  network: ws
-  port: 14430
-  server: 5.178.109.174
-  tls: false
-  type: vless
-  uuid: 80de563a-cac8-40ea-8cb0-4cb082dd92f9
-  ws-opts:
-    headers:
-      Host: 5.178.109.174
-    path: /vless
 - cipher: aes-256-gcm
-  name: 🇫🇷[www.v2nodes.com] ss-FR-16#2
+  name: 🇬🇧 GB 004 | ⬇️ 33.77MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 38.109.228.110
-  type: ss
-- name: 🇭🇺 HU 001 | ⬇️ 40.26MB/s
-  password: None
-  port: 443
-  server: 146.70.203.18
-  skip-cert-verify: true
-  sub_tag: P002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: 🇨🇭_瑞士 (4)
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 208.69.78.29
-  servername: learn.yourultimateprofessionalcareerhub.com
-  skip-cert-verify: true
-  sni: learn.yourultimateprofessionalcareerhub.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇦🇹AT_1 1.1MB/s R002-260618
-  port: 443
-  server: 146.70.244.2
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- cipher: chacha20-ietf-poly1305
-  name: 🇬🇧 GB 008 | ⬇️ 39.15MB/s
-  password: 8nrpt2il04ptci2j
-  port: 8080
-  server: 54.37.240.40
+  server: 198.244.202.215
   type: ss
 - cipher: aes-256-gcm
-  name: 🇨🇭 CH 001 | ⬇️ 39.05MB/s
+  name: 🇬🇧 GB 005 | ⬇️ 33.75MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 186.190.215.251
+  server: 38.114.120.221
   type: ss
-- cipher: aes-256-gcm
-  name: 🇨🇭[www.v2nodes.com] ss-CH-16
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 23.166.88.127
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇪🇸 ES 006 | ⬇️ 38.35MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 79.127.139.242
-  type: ss
-- name: 🇩🇪_德国 (22)
-  port: 39653
-  server: 91.107.255.63
-  servername: online.shop.ir.eeso.cc
-  skip-cert-verify: true
-  sni: online.shop.ir.eeso.cc
-  tls: true
-  type: vless
-  udp: true
-  uuid: baded307-189c-4ffc-a271-9acdab51a324
-- name: 🇩🇪DE_6 1.2MB/s
-  password: 'null'
-  port: 443
-  server: 87.106.223.158
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-  username: 'null'
-  x-toolall-mihomo: true
-- name: 🇨🇭 CH 002 | ⬇️ 37.55MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 208.69.78.19
-  servername: www.yourultimateprofessionalcareerhub.com
-  skip-cert-verify: true
-  sni: www.yourultimateprofessionalcareerhub.com
-  tls: true
-  type: trojan
-  udp: true
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇫🇮_芬兰 (2)
+  name: 🇫🇮 FI 001 | ⬇️ 32.81MB/s
   port: 49659
   reality-opts:
     public-key: bBVqro8tG6swTNoAkjwUzcu4Ew4N4VcyDHzADcGviCs
@@ -1348,116 +405,92 @@ proxies:
   type: vless
   udp: true
   uuid: 88a558b1-9645-42f3-89e5-341570d8486d
-- name: 🇨🇭_瑞士 (5)
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 208.69.78.222
-  servername: yourultimateprofessionalcareerhub.com
-  skip-cert-verify: true
-  sni: yourultimateprofessionalcareerhub.com
-  tls: true
-  type: trojan
-  udp: true
 - cipher: aes-256-gcm
-  name: 🇸🇪[www.v2nodes.com] ss-SE-16#2
+  name: 🇫🇷 FR 005 | ⬇️ 32.38MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 138.199.55.243
+  server: 38.109.228.110
   type: ss
-- name: 🇨🇭[www.v2nodes.com] trojan-C
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 208.69.78.33
-  sni: courses.yourultimateprofessionalcareerhub.com
-  type: trojan
-- cipher: chacha20-ietf-poly1305
-  name: 🇫🇷[www.v2nodes.com] ss-FR-16
-  password: 29irqk0paakcx19v
-  port: 8080
-  server: 51.83.61.102
+- cipher: aes-256-gcm
+  name: 🇬🇧 GB 006 | ⬇️ 32.24MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 142.202.51.22
   type: ss
-- name: 🇩🇪_德国 (10)
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 193.108.119.78
-  servername: www.iloverussia2026.com
-  skip-cert-verify: true
-  sni: www.iloverussia2026.com
-  tls: true
-  type: trojan
-  udp: true
-- cipher: chacha20-ietf-poly1305
-  name: 🇮🇹 IT 011 | ⬇️ 32.05MB/s
-  password: mx81glqbtlwuhcjo
-  port: 8080
-  server: 57.131.4.13
+- cipher: aes-256-gcm
+  name: 🇫🇷 FR 006 | ⬇️ 32.18MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.64.22
   type: ss
-- name: 🇦🇱AL_1 1.1MB/s R002-260618
-  port: 443
-  server: 87.120.103.242
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- name: 🇫🇷 FR 005 | ⬇️ 30.16MB/s
-  port: 443
-  server: 82.65.162.76
+- cipher: aes-256-gcm
+  name: 🇨🇭 CH 002 | ⬇️ 31.79MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 186.190.215.251
+  type: ss
+- name: 🇳🇱 NL 008 | ⬇️ 31.02MB/s
+  port: 9002
+  server: 84.17.47.124
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: US_speednode_0040
+- flow: xtls-rprx-vision
+  name: 🇩🇪 DE 009 | ⬇️ 30.92MB/s
   port: 443
-  server: 38.247.141.135
+  server: 187.7.206.179
+  servername: 1fw71df.virtual-network.lol
   skip-cert-verify: true
+  sni: 1fw71df.virtual-network.lol
   tls: true
-  type: http
+  type: vless
   udp: true
-- name: FR_speednode_0008
+  uuid: 352a250d-080b-47b5-b7db-f9f8fa31c551
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: 🇯🇵 JP 001 | ⬇️ 30.22MB/s
+  port: 43149
+  reality-opts:
+    public-key: cvong7paE8XIzzbKWgV5iUruP1pBqI2IhMuBHc8c0UE
+    short-id: 15aa0ad4
+  server: zfapi.zalolink.com
+  servername: psstatic.cdn.bcebos.com
+  skip-cert-verify: true
+  sni: psstatic.cdn.bcebos.com
+  tls: true
+  type: vless
+  udp: true
+  uuid: 57beeeb0-03fc-4fc9-94da-7604488a7134
+- name: 🇳🇱 NL 009 | ⬇️ 29.11MB/s
   port: 19362
   server: 51.159.225.197
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: FR_speednode_0011
-  port: 23856
-  server: 51.159.225.196
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: LV_speednode_0020
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 002 | ⬇️ 28.85MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.54
+  type: ss
+- name: 🇰🇷 KR 001 | ⬇️ 28.82MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
-  server: 185.219.159.15
+  server: 158.247.253.243
   skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇱🇻LV_1 2.1MB/s R002-260618
-  port: 443
-  server: 185.219.159.16
-  skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
+  sni: connectgraduateswithjobopeningsandgrowprofessionally.com
+  type: trojan
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 003 | ⬇️ 28.60MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.99
+  type: ss
 - alterId: 0
   cipher: auto
-  name: 🇸🇬_新加坡 (7)
-  port: 18000
-  server: 149.88.23.202
-  skip-cert-verify: true
-  tls: false
-  type: vmess
-  udp: true
-  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- alterId: 0
-  cipher: auto
-  name: 🇸🇬_新加坡 (8)
+  name: 🇸🇬 SG 001 | ⬇️ 28.00MB/s
   port: 18000
   server: ww11.levikogjgfdd.ir
   skip-cert-verify: true
@@ -1465,21 +498,9 @@ proxies:
   type: vmess
   udp: true
   uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- cipher: aes-256-gcm
-  name: 🇨🇭[www.v2nodes.com] ss-CH-16#3
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 79.127.184.104
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇸🇬[www.v2nodes.com] ss-SG-16#4
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 149.88.107.74
-  type: ss
 - alterId: 0
   cipher: auto
-  name: 🇸🇬_新加坡 (2)
+  name: 🇸🇬 SG 002 | ⬇️ 27.94MB/s
   port: 18000
   server: 149.88.23.207
   skip-cert-verify: true
@@ -1487,42 +508,100 @@ proxies:
   type: vmess
   udp: true
   uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
-- client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: 138-124-86-230-sslip-io
-  name: '🏳[www.v2nodes.com] vless- #1#4'
-  network: grpc
-  port: 48115
-  server: 138.124.86.230
-  servername: 138-124-86-230.sslip.io
-  tls: true
-  type: vless
-  uuid: b2fe1fa4-6a79-4938-a3f4-63b54ae7f16b
+- alterId: 0
+  cipher: auto
+  name: 🇸🇬 SG 003 | ⬇️ 27.89MB/s
+  port: 18000
+  server: 149.88.23.202
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: f8c8dc3d-0d37-46b0-8b34-a7232882fcfe
 - cipher: aes-256-gcm
-  name: '🏳[www.v2nodes.com] ss- #11'
+  name: 🇸🇬 SG 004 | ⬇️ 27.43MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 51.79.228.131
+  server: 149.88.107.74
+  type: ss
+- name: 🇱🇻 LV 001 | ⬇️ 27.16MB/s
+  password: None
+  port: 443
+  server: 185.219.159.16
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇸🇪 SE 002 | ⬇️ 27.14MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 138.199.55.243
+  type: ss
+- name: 🇺🇸 US 014 | ⬇️ 26.35MB/s
+  port: 443
+  server: 38.247.141.135
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: 🇱🇻 LV 002 | ⬇️ 25.98MB/s
+  port: 443
+  server: 185.219.159.15
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇸🇬 SG 005 | ⬇️ 25.44MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 149.88.106.74
   type: ss
 - cipher: aes-256-gcm
-  name: 🇸🇬[www.v2nodes.com] ss-SG-16#2
+  name: 🇸🇬 SG 006 | ⬇️ 25.15MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 15.235.164.133
   type: ss
 - cipher: aes-256-gcm
-  name: 🇸🇬[www.v2nodes.com] ss-SG-16#5
+  name: 🇸🇬 SG 007 | ⬇️ 25.14MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 51.79.228.131
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇸🇬 SG 008 | ⬇️ 24.97MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 15.235.182.183
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 004 | ⬇️ 24.42MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.63
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇸🇬 SG 009 | ⬇️ 24.38MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 149.88.107.47
   type: ss
 - cipher: aes-256-gcm
-  name: 🇸🇬[www.v2nodes.com] ss-SG-16
+  name: 🇮🇹 IT 005 | ⬇️ 23.80MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 15.235.182.183
+  server: 202.50.253.90
   type: ss
-- name: '@confiig_hub #1'
+- cipher: chacha20-ietf-poly1305
+  name: 🇨🇦 CA 003 | ⬇️ 23.11MB/s
+  password: 575hiopq2h28yao6
+  port: 8080
+  server: 15.235.121.109
+  type: ss
+- name: 🇳🇱 NL 010 | ⬇️ 23.03MB/s
   obfs: salamander
   obfs-password: rG07s3COMIEvdnQipRyWzx_H_2xygNC3
   password: p7Q76LzlnS4hIzr1W3staBOnUe_WwSkR
@@ -1533,34 +612,21 @@ proxies:
   tls: false
   type: hysteria2
 - cipher: aes-256-gcm
-  name: 🇸🇬[www.v2nodes.com] ss-SG-16#3
+  name: 🇮🇹 IT 006 | ⬇️ 23.02MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 149.88.106.74
+  server: 202.50.253.36
   type: ss
-- client-fingerprint: firefox
-  flow: xtls-rprx-vision
-  name: 🇺🇸_美国 (5)
-  port: 443
-  reality-opts:
-    public-key: tKA5ivaRbvqJ9RcSgp1ZtcCNfHAAuhWfve3tjMXse2w
-    short-id: 678ce913b8266e
-  server: 23.129.180.171
-  servername: us5.gofizzin.com
-  skip-cert-verify: true
-  sni: us5.gofizzin.com
-  tls: true
-  type: vless
   udp: true
-  uuid: 8197b9b9-8945-460f-99c9-325ef8a8a7c3
-- name: 🇩🇪[www.v2nodes.com] vless-DE#3
-  port: 49313
-  server: 159.195.207.238
-  tls: false
-  type: vless
-  uuid: 855c7aaa-e7d6-463e-971e-d36032744428
+- name: 🇳🇱 NL 011 | ⬇️ 22.82MB/s
+  port: 23856
+  server: 51.159.225.196
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
 - client-fingerprint: chrome
-  name: 🇸🇬[www.v2nodes.com] vless-SG#4
+  name: 🇸🇬 SG 010 | ⬇️ 22.54MB/s
   network: ws
   port: 2096
   server: 139.162.27.96
@@ -1572,26 +638,61 @@ proxies:
     headers:
       Host: free-server.techsonic.dev
     path: /free-server.techsonic.dev
-- cipher: chacha20-ietf-poly1305
-  name: 🇿🇦[www.v2nodes.com] ss-ZA-13
-  password: Xsy8Ox4yOV3xLlpxtjzs3X
-  port: 16233
-  server: 102.133.165.160
+- name: 🇸🇪 SE 003 | ⬇️ 21.74MB/s
+  network: ws
+  port: 14430
+  server: 5.178.109.174
+  tls: false
+  type: vless
+  uuid: 80de563a-cac8-40ea-8cb0-4cb082dd92f9
+  ws-opts:
+    headers:
+      Host: 5.178.109.174
+    path: /vless
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 007 | ⬇️ 20.67MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.81
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 008 | ⬇️ 19.68MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.27
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 009 | ⬇️ 19.31MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.45
   type: ss
 - client-fingerprint: firefox
   grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: mobile.api.Event
-  name: 🇷🇺 俄罗斯 RUS 3
+    grpc-service-name: 138-124-86-230-sslip-io
+  name: 🇸🇪 SE 004 | ⬇️ 17.36MB/s
   network: grpc
-  port: 443
-  server: 201.24.116.192
-  servername: vps3.nemnogogo.com
+  port: 48115
+  server: 138.124.86.230
+  servername: 138-124-86-230.sslip.io
   tls: true
   type: vless
-  udp: true
-  uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
-- name: 🇿🇦_南非
+  uuid: b2fe1fa4-6a79-4938-a3f4-63b54ae7f16b
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 010 | ⬇️ 17.25MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.72
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇿🇦 ZA 001 | ⬇️ 17.10MB/s
+  password: aduB9HGxQHjA2SBMRjkHX6
+  port: 443
+  server: 102.37.156.224
+  type: ss
+- name: 🇿🇦 ZA 002 | ⬇️ 16.46MB/s
   password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
   server: 139.84.231.142
@@ -1601,26 +702,18 @@ proxies:
   tls: true
   type: trojan
   udp: true
-- client-fingerprint: firefox
-  name: 🇸🇨_塞舌尔 (6)
-  port: 443
-  reality-opts:
-    public-key: l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs
-    short-id: 361d0dd59c70516f
-  server: 196.196.148.85
-  servername: 5d0319t.nl7.h1clayd.click
-  skip-cert-verify: true
-  sni: 5d0319t.nl7.h1clayd.click
-  tls: true
-  type: vless
-  udp: true
-  uuid: cda0862a-0f87-4be9-8ed8-1d0c9e382839
+- cipher: chacha20-ietf-poly1305
+  name: 🇿🇦 ZA 003 | ⬇️ 16.41MB/s
+  password: Xsy8Ox4yOV3xLlpxtjzs3X
+  port: 16233
+  server: 102.133.165.160
+  type: ss
 - alpn:
   - h2
   client-fingerprint: chrome
   grpc-opts:
     grpc-service-name: vlgrpc
-  name: 🇷🇺[www.v2nodes.com] vless-RU
+  name: 🇷🇺 RU 001 | ⬇️ 15.93MB/s
   network: grpc
   port: 443
   server: 201.24.121.243
@@ -1628,143 +721,79 @@ proxies:
   tls: true
   type: vless
   uuid: 32b5ca9b-3f81-4031-965d-e8b074216e8d
-- client-fingerprint: ios
-  name: 🇸🇪_瑞典
+- name: 🇩🇪 DE 010 | ⬇️ 15.85MB/s
   port: 443
-  reality-opts:
-    public-key: drl7nndYdfzZY1aQ0eUAWmNV0nsHig2uDnu9siy9biQ
-    short-id: a7c92e4b10d6f835
-  server: 88.216.60.73
-  servername: ns-api-gw.galioncc.com
+  server: 213.109.163.119
   skip-cert-verify: true
-  sni: ns-api-gw.galioncc.com
   tls: true
-  type: vless
+  type: http
   udp: true
-  uuid: a30903dc-1bf0-4be5-8b1b-603a3a56211c
-- name: 🇺🇸US_1 2.7MB/s
-  password: l1tlrdx52v
-  port: 62000
-  server: 66.253.2.69
-  type: socks5
-  username: u_rb1dba2
-- name: 🇧🇾[www.v2nodes.com] vless-BY#2
+- name: 🏳️ BY 001 | ⬇️ 15.14MB/s
   port: 10443
   server: 178.172.227.124
   tls: false
   type: vless
   uuid: 1af36694-b548-4b18-89a0-bc076eab4ed7
-- name: 🇫🇮[www.v2nodes.com] vless-FI
-  network: ws
-  port: 14430
-  server: 45.144.234.157
-  tls: false
-  type: vless
-  uuid: 59b0d30e-9b29-4fda-a35c-b2901ec32db7
-  ws-opts:
-    headers:
-      Host: 45.144.234.157
-    path: /vless
+- name: 🇺🇸 US 015 | ⬇️ 13.53MB/s
+  password: l1tlrdx52v
+  port: 62000
+  server: 66.253.2.69
+  type: socks5
+  username: u_rb1dba2
+- name: 🇨🇭 CH 003 | ⬇️ 13.09MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 208.69.78.29
+  servername: learn.yourultimateprofessionalcareerhub.com
+  skip-cert-verify: true
+  sni: learn.yourultimateprofessionalcareerhub.com
+  tls: true
+  type: trojan
+  udp: true
+- name: 🇺🇸 US 016 | ⬇️ 13.05MB/s
+  port: 8443
+  server: 44.248.167.117
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
 - cipher: aes-256-gcm
-  name: 🇫🇮[www.v2nodes.com] ss-FI-16
+  name: 🇫🇮 FI 002 | ⬇️ 12.31MB/s
   password: DgMywXKqojHXeuXY8hOJaYGPFcjweCIJeD5cdg/cUUY=
   port: 40647
   server: 213.176.92.148
   type: ss
-- client-fingerprint: chrome
-  name: 🇳🇱[www.v2nodes.com] vless-NL#2
-  network: tcp
+- name: 🇨🇭 CH 004 | ⬇️ 12.07MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
   port: 443
-  server: 194.60.228.97
-  servername: base.hosamobenl.co.uk
-  tls: true
-  type: vless
-  uuid: 667016ca-f02e-4b5f-bfc3-3d8ed81e9bec
-  ws-opts:
-    path: /
-- name: '🏳[www.v2nodes.com] vless- #1'
-  network: ws
-  port: 14430
-  server: 138.124.70.41
-  servername: 138.124.70.41
-  tls: false
-  type: vless
-  uuid: 6cc745e3-4eb9-46c8-a4a1-85dee7b87edc
-  ws-opts:
-    headers:
-      Host: 138.124.70.41
-    path: /vless
-- cipher: chacha20-ietf-poly1305
-  name: 🇵🇱[www.v2nodes.com] ss-PL-12
-  password: eetk7pw
-  port: 443
-  server: 54.36.174.140
-  type: ss
-- name: 🇳🇱_荷兰 (43)
-  network: ws
-  port: 443
-  server: 146.103.118.189
-  servername: nl2.574ck.xyz
+  server: 208.69.78.222
+  servername: yourultimateprofessionalcareerhub.com
   skip-cert-verify: true
-  sni: nl2.574ck.xyz
+  sni: yourultimateprofessionalcareerhub.com
   tls: true
-  type: vless
+  type: trojan
   udp: true
-  uuid: e5d062f0-7bad-4c80-9417-ae083eef61c1
-  ws-opts:
-    path: /ws
-- cipher: aes-256-gcm
-  name: 🇨🇦[www.v2nodes.com] ss-CA-15
-  password: zDNVedRFPQexG9v
-  port: 445
-  server: 51.222.141.125
-  type: ss
 - alterId: 0
   cipher: auto
-  name: 🇫🇷_法国 (5)
-  network: ws
-  port: 80
-  server: 54.37.131.126
-  servername: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
+  name: 🇭🇰 HK 001 | ⬇️ 10.57MB/s
+  port: 50376
+  server: 206.237.11.17
   skip-cert-verify: true
-  sni: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
   tls: false
   type: vmess
   udp: true
-  uuid: 1e55beca-3c69-4fa7-fb1f-15c1b767435f
-  ws-opts:
-    headers:
-      Host: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
-    path: /
-- name: 🇳🇱NL_6 2.2MB/s R002-260618
-  port: 443
-  server: 5.255.118.82
+  uuid: 9091fd64-7e8e-4b7a-8ae7-84474f234926
+- name: 🇩🇪 DE 011 | ⬇️ 10.48MB/s
+  port: 2474
+  server: 167.233.129.126
   skip-cert-verify: true
-  sub_tag: R002-260618
-  tls: true
-  type: http
-  udp: true
-  x-toolall-mihomo: true
-- alterId: 0
-  cipher: auto
-  name: 🇫🇷_法国 (7)
-  network: ws
-  port: 80
-  server: 145.239.55.210
-  servername: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
-  skip-cert-verify: true
-  sni: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
   tls: false
-  type: vmess
+  type: vless
   udp: true
-  uuid: 2bc80e77-9590-4ded-a48b-0eda493f611b
-  ws-opts:
-    headers:
-      Host: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
-    path: /
+  uuid: 287db857-de04-4212-bd69-5d14083e340e
 - alterId: 0
   cipher: auto
-  name: 🇺🇸_美国 (99)
+  name: 🇺🇸 US 017 | ⬇️ 9.49MB/s
   network: ws
   port: 8443
   server: news.zoom.us
@@ -1779,9 +808,48 @@ proxies:
     headers:
       Host: matrix.phonicsindia.mobi
     path: /
+- name: 🇨🇭 CH 005 | ⬇️ 9.32MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 208.69.78.19
+  servername: www.yourultimateprofessionalcareerhub.com
+  skip-cert-verify: true
+  sni: www.yourultimateprofessionalcareerhub.com
+  tls: true
+  type: trojan
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇨🇦 CA 004 | ⬇️ 9.05MB/s
+  password: Y6R9pAtvxxzmGC
+  port: 5601
+  server: 51.222.155.113
+  type: ss
 - alterId: 0
   cipher: auto
-  name: 🇺🇸_美国 (93)
+  name: 🇫🇷 FR 007 | ⬇️ 8.78MB/s
+  network: ws
+  port: 80
+  server: 145.239.55.210
+  servername: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
+  skip-cert-verify: true
+  sni: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 2bc80e77-9590-4ded-a48b-0eda493f611b
+  ws-opts:
+    headers:
+      Host: google.whatsapp.snapp.torob.basalam.fortresshost.ir.
+    path: /
+- name: 🇩🇪 DE 012 | ⬇️ 8.69MB/s
+  port: 49313
+  server: 159.195.207.238
+  tls: false
+  type: vless
+  uuid: 855c7aaa-e7d6-463e-971e-d36032744428
+- alterId: 0
+  cipher: auto
+  name: 🇺🇸 US 018 | ⬇️ 8.59MB/s
   network: ws
   port: 8443
   server: 141.193.213.21
@@ -1796,267 +864,293 @@ proxies:
     headers:
       Host: matrix.phonicsindia.mobi
     path: /
+- name: 🇨🇭 CH 006 | ⬇️ 8.46MB/s
+  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
+  port: 443
+  server: 208.69.78.33
+  sni: courses.yourultimateprofessionalcareerhub.com
+  type: trojan
 - cipher: aes-256-gcm
-  name: 🇨🇦[www.v2nodes.com] ss-CA-15#8
-  password: zDNVedRFPQexG9v
-  port: 445
-  server: 51.222.12.127
+  name: 🇨🇭 CH 007 | ⬇️ 8.28MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 79.127.184.104
   type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇯🇵_日本 (9)
-  port: 55688
+- client-fingerprint: firefox
+  name: 🏳️ NE 001 | ⬇️ 7.77MB/s
+  port: 443
   reality-opts:
-    public-key: 6dqd0hqbC0bht9RtsYamvlYdMpxyUbk7uXw0xtO8DzQ
-    short-id: 865c1b2c
-  server: zfapi.zalolink.com
-  servername: bilibili-vn.biliimg.com
+    public-key: l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs
+    short-id: 361d0dd59c70516f
+  server: 196.196.148.85
+  servername: 5d0319t.nl7.h1clayd.click
   skip-cert-verify: true
-  sni: bilibili-vn.biliimg.com
+  sni: 5d0319t.nl7.h1clayd.click
+  tls: true
+  type: vless
+  udp: true
+  uuid: cda0862a-0f87-4be9-8ed8-1d0c9e382839
+- client-fingerprint: ios
+  flow: xtls-rprx-vision
+  name: 🇯🇵 JP 002 | ⬇️ 7.16MB/s
+  port: 30322
+  reality-opts:
+    public-key: 5gncThwqPFzLu23WO3mPTEhG7-KgVYlGVvveHjM2SUo
+    short-id: 6a60e7e382d6
+  server: zfapi.zalolink.com
+  servername: psstatic.cdn.bcebos.com
+  skip-cert-verify: true
+  sni: psstatic.cdn.bcebos.com
   tls: true
   type: vless
   udp: true
   uuid: 57beeeb0-03fc-4fc9-94da-7604488a7134
-- name: 🇸🇬_新加坡 (10)
-  password: sshs8_6481354771
-  port: 2087
-  server: 86.38.247.109
-  servername: ul-singapore1.09vpn.com
-  skip-cert-verify: true
-  sni: ul-singapore1.09vpn.com
-  tls: true
-  type: trojan
-  udp: true
 - cipher: aes-256-gcm
-  name: 🇷🇺[www.v2nodes.com] ss-RU-16
-  password: NTiHBg64fsY8u8DbGrtypD9gPGSL386p
-  port: 18443
-  server: 185.22.153.117
+  name: 🇨🇦 CA 005 | ⬇️ 6.95MB/s
+  password: zDNVedRFPQexG9v
+  port: 445
+  server: 51.222.12.127
   type: ss
-- encryption: none
-  name: 🇪🇪[www.v2nodes.com] vless-EE
-  network: tcp
-  port: 16443
-  server: 45.86.60.174
+- cipher: aes-256-gcm
+  name: 🇨🇦 CA 006 | ⬇️ 6.80MB/s
+  password: zDNVedRFPQexG9v
+  port: 445
+  server: 51.222.141.125
+  type: ss
+- name: 🇫🇷[www.v2nodes.com] vless-FR#2
+  network: ws
+  port: 14430
+  server: 138.124.70.41
+  servername: 138.124.70.41
   tls: false
   type: vless
-  uuid: 13e541f3-d09d-4633-89df-8513db0ced20
+  uuid: 6cc745e3-4eb9-46c8-a4a1-85dee7b87edc
+  ws-opts:
+    headers:
+      Host: 138.124.70.41
+    path: /vless
+- alterId: 0
+  cipher: auto
+  name: 🇵🇱 PL 002 | ⬇️ 6.50MB/s
+  network: ws
+  port: 80
+  server: 54.37.131.126
+  servername: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
+  skip-cert-verify: true
+  sni: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 1e55beca-3c69-4fa7-fb1f-15c1b767435f
+  ws-opts:
+    headers:
+      Host: google.whatsapp.snapp.torob.basalam.hesanid8.ir.
+    path: /
 - client-fingerprint: chrome
-  encryption: mlkem768x25519plus.native.0rtt.9ifdcMCsJ-bMvc9ealWuadeq1_iASTHy8hetUix-nTM
   flow: xtls-rprx-vision
-  name: 🇩🇪DE_7 1.0MB/s
-  network: tcp
-  port: 29086
-  server: sv.fn.clients.fimrel.ir
-  servername: sv.fn.clients.fimrel.ir
+  name: 🏳️ LY 001 | ⬇️ 6.17MB/s
+  port: 443
+  reality-opts:
+    public-key: ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE
+    short-id: 42426c882c5fcd41
+  server: 196.199.122.2
+  servername: 7aa271t.es1.h1clayd.click
+  skip-cert-verify: true
+  sni: 7aa271t.es1.h1clayd.click
   tls: true
   type: vless
   udp: true
-  uuid: e7cbfd86-ae39-4ecc-852d-89754c8823e9
-  xudp: true
+  uuid: 4201786b-d99b-4147-a5f0-20d47acddb81
+- name: 🇮🇳 IN 001 | ⬇️ 5.85MB/s
+  network: ws
+  port: 14430
+  server: 13.140.56.100
+  tls: false
+  type: vless
+  uuid: 68512eac-cd53-4de3-8d1e-08f6e04af1a9
+  ws-opts:
+    headers:
+      Host: 13.140.56.100
+    path: /vless
+- alterId: 0
+  cipher: auto
+  name: 🇰🇷 KR 002 | ⬇️ 5.13MB/s
+  network: ws
+  port: 80
+  server: 132.145.80.230
+  skip-cert-verify: true
+  tls: false
+  type: vmess
+  udp: true
+  uuid: 5155860e-d07d-46c3-9128-3afbd84626c7
+  ws-opts:
+    path: /cctv13.m3u8
+- client-fingerprint: firefox
+  flow: xtls-rprx-vision
+  name: 🇸🇨_塞舌尔 (3)
+  port: 443
+  reality-opts:
+    public-key: ZSmetD4e9QG5CiXhniHg5HJB68L4kwbgAkJmMHtVwEE
+    short-id: 42426c882c5fcd41
+  server: 196.196.149.81
+  servername: 7aa271t.es1.h1clayd.click
+  skip-cert-verify: true
+  sni: 7aa271t.es1.h1clayd.click
+  tls: true
+  type: vless
+  udp: true
+  uuid: 4201786b-d99b-4147-a5f0-20d47acddb81
+- flow: xtls-rprx-vision
+  name: 🇸🇬 SG 011 | ⬇️ 3.57MB/s
+  port: 36442
+  server: 140.245.62.225
+  servername: xjpp.zjlo.top
+  skip-cert-verify: true
+  sni: xjpp.zjlo.top
+  tls: true
+  type: vless
+  udp: true
+  uuid: 5269e0b4-0dff-4f97-e0c7-83130bacb009
+- cipher: aes-256-gcm
+  name: 🇯🇵 JP 003 | ⬇️ 3.52MB/s
+  password: 3eOFeNssde7PYYMv
+  port: 80
+  server: 84.247.155.196
+  type: ss
+- name: 🏳️ BY 002 | ⬇️ 3.21MB/s
+  network: ws
+  port: 14430
+  server: 95.128.71.79
+  tls: false
+  type: vless
+  uuid: 8cef7621-c6f0-486e-b51d-59c30c5b0b25
+  ws-opts:
+    headers:
+      Host: 95.128.71.79
+    path: /vless
 proxy-groups:
 - name: 公共节点
   type: select
   proxies:
-  - 🇨🇦 CA 001 | ⬇️ 526.25MB/s
-  - 🇨🇦 CA 002 | ⬇️ 488.63MB/s
-  - 🇺🇸 US 001 | ⬇️ 321.00MB/s
-  - 🇨🇦 CA 003 | ⬇️ 259.68MB/s
-  - 🇨🇦 CA 004 | ⬇️ 257.49MB/s
-  - 🇨🇦 CA 005 | ⬇️ 257.33MB/s
-  - 🇨🇦 CA 006 | ⬇️ 247.59MB/s
-  - 🇨🇦 CA 007 | ⬇️ 221.15MB/s
-  - 🇨🇦 CA 008 | ⬇️ 179.79MB/s
-  - 🇺🇸 US 002 | ⬇️ 125.23MB/s
-  - 🇨🇦 CA 009 | ⬇️ 116.17MB/s
-  - 🇺🇸 US 003 | ⬇️ 114.91MB/s
-  - 🇺🇸 US 004 | ⬇️ 114.86MB/s
-  - 🇺🇸 US 005 | ⬇️ 114.34MB/s
-  - 🇺🇸 US 006 | ⬇️ 112.17MB/s
-  - 🇺🇸 US 007 | ⬇️ 109.70MB/s
-  - 🇺🇸 US 008 | ⬇️ 109.09MB/s
-  - 🇺🇸 US 009 | ⬇️ 107.29MB/s
-  - 🇺🇸 US 010 | ⬇️ 105.13MB/s
-  - 🇺🇸 US 011 | ⬇️ 102.99MB/s
-  - 🇺🇸 US 012 | ⬇️ 100.22MB/s
-  - 🇺🇸 US 013 | ⬇️ 99.87MB/s
-  - 🇺🇸 US 014 | ⬇️ 97.30MB/s
-  - 🇺🇸 US 015 | ⬇️ 96.08MB/s
-  - 🇺🇸 US 016 | ⬇️ 95.58MB/s
-  - 🇺🇸 US 017 | ⬇️ 93.34MB/s
-  - 🇺🇸 US 018 | ⬇️ 92.75MB/s
-  - 🇺🇸 US 019 | ⬇️ 92.60MB/s
-  - 🇺🇸 US 020 | ⬇️ 90.46MB/s
-  - 🇺🇸 US 021 | ⬇️ 87.20MB/s
-  - 🇺🇸 US 022 | ⬇️ 86.92MB/s
-  - 🇺🇸 US 023 | ⬇️ 85.99MB/s
-  - 🇺🇸 US 024 | ⬇️ 85.11MB/s
-  - 🇺🇸 US 025 | ⬇️ 83.29MB/s
-  - 🇺🇸 US 026 | ⬇️ 78.34MB/s
-  - 🇺🇸 US 027 | ⬇️ 77.98MB/s
-  - 🇺🇸 US 028 | ⬇️ 77.91MB/s
-  - 🇺🇸 US 029 | ⬇️ 75.50MB/s
-  - 🇺🇸 US 030 | ⬇️ 75.48MB/s
-  - 🇺🇸 US 031 | ⬇️ 74.33MB/s
-  - 🇨🇦 CA 010 | ⬇️ 73.14MB/s
-  - 🇺🇸 US 032 | ⬇️ 73.10MB/s
-  - 🇺🇸 US 033 | ⬇️ 72.51MB/s
-  - 🇺🇸 US 034 | ⬇️ 72.11MB/s
-  - 🇺🇸 US 035 | ⬇️ 71.96MB/s
-  - 🇺🇸 US 036 | ⬇️ 71.77MB/s
-  - 🇺🇸 US 037 | ⬇️ 70.74MB/s
-  - 🇺🇸 US 038 | ⬇️ 70.55MB/s
-  - 🇺🇸 US 039 | ⬇️ 70.00MB/s
-  - 🇺🇸 US 040 | ⬇️ 69.62MB/s
-  - 🇺🇸 US 041 | ⬇️ 68.95MB/s
-  - 🇺🇸 US 042 | ⬇️ 68.84MB/s
-  - 🇺🇸 US 043 | ⬇️ 68.55MB/s
-  - 🇺🇸 US 044 | ⬇️ 68.08MB/s
-  - 🇺🇸 US 045 | ⬇️ 67.95MB/s
-  - 🇬🇧 GB 001 | ⬇️ 67.94MB/s
-  - 🇺🇸 US 046 | ⬇️ 64.53MB/s
-  - 🇺🇸 US 047 | ⬇️ 64.35MB/s
-  - 🇳🇱 NL 001 | ⬇️ 58.96MB/s
-  - 🇮🇪 IE 001 | ⬇️ 58.86MB/s
-  - 🇳🇱 NL 002 | ⬇️ 57.75MB/s
-  - 🇬🇧 GB 002 | ⬇️ 57.00MB/s
-  - 🇺🇸 US 048 | ⬇️ 56.70MB/s
-  - 🇬🇧 GB 003 | ⬇️ 54.31MB/s
-  - 🇺🇸 US 049 | ⬇️ 54.13MB/s
-  - 🇬🇧 GB 004 | ⬇️ 54.11MB/s
-  - 🇩🇪 DE 001 | ⬇️ 53.16MB/s
-  - 🇩🇪 DE 002 | ⬇️ 52.38MB/s
-  - 🇩🇪 DE 003 | ⬇️ 52.28MB/s
-  - 🇩🇪 DE 004 | ⬇️ 51.05MB/s
-  - 🇳🇱 NL 003 | ⬇️ 50.71MB/s
-  - 🇳🇱 NL 004 | ⬇️ 50.50MB/s
-  - 🇳🇱 NL 005 | ⬇️ 50.37MB/s
-  - 🇩🇪 DE 005 | ⬇️ 49.81MB/s
-  - 🇺🇸 US 050 | ⬇️ 49.78MB/s
-  - 🇬🇧 GB 005 | ⬇️ 49.48MB/s
-  - 🇩🇪 DE 006 | ⬇️ 49.36MB/s
-  - 🇩🇪 DE 007 | ⬇️ 49.13MB/s
-  - 🇳🇱 NL 006 | ⬇️ 49.08MB/s
-  - 🇳🇱 NL 007 | ⬇️ 49.05MB/s
-  - 🇮🇹 IT 001 | ⬇️ 48.99MB/s
-  - 🇮🇹 IT 002 | ⬇️ 48.90MB/s
-  - 🇳🇱 NL 008 | ⬇️ 48.88MB/s
-  - 🇮🇹 IT 003 | ⬇️ 48.79MB/s
-  - 🇮🇹 IT 004 | ⬇️ 48.76MB/s
-  - 🇳🇱 NL 009 | ⬇️ 48.72MB/s
-  - 🇮🇹 IT 005 | ⬇️ 48.68MB/s
-  - 🇩🇪 DE 008 | ⬇️ 48.66MB/s
-  - 🇳🇱 NL 010 | ⬇️ 48.62MB/s
-  - 🇨🇦 CA 011 | ⬇️ 48.58MB/s
-  - 🇮🇹 IT 006 | ⬇️ 48.43MB/s
-  - 🇫🇷 FR 001 | ⬇️ 48.39MB/s
-  - 🇮🇹 IT 007 | ⬇️ 48.23MB/s
-  - 🇮🇹 IT 008 | ⬇️ 48.10MB/s
-  - 🇩🇪 DE 009 | ⬇️ 47.87MB/s
-  - 🇪🇸 ES 001 | ⬇️ 47.85MB/s
-  - 🇳🇱 NL 011 | ⬇️ 47.71MB/s
-  - 🇩🇪 DE 010 | ⬇️ 47.52MB/s
-  - 🇮🇹 IT 009 | ⬇️ 47.49MB/s
-  - 🇫🇷 FR 002 | ⬇️ 47.45MB/s
-  - 🇮🇹 IT 010 | ⬇️ 47.35MB/s
-  - 🇧🇪 BE 001 | ⬇️ 47.25MB/s
-  - 🇳🇱 NL 012 | ⬇️ 46.98MB/s
-  - 🇳🇱 NL 013 | ⬇️ 46.89MB/s
-  - 🇩🇪 DE 011 | ⬇️ 46.81MB/s
-  - 🇬🇧 GB 006 | ⬇️ 46.77MB/s
-  - 🇪🇸 ES 002 | ⬇️ 46.74MB/s
-  - 🇩🇪 DE 012 | ⬇️ 46.61MB/s
-  - 🇸🇪 SE 001 | ⬇️ 46.22MB/s
-  - 🇪🇸 ES 003 | ⬇️ 46.13MB/s
-  - 🇫🇷 FR 003 | ⬇️ 46.05MB/s
-  - 🇬🇧 GB 007 | ⬇️ 45.92MB/s
-  - 🇸🇪 SE 002 | ⬇️ 45.61MB/s
-  - 🇳🇱 NL 014 | ⬇️ 45.57MB/s
-  - 🇵🇱 PL 001 | ⬇️ 45.33MB/s
-  - 🇩🇪 DE 013 | ⬇️ 45.00MB/s
-  - 🇪🇸 ES 004 | ⬇️ 44.81MB/s
-  - 🇩🇪 DE 014 | ⬇️ 44.78MB/s
-  - 🇮🇪 IE 002 | ⬇️ 44.77MB/s
-  - 🇪🇸 ES 005 | ⬇️ 44.72MB/s
-  - 🇩🇪 DE 015 | ⬇️ 44.65MB/s
-  - 🇨🇦 CA 012 | ⬇️ 44.63MB/s
-  - 🇫🇷 FR 004 | ⬇️ 44.52MB/s
-  - 🇬🇧[www.v2nodes.com] vless-GB#3
-  - 🇩🇪_德国 (4)
-  - 🇩🇪 DE 016 | ⬇️ 43.36MB/s
-  - 🇺🇸 US 051 | ⬇️ 42.72MB/s
-  - 🇨🇿CZ_2 2.0MB/s
-  - DE_speednode_0004
-  - 🇨🇿 CZ 001 | ⬇️ 42.49MB/s
-  - 🇩🇪_德国 (18)
-  - 🇨🇱_智利
-  - 🇩🇪 DE 017 | ⬇️ 41.49MB/s
-  - 🇸🇪 SE 003 | ⬇️ 40.74MB/s
-  - 🇫🇷[www.v2nodes.com] ss-FR-16#2
-  - 🇭🇺 HU 001 | ⬇️ 40.26MB/s
-  - 🇨🇭_瑞士 (4)
-  - 🇦🇹AT_1 1.1MB/s R002-260618
-  - 🇬🇧 GB 008 | ⬇️ 39.15MB/s
-  - 🇨🇭 CH 001 | ⬇️ 39.05MB/s
-  - 🇨🇭[www.v2nodes.com] ss-CH-16
-  - 🇪🇸 ES 006 | ⬇️ 38.35MB/s
-  - 🇩🇪_德国 (22)
-  - 🇩🇪DE_6 1.2MB/s
-  - 🇨🇭 CH 002 | ⬇️ 37.55MB/s
-  - 🇫🇮_芬兰 (2)
-  - 🇨🇭_瑞士 (5)
-  - 🇸🇪[www.v2nodes.com] ss-SE-16#2
-  - 🇨🇭[www.v2nodes.com] trojan-C
-  - 🇫🇷[www.v2nodes.com] ss-FR-16
-  - 🇩🇪_德国 (10)
-  - 🇮🇹 IT 011 | ⬇️ 32.05MB/s
-  - 🇦🇱AL_1 1.1MB/s R002-260618
-  - 🇫🇷 FR 005 | ⬇️ 30.16MB/s
-  - US_speednode_0040
-  - FR_speednode_0008
-  - FR_speednode_0011
-  - LV_speednode_0020
-  - 🇱🇻LV_1 2.1MB/s R002-260618
-  - 🇸🇬_新加坡 (7)
-  - 🇸🇬_新加坡 (8)
-  - 🇨🇭[www.v2nodes.com] ss-CH-16#3
-  - 🇸🇬[www.v2nodes.com] ss-SG-16#4
-  - 🇸🇬_新加坡 (2)
-  - '🏳[www.v2nodes.com] vless- #1#4'
-  - '🏳[www.v2nodes.com] ss- #11'
-  - 🇸🇬[www.v2nodes.com] ss-SG-16#2
-  - 🇸🇬[www.v2nodes.com] ss-SG-16#5
-  - 🇸🇬[www.v2nodes.com] ss-SG-16
-  - '@confiig_hub #1'
-  - 🇸🇬[www.v2nodes.com] ss-SG-16#3
-  - 🇺🇸_美国 (5)
-  - 🇩🇪[www.v2nodes.com] vless-DE#3
-  - 🇸🇬[www.v2nodes.com] vless-SG#4
-  - 🇿🇦[www.v2nodes.com] ss-ZA-13
-  - 🇷🇺 俄罗斯 RUS 3
-  - 🇿🇦_南非
-  - 🇸🇨_塞舌尔 (6)
-  - 🇷🇺[www.v2nodes.com] vless-RU
-  - 🇸🇪_瑞典
-  - 🇺🇸US_1 2.7MB/s
-  - 🇧🇾[www.v2nodes.com] vless-BY#2
-  - 🇫🇮[www.v2nodes.com] vless-FI
-  - 🇫🇮[www.v2nodes.com] ss-FI-16
-  - 🇳🇱[www.v2nodes.com] vless-NL#2
-  - '🏳[www.v2nodes.com] vless- #1'
-  - 🇵🇱[www.v2nodes.com] ss-PL-12
-  - 🇳🇱_荷兰 (43)
-  - 🇨🇦[www.v2nodes.com] ss-CA-15
-  - 🇫🇷_法国 (5)
-  - 🇳🇱NL_6 2.2MB/s R002-260618
-  - 🇫🇷_法国 (7)
-  - 🇺🇸_美国 (99)
-  - 🇺🇸_美国 (93)
-  - 🇨🇦[www.v2nodes.com] ss-CA-15#8
-  - 🇯🇵_日本 (9)
-  - 🇸🇬_新加坡 (10)
-  - 🇷🇺[www.v2nodes.com] ss-RU-16
-  - 🇪🇪[www.v2nodes.com] vless-EE
-  - 🇩🇪DE_7 1.0MB/s
+  - 🇺🇸 US 001 | ⬇️ 139.56MB/s
+  - 🇨🇦 CA 001 | ⬇️ 127.37MB/s
+  - 🇺🇸 US 002 | ⬇️ 85.63MB/s
+  - 🇺🇸 US 003 | ⬇️ 85.50MB/s
+  - 🇺🇸 US 004 | ⬇️ 84.46MB/s
+  - 🇺🇸 US 005 | ⬇️ 78.74MB/s
+  - 🇺🇸 US 006 | ⬇️ 76.62MB/s
+  - 🇺🇸 US 007 | ⬇️ 76.48MB/s
+  - 🇺🇸 US 008 | ⬇️ 72.91MB/s
+  - 🇺🇸 US 009 | ⬇️ 64.39MB/s
+  - 🇺🇸 US 010 | ⬇️ 55.72MB/s
+  - 🇺🇸 US 011 | ⬇️ 52.22MB/s
+  - 🇬🇧 GB 001 | ⬇️ 47.54MB/s
+  - 🇳🇱 NL 001 | ⬇️ 43.71MB/s
+  - 🇳🇱 NL 002 | ⬇️ 43.42MB/s
+  - 🇩🇪 DE 001 | ⬇️ 40.76MB/s
+  - 🇺🇸 US 012 | ⬇️ 40.56MB/s
+  - 🇩🇪 DE 002 | ⬇️ 39.96MB/s
+  - 🇩🇪 DE 003 | ⬇️ 39.85MB/s
+  - 🇩🇪 DE 004 | ⬇️ 39.83MB/s
+  - 🇬🇧 GB 002 | ⬇️ 39.82MB/s
+  - 🇳🇱 NL 003 | ⬇️ 39.79MB/s
+  - 🇳🇱 NL 004 | ⬇️ 38.52MB/s
+  - 🇬🇧 GB 003 | ⬇️ 38.04MB/s
+  - 🇪🇸 ES 001 | ⬇️ 37.61MB/s
+  - 🇳🇱 NL 005 | ⬇️ 37.40MB/s
+  - 🇩🇪 DE 005 | ⬇️ 37.39MB/s
+  - 🇳🇱 NL 006 | ⬇️ 37.31MB/s
+  - 🇫🇷 FR 001 | ⬇️ 37.26MB/s
+  - 🇫🇷 FR 002 | ⬇️ 37.19MB/s
+  - 🇳🇱 NL 007 | ⬇️ 37.18MB/s
+  - 🇪🇸 ES 002 | ⬇️ 37.12MB/s
+  - 🇮🇹 IT 001 | ⬇️ 36.93MB/s
+  - 🇸🇪 SE 001 | ⬇️ 36.91MB/s
+  - 🇵🇱 PL 001 | ⬇️ 36.76MB/s
+  - 🇩🇪 DE 006 | ⬇️ 35.99MB/s
+  - 🇩🇪 DE 007 | ⬇️ 35.89MB/s
+  - 🇪🇸 ES 003 | ⬇️ 35.87MB/s
+  - 🇫🇷 FR 003 | ⬇️ 35.25MB/s
+  - 🇺🇸 US 013 | ⬇️ 35.14MB/s
+  - 🇨🇦 CA 002 | ⬇️ 34.73MB/s
+  - 🇨🇭 CH 001 | ⬇️ 34.53MB/s
+  - 🇩🇪 DE 008 | ⬇️ 34.17MB/s
+  - 🇫🇷 FR 004 | ⬇️ 33.99MB/s
+  - 🇦🇹 AT 001 | ⬇️ 33.81MB/s
+  - 🇨🇱 CL 001 | ⬇️ 33.79MB/s
+  - 🇬🇧 GB 004 | ⬇️ 33.77MB/s
+  - 🇬🇧 GB 005 | ⬇️ 33.75MB/s
+  - 🇫🇮 FI 001 | ⬇️ 32.81MB/s
+  - 🇫🇷 FR 005 | ⬇️ 32.38MB/s
+  - 🇬🇧 GB 006 | ⬇️ 32.24MB/s
+  - 🇫🇷 FR 006 | ⬇️ 32.18MB/s
+  - 🇨🇭 CH 002 | ⬇️ 31.79MB/s
+  - 🇳🇱 NL 008 | ⬇️ 31.02MB/s
+  - 🇩🇪 DE 009 | ⬇️ 30.92MB/s
+  - 🇯🇵 JP 001 | ⬇️ 30.22MB/s
+  - 🇳🇱 NL 009 | ⬇️ 29.11MB/s
+  - 🇮🇹 IT 002 | ⬇️ 28.85MB/s
+  - 🇰🇷 KR 001 | ⬇️ 28.82MB/s
+  - 🇮🇹 IT 003 | ⬇️ 28.60MB/s
+  - 🇸🇬 SG 001 | ⬇️ 28.00MB/s
+  - 🇸🇬 SG 002 | ⬇️ 27.94MB/s
+  - 🇸🇬 SG 003 | ⬇️ 27.89MB/s
+  - 🇸🇬 SG 004 | ⬇️ 27.43MB/s
+  - 🇱🇻 LV 001 | ⬇️ 27.16MB/s
+  - 🇸🇪 SE 002 | ⬇️ 27.14MB/s
+  - 🇺🇸 US 014 | ⬇️ 26.35MB/s
+  - 🇱🇻 LV 002 | ⬇️ 25.98MB/s
+  - 🇸🇬 SG 005 | ⬇️ 25.44MB/s
+  - 🇸🇬 SG 006 | ⬇️ 25.15MB/s
+  - 🇸🇬 SG 007 | ⬇️ 25.14MB/s
+  - 🇸🇬 SG 008 | ⬇️ 24.97MB/s
+  - 🇮🇹 IT 004 | ⬇️ 24.42MB/s
+  - 🇸🇬 SG 009 | ⬇️ 24.38MB/s
+  - 🇮🇹 IT 005 | ⬇️ 23.80MB/s
+  - 🇨🇦 CA 003 | ⬇️ 23.11MB/s
+  - 🇳🇱 NL 010 | ⬇️ 23.03MB/s
+  - 🇮🇹 IT 006 | ⬇️ 23.02MB/s
+  - 🇳🇱 NL 011 | ⬇️ 22.82MB/s
+  - 🇸🇬 SG 010 | ⬇️ 22.54MB/s
+  - 🇸🇪 SE 003 | ⬇️ 21.74MB/s
+  - 🇮🇹 IT 007 | ⬇️ 20.67MB/s
+  - 🇮🇹 IT 008 | ⬇️ 19.68MB/s
+  - 🇮🇹 IT 009 | ⬇️ 19.31MB/s
+  - 🇸🇪 SE 004 | ⬇️ 17.36MB/s
+  - 🇮🇹 IT 010 | ⬇️ 17.25MB/s
+  - 🇿🇦 ZA 001 | ⬇️ 17.10MB/s
+  - 🇿🇦 ZA 002 | ⬇️ 16.46MB/s
+  - 🇿🇦 ZA 003 | ⬇️ 16.41MB/s
+  - 🇷🇺 RU 001 | ⬇️ 15.93MB/s
+  - 🇩🇪 DE 010 | ⬇️ 15.85MB/s
+  - 🏳️ BY 001 | ⬇️ 15.14MB/s
+  - 🇺🇸 US 015 | ⬇️ 13.53MB/s
+  - 🇨🇭 CH 003 | ⬇️ 13.09MB/s
+  - 🇺🇸 US 016 | ⬇️ 13.05MB/s
+  - 🇫🇮 FI 002 | ⬇️ 12.31MB/s
+  - 🇨🇭 CH 004 | ⬇️ 12.07MB/s
+  - 🇭🇰 HK 001 | ⬇️ 10.57MB/s
+  - 🇩🇪 DE 011 | ⬇️ 10.48MB/s
+  - 🇺🇸 US 017 | ⬇️ 9.49MB/s
+  - 🇨🇭 CH 005 | ⬇️ 9.32MB/s
+  - 🇨🇦 CA 004 | ⬇️ 9.05MB/s
+  - 🇫🇷 FR 007 | ⬇️ 8.78MB/s
+  - 🇩🇪 DE 012 | ⬇️ 8.69MB/s
+  - 🇺🇸 US 018 | ⬇️ 8.59MB/s
+  - 🇨🇭 CH 006 | ⬇️ 8.46MB/s
+  - 🇨🇭 CH 007 | ⬇️ 8.28MB/s
+  - 🏳️ NE 001 | ⬇️ 7.77MB/s
+  - 🇯🇵 JP 002 | ⬇️ 7.16MB/s
+  - 🇨🇦 CA 005 | ⬇️ 6.95MB/s
+  - 🇨🇦 CA 006 | ⬇️ 6.80MB/s
+  - 🇫🇷[www.v2nodes.com] vless-FR#2
+  - 🇵🇱 PL 002 | ⬇️ 6.50MB/s
+  - 🏳️ LY 001 | ⬇️ 6.17MB/s
+  - 🇮🇳 IN 001 | ⬇️ 5.85MB/s
+  - 🇰🇷 KR 002 | ⬇️ 5.13MB/s
+  - 🇸🇨_塞舌尔 (3)
+  - 🇸🇬 SG 011 | ⬇️ 3.57MB/s
+  - 🇯🇵 JP 003 | ⬇️ 3.52MB/s
+  - 🏳️ BY 002 | ⬇️ 3.21MB/s
 rules:
 - MATCH,公共节点
