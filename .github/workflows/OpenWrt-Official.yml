@@ -650,6 +650,8 @@ jobs:
           CONFIG_PACKAGE_ip-full=y
           CONFIG_PACKAGE_libpcap=y
           CONFIG_PACKAGE_coreutils-timeout=y
+          # macvlan: docker macvlan network (iptv-server binds 192.168.10.68)
+          CONFIG_PACKAGE_kmod-macvlan=y
           EOF
           make defconfig
           echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
