@@ -58,12 +58,8 @@ jobs:
       - name: Defconfig with kmod-macvlan
         run: |
           set -x
-          cat > .config <<'EOF'
-CONFIG_TARGET_x86=y
-CONFIG_TARGET_x86_64=y
-CONFIG_TARGET_x86_64_Generic=y
-CONFIG_PACKAGE_kmod-macvlan=y
-EOF
+          printf 'CONFIG_TARGET_x86=y\nCONFIG_TARGET_x86_64=y\nCONFIG_TARGET_x86_64_Generic=y\nCONFIG_PACKAGE_kmod-macvlan=y\n' > .config
+          cat .config
           make defconfig 2>&1 | tail -25
           echo "================= RESULT ================="
           if grep -q '^CONFIG_PACKAGE_kmod-macvlan=y' .config; then
