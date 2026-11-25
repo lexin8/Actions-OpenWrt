@@ -683,8 +683,12 @@ jobs:
           echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
 
       - name: Add OUI vendor names (static hosts + LuCI v4/v6)
+        continue-on-error: true
         run: |
           set -e
+
+          exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
+          set -x
           echo "===== 1) 静态保留补厂商短名 ====="
           cat > package/oui-vendor/files/oui_host_names << 'SHEOF'
           #!/bin/sh
