@@ -656,31 +656,6 @@ jobs:
           make defconfig
           echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
 
-                # 两者同时进 rootfs 会让 opkg 报 check_data_file_clashes 并中止 package/install。
-          # 必须显式关闭默认开启的 dnsmasq。
-          # CONFIG_PACKAGE_dnsmasq is not set
-          CONFIG_PACKAGE_dnsmasq-full=y
-          # OpenClash
-          CONFIG_PACKAGE_luci-app-openclash=y
-          # PassWall2：不编（本机只用 OpenClash，省掉 xray-core / chinadns-ng / tproxy 这一串依赖）
-          # 行为管理 / 应用过滤 (OAF)
-          CONFIG_PACKAGE_luci-app-oaf=y
-          CONFIG_PACKAGE_appfilter=y
-          CONFIG_PACKAGE_kmod-oaf=y
-          # MAC 厂商名查询 / 租约自动命名（数据来自 nmap 的 nmap-mac-prefixes）
-          CONFIG_PACKAGE_oui-vendor=y
-          # 其它
-          CONFIG_PACKAGE_ucode-mod-socket=y
-          CONFIG_PACKAGE_ucode-mod-math=y
-          CONFIG_PACKAGE_uclient-fetch=y
-          CONFIG_PACKAGE_ip-full=y
-          CONFIG_PACKAGE_libpcap=y
-          CONFIG_PACKAGE_coreutils-timeout=y
-          # macvlan: docker macvlan network (iptv-server binds 192.168.10.68)
-          CONFIG_PACKAGE_kmod-macvlan=y
-          EOF
-          make defconfig
-          echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
 
       - name: Add OUI vendor names (static hosts + LuCI v4/v6)
         continue-on-error: true
