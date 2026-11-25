@@ -656,6 +656,136 @@ jobs:
           make defconfig
           echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
 
+                # 两者同时进 rootfs 会让 opkg 报 check_data_file_clashes 并中止 package/install。
+          # 必须显式关闭默认开启的 dnsmasq。
+          # CONFIG_PACKAGE_dnsmasq is not set
+          CONFIG_PACKAGE_dnsmasq-full=y
+          # OpenClash
+          CONFIG_PACKAGE_luci-app-openclash=y
+          # PassWall2：不编（本机只用 OpenClash，省掉 xray-core / chinadns-ng / tproxy 这一串依赖）
+          # 行为管理 / 应用过滤 (OAF)
+          CONFIG_PACKAGE_luci-app-oaf=y
+          CONFIG_PACKAGE_appfilter=y
+          CONFIG_PACKAGE_kmod-oaf=y
+          # MAC 厂商名查询 / 租约自动命名（数据来自 nmap 的 nmap-mac-prefixes）
+          CONFIG_PACKAGE_oui-vendor=y
+          # 其它
+          CONFIG_PACKAGE_ucode-mod-socket=y
+          CONFIG_PACKAGE_ucode-mod-math=y
+          CONFIG_PACKAGE_uclient-fetch=y
+          CONFIG_PACKAGE_ip-full=y
+          CONFIG_PACKAGE_libpcap=y
+          CONFIG_PACKAGE_coreutils-timeout=y
+          # macvlan: docker macvlan network (iptv-server binds 192.168.10.68)
+          CONFIG_PACKAGE_kmod-macvlan=y
+          EOF
+          make defconfig
+          echo "✅ 配置完成 (openwrt v${{ matrix.version }})"
+
+      - name: Add OUI vendor names (static hosts + LuCI v4/v6)
+        run: |
+          set -e
+          echo "===== 1) 静态保留补厂商短名 ====="
+          cat > package/oui-vendor/files/oui_host_names << 'SHEOF'
+          #!/bin/sh
+          [ -x /usr/bin/oui_lookup ] || exit 0
+          N=$(uci -q show dhcp 2>/dev/null | grep -c '=host$')
+          [ "$N" -gt 0 ] || exit 0
+          i=0
+          changed=0
+          while [ "$i" -lt "$N" ]; do
+              mac=$(uci -q get dhcp.@host[$i].mac 2>/dev/null | head -n1)
+              name=$(uci -q get dhcp.@host[$i].name 2>/dev/null)
+              if [ -n "$mac" ] && [ -z "$name" ]; then
+                  v=$(oui_lookup -s "$mac" 2>/dev/null)
+                  [ -z "$v" ] && v=Unknown
+                  t=$(echo "$mac" | sed 's/[^0-9a-fA-F]//g' | tr 'A-F' 'a-f' | cut -c7-12)
+                  uci -q set dhcp.@host[$i].name="$v-$t"
+                  changed=1
+              fi
+              i=$((i+1))
+          done
+          [ "$changed" = "1" ] && uci -q commit dhcp
+          exit 0
+          SHEOF
+          chmod +x package/oui-vendor/files/oui_host_names
+          python3 - << 'PYEOF'
+          mk = 'package/oui-vendor/Makefile'
+          s = open(mk, encoding='utf-8').read()
+          a = '$(INSTALL_BIN) $(PKG_BUILD_DIR)/uci-defaults-oui-names $(1)/etc/uci-defaults/99-oui-names'
+          assert s.count(a) == 1, 'makefile anchor not unique'
+          if 'oui_host_names' not in s:
+              s = s.replace(a, a + '\n\t$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_host_names $(1)/usr/bin/oui_host_names')
+              open(mk, 'w', encoding='utf-8').write(s)
+          u = 'package/oui-vendor/files/uci-defaults-oui-names'
+          t = open(u, encoding='utf-8').read()
+          if 'oui_host_names' not in t:
+              t = t.replace('exit 0', '[ -x /usr/bin/oui_host_names ] && /usr/bin/oui_host_names\nexit 0')
+              open(u, 'w', encoding='utf-8').write(t)
+          print('static-host naming wired')
+          PYEOF
+          echo "===== 2) LuCI 页面显示厂商 ====="
+          curl -fsSL --retry 3 --max-time 60 https://raw.githubusercontent.com/nmap/nmap/master/nmap-mac-prefixes -o /tmp/oui.txt || { echo "WARN: OUI 数据下载失败，跳过前端补丁"; exit 0; }
+          python3 - << 'PYEOF'
+          import glob, json, re, sys
+          try:
+              def short(n):
+                  n = n.split(',')[0]
+                  n = re.sub(r'\b(Co\.|Corporation|Corp\.|Inc\.|Ltd\.?|GmbH|Limited|LLC|Company|Technolog\w*)\b.*$', '', n, flags=re.I).strip()
+                  place = set('Shenzhen Beijing Hangzhou Shanghai Guangzhou Suzhou Dongguan Wuhan Chengdu Nanjing Zhuhai Fuzhou Xiamen Wuxi Qingdao Hefei Changsha Tianjin Chongqing Ningbo Jinan Zhengzhou Shantou Zhongshan Huizhou Foshan Quanzhou Wenzhou'.split())
+                  w = [x for x in n.split() if x not in place]
+                  return (w[0] if w else (n or 'Unknown'))[:14]
+              db = {}
+              for line in open('/tmp/oui.txt', encoding='utf-8', errors='ignore'):
+                  line = line.strip()
+                  if not line or line[0] == '#':
+                      continue
+                  p = line.split(None, 1)
+                  if len(p) != 2 or len(p[0]) != 6:
+                      continue
+                  db[p[0].upper()] = short(p[1])
+              if len(db) < 1000:
+                  print('WARN: OUI entries too few:', len(db)); sys.exit(0)
+              cands = glob.glob('feeds/luci/**/view/network/dhcp.js', recursive=True) + glob.glob('package/feeds/luci/**/view/network/dhcp.js', recursive=True)
+              if not cands:
+                  print('WARN: dhcp.js not found'); sys.exit(0)
+              path = sorted(cands)[0]
+              s = open(path, encoding='utf-8').read()
+              if 'OUI_DB' in s:
+                  print('already patched'); sys.exit(0)
+              h = ("const OUI_DB=__DB__;"
+                   "function ouiVendor(m){if(!m)return null;var p=String(m).replace(/[^0-9a-fA-F]/g,'').slice(0,6).toUpperCase();return OUI_DB[p]||null;}"
+                   "function ouiTagDuid(d){if(!d)return d;var h=String(d).replace(/[^0-9a-fA-F]/g,'');if(h.length<12)return d;var mc=h.slice(-12).match(/../g).join(':');var v=ouiVendor(mc);return v?(d+' ('+v+')'):d;}")
+              h = h.replace('__DB__', json.dumps(db, ensure_ascii=False, separators=(',', ':')))
+              a1 = "'use strict';"
+              if s.count(a1) != 1:
+                  print('WARN: use strict anchor', s.count(a1)); sys.exit(0)
+              s = s.replace(a1, a1 + h, 1)
+              n1 = s.count('macdata[mac].vendor')
+              if n1 != 2:
+                  print('WARN: v4 anchors', n1); sys.exit(0)
+              s = s.replace('macdata[mac].vendor', '(macdata[mac].vendor||ouiVendor(lease.macaddr))')
+              n2 = s.count('lease.duid,lease.iaid')
+              if n2 != 1:
+                  print('WARN: v6 anchors', n2); sys.exit(0)
+              s = s.replace('lease.duid,lease.iaid', 'ouiTagDuid(lease.duid),lease.iaid')
+              a3 = 'vendor=macdata[lower_mac]?macdata[lower_mac].vendor:null;'
+              if s.count(a3) != 1:
+                  print('WARN: static anchor', s.count(a3)); sys.exit(0)
+              s = s.replace(a3, 'vendor=(macdata[lower_mac]&&macdata[lower_mac].vendor)||ouiVendor(lower_mac);')
+              open(path, 'w', encoding='utf-8').write(s)
+              open('/tmp/dhcpjs_path', 'w').write(path)
+              print('patched %s entries=%d size=%d' % (path, len(db), len(s)))
+          except Exception as e:
+              print('WARN: LuCI patch skipped:', e); sys.exit(0)
+          PYEOF
+          P=$(cat /tmp/dhcpjs_path 2>/dev/null || true)
+          if [ -n "$P" ] && command -v node >/dev/null 2>&1; then
+            node --check "$P" && echo "✅ dhcp.js 语法校验通过"
+          else
+            echo "ℹ️ 未做 node 校验（node 不可用或无补丁）"
+          fi
+          echo "✅ OUI 厂商名增强完成"
       - name: Verify Chinese language packages
         run: |
           # 语言开关若没生效，编译 4 小时后才会发现界面还是英文，所以这里提前 10 分钟失败
