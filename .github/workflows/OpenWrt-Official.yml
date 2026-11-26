@@ -581,7 +581,7 @@ jobs:
           PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_OVERRIDE=/tmp/leases.test2 OUI_CLIENT_DB=/tmp/oui-clients-test sh package/oui-vendor/files/oui_lease_names
           grep -q 'Android-96b250' /tmp/leases.test2
           grep -q 'Windows-3d4975' /tmp/leases.test2
-          rm -rf /tmp/oui-clients-test2
+          rm -rf /tmp/oui-clients-test2; mkdir -p /tmp/oui-clients-test2
           DNSMASQ_VENDOR_CLASS='android-dhcp-13' OUI_FP_DIR=/tmp/oui-clients-test2 sh package/oui-vendor/files/oui-dhcp-event add 11:22:33:44:55:66 192.168.1.30 h
           grep -q 'VC=android-dhcp-13' /tmp/oui-clients-test2/oui.11:22:33:44:55:66
           echo "system-type naming OK"
