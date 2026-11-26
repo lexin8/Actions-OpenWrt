@@ -426,7 +426,7 @@ jobs:
           #   Xiaomi-19f0 / Hikvision-b0f39a / Android-96b250 / Windows-3d4975 / Random-b4bdf1
           # 只改第 4 列为 *（或空，或本脚本此前生成的名字）的行；真实主机名一律不动。
           LE=${LE_OVERRIDE:-/etc/dhcp.leases}
-          DB=${OUI_CLIENT_DB:-/etc/oui-clients}
+          DB=${OUI_CLIENT_DB:-/var/run/dnsmasq}
           if [ ! -f "$LE" ]; then exit 0; fi
 
           sys_from_class() {
@@ -446,7 +446,7 @@ jobs:
           }
 
           db_class() {
-          	f="$DB/$1"
+          	f="$DB/oui.$1"
           	if [ -f "$f" ]; then
           		sed -n 's/^VC=//p' "$f" | head -n 1
           	fi
@@ -515,22 +515,16 @@ jobs:
           #!/bin/sh
           # oui-dhcp-event -- dnsmasq USER_DHCPSCRIPT 钩子
           # 由 /usr/lib/dnsmasq/dhcp-script.sh 以 `. "$USER_DHCPSCRIPT" "$@"` 方式载入，
-          # 因此运行在 dnsmasq 的完整环境中，可以读到 DNSMASQ_VENDOR_CLASS(option 60)、
-          # DNSMASQ_CLIENT_ID(option 61) 等客户端特征。
-          # 用这些特征记录 "MAC -> 客户端指纹"，供 oui_lease_names 判定系统类型。
-          DB=${OUI_CLIENT_DB:-/etc/oui-clients}
-
+          # 运行在 dnsmasq 的 ujail 沙箱内：只有 shell 内建可用（tr/sed/mkdir 都不在白名单里），
+          # 且只有 /etc/dhcp.leases 与 /var/run/dnsmasq/ 可写。
+          # 这里只负责记录客户端 vendor class(option 60)，由沙箱外的 oui_lease_names 决定设备名。
+          D=${OUI_FP_DIR:-/var/run/dnsmasq}
           if [ "$1" = "add" ] || [ "$1" = "old" ]; then
-          	mac=$(printf '%s' "$2" | tr 'A-F' 'a-f')
-          	if [ -n "$mac" ]; then
-          		mkdir -p "$DB" 2>/dev/null
-          		{
-          			printf 'VC=%s\n' "$DNSMASQ_VENDOR_CLASS"
-          			printf 'HOST=%s\n' "$4"
-          			printf 'CID=%s\n' "$DNSMASQ_CLIENT_ID"
-          			printf 'TS=%s\n' "$(date +%s)"
-          		} > "$DB/$mac" 2>/dev/null
+          	if [ -n "$2" ]; then
+          		echo "VC=$DNSMASQ_VENDOR_CLASS" > "$D/oui.$2" 2>/dev/null
           	fi
+          elif [ "$1" = "del" ]; then
+          	:
           fi
           SHEOF
 
@@ -582,14 +576,14 @@ jobs:
           echo "oui_lease_names OK"
           printf '1794000003 de:e2:be:96:b2:50 192.168.1.20 * 01:de:e2:be:96:b2:50\n1794000004 50:ba:02:3d:49:75 192.168.1.21 * 01:50:ba:02:3d:49:75\n' > /tmp/leases.test2
           rm -rf /tmp/oui-clients-test; mkdir -p /tmp/oui-clients-test
-          printf 'VC=android-dhcp-13\n' > /tmp/oui-clients-test/de:e2:be:96:b2:50
-          printf 'VC=MSFT 5.0\n' > /tmp/oui-clients-test/50:ba:02:3d:49:75
+          printf 'VC=android-dhcp-13\n' > /tmp/oui-clients-test/oui.de:e2:be:96:b2:50
+          printf 'VC=MSFT 5.0\n' > /tmp/oui-clients-test/oui.50:ba:02:3d:49:75
           PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_OVERRIDE=/tmp/leases.test2 OUI_CLIENT_DB=/tmp/oui-clients-test sh package/oui-vendor/files/oui_lease_names
           grep -q 'Android-96b250' /tmp/leases.test2
           grep -q 'Windows-3d4975' /tmp/leases.test2
           rm -rf /tmp/oui-clients-test2
-          DNSMASQ_VENDOR_CLASS='android-dhcp-13' OUI_CLIENT_DB=/tmp/oui-clients-test2 sh package/oui-vendor/files/oui_dhcp-event add 11:22:33:44:55:66 192.168.1.30 h
-          grep -q 'VC=android-dhcp-13' /tmp/oui-clients-test2/11:22:33:44:55:66
+          DNSMASQ_VENDOR_CLASS='android-dhcp-13' OUI_FP_DIR=/tmp/oui-clients-test2 sh package/oui-vendor/files/oui-dhcp-event add 11:22:33:44:55:66 192.168.1.30 h
+          grep -q 'VC=android-dhcp-13' /tmp/oui-clients-test2/oui.11:22:33:44:55:66
           echo "system-type naming OK"
           echo "✅ OUI vendor package ready"
 
