@@ -423,16 +423,15 @@ jobs:
 
           cat > package/oui-vendor/files/oui_lease_names << 'SHEOF'
           #!/bin/sh
-          # oui_lease_names -- 为 OAF / LuCI 生成"可读名字"的租约副本
-          # 只读 dnsmasq 的 /etc/dhcp.leases，绝不修改它；输出写到 /etc/oaf/leases（overlay 持久）。
-          # 命名优先级：真实主机名 > 系统类型(option 60) > MAC 厂商 > Random/Unknown
-          # 已算出的名字记入 /etc/oaf/names，重启后客户端未上报也能沿用。
+          # oui_lease_names -- 给 DHCP 客户端生成可读名字（就地更新 lease，并同步一份给 OAF）
+          # 命名优先级：真实主机名 > 具体系统类型(option 60) > MAC 厂商 > 随机MAC(Phone) > Unknown
           SRC=${LE_SRC:-/etc/dhcp.leases}
           OUT=${LE_OVERRIDE:-/etc/oaf/leases}
           NAMES=${OUI_NAMES_DB:-/etc/oaf/names}
           DB=${OUI_CLIENT_DB:-/var/run/dnsmasq}
           [ -f "$SRC" ] || exit 0
           mkdir -p "${OUT%/*}" "${NAMES%/*}" 2>/dev/null
+          [ -f "$NAMES" ] || : > "$NAMES"
 
           sys_from_class() {
           	vc=$(printf '%s' "$1" | tr 'A-Z' 'a-z')
@@ -442,24 +441,22 @@ jobs:
           		*iphone*)                     echo iPhone;  return 0 ;;
           		*ipad*)                       echo iPad;    return 0 ;;
           		*macintosh*|*macos*|*apple*)  echo Apple;   return 0 ;;
-          		*esp*)                        echo ESP;     return 0 ;;
-          		*udhcp*|*dhcpcd*|*isc-dhcp*)  echo Linux;   return 0 ;;
-          		*networkmanager*)             echo Linux;   return 0 ;;
-          		*cisco*)                      echo Cisco;   return 0 ;;
           	esac
           	return 1
           }
 
           db_class() {
           	f="$DB/oui.$1"
-          	if [ -f "$f" ]; then
-          		sed -n 's/^VC=//p' "$f" | head -n 1
-          	fi
+          	[ -f "$f" ] && sed -n 's/^VC=//p' "$f" | head -n 1
           }
 
-          lookup_saved() {
-          	[ -f "$NAMES" ] || return 0
-          	grep -i "^$1 " "$NAMES" 2>/dev/null | head -n 1 | cut -d' ' -f2-
+          is_local_mac() {
+          	first=$(printf '%s' "$1" | cut -d: -f1)
+          	case "$first" in
+          		[0-9a-fA-F][0-9a-fA-F]) ;;
+          		*) return 1 ;;
+          	esac
+          	[ $(( 0x$first & 0x02 )) -ne 0 ]
           }
 
           rec() {
@@ -468,13 +465,13 @@ jobs:
           	mv -f "$NAMES.t" "$NAMES"
           }
 
-          [ -f "$NAMES" ] || : > "$NAMES"
-          TMP="$OUT.tmp"
+          TMP="$SRC.oui.tmp"
           : > "$TMP"
           while IFS=' ' read -r ts mac ip name rest; do
           	[ -z "$ts" ] && continue
           	t=$(printf '%s' "$mac" | sed 's/[^0-9a-fA-F]//g' | tr 'A-F' 'a-f' | cut -c7-12)
 
+          	# 本脚本生成的名字一律重算；真实主机名不动
           	gen=0
           	if [ "$name" = "*" ] || [ -z "$name" ]; then
           		gen=1
@@ -485,32 +482,20 @@ jobs:
           	fi
 
           	if [ $gen -eq 1 ]; then
-          		saved=$(lookup_saved "$mac")
-          		if [ -n "$saved" ]; then
-          			name="$saved"
-          		else
-          			label=""
-          			vc=$(db_class "$mac")
-          			if [ -n "$vc" ]; then
-          				label=$(sys_from_class "$vc")
-          			fi
-          			if [ -z "$label" ]; then
-          				v=$(oui_lookup -s "$mac" 2>/dev/null)
-          				if [ -n "$v" ]; then
-          					label="$v"
-          				else
-          					first=$(printf '%s' "$mac" | cut -d: -f1)
-          					if [ $(( 0x$first & 0x02 )) -ne 0 ]; then
-          						label=Random
-          					else
-          						label=Unknown
-          					fi
-          				fi
-          			fi
-          			name="$label-$t"
+          		label=""
+          		vc=$(db_class "$mac")
+          		[ -n "$vc" ] && label=$(sys_from_class "$vc")
+          		if [ -z "$label" ]; then
+          			label=$(oui_lookup -s "$mac" 2>/dev/null)
           		fi
-          		rec "$mac" "$name"
-          	else
+          		if [ -z "$label" ]; then
+          			if is_local_mac "$mac"; then
+          				label=Phone
+          			else
+          				label=Unknown
+          			fi
+          		fi
+          		name="$label-$t"
           		rec "$mac" "$name"
           	fi
 
@@ -521,8 +506,15 @@ jobs:
           	fi
           done < "$SRC" > "$TMP"
 
-          mv -f "$TMP" "$OUT"
-          # 永不动 dnsmasq 的租约文件
+          if cmp -s "$SRC" "$TMP" 2>/dev/null; then
+          	rm -f "$TMP"
+          else
+          	cp -f "$SRC" "$SRC.oui.bak" 2>/dev/null
+          	cat "$TMP" > "$SRC"   # 保留 inode，dnsmasq 的句柄仍然有效
+          	rm -f "$TMP"
+          fi
+
+          cp -f "$SRC" "$OUT" 2>/dev/null
           exit 0
           SHEOF
 
@@ -586,7 +578,7 @@ jobs:
           uci -q commit fwx
           [ -f /etc/oaf/leases ] || : > /etc/oaf/leases
           ln -sf /etc/oaf/leases /tmp/dhcp.leases
-          grep -q oui_lease_names /etc/crontabs/root 2>/dev/null || \
+          grep -q '^[^#]*oui_lease_names' /etc/crontabs/root 2>/dev/null || \
           	echo '*/5 * * * * /usr/bin/oui_lease_names' >> /etc/crontabs/root
           [ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names
           /etc/init.d/cron reload >/dev/null 2>&1 || /etc/init.d/cron restart >/dev/null 2>&1
@@ -618,11 +610,10 @@ jobs:
 
           printf '1794000000 52:fa:b3:b4:bd:f1 192.168.1.10 * 01:52:fa:b3:b4:bd:f1\n1794000001 8c:22:d2:a3:fc:2c 192.168.1.11 * 01:8c:22:d2:a3:fc:2c\n1794000002 00:e0:24:00:00:01 192.168.1.12 realhost 01:00:e0:24:00:00:01\n' > /tmp/leases.test
           PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_SRC=/tmp/leases.test LE_OVERRIDE=/tmp/leases.out1 OUI_NAMES_DB=/tmp/names.test1 sh package/oui-vendor/files/oui_lease_names
-          grep -q 'Random-b4bdf1' /tmp/leases.out1
+          grep -q 'Phone-b4bdf1' /tmp/leases.test
           grep -q 'Hikvision-a3fc2c' /tmp/leases.out1
           grep -q 'realhost' /tmp/leases.out1
           test "$(awk '$4=="*"' /tmp/leases.out1 | wc -l)" -eq 0
-          grep -q '192.168.1.10 \*' /tmp/leases.test
           echo "oui_lease_names OK"
           printf '1794000003 de:e2:be:96:b2:50 192.168.1.20 * 01:de:e2:be:96:b2:50\n1794000004 50:ba:02:3d:49:75 192.168.1.21 * 01:50:ba:02:3d:49:75\n' > /tmp/leases.test2
           rm -rf /tmp/oui-clients-test; mkdir -p /tmp/oui-clients-test
@@ -632,7 +623,6 @@ jobs:
           PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_SRC=/tmp/leases.test2 LE_OVERRIDE=/tmp/leases.out OUI_NAMES_DB=/tmp/names.test OUI_CLIENT_DB=/tmp/oui-clients-test sh package/oui-vendor/files/oui_lease_names
           grep -q 'Android-96b250' /tmp/leases.out
           grep -q 'Windows-3d4975' /tmp/leases.out
-          grep -q '192.168.1.20 \*' /tmp/leases.test2
           rm -rf /tmp/oui-clients-test2; mkdir -p /tmp/oui-clients-test2
           DNSMASQ_VENDOR_CLASS='android-dhcp-13' OUI_FP_DIR=/tmp/oui-clients-test2 sh package/oui-vendor/files/oui-dhcp-event add 11:22:33:44:55:66 192.168.1.30 h
           grep -q 'VC=android-dhcp-13' /tmp/oui-clients-test2/oui.11:22:33:44:55:66
