@@ -377,6 +377,8 @@ jobs:
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_lookup $(1)/usr/bin/oui_lookup
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_lease_names $(1)/usr/bin/oui_lease_names
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-dhcp-event $(1)/usr/bin/oui-dhcp-event
+          	$(INSTALL_DIR) $(1)/etc/init.d
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-names $(1)/etc/init.d/oui-names
           	$(INSTALL_DIR) $(1)/etc/hotplug.d/dhcp
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/hotplug-10-oui-names $(1)/etc/hotplug.d/dhcp/10-oui-names
           	$(INSTALL_DIR) $(1)/etc/uci-defaults
@@ -421,13 +423,16 @@ jobs:
 
           cat > package/oui-vendor/files/oui_lease_names << 'SHEOF'
           #!/bin/sh
-          # oui_lease_names -- 为没有主机名的 DHCP 客户端生成可读名字
-          # 命名优先级：设备自报主机名 > 系统类型(option 60) > MAC 厂商 > Random/Unknown
-          #   Xiaomi-19f0 / Hikvision-b0f39a / Android-96b250 / Windows-3d4975 / Random-b4bdf1
-          # 只改第 4 列为 *（或空，或本脚本此前生成的名字）的行；真实主机名一律不动。
-          LE=${LE_OVERRIDE:-/etc/dhcp.leases}
+          # oui_lease_names -- 为 OAF / LuCI 生成"可读名字"的租约副本
+          # 只读 dnsmasq 的 /etc/dhcp.leases，绝不修改它；输出写到 /etc/oaf/leases（overlay 持久）。
+          # 命名优先级：真实主机名 > 系统类型(option 60) > MAC 厂商 > Random/Unknown
+          # 已算出的名字记入 /etc/oaf/names，重启后客户端未上报也能沿用。
+          SRC=${LE_SRC:-/etc/dhcp.leases}
+          OUT=${LE_OVERRIDE:-/etc/oaf/leases}
+          NAMES=${OUI_NAMES_DB:-/etc/oaf/names}
           DB=${OUI_CLIENT_DB:-/var/run/dnsmasq}
-          if [ ! -f "$LE" ]; then exit 0; fi
+          [ -f "$SRC" ] || exit 0
+          mkdir -p "${OUT%/*}" "${NAMES%/*}" 2>/dev/null
 
           sys_from_class() {
           	vc=$(printf '%s' "$1" | tr 'A-Z' 'a-z')
@@ -452,7 +457,19 @@ jobs:
           	fi
           }
 
-          TMP="$LE.tmp"
+          lookup_saved() {
+          	[ -f "$NAMES" ] || return 0
+          	grep -i "^$1 " "$NAMES" 2>/dev/null | head -n 1 | cut -d' ' -f2-
+          }
+
+          rec() {
+          	grep -vi "^$1 " "$NAMES" 2>/dev/null > "$NAMES.t"
+          	printf '%s %s\n' "$1" "$2" >> "$NAMES.t"
+          	mv -f "$NAMES.t" "$NAMES"
+          }
+
+          [ -f "$NAMES" ] || : > "$NAMES"
+          TMP="$OUT.tmp"
           : > "$TMP"
           while IFS=' ' read -r ts mac ip name rest; do
           	[ -z "$ts" ] && continue
@@ -468,25 +485,33 @@ jobs:
           	fi
 
           	if [ $gen -eq 1 ]; then
-          		label=""
-          		vc=$(db_class "$mac")
-          		if [ -n "$vc" ]; then
-          			label=$(sys_from_class "$vc")
-          		fi
-          		if [ -z "$label" ]; then
-          			v=$(oui_lookup -s "$mac" 2>/dev/null)
-          			if [ -n "$v" ]; then
-          				label="$v"
-          			else
-          				first=$(printf '%s' "$mac" | cut -d: -f1)
-          				if [ $(( 0x$first & 0x02 )) -ne 0 ]; then
-          					label=Random
+          		saved=$(lookup_saved "$mac")
+          		if [ -n "$saved" ]; then
+          			name="$saved"
+          		else
+          			label=""
+          			vc=$(db_class "$mac")
+          			if [ -n "$vc" ]; then
+          				label=$(sys_from_class "$vc")
+          			fi
+          			if [ -z "$label" ]; then
+          				v=$(oui_lookup -s "$mac" 2>/dev/null)
+          				if [ -n "$v" ]; then
+          					label="$v"
           				else
-          					label=Unknown
+          					first=$(printf '%s' "$mac" | cut -d: -f1)
+          					if [ $(( 0x$first & 0x02 )) -ne 0 ]; then
+          						label=Random
+          					else
+          						label=Unknown
+          					fi
           				fi
           			fi
+          			name="$label-$t"
           		fi
-          		name="$label-$t"
+          		rec "$mac" "$name"
+          	else
+          		rec "$mac" "$name"
           	fi
 
           	if [ -n "$rest" ]; then
@@ -494,14 +519,11 @@ jobs:
           	else
           		printf '%s %s %s %s\n' "$ts" "$mac" "$ip" "$name"
           	fi
-          done < "$LE" > "$TMP"
+          done < "$SRC" > "$TMP"
 
-          if cmp -s "$LE" "$TMP" 2>/dev/null; then
-          	rm -f "$TMP"
-          else
-          	cat "$TMP" > "$LE"
-          	rm -f "$TMP"
-          fi
+          mv -f "$TMP" "$OUT"
+          # 永不动 dnsmasq 的租约文件
+          exit 0
           SHEOF
 
           cat > package/oui-vendor/files/hotplug-10-oui-names << 'SHEOF'
@@ -527,23 +549,49 @@ jobs:
           	:
           fi
           SHEOF
+          cat > package/oui-vendor/files/oui-names << 'SHEOF'
+          #!/bin/sh /etc/rc.common
+          # oui-names -- 开机时把"可读名字"租约副本挂到 /tmp/dhcp.leases 并刷新一次
+          START=99
+          USE_PROCD=0
+
+          start() {
+          	mkdir -p /etc/oaf
+          	[ -f /etc/oaf/leases ] || : > /etc/oaf/leases
+          	ln -sf /etc/oaf/leases /tmp/dhcp.leases
+          	[ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names >/dev/null 2>&1
+          }
+
+          stop() { :; }
+          SHEOF
+
 
 
           cat > package/oui-vendor/files/uci-defaults-oui-names << 'SHEOF'
           #!/bin/sh
-          # 首次启动：注册 dnsmasq 客户端指纹钩子（option 60 -> 系统类型），并保留 cron 兜底
+          # 首次启动：注册 option60 指纹钩子；把 OAF 数据落到 overlay（重启不丢）；启用开机命名服务
           CFG=$(uci -q show dhcp | sed -n 's/^dhcp\.\([^.]*\)=dnsmasq$/\1/p' | head -n 1)
           [ -z "$CFG" ] && CFG=cfg01411c
           if [ -z "$(uci -q get dhcp.$CFG.dhcpscript)" ]; then
           	uci -q set dhcp.$CFG.dhcpscript=/usr/bin/oui-dhcp-event
           	uci -q commit dhcp
-          	/etc/init.d/dnsmasq restart >/dev/null 2>&1
           fi
-          mkdir -p /etc/oui-clients
+          mkdir -p /etc/oaf
+          if [ -d /tmp/oaf ] && [ ! -f /etc/oaf/client.db ]; then
+          	cp -a /tmp/oaf/. /etc/oaf/ 2>/dev/null
+          fi
+          uci -q set fwx.record.history_data_path=/etc/oaf
+          uci -q set fwx.record.base_data_path=/etc/oaf
+          uci -q set fwx.record.history_data_size=32
+          uci -q commit fwx
+          [ -f /etc/oaf/leases ] || : > /etc/oaf/leases
+          ln -sf /etc/oaf/leases /tmp/dhcp.leases
           grep -q oui_lease_names /etc/crontabs/root 2>/dev/null || \
           	echo '*/5 * * * * /usr/bin/oui_lease_names' >> /etc/crontabs/root
           [ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names
           /etc/init.d/cron reload >/dev/null 2>&1 || /etc/init.d/cron restart >/dev/null 2>&1
+          /etc/init.d/oui-names enable >/dev/null 2>&1
+          /etc/init.d/dnsmasq restart >/dev/null 2>&1
           exit 0
           SHEOF
 
@@ -551,11 +599,12 @@ jobs:
                    package/oui-vendor/files/oui_lease_names \
                    package/oui-vendor/files/hotplug-10-oui-names \
                    package/oui-vendor/files/oui-dhcp-event \
+                   package/oui-vendor/files/oui-names \
                    package/oui-vendor/files/uci-defaults-oui-names
 
           echo "--- 语法自检 ---"
           for f in package/oui-vendor/files/oui_lookup package/oui-vendor/files/oui_lease_names \
-                   package/oui-vendor/files/hotplug-10-oui-names package/oui-vendor/files/uci-defaults-oui-names package/oui-vendor/files/oui-dhcp-event; do
+                   package/oui-vendor/files/hotplug-10-oui-names package/oui-vendor/files/uci-defaults-oui-names package/oui-vendor/files/oui-dhcp-event package/oui-vendor/files/oui-names; do
             sh -n "$f"
             echo "OK $f"
           done
@@ -578,9 +627,11 @@ jobs:
           rm -rf /tmp/oui-clients-test; mkdir -p /tmp/oui-clients-test
           printf 'VC=android-dhcp-13\n' > /tmp/oui-clients-test/oui.de:e2:be:96:b2:50
           printf 'VC=MSFT 5.0\n' > /tmp/oui-clients-test/oui.50:ba:02:3d:49:75
-          PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_OVERRIDE=/tmp/leases.test2 OUI_CLIENT_DB=/tmp/oui-clients-test sh package/oui-vendor/files/oui_lease_names
-          grep -q 'Android-96b250' /tmp/leases.test2
-          grep -q 'Windows-3d4975' /tmp/leases.test2
+          rm -f /tmp/names.test /tmp/leases.out
+          PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_SRC=/tmp/leases.test2 LE_OVERRIDE=/tmp/leases.out OUI_NAMES_DB=/tmp/names.test OUI_CLIENT_DB=/tmp/oui-clients-test sh package/oui-vendor/files/oui_lease_names
+          grep -q 'Android-96b250' /tmp/leases.out
+          grep -q 'Windows-3d4975' /tmp/leases.out
+          grep -q '192.168.1.20 \*' /tmp/leases.test2
           rm -rf /tmp/oui-clients-test2; mkdir -p /tmp/oui-clients-test2
           DNSMASQ_VENDOR_CLASS='android-dhcp-13' OUI_FP_DIR=/tmp/oui-clients-test2 sh package/oui-vendor/files/oui-dhcp-event add 11:22:33:44:55:66 192.168.1.30 h
           grep -q 'VC=android-dhcp-13' /tmp/oui-clients-test2/oui.11:22:33:44:55:66
