@@ -617,11 +617,12 @@ jobs:
           echo "oui_lookup OK"
 
           printf '1794000000 52:fa:b3:b4:bd:f1 192.168.1.10 * 01:52:fa:b3:b4:bd:f1\n1794000001 8c:22:d2:a3:fc:2c 192.168.1.11 * 01:8c:22:d2:a3:fc:2c\n1794000002 00:e0:24:00:00:01 192.168.1.12 realhost 01:00:e0:24:00:00:01\n' > /tmp/leases.test
-          PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_OVERRIDE=/tmp/leases.test sh package/oui-vendor/files/oui_lease_names
-          grep -q 'Random-b4bdf1' /tmp/leases.test
-          grep -q 'Hikvision-a3fc2c' /tmp/leases.test
-          grep -q 'realhost' /tmp/leases.test
-          test "$(awk '$4=="*"' /tmp/leases.test | wc -l)" -eq 0
+          PATH=package/oui-vendor/files:$PATH OUI_DB=/tmp/oui-test.db LE_SRC=/tmp/leases.test LE_OVERRIDE=/tmp/leases.out1 OUI_NAMES_DB=/tmp/names.test1 sh package/oui-vendor/files/oui_lease_names
+          grep -q 'Random-b4bdf1' /tmp/leases.out1
+          grep -q 'Hikvision-a3fc2c' /tmp/leases.out1
+          grep -q 'realhost' /tmp/leases.out1
+          test "$(awk '$4=="*"' /tmp/leases.out1 | wc -l)" -eq 0
+          grep -q '192.168.1.10 \*' /tmp/leases.test
           echo "oui_lease_names OK"
           printf '1794000003 de:e2:be:96:b2:50 192.168.1.20 * 01:de:e2:be:96:b2:50\n1794000004 50:ba:02:3d:49:75 192.168.1.21 * 01:50:ba:02:3d:49:75\n' > /tmp/leases.test2
           rm -rf /tmp/oui-clients-test; mkdir -p /tmp/oui-clients-test
