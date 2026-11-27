@@ -346,7 +346,7 @@ jobs:
           include $(TOPDIR)/rules.mk
 
           PKG_NAME:=oui-vendor
-          PKG_VERSION:=1.1
+          PKG_VERSION:=1.2
           PKG_RELEASE:=1
 
           include $(INCLUDE_DIR)/package.mk
@@ -378,6 +378,8 @@ jobs:
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_lease_names $(1)/usr/bin/oui_lease_names
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-dhcp-event $(1)/usr/bin/oui-dhcp-event
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-ua-probe $(1)/usr/bin/oui-ua-probe
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-mdns-probe $(1)/usr/bin/oui-mdns-probe
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui_apply_names $(1)/usr/bin/oui_apply_names
           	$(INSTALL_DIR) $(1)/usr/share/oui-vendor
           	$(INSTALL_DATA) $(PKG_BUILD_DIR)/oui-db.txt $(1)/usr/share/oui-vendor/oui-db.txt
           	$(INSTALL_DATA) $(PKG_BUILD_DIR)/model-db.txt $(1)/usr/share/oui-vendor/model-db.txt
@@ -386,6 +388,7 @@ jobs:
           	$(INSTALL_DIR) $(1)/etc/init.d
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-names $(1)/etc/init.d/oui-names
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-ua $(1)/etc/init.d/oui-ua
+          	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oui-mdns $(1)/etc/init.d/oui-mdns
           	$(INSTALL_DIR) $(1)/etc/uci-defaults
           	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uci-defaults-oui-names $(1)/etc/uci-defaults/99-oui-names
           endef
@@ -600,12 +603,15 @@ jobs:
           cat > package/oui-vendor/files/oui-dhcp-event << 'SHEOF'
           #!/bin/sh
           # oui-dhcp-event -- dnsmasq USER_DHCPSCRIPT 钩子（跑在 ujail 沙箱内，只用 shell 内建）
-          # 记录 option 60(vendor class) 与 option 55(parameter request list)，供沙箱外的 oui_lease_names 判定设备类型。
+          # 记录 option 60(vendor class)、option 55(parameter request list)、以及客户端自报主机名($4)
+          # 供沙箱外的 oui_lease_names / oui_apply_names 判定设备类型与名字。
           D=${OUI_FP_DIR:-/var/run/dnsmasq}
           if [ "$1" = "add" ] || [ "$1" = "old" ]; then
           	if [ -n "$2" ]; then
           		echo "VC=$DNSMASQ_VENDOR_CLASS" > "$D/oui.$2" 2>/dev/null
           		echo "REQ=$DNSMASQ_REQUESTED_OPTIONS" >> "$D/oui.$2" 2>/dev/null
+          		echo "HN=$4" >> "$D/oui.$2" 2>/dev/null
+          		echo "IP=$3" >> "$D/oui.$2" 2>/dev/null
           	fi
           elif [ "$1" = "del" ]; then
           	:
@@ -614,9 +620,12 @@ jobs:
 
           cat > package/oui-vendor/files/hotplug-10-oui-names << 'SHEOF'
           #!/bin/sh
-          # 新租约一出现就刷新设备名
+          # 新租约一出现就刷新设备名；静态主机名异步重算（不阻塞 dnsmasq 的 dhcp 事件）
           case "$ACTION" in
-          	add|update) /usr/bin/oui_lease_names ;;
+          	add|update)
+          		/usr/bin/oui_lease_names
+          		( /usr/bin/oui_apply_names >/dev/null 2>&1 & )
+          		;;
           esac
           SHEOF
 
@@ -629,7 +638,7 @@ jobs:
           	uci -q set dhcp.$CFG.dhcpscript=/usr/bin/oui-dhcp-event
           	uci -q commit dhcp
           fi
-          mkdir -p /etc/oaf /var/run/oui-ua
+          mkdir -p /etc/oaf /var/run/oui-ua /var/run/oui-mdns
           if [ -d /tmp/oaf ] && [ ! -f /etc/oaf/client.db ]; then
           	cp -a /tmp/oaf/. /etc/oaf/ 2>/dev/null
           fi
@@ -644,12 +653,16 @@ jobs:
           fi
           grep -q '^[^#]*oui_lease_names' /etc/crontabs/root 2>/dev/null || \
           	echo '*/5 * * * * /usr/bin/oui_lease_names' >> /etc/crontabs/root
+          grep -q '^[^#]*oui_apply_names' /etc/crontabs/root 2>/dev/null || \
+          	echo '*/5 * * * * /usr/bin/oui_apply_names' >> /etc/crontabs/root
           [ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names
           /etc/init.d/cron reload >/dev/null 2>&1 || /etc/init.d/cron restart >/dev/null 2>&1
           /etc/init.d/oui-names enable >/dev/null 2>&1
           /etc/init.d/oui-ua enable >/dev/null 2>&1
+          /etc/init.d/oui-mdns enable >/dev/null 2>&1
           /etc/init.d/oui-names start >/dev/null 2>&1
           /etc/init.d/oui-ua start >/dev/null 2>&1
+          /etc/init.d/oui-mdns start >/dev/null 2>&1
           exit 0
           SHEOF
 
@@ -689,7 +702,7 @@ jobs:
           SHEOF
 
           cat > package/oui-vendor/files/oui-ua << 'SHEOF'
-          #!/bin/sh
+          #!/bin/sh /etc/rc.common
           # oui-ua -- 常驻抓 HTTP User-Agent（procd 托管，异常自动拉起）
           START=97
           USE_PROCD=1
@@ -702,6 +715,296 @@ jobs:
           	procd_set_param stderr 1
           	procd_close_instance
           }
+          SHEOF
+
+          cat > package/oui-vendor/files/oui-mdns-probe << 'SHEOF'
+          #!/bin/sh
+          # oui-mdns-probe -- 被动抓 mDNS(5353) 里设备自报的名称
+          #   来源：_airplay._tcp（iPhone/iPad/Mac/AppleTV 的显示名）、_raop._tcp（含 MAC@名称）、
+          #         _googlecast._tcp（Google/安卓投屏名）、_hap._tcp（HomeKit 配件）、_workstation._tcp
+          # 只旁听、不改流量，结果写 /var/run/oui-mdns/<ip> 的 NAME=<名称>
+          IF=${1:-br-lan}
+          MD=${OUI_MDNS_DIR:-/var/run/oui-mdns}
+          mkdir -p "$MD" 2>/dev/null
+
+          exec tcpdump -i "$IF" -s 0 -A -l -q 'udp port 5353' 2>/dev/null | \
+          awk '
+          {
+          	line = $0
+          	if (match(line, /IP [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\./)) {
+          		ip = substr(line, RSTART + 3, RLENGTH - 4)
+          	}
+          	if (ip == "") next
+          	while (match(line, /\._(airplay|raop|googlecast|hap|workstation|companion-link|apple-mobdev2|rdlink|mediaremotetv|airport|device-info|http|ipps|printer|smb|afpovertcp|miio|home-assistant|esphomelib)\._(tcp|udp)/)) {
+          		pre = substr(line, 1, RSTART - 1)
+          		n = split(pre, a, ".")
+          		label = a[n]
+          		k = split(label, b, "@")
+          		name = b[k]
+          		gsub(/\\032/, " ", name)
+          		sub(/\.local$/, "", name)
+          		gsub(/^[.]+/, "", name)
+          		gsub(/[[:cntrl:]]/, "", name)
+          		if (length(name) >= 2 && length(name) <= 60 && name !~ /^[0-9a-fA-F]{12}$/ && name != "local" && name !~ /\.\./)
+          			print ip "\t" name
+          		line = substr(line, RSTART + RLENGTH)
+          	}
+          	# 再抓主机名（A/PTR 里的 xxx.local，很多设备只播主机名不播服务实例名）
+          	rest = $0
+          	while (match(rest, /[A-Za-z0-9_][A-Za-z0-9_-]{1,40}\.local/)) {
+          		h = substr(rest, RSTART, RLENGTH - 6)
+          		if (h !~ /^[0-9a-fA-F]{12}$/ && h != "local") print ip "\t" h
+          		rest = substr(rest, RSTART + RLENGTH)
+          	}
+          }' | while IFS="$(printf '\t')" read -r ip name; do
+          	[ -z "$ip" ] && continue
+          	[ -z "$name" ] && continue
+          	printf 'NAME=%s\n' "$name" > "$MD/$ip.oui.tmp" 2>/dev/null && mv -f "$MD/$ip.oui.tmp" "$MD/$ip" 2>/dev/null
+          done
+          SHEOF
+
+          cat > package/oui-vendor/files/oui-mdns << 'SHEOF'
+          #!/bin/sh /etc/rc.common
+          # oui-mdns -- 常驻旁听 mDNS，取设备自报名称（procd 托管，异常自动拉起）
+          START=98
+          USE_PROCD=1
+
+          start_service() {
+          	procd_open_instance
+          	procd_set_param command /usr/bin/oui-mdns-probe br-lan
+          	procd_set_param respawn 3600 5 5
+          	procd_set_param stdout 1
+          	procd_set_param stderr 1
+          	procd_close_instance
+          }
+          SHEOF
+
+          cat > package/oui-vendor/files/oui_apply_names << 'SHEOF'
+          #!/bin/sh
+          # oui_apply_names v1 -- 运行期把 DHCP 静态主机里的 "Unknown-xxxxxx" 换成真实识别结果
+          #
+          # 为什么要这一步：dnsmasq 把 /etc/config/dhcp 里的 host 段（编译期生成的静态租约）
+          # 的名字直接用作 DHCPACK 名字和 LuCI 客户端显示名。静态表里的名字是编译时算的，
+          # 随机 MAC 的手机当时只能写成 Unknown-xxxxxx，刷固件后也不会自动更新。
+          # 本脚本在运行期用多源信息重算，只改"空 / Unknown-* / Phone*"，真实名字不动。
+          #
+          # 命名顺序（按用户要求：优先设备自报/系统类型，识别不到才用厂商）：
+          #   mDNS 自报名 > 型号库(UA/option60 型号代码) > 具体系统类型(option60) >
+          #   option55 指纹 > MAC 厂商(仅全局 MAC) > 持久记录 > 保留原名
+          NAMES=${OUI_NAMES_DB:-/etc/oaf/names}
+          FP=${OUI_CLIENT_DB:-/var/run/dnsmasq}
+          UAD=${OUI_UA_DIR:-/var/run/oui-ua}
+          MD=${OUI_MDNS_DIR:-/var/run/oui-mdns}
+          DB=${OUI_DB:-/usr/share/oui-vendor/oui-db.txt}
+          MDB=${OUI_MODEL_DB:-/usr/share/oui-vendor/model-db.txt}
+          LK=${OUI_APPLY_LOCK:-/var/run/oui-apply.d}
+
+          [ -r "$DB" ] || DB=/usr/share/nmap/nmap-mac-prefixes
+          mkdir -p "${NAMES%/*}" "${FP%/*}" "$UAD" "$MD" 2>/dev/null
+          [ -f "$NAMES" ] || : > "$NAMES"
+
+          # 同一时间只允许一个实例（hotplug / cron / 开机可能并发）
+          mkdir "$LK" 2>/dev/null || exit 0
+          trap 'rmdir "$LK" 2>/dev/null' EXIT INT TERM
+
+          norm_mac() { printf '%s' "$1" | tr 'A-F' 'a-f' | sed 's/[^0-9a-f:]/ /g' | awk '{print $1}'; }
+          suffix6()  { printf '%s' "$1" | tr -d ':' | cut -c7-12; }
+
+          clean() {
+          	printf '%s' "$1" | sed -e 's/[][(){}\/\\:*?"<>|,;=]/ /g' \
+          		-e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr -s ' ' | cut -c1-45
+          }
+
+          fp_get() {
+          	[ -f "$FP/oui.$1" ] || return 1
+          	sed -n "s/^$2=//p" "$FP/oui.$1" 2>/dev/null | head -n 1
+          }
+
+          # option 60：只认具体系统，泛型（udhcp/dhcpcd/linux/esp）不算，避免盖掉厂商
+          sys_from_class() {
+          	vc=$(printf '%s' "$1" | tr 'A-Z' 'a-z')
+          	case "$vc" in
+          		*android*)                     echo Android; return 0 ;;
+          		*iphone*)                      echo iPhone;  return 0 ;;
+          		*ipad*)                        echo iPad;    return 0 ;;
+          		*ipod*)                        echo iPod;    return 0 ;;
+          		*harmony*|*openharmony*)       echo Harmony; return 0 ;;
+          		*msft*|*microsoft*|*windows*)  echo Windows; return 0 ;;
+          		*macintosh*|*macos*)           echo Mac;     return 0 ;;
+          		*udhcp*|*dhcpcd*|*linux*|*esp*|*espressif*) return 1 ;;
+          		*apple*)                       echo Apple;   return 0 ;;
+          	esac
+          	return 1
+          }
+
+          req_has() { case ",$REQ," in *",$1,"*) return 0 ;; esac; return 1; }
+
+          sys_from_req() {
+          	REQ=$1
+          	[ -z "$REQ" ] && return 1
+          	if req_has 43 && req_has 46 && req_has 51; then echo Android; return 0; fi
+          	if req_has 47 && req_has 31; then echo Windows; return 0; fi
+          	if req_has 95; then echo Apple; return 0; fi
+          	if req_has 121 && req_has 119 && req_has 252; then echo Apple; return 0; fi
+          	if req_has 44 && req_has 46 && req_has 119 && ! req_has 43; then echo Linux; return 0; fi
+          	return 1
+          }
+
+          # 型号代码 -> 品牌+机型（内置 Google Play 型号库）
+          model_by_code() {
+          	c=$(printf '%s' "$1" | tr 'a-z' 'A-Z' | tr -d ' \r')
+          	[ -z "$c" ] && return 1
+          	[ -r "$MDB" ] || { echo "$1" | cut -c1-24; return 0; }
+          	ln=$(awk -F'\t' -v k="$c" '$1==k{print $2"\t"$3;exit}' "$MDB" 2>/dev/null)
+          	[ -z "$ln" ] && { echo "$1" | cut -c1-24; return 0; }
+          	br=$(printf '%s' "$ln" | cut -f1 | tr -d ' ')
+          	nm=$(printf '%s' "$ln" | cut -f2 | tr -d ' ')
+          	[ -z "$nm" ] && { echo "$1" | cut -c1-24; return 0; }
+          	case "$nm" in
+          		*"$br"*) printf '%s\n' "$nm" ;;
+          		*)
+          			if [ ${#nm} -le 14 ] && [ -n "$br" ]; then printf '%s\n' "$br$nm"
+          			else printf '%s\n' "$nm"; fi ;;
+          	esac | cut -c1-24
+          }
+
+          # UA 里的安卓型号代码 -> 机型名
+          ua_model() {
+          	ua=$1
+          	case "$ua" in
+          		*[Aa]ndroid*|*Dalvik*) ;;
+          		*) return 1 ;;
+          	esac
+          	m=$(printf '%s' "$ua" | sed -n 's/.*[;(][ ]*\([A-Za-z0-9._-]\+\)[ ]*Build\/.*/\1/p' | head -n 1)
+          	[ -z "$m" ] && m=$(printf '%s' "$ua" | sed -n 's/.*[Aa]ndroid[ ]*[0-9.]*;[ ]*\([^;)]*\)[ ]*[;)].*/\1/p' | head -n 1)
+          	m=$(printf '%s' "$m" | tr -d ' \r')
+          	[ -z "$m" ] && return 1
+          	model_by_code "$m"
+          }
+
+          # option 60 里的型号段（HUAWEI:openharmony:CHZ-AL00 -> CHZ-AL00）
+          code_from_class() {
+          	c=$(printf '%s' "$1" | awk -F: '{print $NF}')
+          	[ -z "$c" ] && return 1
+          	case "$c" in
+          		android-dhcp-*|dhcpcd-*|udhcp*|MSFT*|*.*) return 1 ;;
+          	esac
+          	printf '%s' "$c" | grep -qE '[0-9]' || return 1
+          	printf '%s' "$c" | grep -qE '^[A-Za-z0-9_-]{3,20}$' || return 1
+          	model_by_code "$c"
+          }
+
+          is_local_mac() {
+          	first=$(printf '%s' "$1" | cut -d: -f1)
+          	case "$first" in [0-9a-f][0-9a-f]) ;; *) return 1 ;; esac
+          	[ $(( 0x$first & 0x02 )) -ne 0 ]
+          }
+
+          rec() {
+          	grep -vi "^$1 " "$NAMES" 2>/dev/null > "$NAMES.t"
+          	printf '%s %s\n' "$1" "$2" >> "$NAMES.t"
+          	mv -f "$NAMES.t" "$NAMES"
+          }
+
+          N=$(uci -q show dhcp 2>/dev/null | grep -c '=host$')
+          [ "$N" -gt 0 ] || exit 0
+
+          changed=0
+          i=0
+          while [ "$i" -lt "$N" ]; do
+          	mac=$(uci -q get "dhcp.@host[$i].mac" 2>/dev/null | head -n 1)
+          	name_raw=$(uci -q get "dhcp.@host[$i].name" 2>/dev/null)
+          	name=$(printf '%s' "$name_raw" | sed -e "s/^'//" -e "s/'$//")
+          	ip=$(uci -q get "dhcp.@host[$i].ip" 2>/dev/null)
+          	i=$((i+1))
+          	# 顺手清掉历史遗留的引号包裹（uci 存成了 '名字'）
+          	if [ "$name_raw" != "$name" ]; then
+          		uci -q set "dhcp.@host[$((i-1))].name=$name" && changed=1
+          	fi
+          	[ -z "$mac" ] && continue
+          	M=$(norm_mac "$mac")
+          	[ -z "$M" ] && continue
+          	S=$(suffix6 "$M")
+
+          	need=0
+          	case "$name" in
+          		""|Unknown*|Phone*|unknown*) need=1 ;;
+          	esac
+          	[ "$need" = 1 ] || continue
+
+          	label=""
+
+          	# 1) mDNS 自报名（设备自己起的名字，最真实）
+          	if [ -n "$ip" ]; then
+          		label=$(sed -n 's/^NAME=//p' "$MD/$ip" 2>/dev/null | head -n 1)
+          		label=$(clean "$label")
+          		case "$label" in local|Local|"") label="" ;; esac
+          	fi
+
+          	# 1b) DHCP 客户端自报的主机名（option 12，dnsmasq 事件里的 $4）
+          	if [ -z "$label" ]; then
+          		hn=$(fp_get "$M" HN)
+          		case "$hn" in
+          			""|\*|Unknown*|Phone*|unknown*|localhost|localhost.localdomain) ;;
+          			*) label=$(clean "$hn") ;;
+          		esac
+          	fi
+
+          	# 2) 型号库（HTTP UA 的安卓型号代码）
+          	if [ -z "$label" ] && [ -n "$ip" ]; then
+          		ua=$(sed -n 's/^UA=//p' "$UAD/$ip" 2>/dev/null | head -n 1)
+          		[ -n "$ua" ] && label=$(ua_model "$ua")
+          	fi
+
+          	# 3) option 60 里的具体型号代码
+          	if [ -z "$label" ]; then
+          		vc=$(fp_get "$M" VC)
+          		[ -n "$vc" ] && label=$(code_from_class "$vc")
+          	fi
+
+          	# 4) 具体系统类型（option 60）
+          	if [ -z "$label" ]; then
+          		vc=$(fp_get "$M" VC)
+          		[ -n "$vc" ] && label=$(sys_from_class "$vc")
+          	fi
+
+          	# 5) option 55 指纹
+          	if [ -z "$label" ]; then
+          		label=$(sys_from_req "$(fp_get "$M" REQ)")
+          	fi
+
+          	# 6) MAC 厂商（只对全局 MAC 生效；随机/本地 MAC 前缀无意义）
+          	if [ -z "$label" ] && ! is_local_mac "$M"; then
+          		label=$(OUI_DB="$DB" oui_lookup -s "$M" 2>/dev/null)
+          		case "$label" in ""|Unknown) label="" ;; esac
+          	fi
+
+          	# 7) 持久记录（重启后仍然沿用上次识别结果）
+          	if [ -z "$label" ]; then
+          		old=$(sed -n "s/^$M //p" "$NAMES" 2>/dev/null | head -n 1)
+          		[ -n "$old" ] && label=$(printf '%s' "$old" | sed 's/-[0-9a-f]\{6\}$//')
+          	fi
+
+          	[ -z "$label" ] && continue
+          	label=$(clean "$label")
+          	[ -z "$label" ] && continue
+          	case "$label" in Unknown*) continue ;; esac
+
+          	new="$label-$S"
+          	[ ${#new} -gt 45 ] && new="$(printf '%s' "$label" | cut -c1-33)-$S"
+          	uci -q set "dhcp.@host[$((i-1))].name=$new" || continue
+          	rec "$M" "$new"
+          	changed=1
+          done
+
+          if [ "$changed" = 1 ]; then
+          	uci -q commit dhcp
+          	# 让 dnsmasq 用新的 host 名字应答（一次性，仅在有变化时）
+          	/etc/init.d/dnsmasq reload >/dev/null 2>&1
+          fi
+
+          rmdir "$LK" 2>/dev/null
+          exit 0
           SHEOF
 
           cat > package/oui-vendor/files/oui-names << 'SHEOF'
@@ -719,6 +1022,8 @@ jobs:
           		ln -sf /etc/oaf/leases /tmp/dhcp.leases
           	fi
           	[ -x /usr/bin/oui_lease_names ] && /usr/bin/oui_lease_names >/dev/null 2>&1
+          	# 静态主机名的运行期识别：mDNS/UA/指纹要等设备上线，所以延迟再跑一次
+          	( sleep 45; /usr/bin/oui_apply_names >/dev/null 2>&1 ) &
           }
 
           stop() { :; }
@@ -750,13 +1055,18 @@ jobs:
                    package/oui-vendor/files/uci-defaults-oui-names \
                    package/oui-vendor/files/oui-ua-probe \
                    package/oui-vendor/files/oui-ua \
-                   package/oui-vendor/files/oui-names
+                   package/oui-vendor/files/oui-names \
+                   package/oui-vendor/files/oui-mdns-probe \
+                   package/oui-vendor/files/oui-mdns \
+                   package/oui-vendor/files/oui_apply_names
 
           echo "--- 语法自检 ---"
           for f in package/oui-vendor/files/oui_lookup package/oui-vendor/files/oui_lease_names \
                    package/oui-vendor/files/oui-dhcp-event package/oui-vendor/files/hotplug-10-oui-names \
                    package/oui-vendor/files/uci-defaults-oui-names package/oui-vendor/files/oui-ua-probe \
-                   package/oui-vendor/files/oui-ua package/oui-vendor/files/oui-names; do
+                   package/oui-vendor/files/oui-ua package/oui-vendor/files/oui-names \
+                   package/oui-vendor/files/oui-mdns-probe package/oui-vendor/files/oui-mdns \
+                   package/oui-vendor/files/oui_apply_names; do
             sh -n "$f"
             echo "OK $f"
           done
