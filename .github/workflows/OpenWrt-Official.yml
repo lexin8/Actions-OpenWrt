@@ -443,6 +443,7 @@ jobs:
           NAMES=${OUI_NAMES_DB:-/etc/oaf/names}
           FP=${OUI_CLIENT_DB:-/var/run/dnsmasq}
           UAD=${OUI_UA_DIR:-/var/run/oui-ua}
+          MDD=${OUI_MDNS_DIR:-/var/run/oui-mdns}
           DB=${OUI_DB:-/usr/share/oui-vendor/oui-db.txt}
           [ -r "$DB" ] || DB=/usr/share/nmap/nmap-mac-prefixes
           MDB=${OUI_MODEL_DB:-/usr/share/oui-vendor/model-db.txt}
@@ -557,8 +558,24 @@ jobs:
 
           	if [ $gen -eq 1 ]; then
           		label=""
-          		ua=$(sed -n 's/^UA=//p' "$UAD/$ip" 2>/dev/null | head -n 1)
-          		[ -n "$ua" ] && label=$(model_label "$ua")
+          		# 1) mDNS 自报名（设备自己起的名字）
+          		if [ -n "$ip" ]; then
+          			label=$(sed -n 's/^NAME=//p' "$MDD/$ip" 2>/dev/null | head -n 1)
+          			case "$label" in local|Local|_*|"") label="" ;; esac
+          		fi
+          		# 2) DHCP option 12 自报主机名
+          		if [ -z "$label" ]; then
+          			hn=$(fp_get "$mac" HN)
+          			[ "$hn" = "$name" ] && hn=""
+          			case "$hn" in ""|\*|Unknown*|Phone*|unknown*|localhost|localhost.localdomain) ;;
+          				*) label=$hn ;;
+          			esac
+          		fi
+          		# 3) 型号库(HTTP UA)
+          		if [ -z "$label" ]; then
+          			ua=$(sed -n 's/^UA=//p' "$UAD/$ip" 2>/dev/null | head -n 1)
+          			[ -n "$ua" ] && label=$(model_label "$ua")
+          		fi
           		if [ -z "$label" ]; then
           			vc=$(fp_get "$mac" VC)
           			[ -n "$vc" ] && label=$(sys_from_class "$vc")
@@ -572,7 +589,10 @@ jobs:
           		fi
           		if [ -z "$label" ]; then
           			old=$(sed -n "s/^$mac //p" "$NAMES" 2>/dev/null | head -n 1)
-          			[ -n "$old" ] && label=$(printf '%s' "$old" | sed 's/-[0-9a-f]\{6\}$//')
+          			if [ -n "$old" ]; then
+          				old=$(printf '%s' "$old" | sed 's/-[0-9a-f]\{6\}$//')
+          				case "$old" in ""|_*|local|Local|Unknown*|Phone*) ;; *) label=$old ;; esac
+          			fi
           		fi
           		[ -z "$label" ] && label=Unknown
           		name="$label-$t"
