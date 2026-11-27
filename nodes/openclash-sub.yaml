@@ -3,7 +3,7 @@ allow-lan: true
 mode: rule
 log-level: info
 proxies:
-- name: 🇨🇦 CA 001 | ⬇️ 399.19MB/s
+- name: 🇨🇦 CA 001 | ⬇️ 357.86MB/s
   port: 443
   server: 172.64.69.89
   skip-cert-verify: true
@@ -11,7 +11,7 @@ proxies:
   type: http
   udp: true
 - client-fingerprint: chrome
-  name: 🇨🇦 CA 002 | ⬇️ 355.91MB/s
+  name: 🇨🇦 CA 002 | ⬇️ 286.91MB/s
   network: ws
   port: 8443
   server: 172.64.154.113
@@ -23,237 +23,156 @@ proxies:
     headers:
       Host: freeceshi6.frii.site
     path: /proxyip=ProxyIP.JP.CMLiussss.net
-- name: 🇨🇦 CA 003 | ⬇️ 199.17MB/s
-  network: ws
-  port: 8080
-  server: www.gov.se
-  servername: www.gov.se
-  tls: false
-  type: vless
-  uuid: 989d58b8-d2ea-4d28-b5ff-0f3cd078f2cf
-  ws-opts:
-    headers:
-      Host: sdf23g-billowing-moon-348e.mzm468gc.workers.dev
-    path: /
-- client-fingerprint: chrome
-  name: 🇨🇦 CA 004 | ⬇️ 178.84MB/s
-  network: ws
-  port: 2053
-  server: 104.16.244.34
-  servername: cffq.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: 97514cec-cf70-42b1-9743-3f89122adc8e
-  ws-opts:
-    headers:
-      Host: cffq.pages.dev
-    path: /?ed=2560
-- client-fingerprint: chrome
-  name: 🇨🇦 CA 005 | ⬇️ 166.98MB/s
-  network: ws
-  port: 2083
-  server: www.visa.com
-  servername: v4-77j.pages.dev
-  tls: true
-  type: vless
-  udp: true
-  uuid: bf14dc50-e9f2-49fd-8642-620446edeafb
-  ws-opts:
-    headers:
-      Host: v4-77j.pages.dev
-    path: /
-- name: 🇨🇦 CA 006 | ⬇️ 139.34MB/s
-  network: ws
-  port: 443
-  server: 172.64.145.94
-  servername: powered-by-surena.configfarsi695fd01a94fe7.workers.dev
-  tls: true
-  type: vless
-  uuid: 5dc15e15-f285-4a9d-959b-0e4fbdd77b63
-  ws-opts:
-    headers:
-      Host: powered-by-surena.configfarsi695fd01a94fe7.workers.dev
-    path: /fp=chrome
-- name: 🇨🇦 CA 007 | ⬇️ 108.18MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 216.152.147.79
-  skip-cert-verify: false
-  sni: blog.connectingpeoplewithgreatjobs.com
-  type: trojan
-- client-fingerprint: chrome
-  name: 🇺🇸 US 001 | ⬇️ 97.25MB/s
-  password: f0eb8c92ce8946aaba856569cff1a16b
-  port: 443
-  server: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  servername: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  skip-cert-verify: true
-  sni: resources.findlocaljobnetworkandbuildcommunityconnections.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 002 | ⬇️ 85.44MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.122.25
-  sni: cdn.searchnationwidecareerchangehelperandguidancetoday.com
-  type: trojan
-- client-fingerprint: chrome
-  name: 🇺🇸 US 003 | ⬇️ 82.28MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.121
-  servername: www.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: www.unlockyourfuturefindyourperfectcareer.com
-  tls: true
-  type: trojan
-  udp: true
-- name: 🇺🇸 US 004 | ⬇️ 81.98MB/s
+- name: 🇺🇸 US 001 | ⬇️ 122.97MB/s
   password: 'null'
   port: 9002
-  server: 138.199.35.198
+  server: 138.199.35.220
   skip-cert-verify: true
-  sni: 138.199.35.198
   tls: true
   type: http
   username: 'null'
-- name: 🇺🇸 US 005 | ⬇️ 81.32MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.114
+- name: 🇺🇸 US 002 | ⬇️ 118.84MB/s
+  port: 9002
+  server: 138.199.35.200
   skip-cert-verify: true
-  type: trojan
-  udp: true
-- client-fingerprint: chrome
-  name: 🇺🇸 US 006 | ⬇️ 80.45MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.171
-  servername: learn.unlockyourfuturefindyourperfectcareer.com
-  skip-cert-verify: true
-  sni: learn.unlockyourfuturefindyourperfectcareer.com
   tls: true
-  type: trojan
+  type: http
   udp: true
-- name: 🇺🇸 US 007 | ⬇️ 76.39MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.112.13
-  sni: blog.unlockyourfuturefindyourperfectcareer.com
-  type: trojan
-- name: 🇺🇸 US 008 | ⬇️ 76.19MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 167.88.61.52
-  sni: courses.browseseniorrolesandenhanceyourcareertoday.com
-  type: trojan
-- name: 🇺🇸 US 009 | ⬇️ 62.84MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.106
+  x-toolall-mihomo: true
+- name: 🇺🇸 US 003 | ⬇️ 113.28MB/s
+  password: 'null'
+  port: 9002
+  server: 138.199.35.206
   skip-cert-verify: true
-  sni: www.findconnectwithemployersandbuildprofessionalnetwork.com
-  type: trojan
+  tls: true
+  type: http
+  username: 'null'
+- name: 🇺🇸 US 004 | ⬇️ 112.84MB/s
+  port: 9002
+  server: 138.199.35.207
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+  x-toolall-mihomo: true
+- name: 🇺🇸 US 005 | ⬇️ 112.71MB/s
+  port: 9002
+  server: 138.199.35.195
+  skip-cert-verify: true
+  tls: true
+  type: http
+- name: 🇺🇸 US 006 | ⬇️ 112.52MB/s
+  password: 'null'
+  port: 9002
+  server: 138.199.35.219
+  skip-cert-verify: true
+  sni: 138.199.35.219
+  tls: true
+  type: http
+  username: 'null'
+- name: 🇺🇸 US 007 | ⬇️ 109.55MB/s
+  port: 9443
+  server: 38.95.111.226
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+  x-toolall-mihomo: true
+- name: 🇺🇸 US 008 | ⬇️ 71.25MB/s
+  port: 9443
+  server: 198.44.138.27
+  skip-cert-verify: true
+  tls: true
+  type: http
 - cipher: aes-128-gcm
-  name: 🇬🇧 GB 001 | ⬇️ 58.96MB/s
+  name: 🇯🇵 JP 001 | ⬇️ 51.01MB/s
+  password: shadowsocks
+  port: 443
+  server: 149.22.87.241
+  type: ss
+- alpn:
+  - http/1.1
+  client-fingerprint: unsafe
+  name: 🇨🇦 CA 003 | ⬇️ 43.89MB/s
+  network: ws
+  port: 443
+  server: 188.114.98.0
+  servername: x.m-90.xyz
+  tls: true
+  type: vless
+  udp: true
+  uuid: eee8ae65-bc48-438f-a606-a96f10bfb3b8
+  ws-opts:
+    headers:
+      Host: x.m-90.xyz
+    path: t.me/TEAMNETGRATISCOL
+- cipher: aes-128-gcm
+  name: 🇬🇧 GB 001 | ⬇️ 38.37MB/s
   password: shadowsocks
   port: 443
   server: 158.173.24.73
   type: ss
-- client-fingerprint: chrome
-  name: 🇺🇸 US 010 | ⬇️ 57.34MB/s
-  network: tcp
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.114.166
-  skip-cert-verify: true
-  sni: blog.findconnectwithemployersandbuildprofessionalnetwork.com
-  type: trojan
-  udp: true
 - cipher: aes-256-gcm
-  name: 🇬🇧 GB 002 | ⬇️ 57.26MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 185.176.206.9
-  type: ss
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇩🇪 DE 001 | ⬇️ 51.30MB/s
-  port: 443
-  reality-opts:
-    public-key: FWitre1jinQR7qz5HQ0q2Q4Gg9xA9B0SyizCziN7Ch0
-  server: 93.123.101.198
-  servername: de14-r.bankai.party
-  skip-cert-verify: true
-  sni: de14-r.bankai.party
-  tls: true
-  type: vless
-  udp: true
-  uuid: a346c521-7a7f-452b-9356-a4893feb5982
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 003 | ⬇️ 51.07MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 198.244.201.129
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱 NL 001 | ⬇️ 48.77MB/s
-  password: oZIoA69Q8yhcQV8ka3Pa3A
-  port: 443
-  server: 82.38.31.162
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇳🇱 NL 002 | ⬇️ 48.12MB/s
+  name: 🇳🇱 NL 001 | ⬇️ 35.45MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 151.241.19.36
   type: ss
 - cipher: aes-256-gcm
-  name: 🇳🇱 NL 003 | ⬇️ 47.98MB/s
+  name: 🇳🇱 NL 002 | ⬇️ 35.36MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 151.241.19.29
   type: ss
-- cipher: aes-256-gcm
-  name: 🇩🇪 DE 002 | ⬇️ 47.62MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 57.129.83.85
-  type: ss
-- name: 🇬🇧 GB 004 | ⬇️ 47.55MB/s
-  port: 443
-  server: 212.102.63.31
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
 - cipher: chacha20-ietf-poly1305
-  name: 🇳🇱 NL 004 | ⬇️ 47.52MB/s
+  name: 🇳🇱 NL 003 | ⬇️ 34.82MB/s
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.46
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇳🇱 NL 004 | ⬇️ 34.80MB/s
   password: k1dBOmOB4oqi7Ump37a1bQ
   port: 8080
   server: 82.38.31.216
   type: ss
-- name: 🇬🇧 GB 005 | ⬇️ 47.32MB/s
+- cipher: chacha20-ietf-poly1305
+  name: 🇳🇱 NL 005 | ⬇️ 34.65MB/s
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 443
+  server: 82.38.31.162
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇳🇱 NL 006 | ⬇️ 34.56MB/s
+  password: oZIoA69Q8yhcQV8ka3Pa3A
+  port: 8080
+  server: 82.38.31.49
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇬🇧 GB 002 | ⬇️ 34.50MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 185.176.206.9
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇳🇱 NL 007 | ⬇️ 34.32MB/s
+  password: k1dBOmOB4oqi7Ump37a1bQ
+  port: 8080
+  server: 193.29.139.198
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇸🇬 SG 001 | ⬇️ 33.42MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 149.88.107.74
+  type: ss
+- name: 🇬🇧 GB 003 | ⬇️ 32.96MB/s
   port: 9443
   server: 84.17.50.214
   skip-cert-verify: true
   tls: true
   type: http
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱 NL 005 | ⬇️ 47.32MB/s
-  password: k1dBOmOB4oqi7Ump37a1bQ
-  port: 8080
-  server: 193.29.139.198
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇳🇱 NL 006 | ⬇️ 46.64MB/s
-  password: k1dBOmOB4oqi7Ump37a1bQ
-  port: 8080
-  server: 82.38.31.207
-  type: ss
-- name: 🇮🇪 IE 001 | ⬇️ 46.10MB/s
+- name: 🇮🇪 IE 001 | ⬇️ 32.96MB/s
   port: 443
   server: 18.200.158.139
   skip-cert-verify: true
@@ -261,117 +180,34 @@ proxies:
   type: http
   udp: true
 - cipher: aes-256-gcm
-  name: 🇮🇹 IT 001 | ⬇️ 45.15MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.36
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 002 | ⬇️ 45.12MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.72
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 003 | ⬇️ 44.83MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.81
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 004 | ⬇️ 44.82MB/s
+  name: 🇮🇹 IT 001 | ⬇️ 31.96MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 202.50.253.27
   type: ss
   udp: true
-- name: 🇮🇪 IE 002 | ⬇️ 44.69MB/s
-  port: 443
-  server: 34.249.214.108
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
 - cipher: aes-256-gcm
-  name: 🇮🇹 IT 005 | ⬇️ 44.67MB/s
+  name: 🇮🇹 IT 002 | ⬇️ 31.94MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 202.50.253.99
+  server: 202.50.253.72
   type: ss
+  udp: true
 - cipher: aes-256-gcm
-  name: 🇮🇹 IT 006 | ⬇️ 44.60MB/s
+  name: 🇮🇹 IT 003 | ⬇️ 31.84MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 202.50.253.54
   type: ss
   udp: true
 - cipher: aes-256-gcm
-  name: 🇮🇹 IT 007 | ⬇️ 44.52MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.45
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 008 | ⬇️ 44.38MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.90
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 009 | ⬇️ 44.34MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.18
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 010 | ⬇️ 44.14MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 202.50.253.63
-  type: ss
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 006 | ⬇️ 43.57MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 82.110.60.9
-  type: ss
-- name: 🇳🇱 NL 007 | ⬇️ 43.54MB/s
-  password: None
-  port: 9002
-  server: 84.17.47.148
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 007 | ⬇️ 43.26MB/s
+  name: 🇬🇧 GB 004 | ⬇️ 31.83MB/s
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 198.244.202.215
   type: ss
-- name: 🇳🇱 NL 008 | ⬇️ 43.17MB/s
-  password: None
-  port: 9002
-  server: 84.17.47.123
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇳🇱 NL 009 | ⬇️ 43.08MB/s
-  port: 9002
-  server: 84.17.47.124
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
 - client-fingerprint: chrome
-  name: 🇳🇱 NL 010 | ⬇️ 43.05MB/s
+  name: 🇳🇱 NL 008 | ⬇️ 31.82MB/s
   port: 2053
   reality-opts:
     public-key: nyBUWOwOLHOrVSomGfHaPjt-lgbSGk-XSv89voR6T3o
@@ -384,20 +220,161 @@ proxies:
   type: vless
   udp: true
   uuid: 2e7c6265-6933-4a91-bd43-b4fd2e9566c8
-- name: 🇳🇱 NL 011 | ⬇️ 42.84MB/s
-  port: 9002
-  server: 84.17.47.146
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 004 | ⬇️ 31.74MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.45
+  type: ss
+  udp: true
+- name: 🇬🇧 GB 005 | ⬇️ 31.72MB/s
+  port: 443
+  server: 212.102.63.31
   skip-cert-verify: true
   tls: true
   type: http
-- name: 🇧🇪 BE 001 | ⬇️ 42.84MB/s
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 005 | ⬇️ 31.62MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.90
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 006 | ⬇️ 31.52MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.18
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 007 | ⬇️ 31.51MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.36
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 008 | ⬇️ 31.50MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.81
+  type: ss
+  udp: true
+- name: 🇧🇪 BE 001 | ⬇️ 30.97MB/s
   port: 443
   server: 146.70.123.98
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
-- name: 🇳🇱 NL 012 | ⬇️ 42.58MB/s
+- cipher: aes-256-gcm
+  name: 🇮🇹 IT 009 | ⬇️ 30.97MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.63
+  type: ss
+  udp: true
+- name: 🇮🇪 IE 002 | ⬇️ 30.80MB/s
+  port: 443
+  server: 34.249.214.108
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇳🇱 NL 009 | ⬇️ 30.68MB/s
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  server: 51.158.206.26
+  servername: fuck.rkn
+  skip-cert-verify: true
+  sni: fuck.rkn
+  tls: true
+  type: vless
+  udp: true
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- name: 🇲🇽 MX 001 | ⬇️ 30.43MB/s
+  password: VvUAFi2E
+  port: 62000
+  server: 72.57.228.87
+  skip-cert-verify: true
+  type: socks5
+  username: UBXich0K
+- cipher: aes-256-gcm
+  name: 🇨🇭 CH 001 | ⬇️ 30.10MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 186.190.215.251
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇸🇬 SG 002 | ⬇️ 30.02MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 149.88.107.47
+  type: ss
+- client-fingerprint: firefox
+  name: 🇯🇵 JP 002 | ⬇️ 29.99MB/s
+  port: 443
+  server: 50.7.159.242
+  servername: jp.reddotcorp.org
+  tls: true
+  type: vless
+  uuid: 8840fac2-5361-4cb6-b887-cd1b95092394
+- name: 🇲🇽 MX 002 | ⬇️ 29.97MB/s
+  password: VvUAFi2E
+  port: 62000
+  server: 72.57.228.30
+  skip-cert-verify: true
+  type: socks5
+  username: UBXich0K
+- cipher: chacha20-ietf-poly1305
+  name: 🇪🇸 ES 001 | ⬇️ 29.84MB/s
+  password: qItG8SueYQcP
+  port: 443
+  server: 108.181.121.170
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇮🇹IT_8 1.5MB/s
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 202.50.253.99
+  type: ss
+  udp: true
+- cipher: aes-256-gcm
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 23.162.152.22
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16#4
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 172.99.189.142
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16#2
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 38.109.228.110
+  type: ss
+- cipher: aes-256-gcm
+  name: 🏳[www.v2nodes.com] ss-
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 82.110.60.9
+  type: ss
+- cipher: aes-256-gcm
+  name: '🏳[www.v2nodes.com] ss- #12'
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 138.199.55.243
+  type: ss
+- name: NL_speednode_0018
   password: 'null'
   port: 9002
   server: 84.17.47.147
@@ -406,7 +383,16 @@ proxies:
   type: http
   udp: true
   username: 'null'
-- name: 🇳🇱 NL 013 | ⬇️ 42.46MB/s
+- name: NL_speednode_0015
+  password: 'null'
+  port: 9002
+  server: 84.17.47.148
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+  username: 'null'
+- name: NL_speednode_0016
   password: 'null'
   port: 9002
   server: 84.17.47.125
@@ -415,13 +401,15 @@ proxies:
   type: http
   udp: true
   username: 'null'
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 008 | ⬇️ 41.97MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 38.114.120.221
-  type: ss
-- name: 🇳🇱 NL 014 | ⬇️ 41.82MB/s
+- name: 🇳🇱NL_11 3.1MB/s
+  password: 'null'
+  port: 9002
+  server: 84.17.47.124
+  skip-cert-verify: true
+  tls: true
+  type: http
+  username: 'null'
+- name: NL_speednode_0019
   password: None
   port: 9002
   server: 84.17.47.149
@@ -429,58 +417,103 @@ proxies:
   tls: true
   type: http
   udp: true
-- name: 🇳🇱 NL 015 | ⬇️ 41.40MB/s
+- name: DE_speednode_0003
+  password: None
   port: 443
-  server: 149.36.51.129
+  server: 149.36.50.1
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- name: 🇳🇱NL_8 3.5MB/s
+  password: 'null'
+  port: 9002
+  server: 84.17.47.146
+  skip-cert-verify: true
+  tls: true
+  type: http
+  username: 'null'
+- name: NL_speednode_0020
+  password: None
+  port: 9002
+  server: 84.17.47.123
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇳🇱_荷兰 (21)
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  server: 51.158.206.93
+  servername: fuck.rkn
+  skip-cert-verify: true
+  sni: fuck.rkn
+  tls: true
+  type: vless
+  udp: true
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- cipher: aes-256-gcm
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16#6
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.64.22
+  type: ss
+- name: DK_speednode_0004
+  port: 9002
+  server: 158.173.154.1
   skip-cert-verify: true
   tls: true
   type: http
   udp: true
 - cipher: aes-256-gcm
-  name: 🇬🇧 GB 009 | ⬇️ 41.40MB/s
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16#5
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 167.17.64.175
+  type: ss
+- cipher: aes-256-gcm
+  name: 🇬🇧[www.v2nodes.com] ss-GB-16#2
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
   server: 142.202.51.22
   type: ss
-- cipher: aes-256-gcm
-  name: 🇮🇹 IT 011 | ⬇️ 40.98MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 185.164.175.81
-  type: ss
-- name: 🇳🇱 NL 016 | ⬇️ 40.65MB/s
-  port: 9443
-  server: 161.129.60.66
-  skip-cert-verify: true
-  tls: true
-  type: http
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 001 | ⬇️ 40.34MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 172.99.189.142
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇪🇸 ES 001 | ⬇️ 39.98MB/s
-  password: qItG8SueYQcP
-  port: 443
-  server: 108.181.121.170
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 002 | ⬇️ 39.96MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 38.109.228.110
-  type: ss
-- name: 🇨🇭 CH 001 | ⬇️ 39.46MB/s
-  port: 9443
-  server: 146.70.126.50
-  skip-cert-verify: true
-  tls: true
-  type: http
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 017 | ⬇️ 38.79MB/s
+  name: 🇳🇱_荷兰 (13)
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  server: 51.158.206.87
+  servername: fuck.rkn
+  skip-cert-verify: true
+  sni: fuck.rkn
+  tls: true
+  type: vless
+  udp: true
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇳🇱_荷兰 (11)
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  server: 51.158.206.29
+  servername: fuck.rkn
+  skip-cert-verify: true
+  sni: fuck.rkn
+  tls: true
+  type: vless
+  udp: true
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇳🇱_荷兰 (19)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
@@ -493,48 +526,14 @@ proxies:
   type: vless
   udp: true
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- name: 🇩🇪 DE 003 | ⬇️ 38.68MB/s
-  password: None
-  port: 443
-  server: 149.36.50.1
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇨🇿 CZ 001 | ⬇️ 38.59MB/s
-  password: None
-  port: 9443
-  server: 152.233.16.174
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇨🇭 CH 002 | ⬇️ 38.52MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 186.190.215.251
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 003 | ⬇️ 38.18MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 23.162.152.22
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 004 | ⬇️ 38.03MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 167.17.64.175
-  type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 018 | ⬇️ 37.99MB/s
+  name: 🇳🇱_荷兰 (18)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
     short-id: '01'
-  server: 51.158.206.34
+  server: 51.158.206.80
   servername: fuck.rkn
   skip-cert-verify: true
   sni: fuck.rkn
@@ -543,48 +542,14 @@ proxies:
   udp: true
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - cipher: aes-256-gcm
-  name: 🇫🇷 FR 005 | ⬇️ 37.34MB/s
+  name: '🏳[www.v2nodes.com] ss- #14'
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 167.17.64.22
-  type: ss
-- name: 🇨🇭 CH 003 | ⬇️ 37.26MB/s
-  port: 9443
-  server: 149.88.27.33
-  skip-cert-verify: true
-  tls: true
-  type: http
-- name: 🇩🇪 DE 004 | ⬇️ 37.12MB/s
-  port: 9002
-  server: 158.173.154.5
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇳🇱 NL 019 | ⬇️ 37.09MB/s
-  port: 23576
-  reality-opts:
-    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-    short-id: '01'
-  server: 51.158.206.12
-  servername: fuck.rkn
-  skip-cert-verify: true
-  sni: fuck.rkn
-  tls: true
-  type: vless
-  udp: true
-  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- cipher: aes-256-gcm
-  name: 🇫🇷 FR 006 | ⬇️ 37.01MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 167.17.64.27
+  server: 149.88.106.74
   type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 020 | ⬇️ 36.89MB/s
+  name: 🇳🇱_荷兰 (15)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
@@ -599,60 +564,12 @@ proxies:
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 021 | ⬇️ 36.79MB/s
+  name: 🇳🇱_荷兰 (7)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
     short-id: '01'
-  server: 51.158.206.8
-  servername: fuck.rkn
-  skip-cert-verify: true
-  sni: fuck.rkn
-  tls: true
-  type: vless
-  udp: true
-  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- cipher: aes-128-gcm
-  name: 🇯🇵 JP 001 | ⬇️ 36.59MB/s
-  password: shadowsocks
-  port: 443
-  server: 149.22.87.240
-  type: ss
-- cipher: aes-128-gcm
-  name: 🇯🇵 JP 002 | ⬇️ 36.52MB/s
-  password: shadowsocks
-  port: 443
-  server: 149.22.87.204
-  type: ss
-- name: 🇪🇪 EE 001 | ⬇️ 36.42MB/s
-  port: 9443
-  server: 95.153.31.66
-  skip-cert-verify: true
-  tls: true
-  type: http
-- name: 🇩🇪 DE 005 | ⬇️ 36.06MB/s
-  port: 9002
-  server: 158.173.154.1
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇩🇪 DE 006 | ⬇️ 35.84MB/s
-  password: 'null'
-  port: 9002
-  server: 158.173.154.4
-  skip-cert-verify: true
-  tls: true
-  type: http
-  username: 'null'
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇳🇱 NL 022 | ⬇️ 35.80MB/s
-  port: 23576
-  reality-opts:
-    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-    short-id: '01'
-  server: 51.158.206.25
+  server: 51.158.206.34
   servername: fuck.rkn
   skip-cert-verify: true
   sni: fuck.rkn
@@ -661,14 +578,29 @@ proxies:
   udp: true
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - cipher: aes-256-gcm
-  name: 🇪🇸 ES 002 | ⬇️ 35.60MB/s
+  name: 🇫🇷[www.v2nodes.com] ss-FR-16#3
   password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
   port: 19999
-  server: 79.127.139.242
+  server: 167.17.64.27
   type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 023 | ⬇️ 35.52MB/s
+  name: 🇳🇱_荷兰 (14)
+  port: 23576
+  reality-opts:
+    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
+    short-id: '01'
+  server: 51.158.206.96
+  servername: fuck.rkn
+  skip-cert-verify: true
+  sni: fuck.rkn
+  tls: true
+  type: vless
+  udp: true
+  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
+- client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  name: 🇳🇱_荷兰 (22)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
@@ -683,12 +615,12 @@ proxies:
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 024 | ⬇️ 35.48MB/s
+  name: 🇳🇱_荷兰 (12)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
     short-id: '01'
-  server: 51.158.206.93
+  server: 51.158.206.12
   servername: fuck.rkn
   skip-cert-verify: true
   sni: fuck.rkn
@@ -698,12 +630,12 @@ proxies:
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 025 | ⬇️ 35.11MB/s
+  name: 🇳🇱_荷兰 (10)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
     short-id: '01'
-  server: 51.158.206.80
+  server: 51.158.206.8
   servername: fuck.rkn
   skip-cert-verify: true
   sni: fuck.rkn
@@ -713,12 +645,12 @@ proxies:
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 026 | ⬇️ 35.07MB/s
+  name: 🇳🇱_荷兰 (9)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
     short-id: '01'
-  server: 51.158.206.96
+  server: 51.158.206.25
   servername: fuck.rkn
   skip-cert-verify: true
   sni: fuck.rkn
@@ -726,21 +658,9 @@ proxies:
   type: vless
   udp: true
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- cipher: aes-256-gcm
-  name: 🇸🇪 SE 001 | ⬇️ 35.05MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 138.199.55.243
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇨🇭 CH 004 | ⬇️ 34.73MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 23.166.88.127
-  type: ss
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇳🇱 NL 027 | ⬇️ 34.17MB/s
+  name: 🇳🇱_荷兰 (23)
   port: 23576
   reality-opts:
     public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
@@ -753,59 +673,103 @@ proxies:
   type: vless
   udp: true
   uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  name: 🇳🇱 NL 028 | ⬇️ 32.92MB/s
-  port: 23576
-  reality-opts:
-    public-key: 1y5h2FGWKXTJ9xLPCqPo6Mw7RxoZzh6fGkEQKNxpZ3s
-    short-id: '01'
-  server: 51.158.206.26
-  servername: fuck.rkn
-  skip-cert-verify: true
-  sni: fuck.rkn
-  tls: true
-  type: vless
-  udp: true
-  uuid: 48ff2b70-e180-582f-8866-d9a2edeed5f5
-- name: 🇸🇪 SE 002 | ⬇️ 31.50MB/s
-  network: ws
-  port: 14430
-  server: 5.178.109.174
-  tls: false
-  type: vless
-  uuid: 80de563a-cac8-40ea-8cb0-4cb082dd92f9
-  ws-opts:
-    headers:
-      Host: 5.178.109.174
-    path: /vless
-- name: 🇳🇱 NL 029 | ⬇️ 30.04MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 66.163.127.225
-  sni: cdn.indyourperfectremotetechjobfromthecomfortofhome.com
-  type: trojan
 - cipher: aes-256-gcm
-  name: 🇮🇹 IT 012 | ⬇️ 28.85MB/s
-  password: itzvpn@321
-  port: 8388
-  server: 57.131.27.21
+  name: 🇬🇧[www.v2nodes.com] ss-GB-16#3
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 38.114.120.221
+  type: ss
+- name: 🇩🇪DE_6 3.4MB/s
+  port: 9002
+  server: 158.173.154.2
+  skip-cert-verify: true
+  tls: true
+  type: http
+- down: ''
+  fingerprint: ''
+  name: 🇩🇪DE_8 4.5MB/s
+  obfs: ''
+  obfs-password: ''
+  password: 6ac6d17d-040c-4fab-940e-8f5d72c3fed6
+  port: 443
+  server: 135.126.21.107
+  skip-cert-verify: false
+  sni: de2-balance.rezproffx.ru
+  tls: false
+  type: hysteria2
+  up: ''
+- cipher: aes-256-gcm
+  name: '🏳[www.v2nodes.com] ss- #2'
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 23.166.88.127
+  type: ss
+- name: 🇦🇱AL_1 1.9MB/s
+  port: 443
+  server: 87.120.103.242
+  skip-cert-verify: true
+  tls: true
+  type: http
+- name: 🇳🇱NL_10 4.1MB/s
+  password: 'null'
+  port: 23856
+  server: 51.159.225.196
+  skip-cert-verify: true
+  tls: true
+  type: http
+  username: 'null'
+- name: 🇭🇰 香港 HKG 3
+  password: 0324fbc29561
+  port: 443
+  server: 5641sdds.df6h451rh.xin
+  skip-cert-verify: true
+  sni: images.ctfassets.net
+  type: anytls
+- cipher: aes-256-gcm
+  name: 🇬🇧[www.v2nodes.com] ss-GB-16
+  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
+  port: 19999
+  server: 198.244.201.129
   type: ss
 - client-fingerprint: chrome
-  name: 🇧🇬 BG 001 | ⬇️ 28.02MB/s
-  port: 1330
-  reality-opts:
-    public-key: xQnXh5EfPDhcEBB7rRiLca33GYrMEeUa35domLL_yA8
-    short-id: 9b60d3
-  server: p2real33.greewebservices.ir
-  servername: play.googleapis.com
-  skip-cert-verify: true
-  sni: play.googleapis.com
+  name: 🇰🇷[www.v2nodes.com] vless-KR
+  network: ws
+  port: 443
+  server: krd.80782636.xyz
+  servername: krd.80782636.xyz
   tls: true
   type: vless
+  uuid: db906786-8c49-4b17-9182-cea680ef954d
+  ws-opts:
+    headers:
+      Host: krd.80782636.xyz
+    path: /kw7x2mq9
+- name: 🇲🇰MK_1 3.0MB/s
+  port: 443
+  server: 185.225.28.50
+  skip-cert-verify: true
+  tls: true
+  type: http
+- name: NN_speednode_0023
+  password: exaxgqkKkd0TAMrCxeonWg==
+  port: 443
+  server: usgp1-cdn-route.couldflare-cdn.com
+  tls: true
+  type: http
   udp: true
-  uuid: 8f2940bc-a353-4efc-a9a0-22184cd4f1ac
-- name: 🇨🇳 TW 001 | ⬇️ 27.07MB/s
+  username: mrwdfNTD8M79LCukCieldrqZWqs=
+- client-fingerprint: chrome
+  name: 🇭🇰 香港 HKG 2
+  password: 2902c46c8493
+  port: 443
+  server: ibsdsf.df6h451rh.xin
+  servername: docs.microsoft.com
+  skip-cert-verify: true
+  sni: docs.microsoft.com
+  tls: true
+  type: anytls
+  udp: true
+- name: 🇹🇼 台湾3 @ripaojiedian
   password: 2902c46c8493
   port: 443
   server: er8u54dh.df6h451rh.xin
@@ -813,172 +777,9 @@ proxies:
   sni: px.ads.linkedin.com
   type: anytls
   udp: true
-- alpn:
-  - http/1.1
-  client-fingerprint: firefox
-  name: 🇷🇺 RU 001 | ⬇️ 26.14MB/s
-  network: ws
-  port: 443
-  server: bookend.filnex.baby
-  servername: ferncrest.gerqix.online
-  tls: true
-  type: vless
-  udp: true
-  uuid: 749b1c56-e658-4bf5-94bd-5c3286a4aed1
-  ws-opts:
-    headers:
-      Host: bookend.filnex.baby
-    path: /api/de1/stream
-- cipher: aes-256-gcm
-  name: 🇸🇬 SG 001 | ⬇️ 25.47MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 149.88.107.74
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇸🇬 SG 002 | ⬇️ 24.32MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 15.235.182.183
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇸🇬 SG 003 | ⬇️ 23.47MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 15.235.164.133
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇸🇬 SG 004 | ⬇️ 23.11MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 149.88.106.74
-  type: ss
-- cipher: chacha20-ietf-poly1305
-  name: 🇨🇦 CA 008 | ⬇️ 22.41MB/s
-  password: 034b5d9404b79a2df62fcb77a49cf748306765448d8b5e93
-  plugin: v2ray-plugin
-  plugin-opts:
-    host: italy.astroapps.io
-    mode: websocket
-    path: /b5cba947dfef6a5494b25d76
-    tls: true
-  port: 443
-  server: italy.astroapps.io
-  type: ss
-  udp: true
-- name: 🇨🇭 CH 005 | ⬇️ 22.16MB/s
-  password: 0ab6c98dae3b48e8b9c4a776b6c9c19a
-  port: 443
-  server: 208.69.78.33
-  sni: courses.yourultimateprofessionalcareerhub.com
-  type: trojan
-- alpn:
-  - h2
-  client-fingerprint: chrome
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: 2e7d5cf6a7e50c564bfddf62c87e02e1
-  name: 🇳🇱 NL 030 | ⬇️ 21.41MB/s
-  network: grpc
-  port: 443
-  server: 98.98.132.110
-  servername: a1116.afl7t8f.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: e2f43a75-e683-4d09-96e8-3ad1f2e57100
-- name: 🇷🇴 RO 001 | ⬇️ 21.22MB/s
-  password: None
-  port: 9002
-  server: 193.176.84.24
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- cipher: aes-256-gcm
-  name: 🇸🇬 SG 005 | ⬇️ 21.17MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 149.88.107.47
-  type: ss
-- alpn:
-  - h2
-  - http/1.1
-  client-fingerprint: edge
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: grpc
-  name: 🇬🇧 GB 010 | ⬇️ 20.88MB/s
-  network: grpc
-  port: 443
-  server: 216.86.70.132
-  servername: nl18.plus-hit.ru
-  tls: true
-  type: vless
-  udp: true
-  uuid: 379b1f28-8109-43bc-9317-8f1f24cdc85b
-- client-fingerprint: firefox
-  grpc-opts:
-    grpc-service-name: 138-124-86-230-sslip-io
-  name: 🇸🇪 SE 003 | ⬇️ 20.83MB/s
-  network: grpc
-  port: 48115
-  server: 138.124.86.230
-  servername: 138-124-86-230.sslip.io
-  tls: true
-  type: vless
-  uuid: b2fe1fa4-6a79-4938-a3f4-63b54ae7f16b
-- cipher: aes-256-gcm
-  name: 🇨🇭 CH 006 | ⬇️ 19.04MB/s
-  password: ZRpgaBeGxtENIXgvhpkZBKz9GnWRS2dYcx9O+a2iwN4=
-  port: 19999
-  server: 79.127.184.104
-  type: ss
-- client-fingerprint: chrome
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: 50a5f706c8ea4433838a207d435fbf031b008a9a
-  name: 🇳🇱 NL 031 | ⬇️ 17.93MB/s
-  network: grpc
-  port: 443
-  server: 51.194.118.38
-  servername: a1259.ve8nzuk.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: 7ff1e7e1-2b5a-4e53-ae77-1516f9eb7754
-- auth: 030e421e-9317-4cb8-8fbe-a07a565ad3db
-  down: ''
-  fingerprint: ''
-  name: 🇳🇱 NL 032 | ⬇️ 17.50MB/s
-  obfs: ''
-  obfs-password: ''
-  password: 030e421e-9317-4cb8-8fbe-a07a565ad3db
-  port: 443
-  server: 4f070970.con.metricdraft.tech
-  skip-cert-verify: true
-  sni: 4f070970.con.metricdraft.tech
-  tls: false
-  type: hysteria2
-  up: ''
-- alpn:
-  - h2
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: mobile.api.Event
-  name: 🇷🇺 RU 002 | ⬇️ 16.79MB/s
-  network: grpc
-  port: 443
-  server: vps3.nemnogogo.com
-  servername: vps3.nemnogogo.com
-  tls: true
-  type: vless
-  udp: true
-  uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇯🇵 JP 003 | ⬇️ 16.48MB/s
+  name: 🇯🇵_日本 (19)
   port: 443
   reality-opts:
     public-key: dtNeCNIcRgs8_EKIJg_oTJEsiA8KBU-QaE1yVpkoX0I
@@ -991,54 +792,180 @@ proxies:
   type: vless
   udp: true
   uuid: f45ccbaa-521d-4d3a-a4e7-13a3094f2b90
-- alpn:
-  - h2
-  client-fingerprint: firefox
-  grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: mobile.api.Event
-  name: 🇷🇺 RU 003 | ⬇️ 16.41MB/s
-  network: grpc
+- client-fingerprint: chrome
+  name: 🇹🇼 台湾2 @ripaojiedian
+  password: 0324fbc29561
   port: 443
-  server: leviko-ru0640.shopingggg.ir
-  servername: vps3.nemnogogo.com
+  server: a54ge.df6h451rh.xin
+  skip-cert-verify: true
+  sni: docs.microsoft.com
+  type: anytls
+  udp: true
+- name: 🇯🇵JP_1 2.5MB/s
+  password: EGJDy5Kg
+  port: 42000
+  server: 103.248.150.50
+  skip-cert-verify: true
+  type: socks5
+  username: paZFN3JA
+- name: 🇯🇵JP_2 2.1MB/s
+  password: J5rM2xL9
+  port: 42000
+  server: 103.248.150.238
+  skip-cert-verify: true
+  type: socks5
+  username: tB4vN7qP
+- name: 🇹🇭TH_1 1.4MB/s
+  password: VAwyJQX0iKMJiyCw5UVK9wGH
+  port: 42000
+  server: 103.14.164.202
+  skip-cert-verify: true
+  type: socks5
+  username: route164JIa2CBPxfy
+- name: 🇹🇼 🇨🇳 台湾 TWN
+  password: 0324fbc29561
+  port: 443
+  server: mfjh645drfj1dr6j5.df6h451rh.xin
+  skip-cert-verify: true
+  sni: px.ads.linkedin.com
+  type: anytls
+  udp: true
+- name: 🇺🇸US_4 3.0MB/s
+  password: l1tlrdx52v
+  port: 62000
+  server: 66.253.2.69
+  type: socks5
+  username: u_rb1dba2
+- name: 🇷🇴RO_4 1.2MB/s
+  port: 9002
+  server: 193.176.84.19
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- client-fingerprint: chrome
+  name: 🇺🇸_美国 (41)
+  port: 8443
+  reality-opts:
+    public-key: 4g6gX0ueJap7pY_iTDx23h6bzo3KIOTcFzP1Uacn0QA
+    short-id: 4ad2e4e660550e43
+  server: 156.229.167.109
+  servername: github.githubassets.com
+  skip-cert-verify: true
+  sni: github.githubassets.com
   tls: true
   type: vless
   udp: true
-  uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
+  uuid: eb8c97f7-a154-4442-91b0-54c0d055ad0b
 - client-fingerprint: firefox
   grpc-opts:
-    grpc-mode: gun
-    grpc-service-name: mobile.api.Event
-  name: 🇷🇺 RU 004 | ⬇️ 16.37MB/s
+    grpc-service-name: 138-124-86-230-sslip-io
+  name: 🇸🇪[www.v2nodes.com] vless-SE#3
   network: grpc
-  port: 443
-  server: 201.24.116.192
-  servername: vps3.nemnogogo.com
+  port: 48115
+  server: 138.124.86.230
+  servername: 138-124-86-230.sslip.io
   tls: true
   type: vless
-  udp: true
-  uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
+  uuid: b2fe1fa4-6a79-4938-a3f4-63b54ae7f16b
+- name: 🇷🇴RO_3 3.8MB/s
+  password: 'null'
+  port: 9002
+  server: 193.176.84.26
+  skip-cert-verify: true
+  tls: true
+  type: http
+  username: 'null'
 - cipher: chacha20-ietf-poly1305
-  name: 🇿🇦 ZA 001 | ⬇️ 16.26MB/s
+  name: 🇧🇬BG_1 3.5MB/s
+  password: 5acf789dd7c2bf40a670a342800eff57003c2b164c3c8f53
+  plugin: v2ray-plugin
+  plugin-opts:
+    host: bulgaria.astroapps.io
+    mode: websocket
+    path: /6318c86175d20088b16c98a7
+    tls: true
+  port: 443
+  server: bulgaria.astroapps.io
+  type: ss
+  udp: true
+- name: FR_speednode_0007
+  port: 6103
+  server: 87.98.174.157
+  skip-cert-verify: true
+  tls: true
+  type: http
+  udp: true
+- cipher: chacha20-ietf-poly1305
+  name: 🇿🇦[www.v2nodes.com] ss-ZA-13
+  password: aduB9HGxQHjA2SBMRjkHX6
+  port: 443
+  server: 102.37.156.224
+  type: ss
+- cipher: chacha20-ietf-poly1305
+  name: 🇿🇦[www.v2nodes.com] ss-ZA-13#2
   password: Xsy8Ox4yOV3xLlpxtjzs3X
   port: 16233
   server: 102.133.165.160
   type: ss
-- cipher: aes-256-gcm
-  name: 🇯🇵 JP 004 | ⬇️ 16.20MB/s
-  password: '123456'
-  port: 5555
-  server: 47.245.54.15
+- client-fingerprint: chrome
+  grpc-opts:
+    grpc-service-name: 50a5f706c8ea4433838a207d435fbf031b008a9a
+  name: 🇳🇱[www.v2nodes.com] vless-NL
+  network: grpc
+  port: 443
+  server: 51.194.118.38
+  servername: a1259.ve8nzuk.com
+  tls: true
+  type: vless
+  uuid: 7ff1e7e1-2b5a-4e53-ae77-1516f9eb7754
+- name: 🇷🇴RO_19 1.2MB/s
+  port: 9002
+  server: 193.176.84.25
   skip-cert-verify: true
-  tls: false
-  type: ss
+  sni: www.bing.com
+  tls: true
+  type: http
+- name: 🇷🇴RO_10 3.4MB/s
+  port: 9002
+  server: 193.176.84.37
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- name: 🇷🇴RO_9 3.4MB/s
+  port: 9002
+  server: 193.176.84.31
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- name: RO_speednode_0024
+  password: None
+  port: 9002
+  server: 193.176.84.24
+  skip-cert-verify: true
+  tls: true
+  type: http
   udp: true
+- name: 🇷🇴RO_16 1.1MB/s
+  port: 9002
+  server: 193.176.84.23
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- cipher: aes-256-gcm
+  name: '🏳[www.v2nodes.com] ss- #8'
+  password: itzvpn@321
+  port: 8388
+  server: 57.131.27.21
+  type: ss
 - client-fingerprint: firefox
   grpc-opts:
     grpc-mode: gun
     grpc-service-name: mobile.api.Event
-  name: 🇷🇺 RU 005 | ⬇️ 15.95MB/s
+  name: 🇷🇺 俄罗斯 RUS
   network: grpc
   port: 443
   server: 201.51.12.98
@@ -1047,28 +974,59 @@ proxies:
   type: vless
   udp: true
   uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
-- name: 🇺🇸 US 011 | ⬇️ 15.22MB/s
-  network: ws
-  port: 80
-  server: 188.114.99.137
-  tls: false
-  type: vless
-  uuid: c762af05-2e92-4133-bc30-8cf45dd40a28
-  ws-opts:
-    headers:
-      Host: suh.cryptofront.uk
-    path: /
-- name: 🇹🇭 TH 001 | ⬇️ 15.07MB/s
-  password: VAwyJQX0iKMJiyCw5UVK9wGH
-  port: 42000
-  server: 103.14.164.202
+- name: 🇮🇩ID_1 1.8MB/s
+  password: APJ7RmY9
+  port: 62000
+  server: 202.155.99.32
   skip-cert-verify: true
   type: socks5
-  username: route164JIa2CBPxfy
+  username: gebHTLF6
+- name: 🇳🇱NL_9 1.3MB/s
+  port: 443
+  server: 89.150.35.94
+  skip-cert-verify: true
+  tls: true
+  type: http
+- name: 🇷🇴RO_7 3.3MB/s
+  port: 9002
+  server: 193.176.84.36
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+  udp: true
+- name: 🇷🇴RO_6 2.8MB/s
+  port: 9002
+  server: 193.176.84.35
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- name: 🇷🇴RO_12 1.1MB/s
+  port: 9002
+  server: 193.176.84.40
+  skip-cert-verify: true
+  tls: true
+  type: http
+- alpn:
+  - h2
+  client-fingerprint: firefox
+  grpc-opts:
+    grpc-mode: gun
+    grpc-service-name: mobile.api.Event
+  name: 🇷🇺 俄罗斯 RUS 3
+  network: grpc
+  port: 443
+  server: vps3.nemnogogo.com
+  servername: vps3.nemnogogo.com
+  tls: true
+  type: vless
+  udp: true
+  uuid: 38308ff1-5aa9-494f-a25a-0f2870d56b3e
 - client-fingerprint: random
   grpc-opts:
     grpc-service-name: grpc-ru
-  name: 🇷🇺 RU 006 | ⬇️ 14.25MB/s
+  name: 🇷🇺[www.v2nodes.com] vless-RU
   network: grpc
   port: 443
   server: xssite.webredirect.org
@@ -1076,25 +1034,36 @@ proxies:
   tls: true
   type: vless
   uuid: c90395e6-2140-47ad-a54d-9b166729d3ef
-- client-fingerprint: chrome
-  name: 🇨🇳 TW 002 | ⬇️ 14.18MB/s
-  password: 0324fbc29561
-  port: 443
-  server: a54ge.df6h451rh.xin
+- name: 🇮🇩ID_2 1.6MB/s
+  password: APJ7RmY9
+  port: 62000
+  server: 202.155.99.212
   skip-cert-verify: true
-  sni: docs.microsoft.com
-  type: anytls
-  udp: true
-- name: 🇺🇸 US 012 | ⬇️ 13.40MB/s
-  password: exaxgqkKkd0TAMrCxeonWg==
-  port: 443
-  server: usgp1-cdn-route.couldflare-cdn.com
+  type: socks5
+  username: gebHTLF6
+- name: 🇷🇴RO_13 1.7MB/s
+  port: 9002
+  server: 193.176.84.34
+  skip-cert-verify: true
+  sni: www.bing.com
   tls: true
   type: http
-  udp: true
-  username: mrwdfNTD8M79LCukCieldrqZWqs=
+- name: 🇷🇴RO_17 3.4MB/s
+  port: 9002
+  server: 193.176.84.17
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
+- name: 🇷🇴RO_18 3.5MB/s
+  port: 9002
+  server: 193.176.84.20
+  skip-cert-verify: true
+  sni: www.bing.com
+  tls: true
+  type: http
 - client-fingerprint: chrome
-  name: 🇨🇳 TW 003 | ⬇️ 12.16MB/s
+  name: 🇹🇼 🇨🇳 台湾 TWN 2
   password: 2902c46c8493
   port: 443
   server: rtifgjdr.df6h451rh.xin
@@ -1102,24 +1071,51 @@ proxies:
   sni: docs.microsoft.com
   type: anytls
   udp: true
-- client-fingerprint: chrome
-  name: 🇭🇰 HK 001 | ⬇️ 12.03MB/s
-  password: 2902c46c8493
-  port: 443
-  server: ibsdsf.df6h451rh.xin
-  skip-cert-verify: true
-  sni: docs.microsoft.com
-  type: anytls
-  udp: true
-- name: 🏳️ BY 001 | ⬇️ 11.28MB/s
+- name: 🇧🇾[www.v2nodes.com] vless-BY#2
   port: 10443
   server: 178.172.227.124
   tls: false
   type: vless
   uuid: 1af36694-b548-4b18-89a0-bc076eab4ed7
+- cipher: aes-256-gcm
+  name: 🇷🇺[www.v2nodes.com] ss-RU-16
+  password: 5mKjXAGrliIAlYwWDeFzkCEMIgQdFQLe
+  port: 18443
+  server: 194.87.69.12
+  type: ss
+- name: ️⃣65@oneclickvpnkeys
+  obfs: salamander
+  obfs-password: HysteriaHowdy
+  password: HowdyHysteria2023w0W
+  port: 8443
+  server: hysteria.udpgw.com
+  skip-cert-verify: true
+  sni: sni-here.com#
+  tls: false
+  type: hysteria2
+- name: 🇳🇱NL_3 1.9MB/s
+  password: 'null'
+  port: 443
+  server: 103.97.88.154
+  skip-cert-verify: true
+  tls: true
+  type: http
+  username: 'null'
+- cipher: aes-256-gcm
+  name: '🏳[www.v2nodes.com] ss- #1'
+  password: zDNVedRFPQexG9v
+  port: 445
+  server: 51.222.141.125
+  type: ss
+- name: 🇺🇸US_12 2.3MB/s
+  password: test123
+  port: 1080
+  server: 104.168.249.36
+  type: socks5
+  username: test123
 - client-fingerprint: chrome
   flow: xtls-rprx-vision
-  name: 🇺🇸 US 013 | ⬇️ 10.60MB/s
+  name: 🇸🇨_塞舌尔
   port: 59539
   reality-opts:
     public-key: R6mPqCsjZMWauci4LHw7Qp1LGKmBd-sxMXplyOn9bSQ
@@ -1132,111 +1128,62 @@ proxies:
   udp: true
   uuid: 30572b57-f5ab-4eb8-82d4-a24d399b99f6
 - cipher: aes-256-gcm
-  name: 🇨🇦 CA 009 | ⬇️ 9.32MB/s
-  password: zDNVedRFPQexG9v
-  port: 445
-  server: 51.222.141.125
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇨🇦 CA 010 | ⬇️ 8.58MB/s
-  password: zDNVedRFPQexG9v
-  port: 445
-  server: 51.222.12.127
-  type: ss
-- name: 🇸🇬 SG 006 | ⬇️ 8.55MB/s
-  password: 5807f1c4-b50e-4ec0-8d01-274045da0da5
-  port: 43120
-  server: dddz-1-x.473221.xyz
-  skip-cert-verify: true
-  sni: v1-dy.ixigua.com
-  type: anytls
-  udp: true
-- name: 🇰🇷 KR 001 | ⬇️ 8.06MB/s
-  port: 1080
-  server: 59.11.209.162
-  skip-cert-verify: true
-  type: socks5
-- client-fingerprint: firefox
-  name: 🇷🇺 RU 007 | ⬇️ 8.01MB/s
-  network: ws
-  port: 8450
-  server: 213.183.45.23
-  servername: fonts.plumstatic.com
-  tls: true
-  type: vless
-  uuid: eb62cabf-5901-403a-aa0c-b1d9ed1b346d
-  ws-opts:
-    path: /ws
-- cipher: aes-256-gcm
-  name: 🇯🇵 JP 005 | ⬇️ 7.76MB/s
-  password: '123456'
-  port: 5555
-  server: 47.74.49.154
-  skip-cert-verify: true
-  tls: false
-  type: ss
-  udp: true
-- name: FR_speednode_0007
-  port: 6103
-  server: 87.98.174.157
-  skip-cert-verify: true
-  tls: true
-  type: http
-  udp: true
-- name: 🇮🇳[www.v2nodes.com] vless-IN#2
-  network: ws
-  port: 14430
-  server: 13.140.56.100
-  tls: false
-  type: vless
-  uuid: 68512eac-cd53-4de3-8d1e-08f6e04af1a9
-  ws-opts:
-    headers:
-      Host: 13.140.56.100
-    path: /vless
-- cipher: aes-256-gcm
-  name: 🇨🇦[www.v2nodes.com] ss-CA-15#4
-  password: kDWvXYZoTBcGkC4
-  port: 8882
-  server: 51.222.136.236
-  type: ss
-- cipher: aes-256-gcm
-  name: 🇬🇧 GB 011 | ⬇️ 5.11MB/s
+  name: 🇬🇧[www.v2nodes.com] ss-GB-12
   password: RexnBgU7EV5ADxG
   port: 7001
   server: 94.156.250.148
   type: ss
-- client-fingerprint: firefox
-  name: '🏳[www.v2nodes.com] vless- #6'
+- alpn:
+  - http/1.1
+  client-fingerprint: firefox
+  name: '🇮🇳 印度 IND #1'
   network: ws
-  port: 8444
-  server: 213.183.45.23
-  servername: media.plumstatic.com
-  tls: true
-  type: vless
-  uuid: eb62cabf-5901-403a-aa0c-b1d9ed1b346d
-  ws-opts:
-    path: /ws
-- cipher: aes-256-gcm
-  name: 🇫🇮[www.v2nodes.com] ss-FI-16
-  password: DgMywXKqojHXeuXY8hOJaYGPFcjweCIJeD5cdg/cUUY=
-  port: 40647
-  server: 213.176.92.148
-  type: ss
-- flow: xtls-rprx-vision
-  name: 🇰🇿_哈萨克斯坦
   port: 8443
-  server: one.alpheratzz.org
-  servername: api-6b04608f.adhil.uk
-  skip-cert-verify: true
-  sni: api-6b04608f.adhil.uk
+  server: 147.93.171.8
+  servername: 147-93-171-8.sslip.io
   tls: true
   type: vless
   udp: true
-  uuid: 0173d52e-8e1b-4681-831e-11529677b72f
+  uuid: 591e7de6-f2dd-4ff9-ae21-8e00d5affa2a
+  ws-opts:
+    headers:
+      Host: 147-93-171-8.sslip.io
+    path: /vpn-live
+- name: 🇺🇸US_11 1.0MB/s
+  password: ppyefe3k
+  port: 62000
+  server: 23.230.200.176
+  skip-cert-verify: true
+  type: socks5
+  username: u1f0cijj
+- cipher: chacha20-ietf-poly1305
+  name: 🇦🇱[www.v2nodes.com] ss-AL-14
+  password: LNc9h/4NA9Q6ZHNeYHoT5X/fR9aoE9KQR1SWhVDHBog=
+  port: 43558
+  server: 130.49.189.158
+  type: ss
+- client-fingerprint: chrome
+  name: 🇸🇪[www.v2nodes.com] vless-SE
+  network: ws
+  port: 2053
+  server: ws.dhafhdtjdti.site
+  servername: ws.dhafhdtjdti.site
+  tls: true
+  type: vless
+  uuid: 9f749472-c636-4c5a-af51-7f8feefaac81
+  ws-opts:
+    headers:
+      Host: ws.dhafhdtjdti.site
+    path: /
+- cipher: aes-256-gcm
+  name: 🇨🇦[www.v2nodes.com] ss-CA-15#3
+  password: kDWvXYZoTBcGkC4
+  port: 8882
+  server: 51.222.136.236
+  type: ss
 - client-fingerprint: firefox
   flow: xtls-rprx-vision
-  name: 🏳️ NE 001 | ⬇️ 3.44MB/s
+  name: 🇸🇨_塞舌尔 (2)
   port: 443
   reality-opts:
     public-key: VZS639V1i-35g7VXb9EoTYL-Srm7858sxcvFAunncmA
@@ -1249,150 +1196,164 @@ proxies:
   type: vless
   udp: true
   uuid: 4201786b-d99b-4147-a5f0-20d47acddb81
+- client-fingerprint: firefox
+  name: 🇸🇨_塞舌尔 (5)
+  port: 443
+  reality-opts:
+    public-key: l-GzBDuNuhnjxoRlZqKvT7jAt_sbVAxhGFsAttO5kXs
+    short-id: 361d0dd59c70516f
+  server: 196.196.148.85
+  servername: 5d0319t.nl7.h1clayd.click
+  skip-cert-verify: true
+  sni: 5d0319t.nl7.h1clayd.click
+  tls: true
+  type: vless
+  udp: true
+  uuid: cda0862a-0f87-4be9-8ed8-1d0c9e382839
 proxy-groups:
 - name: 公共节点
   type: select
   proxies:
-  - 🇨🇦 CA 001 | ⬇️ 399.19MB/s
-  - 🇨🇦 CA 002 | ⬇️ 355.91MB/s
-  - 🇨🇦 CA 003 | ⬇️ 199.17MB/s
-  - 🇨🇦 CA 004 | ⬇️ 178.84MB/s
-  - 🇨🇦 CA 005 | ⬇️ 166.98MB/s
-  - 🇨🇦 CA 006 | ⬇️ 139.34MB/s
-  - 🇨🇦 CA 007 | ⬇️ 108.18MB/s
-  - 🇺🇸 US 001 | ⬇️ 97.25MB/s
-  - 🇺🇸 US 002 | ⬇️ 85.44MB/s
-  - 🇺🇸 US 003 | ⬇️ 82.28MB/s
-  - 🇺🇸 US 004 | ⬇️ 81.98MB/s
-  - 🇺🇸 US 005 | ⬇️ 81.32MB/s
-  - 🇺🇸 US 006 | ⬇️ 80.45MB/s
-  - 🇺🇸 US 007 | ⬇️ 76.39MB/s
-  - 🇺🇸 US 008 | ⬇️ 76.19MB/s
-  - 🇺🇸 US 009 | ⬇️ 62.84MB/s
-  - 🇬🇧 GB 001 | ⬇️ 58.96MB/s
-  - 🇺🇸 US 010 | ⬇️ 57.34MB/s
-  - 🇬🇧 GB 002 | ⬇️ 57.26MB/s
-  - 🇩🇪 DE 001 | ⬇️ 51.30MB/s
-  - 🇬🇧 GB 003 | ⬇️ 51.07MB/s
-  - 🇳🇱 NL 001 | ⬇️ 48.77MB/s
-  - 🇳🇱 NL 002 | ⬇️ 48.12MB/s
-  - 🇳🇱 NL 003 | ⬇️ 47.98MB/s
-  - 🇩🇪 DE 002 | ⬇️ 47.62MB/s
-  - 🇬🇧 GB 004 | ⬇️ 47.55MB/s
-  - 🇳🇱 NL 004 | ⬇️ 47.52MB/s
-  - 🇬🇧 GB 005 | ⬇️ 47.32MB/s
-  - 🇳🇱 NL 005 | ⬇️ 47.32MB/s
-  - 🇳🇱 NL 006 | ⬇️ 46.64MB/s
-  - 🇮🇪 IE 001 | ⬇️ 46.10MB/s
-  - 🇮🇹 IT 001 | ⬇️ 45.15MB/s
-  - 🇮🇹 IT 002 | ⬇️ 45.12MB/s
-  - 🇮🇹 IT 003 | ⬇️ 44.83MB/s
-  - 🇮🇹 IT 004 | ⬇️ 44.82MB/s
-  - 🇮🇪 IE 002 | ⬇️ 44.69MB/s
-  - 🇮🇹 IT 005 | ⬇️ 44.67MB/s
-  - 🇮🇹 IT 006 | ⬇️ 44.60MB/s
-  - 🇮🇹 IT 007 | ⬇️ 44.52MB/s
-  - 🇮🇹 IT 008 | ⬇️ 44.38MB/s
-  - 🇮🇹 IT 009 | ⬇️ 44.34MB/s
-  - 🇮🇹 IT 010 | ⬇️ 44.14MB/s
-  - 🇬🇧 GB 006 | ⬇️ 43.57MB/s
-  - 🇳🇱 NL 007 | ⬇️ 43.54MB/s
-  - 🇬🇧 GB 007 | ⬇️ 43.26MB/s
-  - 🇳🇱 NL 008 | ⬇️ 43.17MB/s
-  - 🇳🇱 NL 009 | ⬇️ 43.08MB/s
-  - 🇳🇱 NL 010 | ⬇️ 43.05MB/s
-  - 🇳🇱 NL 011 | ⬇️ 42.84MB/s
-  - 🇧🇪 BE 001 | ⬇️ 42.84MB/s
-  - 🇳🇱 NL 012 | ⬇️ 42.58MB/s
-  - 🇳🇱 NL 013 | ⬇️ 42.46MB/s
-  - 🇬🇧 GB 008 | ⬇️ 41.97MB/s
-  - 🇳🇱 NL 014 | ⬇️ 41.82MB/s
-  - 🇳🇱 NL 015 | ⬇️ 41.40MB/s
-  - 🇬🇧 GB 009 | ⬇️ 41.40MB/s
-  - 🇮🇹 IT 011 | ⬇️ 40.98MB/s
-  - 🇳🇱 NL 016 | ⬇️ 40.65MB/s
-  - 🇫🇷 FR 001 | ⬇️ 40.34MB/s
-  - 🇪🇸 ES 001 | ⬇️ 39.98MB/s
-  - 🇫🇷 FR 002 | ⬇️ 39.96MB/s
-  - 🇨🇭 CH 001 | ⬇️ 39.46MB/s
-  - 🇳🇱 NL 017 | ⬇️ 38.79MB/s
-  - 🇩🇪 DE 003 | ⬇️ 38.68MB/s
-  - 🇨🇿 CZ 001 | ⬇️ 38.59MB/s
-  - 🇨🇭 CH 002 | ⬇️ 38.52MB/s
-  - 🇫🇷 FR 003 | ⬇️ 38.18MB/s
-  - 🇫🇷 FR 004 | ⬇️ 38.03MB/s
-  - 🇳🇱 NL 018 | ⬇️ 37.99MB/s
-  - 🇫🇷 FR 005 | ⬇️ 37.34MB/s
-  - 🇨🇭 CH 003 | ⬇️ 37.26MB/s
-  - 🇩🇪 DE 004 | ⬇️ 37.12MB/s
-  - 🇳🇱 NL 019 | ⬇️ 37.09MB/s
-  - 🇫🇷 FR 006 | ⬇️ 37.01MB/s
-  - 🇳🇱 NL 020 | ⬇️ 36.89MB/s
-  - 🇳🇱 NL 021 | ⬇️ 36.79MB/s
-  - 🇯🇵 JP 001 | ⬇️ 36.59MB/s
-  - 🇯🇵 JP 002 | ⬇️ 36.52MB/s
-  - 🇪🇪 EE 001 | ⬇️ 36.42MB/s
-  - 🇩🇪 DE 005 | ⬇️ 36.06MB/s
-  - 🇩🇪 DE 006 | ⬇️ 35.84MB/s
-  - 🇳🇱 NL 022 | ⬇️ 35.80MB/s
-  - 🇪🇸 ES 002 | ⬇️ 35.60MB/s
-  - 🇳🇱 NL 023 | ⬇️ 35.52MB/s
-  - 🇳🇱 NL 024 | ⬇️ 35.48MB/s
-  - 🇳🇱 NL 025 | ⬇️ 35.11MB/s
-  - 🇳🇱 NL 026 | ⬇️ 35.07MB/s
-  - 🇸🇪 SE 001 | ⬇️ 35.05MB/s
-  - 🇨🇭 CH 004 | ⬇️ 34.73MB/s
-  - 🇳🇱 NL 027 | ⬇️ 34.17MB/s
-  - 🇳🇱 NL 028 | ⬇️ 32.92MB/s
-  - 🇸🇪 SE 002 | ⬇️ 31.50MB/s
-  - 🇳🇱 NL 029 | ⬇️ 30.04MB/s
-  - 🇮🇹 IT 012 | ⬇️ 28.85MB/s
-  - 🇧🇬 BG 001 | ⬇️ 28.02MB/s
-  - 🇨🇳 TW 001 | ⬇️ 27.07MB/s
-  - 🇷🇺 RU 001 | ⬇️ 26.14MB/s
-  - 🇸🇬 SG 001 | ⬇️ 25.47MB/s
-  - 🇸🇬 SG 002 | ⬇️ 24.32MB/s
-  - 🇸🇬 SG 003 | ⬇️ 23.47MB/s
-  - 🇸🇬 SG 004 | ⬇️ 23.11MB/s
-  - 🇨🇦 CA 008 | ⬇️ 22.41MB/s
-  - 🇨🇭 CH 005 | ⬇️ 22.16MB/s
-  - 🇳🇱 NL 030 | ⬇️ 21.41MB/s
-  - 🇷🇴 RO 001 | ⬇️ 21.22MB/s
-  - 🇸🇬 SG 005 | ⬇️ 21.17MB/s
-  - 🇬🇧 GB 010 | ⬇️ 20.88MB/s
-  - 🇸🇪 SE 003 | ⬇️ 20.83MB/s
-  - 🇨🇭 CH 006 | ⬇️ 19.04MB/s
-  - 🇳🇱 NL 031 | ⬇️ 17.93MB/s
-  - 🇳🇱 NL 032 | ⬇️ 17.50MB/s
-  - 🇷🇺 RU 002 | ⬇️ 16.79MB/s
-  - 🇯🇵 JP 003 | ⬇️ 16.48MB/s
-  - 🇷🇺 RU 003 | ⬇️ 16.41MB/s
-  - 🇷🇺 RU 004 | ⬇️ 16.37MB/s
-  - 🇿🇦 ZA 001 | ⬇️ 16.26MB/s
-  - 🇯🇵 JP 004 | ⬇️ 16.20MB/s
-  - 🇷🇺 RU 005 | ⬇️ 15.95MB/s
-  - 🇺🇸 US 011 | ⬇️ 15.22MB/s
-  - 🇹🇭 TH 001 | ⬇️ 15.07MB/s
-  - 🇷🇺 RU 006 | ⬇️ 14.25MB/s
-  - 🇨🇳 TW 002 | ⬇️ 14.18MB/s
-  - 🇺🇸 US 012 | ⬇️ 13.40MB/s
-  - 🇨🇳 TW 003 | ⬇️ 12.16MB/s
-  - 🇭🇰 HK 001 | ⬇️ 12.03MB/s
-  - 🏳️ BY 001 | ⬇️ 11.28MB/s
-  - 🇺🇸 US 013 | ⬇️ 10.60MB/s
-  - 🇨🇦 CA 009 | ⬇️ 9.32MB/s
-  - 🇨🇦 CA 010 | ⬇️ 8.58MB/s
-  - 🇸🇬 SG 006 | ⬇️ 8.55MB/s
-  - 🇰🇷 KR 001 | ⬇️ 8.06MB/s
-  - 🇷🇺 RU 007 | ⬇️ 8.01MB/s
-  - 🇯🇵 JP 005 | ⬇️ 7.76MB/s
+  - 🇨🇦 CA 001 | ⬇️ 357.86MB/s
+  - 🇨🇦 CA 002 | ⬇️ 286.91MB/s
+  - 🇺🇸 US 001 | ⬇️ 122.97MB/s
+  - 🇺🇸 US 002 | ⬇️ 118.84MB/s
+  - 🇺🇸 US 003 | ⬇️ 113.28MB/s
+  - 🇺🇸 US 004 | ⬇️ 112.84MB/s
+  - 🇺🇸 US 005 | ⬇️ 112.71MB/s
+  - 🇺🇸 US 006 | ⬇️ 112.52MB/s
+  - 🇺🇸 US 007 | ⬇️ 109.55MB/s
+  - 🇺🇸 US 008 | ⬇️ 71.25MB/s
+  - 🇯🇵 JP 001 | ⬇️ 51.01MB/s
+  - 🇨🇦 CA 003 | ⬇️ 43.89MB/s
+  - 🇬🇧 GB 001 | ⬇️ 38.37MB/s
+  - 🇳🇱 NL 001 | ⬇️ 35.45MB/s
+  - 🇳🇱 NL 002 | ⬇️ 35.36MB/s
+  - 🇳🇱 NL 003 | ⬇️ 34.82MB/s
+  - 🇳🇱 NL 004 | ⬇️ 34.80MB/s
+  - 🇳🇱 NL 005 | ⬇️ 34.65MB/s
+  - 🇳🇱 NL 006 | ⬇️ 34.56MB/s
+  - 🇬🇧 GB 002 | ⬇️ 34.50MB/s
+  - 🇳🇱 NL 007 | ⬇️ 34.32MB/s
+  - 🇸🇬 SG 001 | ⬇️ 33.42MB/s
+  - 🇬🇧 GB 003 | ⬇️ 32.96MB/s
+  - 🇮🇪 IE 001 | ⬇️ 32.96MB/s
+  - 🇮🇹 IT 001 | ⬇️ 31.96MB/s
+  - 🇮🇹 IT 002 | ⬇️ 31.94MB/s
+  - 🇮🇹 IT 003 | ⬇️ 31.84MB/s
+  - 🇬🇧 GB 004 | ⬇️ 31.83MB/s
+  - 🇳🇱 NL 008 | ⬇️ 31.82MB/s
+  - 🇮🇹 IT 004 | ⬇️ 31.74MB/s
+  - 🇬🇧 GB 005 | ⬇️ 31.72MB/s
+  - 🇮🇹 IT 005 | ⬇️ 31.62MB/s
+  - 🇮🇹 IT 006 | ⬇️ 31.52MB/s
+  - 🇮🇹 IT 007 | ⬇️ 31.51MB/s
+  - 🇮🇹 IT 008 | ⬇️ 31.50MB/s
+  - 🇧🇪 BE 001 | ⬇️ 30.97MB/s
+  - 🇮🇹 IT 009 | ⬇️ 30.97MB/s
+  - 🇮🇪 IE 002 | ⬇️ 30.80MB/s
+  - 🇳🇱 NL 009 | ⬇️ 30.68MB/s
+  - 🇲🇽 MX 001 | ⬇️ 30.43MB/s
+  - 🇨🇭 CH 001 | ⬇️ 30.10MB/s
+  - 🇸🇬 SG 002 | ⬇️ 30.02MB/s
+  - 🇯🇵 JP 002 | ⬇️ 29.99MB/s
+  - 🇲🇽 MX 002 | ⬇️ 29.97MB/s
+  - 🇪🇸 ES 001 | ⬇️ 29.84MB/s
+  - 🇮🇹IT_8 1.5MB/s
+  - 🇫🇷[www.v2nodes.com] ss-FR-16
+  - 🇫🇷[www.v2nodes.com] ss-FR-16#4
+  - 🇫🇷[www.v2nodes.com] ss-FR-16#2
+  - 🏳[www.v2nodes.com] ss-
+  - '🏳[www.v2nodes.com] ss- #12'
+  - NL_speednode_0018
+  - NL_speednode_0015
+  - NL_speednode_0016
+  - 🇳🇱NL_11 3.1MB/s
+  - NL_speednode_0019
+  - DE_speednode_0003
+  - 🇳🇱NL_8 3.5MB/s
+  - NL_speednode_0020
+  - 🇳🇱_荷兰 (21)
+  - 🇫🇷[www.v2nodes.com] ss-FR-16#6
+  - DK_speednode_0004
+  - 🇫🇷[www.v2nodes.com] ss-FR-16#5
+  - 🇬🇧[www.v2nodes.com] ss-GB-16#2
+  - 🇳🇱_荷兰 (13)
+  - 🇳🇱_荷兰 (11)
+  - 🇳🇱_荷兰 (19)
+  - 🇳🇱_荷兰 (18)
+  - '🏳[www.v2nodes.com] ss- #14'
+  - 🇳🇱_荷兰 (15)
+  - 🇳🇱_荷兰 (7)
+  - 🇫🇷[www.v2nodes.com] ss-FR-16#3
+  - 🇳🇱_荷兰 (14)
+  - 🇳🇱_荷兰 (22)
+  - 🇳🇱_荷兰 (12)
+  - 🇳🇱_荷兰 (10)
+  - 🇳🇱_荷兰 (9)
+  - 🇳🇱_荷兰 (23)
+  - 🇬🇧[www.v2nodes.com] ss-GB-16#3
+  - 🇩🇪DE_6 3.4MB/s
+  - 🇩🇪DE_8 4.5MB/s
+  - '🏳[www.v2nodes.com] ss- #2'
+  - 🇦🇱AL_1 1.9MB/s
+  - 🇳🇱NL_10 4.1MB/s
+  - 🇭🇰 香港 HKG 3
+  - 🇬🇧[www.v2nodes.com] ss-GB-16
+  - 🇰🇷[www.v2nodes.com] vless-KR
+  - 🇲🇰MK_1 3.0MB/s
+  - NN_speednode_0023
+  - 🇭🇰 香港 HKG 2
+  - 🇹🇼 台湾3 @ripaojiedian
+  - 🇯🇵_日本 (19)
+  - 🇹🇼 台湾2 @ripaojiedian
+  - 🇯🇵JP_1 2.5MB/s
+  - 🇯🇵JP_2 2.1MB/s
+  - 🇹🇭TH_1 1.4MB/s
+  - 🇹🇼 🇨🇳 台湾 TWN
+  - 🇺🇸US_4 3.0MB/s
+  - 🇷🇴RO_4 1.2MB/s
+  - 🇺🇸_美国 (41)
+  - 🇸🇪[www.v2nodes.com] vless-SE#3
+  - 🇷🇴RO_3 3.8MB/s
+  - 🇧🇬BG_1 3.5MB/s
   - FR_speednode_0007
-  - 🇮🇳[www.v2nodes.com] vless-IN#2
-  - 🇨🇦[www.v2nodes.com] ss-CA-15#4
-  - 🇬🇧 GB 011 | ⬇️ 5.11MB/s
-  - '🏳[www.v2nodes.com] vless- #6'
-  - 🇫🇮[www.v2nodes.com] ss-FI-16
-  - 🇰🇿_哈萨克斯坦
-  - 🏳️ NE 001 | ⬇️ 3.44MB/s
+  - 🇿🇦[www.v2nodes.com] ss-ZA-13
+  - 🇿🇦[www.v2nodes.com] ss-ZA-13#2
+  - 🇳🇱[www.v2nodes.com] vless-NL
+  - 🇷🇴RO_19 1.2MB/s
+  - 🇷🇴RO_10 3.4MB/s
+  - 🇷🇴RO_9 3.4MB/s
+  - RO_speednode_0024
+  - 🇷🇴RO_16 1.1MB/s
+  - '🏳[www.v2nodes.com] ss- #8'
+  - 🇷🇺 俄罗斯 RUS
+  - 🇮🇩ID_1 1.8MB/s
+  - 🇳🇱NL_9 1.3MB/s
+  - 🇷🇴RO_7 3.3MB/s
+  - 🇷🇴RO_6 2.8MB/s
+  - 🇷🇴RO_12 1.1MB/s
+  - 🇷🇺 俄罗斯 RUS 3
+  - 🇷🇺[www.v2nodes.com] vless-RU
+  - 🇮🇩ID_2 1.6MB/s
+  - 🇷🇴RO_13 1.7MB/s
+  - 🇷🇴RO_17 3.4MB/s
+  - 🇷🇴RO_18 3.5MB/s
+  - 🇹🇼 🇨🇳 台湾 TWN 2
+  - 🇧🇾[www.v2nodes.com] vless-BY#2
+  - 🇷🇺[www.v2nodes.com] ss-RU-16
+  - ️⃣65@oneclickvpnkeys
+  - 🇳🇱NL_3 1.9MB/s
+  - '🏳[www.v2nodes.com] ss- #1'
+  - 🇺🇸US_12 2.3MB/s
+  - 🇸🇨_塞舌尔
+  - 🇬🇧[www.v2nodes.com] ss-GB-12
+  - '🇮🇳 印度 IND #1'
+  - 🇺🇸US_11 1.0MB/s
+  - 🇦🇱[www.v2nodes.com] ss-AL-14
+  - 🇸🇪[www.v2nodes.com] vless-SE
+  - 🇨🇦[www.v2nodes.com] ss-CA-15#3
+  - 🇸🇨_塞舌尔 (2)
+  - 🇸🇨_塞舌尔 (5)
 rules:
 - MATCH,公共节点
