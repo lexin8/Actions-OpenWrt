@@ -753,7 +753,7 @@ jobs:
           	rest = $0
           	while (match(rest, /[A-Za-z0-9_][A-Za-z0-9_-]{1,40}\.local/)) {
           		h = substr(rest, RSTART, RLENGTH - 6)
-          		if (h !~ /^[0-9a-fA-F]{12}$/ && h != "local") print ip "\t" h
+          		if (h !~ /^_/ && h !~ /^[0-9a-fA-F]{12}$/ && h != "local") print ip "\t" h
           		rest = substr(rest, RSTART + RLENGTH)
           	}
           }' | while IFS="$(printf '\t')" read -r ip name; do
@@ -770,6 +770,8 @@ jobs:
           USE_PROCD=1
 
           start_service() {
+          	mkdir -p /var/run/oui-mdns
+          	rm -f /var/run/oui-mdns/* 2>/dev/null
           	procd_open_instance
           	procd_set_param command /usr/bin/oui-mdns-probe br-lan
           	procd_set_param respawn 3600 5 5
@@ -926,11 +928,22 @@ jobs:
           	[ -z "$M" ] && continue
           	S=$(suffix6 "$M")
 
+          	# 名字若只是编译期自动生成的（空/Unknown/Phone/厂商短名-6位），允许运行期用真实信息覆盖；
+          	# 用户自己起的名字不动。
+          	vendor_label=""
+          	if ! is_local_mac "$M"; then
+          		vendor_label=$(OUI_DB="$DB" oui_lookup -s "$M" 2>/dev/null)
+          		case "$vendor_label" in ""|Unknown) vendor_label="" ;; esac
+          	fi
+
           	need=0
           	case "$name" in
           		""|Unknown*|Phone*|unknown*) need=1 ;;
           	esac
-          	[ "$need" = 1 ] || continue
+          	if [ "$need" = 0 ] && [ -n "$vendor_label" ] && [ "$name" = "$vendor_label-$S" ]; then
+          		need=2
+          	fi
+          	[ "$need" = 0 ] && continue
 
           	label=""
 
@@ -938,12 +951,14 @@ jobs:
           	if [ -n "$ip" ]; then
           		label=$(sed -n 's/^NAME=//p' "$MD/$ip" 2>/dev/null | head -n 1)
           		label=$(clean "$label")
-          		case "$label" in local|Local|"") label="" ;; esac
+          		case "$label" in local|Local|_*|"") label="" ;; esac
           	fi
 
           	# 1b) DHCP 客户端自报的主机名（option 12，dnsmasq 事件里的 $4）
           	if [ -z "$label" ]; then
           		hn=$(fp_get "$M" HN)
+          		[ "$hn" = "$name" ] && hn=""
+          		[ -n "$vendor_label" ] && [ "$hn" = "$vendor_label-$S" ] && hn=""
           		case "$hn" in
           			""|\*|Unknown*|Phone*|unknown*|localhost|localhost.localdomain) ;;
           			*) label=$(clean "$hn") ;;
@@ -982,13 +997,18 @@ jobs:
           	# 7) 持久记录（重启后仍然沿用上次识别结果）
           	if [ -z "$label" ]; then
           		old=$(sed -n "s/^$M //p" "$NAMES" 2>/dev/null | head -n 1)
-          		[ -n "$old" ] && label=$(printf '%s' "$old" | sed 's/-[0-9a-f]\{6\}$//')
+          		if [ -n "$old" ]; then
+          			old=$(printf '%s' "$old" | sed 's/-[0-9a-f]\{6\}$//')
+          			case "$old" in ""|_*|local|Local|Unknown*|Phone*) ;; *) label=$old ;; esac
+          		fi
           	fi
 
           	[ -z "$label" ] && continue
           	label=$(clean "$label")
           	[ -z "$label" ] && continue
           	case "$label" in Unknown*) continue ;; esac
+          	# 原本就是厂商名，又没有抓到更具体的（主机名/型号/系统），就别来回改
+          	[ "$need" = 2 ] && [ "$label" = "$vendor_label" ] && continue
 
           	new="$label-$S"
           	[ ${#new} -gt 45 ] && new="$(printf '%s' "$label" | cut -c1-33)-$S"
