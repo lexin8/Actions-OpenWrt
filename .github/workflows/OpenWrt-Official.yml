@@ -342,7 +342,7 @@ jobs:
           rm -rf package/oui-vendor
           mkdir -p package/oui-vendor/files
 
-          cat > package/oui-vendor/files/Makefile << 'MKEOF'
+          cat > package/oui-vendor/Makefile << 'MKEOF'
           include $(TOPDIR)/rules.mk
 
           PKG_NAME:=oui-vendor
